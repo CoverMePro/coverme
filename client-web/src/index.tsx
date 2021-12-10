@@ -17,7 +17,7 @@ ReactDOM.render(
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/onboard" element={<Onboard />} />
-          <Route path="/dasbhoard" element={<Dashboard />}></Route>
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Navigate replace to="/login" />} />
         </Routes>
       </BrowserRouter>
