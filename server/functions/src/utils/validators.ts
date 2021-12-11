@@ -10,10 +10,6 @@ const isEmail = (email: string) => {
   return re.test(String(email).toLowerCase());
 };
 
-const minLength = (value: string, length: number) => {
-  return value.trim().length >= length;
-};
-
 export const validateLogin = (userLogin: IUserLogin) => {
   let errors: any = {};
 

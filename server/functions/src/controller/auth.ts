@@ -49,7 +49,6 @@ const signIn = (req: Request, res: Response) => {
     return res.status(400).json(errors);
   }
 
-  let userId: string;
   let token: string;
   return signInWithEmailAndPassword(
     firebaseAuth,
@@ -57,7 +56,6 @@ const signIn = (req: Request, res: Response) => {
     userLogin.password
   )
     .then((data) => {
-      userId = data.user.uid;
       return data.user.getIdToken();
     })
     .then((tokenId) => {

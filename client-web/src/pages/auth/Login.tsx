@@ -19,6 +19,8 @@ import logo from '../../images/cover-me-logo.png';
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState<Boolean>(false);
 
+  console.log(process.env);
+
   return (
     <Box
       sx={{
@@ -33,7 +35,7 @@ const Login: React.FC = () => {
     >
       <Paper
         sx={{
-          width: { xs: '80%', s: 300, md: 500 },
+          width: { xs: '80%', md: 400 },
           borderRadius: 5,
           display: 'flex',
           flexDirection: 'column',
