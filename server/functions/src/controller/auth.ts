@@ -9,6 +9,7 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   sendSignInLinkToEmail,
 } from 'firebase/auth';
 
@@ -16,13 +17,14 @@ import {
 const firebaseApp = initializeApp(config);
 const firebaseAuth = getAuth(firebaseApp);
 
-const registerUser = (req: Request, res: Response) => {
-  const { email, companyId } = req.body;
+const sendRegisterLink = (req: Request, res: Response) => {
+  console.log('HERE!');
+  const { email, firstName, lastName, company, role, position } = req.body;
   const actionCodeSettings = {
     // URL you want to redirect back to. The domain (www.example.com) for this
     // URL must be in the authorized domains list in the Firebase Console.
     // TODO: seturl
-    url: `http://localhost:3000/onboard?email=${email}company=${companyId}`,
+    url: `http://localhost:5001/coverme-47dc7/us-central1/api/auth/register-callback?email=${email}&firstName=${firstName}&lastName=${lastName}&company=${company}&role=${role}&position=${position}`,
     // This must be true.
     handleCodeInApp: true,
   };
@@ -30,13 +32,47 @@ const registerUser = (req: Request, res: Response) => {
   const auth = getAuth();
   sendSignInLinkToEmail(auth, email, actionCodeSettings)
     .then(() => {
+      console.log('EMAIL LINK SENT');
       return res.json({ message: 'Email link successful', email });
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
+      console.log('ERROR');
+      console.log(error);
 
-      return res.status(errorCode).json({ error: errorMessage });
+      return res.status(500).json({ error });
+    });
+};
+
+const registerUser = (req: Request, res: Response) => {
+  const { email, password, phoneNo } = req.body;
+
+  let token: string;
+  createUserWithEmailAndPassword(firebaseAuth, email, password)
+    .then((data) => {
+      return data.user.getIdToken();
+    })
+    .then((tokenId) => {
+      token = tokenId;
+
+      return db.doc(`/users/${email}`).update({ phoneNo });
+    })
+    .then(() => {
+      return db.doc(`/users/${email}`).get();
+    })
+    .then((userData) => {
+      const userInfo: IUserInfo = {
+        data: { ...userData.data() },
+        email: userData.id,
+      };
+      return res.json({
+        message: 'User created successfully!',
+        user: userInfo,
+        token: token,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
 
@@ -66,7 +102,7 @@ const signIn = (req: Request, res: Response) => {
     })
     .then((userData) => {
       const userInfo: IUserInfo = {
-        ...userData.data(),
+        data: { ...userData.data() },
         email: userData.id,
       };
 
@@ -87,7 +123,7 @@ const getUser = (req: Request, res: Response) => {
     .then((userData) => {
       if (userData.exists) {
         const userInfo: IUserInfo = {
-          ...userData.data(),
+          data: { ...userData.data() },
           email: userData.id,
         };
         return res.json(userInfo);
@@ -105,7 +141,7 @@ const updateUser = (req: Request, res: Response) => {
   let userInfo: IUserInfo = req.body;
 
   db.doc(`/users/${req.params.userId}`)
-    .update(userInfo)
+    .update(userInfo.data!)
     .then(() => {
       return res.json({ message: 'User updated successfully!' });
     })
@@ -115,9 +151,33 @@ const updateUser = (req: Request, res: Response) => {
     });
 };
 
+const registerCallback = (req: Request, res: Response) => {
+  console.log(req.query);
+  const { email, firstName, lastName, company, role, position } = req.query;
+
+  db.doc(`/users/${email}`)
+    .set({
+      firstName,
+      lastName,
+      company,
+      role,
+      position,
+    })
+    .then((result) => {
+      console.log('USER SET');
+      res.redirect(`http://localhost:3000/onboard?email=${email}`);
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 export default {
+  sendRegisterLink,
   registerUser,
   signIn,
   getUser,
   updateUser,
+  registerCallback,
 };

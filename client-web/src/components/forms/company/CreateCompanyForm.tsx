@@ -4,57 +4,43 @@ import { Paper, Box, TextField, Fab } from '@mui/material';
 
 import AddIcon from '@mui/icons-material/Add';
 import logo from '../../../images/cover-me-logo.png';
-import { IValidation } from 'models/Validation';
-import { isEmpty, isEmail } from 'utils/validation';
+import { ICompany } from 'models/Company';
+import axios from 'axios';
 
 const CreateCompanyForm: React.FC = () => {
   const [companyName, setCompanyName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-  const [errors, setErrors] = useState<IValidation>({
-    valid: false,
-    fields: {
-      name: '',
-      email: '',
-      phone: '',
-    },
-  });
+
+  const handleCompanyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCompanyName(event.target.value);
+  };
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(event.target.value);
+  };
 
   const handleCreateCompany = () => {
-    let result = true;
-    let fields = {
-      name: '',
-      email: '',
-      phone: '',
+    const newCompany: ICompany = {
+      name: companyName,
+      data: {
+        email: email,
+        phoneNo: phone,
+      },
     };
-    if (isEmpty(companyName)) {
-      result = false;
-      fields.name = 'Must not be empty.';
-    }
 
-    if (isEmpty(email)) {
-      result = false;
-      fields.email = 'Must not be empty.';
-    }
-
-    if (!isEmail(email)) {
-      result = false;
-      fields.email = 'Must not be a valid email.';
-    }
-
-    if (isEmpty(phone)) {
-      result = false;
-      fields.email = 'Must not be empty.';
-    }
-
-    setErrors({
-      valid: result,
-      fields: fields,
-    });
-
-    if (!result) {
-      return;
-    }
+    axios
+      .post(`${process.env.REACT_APP_SERVER_API}/company/create`, newCompany)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -84,6 +70,7 @@ const CreateCompanyForm: React.FC = () => {
             variant="outlined"
             type="text"
             label="Company Name"
+            onChange={handleCompanyChange}
           />
         </Box>
         <Box sx={{ mt: 2 }}>
@@ -92,6 +79,7 @@ const CreateCompanyForm: React.FC = () => {
             variant="outlined"
             type="email"
             label="Contact Email"
+            onChange={handleEmailChange}
           />
         </Box>
         <Box sx={{ mt: 2 }}>
@@ -100,6 +88,7 @@ const CreateCompanyForm: React.FC = () => {
             variant="outlined"
             type="phone"
             label="Contact Phone"
+            onChange={handlePhoneChange}
           />
         </Box>
         {/* <Box>
@@ -114,7 +103,7 @@ const CreateCompanyForm: React.FC = () => {
 					<TextField variant="outlined" type="text" label="Postal Code" />
 				</Box> */}
         <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Fab color="primary" aria-label="add">
+          <Fab color="primary" onClick={handleCreateCompany}>
             <AddIcon fontSize="large" />
           </Fab>
         </Box>

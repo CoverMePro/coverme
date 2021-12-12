@@ -9,27 +9,41 @@ const createCompany = (req: Request, res: Response) => {
     .get()
     .then((companyData) => {
       if (companyData.exists) {
+        console.log('ALREADY EXIST');
         return res
-          .status(400)
+          .status(403)
           .json({ error: 'Company with that name already exists' });
-      }
-
-      return db
-        .doc(`/companies/${company.name}`)
-        .set(company.data!)
-        .then(() => {
-          return res.status(201).json({
-            message: 'Company Created!',
+      } else {
+        return db
+          .doc(`/companies/${company.name}`)
+          .set(company.data!)
+          .then(() => {
+            return res.status(201).json({
+              message: 'Company Created!',
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
           });
-        })
-        .catch((err) => {
-          console.error(err);
-          return res.status(500).json({ error: err.code });
-        });
+      }
     })
     .catch((err) => {
       console.error(err);
       return res.status(500).json({ error: err.code });
+    });
+};
+
+const getAllCompanies = (req: Request, res: Response) => {
+  db.collection('/companies')
+    .get()
+    .then((companyData) => {
+      let companies: string[] = [];
+      companyData.forEach((data) => {
+        companies.push(data.id);
+      });
+
+      return res.json(companies);
     });
 };
 
@@ -70,5 +84,6 @@ const deleteCompany = (req: Request, res: Response) => {
 export default {
   createCompany,
   getCompany,
+  getAllCompanies,
   deleteCompany,
 };
