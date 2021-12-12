@@ -29,8 +29,7 @@ const sendRegisterLink = (req: Request, res: Response) => {
     handleCodeInApp: true,
   };
 
-  const auth = getAuth();
-  sendSignInLinkToEmail(auth, email, actionCodeSettings)
+  sendSignInLinkToEmail(firebaseAuth, email, actionCodeSettings)
     .then(() => {
       console.log('EMAIL LINK SENT');
       return res.json({ message: 'Email link successful', email });
@@ -173,6 +172,61 @@ const registerCallback = (req: Request, res: Response) => {
     });
 };
 
+const createCompany = (req: Request, res: Response) => {
+  const companyName = req.body.company.name;
+  const companyInfo = req.body.company.data;
+
+  const ownerEmail = req.body.owner.email;
+  const ownerInfo = req.body.owner.data;
+
+  db.doc(`/companies/${companyName}`)
+    .get()
+    .then((companyData) => {
+      if (companyData.exists) {
+        console.log('ALREADY EXIST');
+        return res
+          .status(403)
+          .json({ error: 'Company with that name already exists' });
+      } else {
+        return db
+          .doc(`/companies/${companyName}`)
+          .set(companyInfo)
+          .then(() => {
+            const actionCodeSettings = {
+              // URL you want to redirect back to. The domain (www.example.com) for this
+              // URL must be in the authorized domains list in the Firebase Console.
+              // TODO: seturl
+              url: `http://localhost:5001/coverme-47dc7/us-central1/api/auth/register-callback?email=${ownerEmail}&firstName=${ownerInfo.firstName}&lastName=${ownerInfo.lastName}&company=${companyName}&role=${ownerInfo.role}&position=Manager`,
+              // This must be true.
+              handleCodeInApp: true,
+            };
+
+            sendSignInLinkToEmail(firebaseAuth, ownerEmail, actionCodeSettings)
+              .then(() => {
+                return res.status(201).json({
+                  message: 'Company Created!',
+                });
+              })
+              .catch((error) => {
+                console.log('ERROR');
+                console.log(error);
+
+                return res.status(500).json({ error });
+              });
+          })
+          .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+          });
+      }
+    })
+    .then()
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 export default {
   sendRegisterLink,
   registerUser,
@@ -180,4 +234,5 @@ export default {
   getUser,
   updateUser,
   registerCallback,
+  createCompany,
 };

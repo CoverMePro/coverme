@@ -9,5 +9,6 @@ router.get('/register-callback', authController.registerCallback);
 router.post('/signin', authController.signIn);
 router.get('/user/:id', authController.getUser);
 router.post('/user/:id', authController.updateUser);
+router.post('/create-company', authController.createCompany);
 
 export default router;

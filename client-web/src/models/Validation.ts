@@ -1,6 +1,11 @@
-export interface IValidation {
-  valid: boolean;
-  fields: {
-    [key: string]: string;
-  };
+export interface ICompanyFormInfo {
+  companyName: string;
+  companyEmail: string;
+  companyPhone: string;
+}
+
+export interface IOwnerFormInfo {
+  ownerFirstName: string;
+  ownerLastName: string;
+  ownerEmail: string;
 }
