@@ -16,5 +16,28 @@ export const theme = createTheme({
 		text: {
 			primary: '#2E2727'
 		}
+	},
+	typography: {
+		h1: {
+			fontSize: '38px'
+		},
+		h2: {
+			fontSize: '30px'
+		},
+		h3: {
+			fontSize: '24px'
+		},
+		h4: {
+			fontSize: '20px'
+		},
+		h5: {
+			fontSize: '18px'
+		},
+		body1: {
+			fontSize: '14px'
+		},
+		body2: {
+			fontSize: '12px'
+		}
 	}
 });
