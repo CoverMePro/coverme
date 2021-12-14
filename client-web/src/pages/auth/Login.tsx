@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFormik } from 'formik';
+
+import { useActions } from 'hooks/use-actions';
 
 import {
 	Box,
@@ -27,8 +29,11 @@ import axios from 'axios';
 const Login: React.FC = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 	const [isLogginIn, setIsLoggingIn] = useState<boolean>(false);
+	const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 	const [loginError, setLoginError] = useState<string | undefined>(undefined);
 	const navigate = useNavigate();
+
+	const { setUser } = useActions();
 
 	const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
 		initialValues: {
@@ -42,12 +47,20 @@ const Login: React.FC = () => {
 			setLoginError(undefined);
 
 			axios
-				.post(`${process.env.REACT_APP_SERVER_API}/auth/signin`, {
-					email,
-					password
-				})
-				.then(() => {
+				.post(
+					`${process.env.REACT_APP_SERVER_API}/auth/signin`,
+					{
+						email,
+						password
+					},
+					{ withCredentials: true }
+				)
+				.then(result => {
+					console.log(result);
 					setIsLoggingIn(false);
+
+					setUser({ ...result.data.user.data, email: result.data.user.email });
+
 					navigate('/dashboard');
 				})
 				.catch(err => {
@@ -58,6 +71,19 @@ const Login: React.FC = () => {
 				});
 		}
 	});
+
+	useEffect(() => {
+		axios
+			.get(`${process.env.REACT_APP_SERVER_API}/auth`, { withCredentials: true })
+			.then(result => {
+				console.log(result.data);
+
+				navigate('/dashboard');
+			})
+			.catch(err => {
+				setIsCheckingAuth(false);
+			});
+	}, []);
 
 	return (
 		<Box
@@ -90,87 +116,94 @@ const Login: React.FC = () => {
 				>
 					<img src={logo} width={100} alt="Cover Me Logo" />
 					<Typography variant="h2">Welcome!</Typography>
-
-					<Box sx={{ mt: 2 }}>
-						{loginError && (
-							<Typography sx={{ color: 'error.main' }} variant="body1">
-								{loginError}
-							</Typography>
-						)}
-						<form onSubmit={handleSubmit}>
-							<Box>
-								<TextField
-									sx={{ width: '100%' }}
-									variant="outlined"
-									type="email"
-									name="email"
-									size="small"
-									onChange={handleChange}
-									onBlur={handleBlur}
-									error={
-										touched.email &&
-										errors.email !== undefined &&
-										errors.email !== ''
-									}
-									helperText={touched.email ? errors.email : ''}
-									InputProps={{
-										startAdornment: (
-											<InputAdornment position="start">
-												<EmailIcon color="primary" />
-											</InputAdornment>
-										)
-									}}
-								/>
-							</Box>
-							<Box sx={{ mt: 2 }}>
-								<TextField
-									sx={{ width: '100%' }}
-									variant="outlined"
-									type={showPassword ? 'text' : 'password'}
-									name="password"
-									size="small"
-									onChange={handleChange}
-									onBlur={handleBlur}
-									error={
-										touched.password &&
-										errors.password !== undefined &&
-										errors.password !== ''
-									}
-									helperText={touched.password ? errors.password : ''}
-									InputProps={{
-										startAdornment: (
-											<InputAdornment position="start">
-												<IconButton
-													sx={{ padding: 0 }}
-													onClick={() => setShowPassword(!showPassword)}
-												>
-													{showPassword ? (
-														<VisibilityOff color="primary" />
-													) : (
-														<Visibility color="primary" />
-													)}
-												</IconButton>
-											</InputAdornment>
-										)
-									}}
-								/>
-							</Box>
-							<Box sx={{ mb: 2, display: 'flex', justifyContent: 'end' }}>
-								<Button>Forgot Password</Button>
-							</Box>
-							{isLogginIn ? (
-								<Box>
-									<CircularProgress />
-								</Box>
-							) : (
-								<Box>
-									<Fab color="primary" type="submit" aria-label="Login">
-										<LoginIcon fontSize="large" />
-									</Fab>
-								</Box>
+					{isCheckingAuth ? (
+						<Box>
+							<CircularProgress />
+						</Box>
+					) : (
+						<Box sx={{ mt: 2 }}>
+							{loginError && (
+								<Typography sx={{ color: 'error.main' }} variant="body1">
+									{loginError}
+								</Typography>
 							)}
-						</form>
-					</Box>
+							<form onSubmit={handleSubmit}>
+								<Box>
+									<TextField
+										sx={{ width: '100%' }}
+										variant="outlined"
+										type="email"
+										name="email"
+										size="small"
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={
+											touched.email &&
+											errors.email !== undefined &&
+											errors.email !== ''
+										}
+										helperText={touched.email ? errors.email : ''}
+										InputProps={{
+											startAdornment: (
+												<InputAdornment position="start">
+													<EmailIcon color="primary" />
+												</InputAdornment>
+											)
+										}}
+									/>
+								</Box>
+								<Box sx={{ mt: 2 }}>
+									<TextField
+										sx={{ width: '100%' }}
+										variant="outlined"
+										type={showPassword ? 'text' : 'password'}
+										name="password"
+										size="small"
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={
+											touched.password &&
+											errors.password !== undefined &&
+											errors.password !== ''
+										}
+										helperText={touched.password ? errors.password : ''}
+										InputProps={{
+											startAdornment: (
+												<InputAdornment position="start">
+													<IconButton
+														sx={{ padding: 0 }}
+														onClick={() =>
+															setShowPassword(!showPassword)
+														}
+													>
+														{showPassword ? (
+															<VisibilityOff color="primary" />
+														) : (
+															<Visibility color="primary" />
+														)}
+													</IconButton>
+												</InputAdornment>
+											)
+										}}
+									/>
+								</Box>
+								<Box sx={{ mb: 2, display: 'flex', justifyContent: 'end' }}>
+									<Button>Forgot Password</Button>
+								</Box>
+								{isLogginIn ? (
+									<Box>
+										<CircularProgress />
+									</Box>
+								) : (
+									<Box>
+										<Fab color="primary" type="submit" aria-label="Login">
+											<LoginIcon fontSize="large" />
+										</Fab>
+									</Box>
+								)}
+							</form>
+						</Box>
+					)}
 				</Box>
 			</Paper>
 		</Box>

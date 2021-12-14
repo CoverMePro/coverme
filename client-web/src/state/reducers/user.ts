@@ -7,8 +7,11 @@ const initialState: IUserInfo = {};
 const reducer = (state: IUserInfo = initialState, action: Action): IUserInfo => {
 	switch (action.type) {
 		case ActionType.SET_USER: {
-			return action.payload.user;
+			return { ...action.payload.user };
 		}
+
+		default:
+			return state;
 	}
 };
 

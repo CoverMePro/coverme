@@ -2,6 +2,8 @@ import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { store } from './state';
+import { Provider } from 'react-redux';
 
 import Login from 'pages/auth/Login';
 import Dashboard from 'pages/Dashboard';
@@ -15,16 +17,18 @@ import { theme } from './theme';
 ReactDOM.render(
 	<React.StrictMode>
 		<ThemeProvider theme={theme}>
-			<BrowserRouter>
-				<Routes>
-					<Route path="/login" element={<Login />} />
-					<Route path="/onboard" element={<Onboard />} />
-					<Route path="/dashboard" element={<Dashboard />} />
-					<Route path="/register-user" element={<RegisterUser />} />
-					<Route path="/create-company" element={<CreateCompany />} />
-					<Route path="/" element={<Navigate replace to="/login" />} />
-				</Routes>
-			</BrowserRouter>
+			<Provider store={store}>
+				<BrowserRouter>
+					<Routes>
+						<Route path="/login" element={<Login />} />
+						<Route path="/onboard" element={<Onboard />} />
+						<Route path="/dashboard" element={<Dashboard />} />
+						<Route path="/register-user" element={<RegisterUser />} />
+						<Route path="/create-company" element={<CreateCompany />} />
+						<Route path="/" element={<Navigate replace to="/login" />} />
+					</Routes>
+				</BrowserRouter>
+			</Provider>
 		</ThemeProvider>
 	</React.StrictMode>,
 	document.getElementById('root')

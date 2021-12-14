@@ -4,7 +4,7 @@ import { IUserLogin, IUserInfo } from '../models/User';
 import { validateLogin } from '../utils/validators';
 
 import config from '../config/fb-config';
-import { db } from '../utils/admin';
+import { db, fbAdmin } from '../utils/admin';
 import { initializeApp } from 'firebase/app';
 import {
 	getAuth,
@@ -85,6 +85,8 @@ const signIn = (req: Request, res: Response) => {
 	}
 
 	let token: string;
+	let cookie: string;
+	const expiresIn = 60 * 60 * 24 * 1 * 1000;
 	return signInWithEmailAndPassword(firebaseAuth, userLogin.email, userLogin.password)
 		.then(data => {
 			return data.user.getIdToken();
@@ -92,7 +94,13 @@ const signIn = (req: Request, res: Response) => {
 		.then(tokenId => {
 			token = tokenId;
 
+			return fbAdmin.auth().createSessionCookie(tokenId, { expiresIn });
+
 			// retreive user info to send to client
+		})
+		.then(sessionCookie => {
+			cookie = sessionCookie;
+
 			return db.doc(`/users/${userLogin.email}`).get();
 		})
 		.then(userData => {
@@ -101,6 +109,9 @@ const signIn = (req: Request, res: Response) => {
 				email: userData.id
 			};
 
+			const cookieOptions = { maxAge: expiresIn, httpOnly: true, secure: true };
+			res.cookie('__session', cookie, cookieOptions);
+			console.log(res);
 			return res.json({ message: 'login successful', user: userInfo, token });
 		})
 		.catch(err => {
@@ -128,6 +139,29 @@ const getUser = (req: Request, res: Response) => {
 			console.error(err);
 			return res.status(500).json({ error: err.code });
 		});
+};
+
+const checkAuth = (req: Request, res: Response) => {
+	console.log(req.cookies);
+	if (req.cookies && req.cookies.session) {
+		const sessionCookie = `${req.cookies.session}`;
+
+		console.log(sessionCookie);
+
+		fbAdmin
+			.auth()
+			.verifySessionCookie(sessionCookie, true)
+			.then(decodedClaims => {
+				res.json({ decodedToken: decodedClaims, authenticated: true });
+			})
+			.catch(error => {
+				console.log('error verifying');
+				res.status(401).json({ error });
+			});
+	} else {
+		console.log('Could not find cookie!');
+		res.status(401).json({ error: 'Session Empty' });
+	}
 };
 
 const checkUser = (req: Request, res: Response) => {
@@ -236,6 +270,7 @@ const createCompany = async (req: Request, res: Response) => {
 };
 
 export default {
+	checkAuth,
 	sendRegisterLink,
 	registerUser,
 	signIn,
