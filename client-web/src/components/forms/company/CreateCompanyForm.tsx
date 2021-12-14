@@ -102,7 +102,7 @@ const CreateCompanyForm: React.FC = () => {
 
 			// TO DO: Error handling
 			axios
-				.post(`${process.env.REACT_APP_SERVER_API}/auth/create-company`, companyData)
+				.post(`${process.env.REACT_APP_SERVER_API}/company/create`, companyData)
 				.then(result => {
 					console.log(result);
 					setIsLoading(false);

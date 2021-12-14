@@ -76,7 +76,7 @@ const Login: React.FC = () => {
 		axios
 			.get(`${process.env.REACT_APP_SERVER_API}/auth`, { withCredentials: true })
 			.then(result => {
-				console.log(result.data);
+				console.log(result);
 
 				navigate('/dashboard');
 			})
