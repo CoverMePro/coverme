@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import express from 'express';
-import cors from 'cors';
+import cookieParser from 'cookie-parser';
+//import cors from 'cors';
 
 import authRoutes from './routes/auth';
 import companyRoutes from './routes/company';
@@ -8,14 +9,20 @@ import companyRoutes from './routes/company';
 // setup express
 const app = express();
 
-// app.use(function(req, res, next) {
-//     res.header('Access-Control-Allow-Origin', yourExactHostname);
-//     res.header('Access-Control-Allow-Credentials', true);
-//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-//     next();
-//   });
+app.use(cookieParser());
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.setHeader('Cache-Control', 'private');
+  next();
+});
+
+//app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // routes
 app.use('/auth', authRoutes);

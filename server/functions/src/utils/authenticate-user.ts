@@ -2,22 +2,26 @@ import { fbAdmin } from '../utils/admin';
 import { Request, Response, NextFunction } from 'express';
 
 export default (req: Request, res: Response, next: NextFunction) => {
-	let idToken;
-	if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-		idToken = req.headers.authorization.split('Bearer ')[1];
-	} else {
-		console.error('No token found');
-		return res.status(403).json({ error: 'Unauthorized' });
-	}
+  if (req.cookies && req.cookies.session) {
+    console.log('test');
+    const sessionCookie = `${req.cookies.session}`;
 
-	return fbAdmin
-		.auth()
-		.verifyIdToken(idToken)
-		.then(() => {
-			return next();
-		})
-		.catch(err => {
-			console.error('Error while verifying token ', err);
-			return res.status(403).json(err);
-		});
+    fbAdmin
+      .auth()
+      .verifySessionCookie(sessionCookie, true)
+      .then((session) => {
+        if (Date.now() < session.exp) {
+          console.log('NEXT');
+          next();
+        } else {
+          console.log('FAI');
+          return res.redirect(401, '/login');
+        }
+      })
+      .catch((error) => {
+        return res.redirect(401, '/login');
+      });
+  } else {
+    return res.redirect(401, '/login');
+  }
 };
