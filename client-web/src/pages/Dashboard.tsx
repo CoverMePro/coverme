@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-import axios from 'axios';
+import axios from 'utils/axios-intance';
+import { AxiosError } from 'axios';
 
 const Dashboard: React.FC = () => {
 	const user = useTypedSelector(state => state.user);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		axios
@@ -11,9 +15,7 @@ const Dashboard: React.FC = () => {
 			.then(result => {
 				console.log(result);
 			})
-			.catch(err => {
-				console.log(err);
-			});
+			.catch((err: AxiosError) => {});
 	}, []);
 
 	console.log(user);

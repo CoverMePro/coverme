@@ -5,7 +5,7 @@ import { IUserLogin, IUserInfo } from '../models/User';
 import { db, firebaseAuth } from '../utils/admin';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
-import { emailSignInForUser } from '../utils/fb-emails';
+import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
 
 /**
  * Creates user in firebase authentication and adds the necessary user info into the database
@@ -147,10 +147,26 @@ const checkAuth = async (req: Request, res: Response) => {
 	}
 };
 
+/**
+ * Reset a users password
+ */
+const passwordReset = (req: Request, res: Response) => {
+	const { email } = req.body;
+
+	emailPasswordReset(firebaseAuth, email)
+		.then(() => {
+			return res.json({ message: 'Reset email sent!' });
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err });
+		});
+};
+
 export default {
 	checkAuth,
 	sendRegisterLink,
 	registerUser,
 	signIn,
-	registerCallback
+	registerCallback,
+	passwordReset
 };

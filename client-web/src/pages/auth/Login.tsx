@@ -25,11 +25,13 @@ import logo from '../../images/cover-me-logo.png';
 
 import { validateLogin } from 'utils/validation';
 import axios from 'axios';
+import ForgotPasswordDialog from 'components/forgot-password/ForgotPasswordDialog';
 
 const Login: React.FC = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 	const [isLogginIn, setIsLoggingIn] = useState<boolean>(false);
 	const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+	const [openForgotPassword, setOpenForgotPassword] = useState<boolean>(false);
 	const [loginError, setLoginError] = useState<string | undefined>(undefined);
 	const navigate = useNavigate();
 
@@ -86,127 +88,135 @@ const Login: React.FC = () => {
 	}, []);
 
 	return (
-		<Box
-			sx={{
-				height: '100vh',
-				width: '100vw',
-				backgroundImage: `url(${loginBackground})`,
-				backgroundSize: 'cover',
-				backgroundAttachment: 'fixed',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center'
-			}}
-		>
-			<Paper
+		<>
+			<Box
 				sx={{
-					width: { xs: '80%', md: 400 },
-					borderRadius: 5,
+					height: '100vh',
+					width: '100vw',
+					backgroundImage: `url(${loginBackground})`,
+					backgroundSize: 'cover',
+					backgroundAttachment: 'fixed',
 					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					textAlign: 'center'
+					justifyContent: 'center',
+					alignItems: 'center'
 				}}
 			>
-				<Box
+				<Paper
 					sx={{
-						paddingY: 5,
-						width: '80%'
+						width: { xs: '80%', md: 400 },
+						borderRadius: 5,
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						textAlign: 'center'
 					}}
 				>
-					<img src={logo} width={100} alt="Cover Me Logo" />
-					<Typography variant="h2">Welcome!</Typography>
-					{isCheckingAuth ? (
-						<Box>
-							<CircularProgress />
-						</Box>
-					) : (
-						<Box sx={{ mt: 2 }}>
-							{loginError && (
-								<Typography sx={{ color: 'error.main' }} variant="body1">
-									{loginError}
-								</Typography>
-							)}
-							<form onSubmit={handleSubmit}>
-								<Box>
-									<TextField
-										sx={{ width: '100%' }}
-										variant="outlined"
-										type="email"
-										name="email"
-										size="small"
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={
-											touched.email &&
-											errors.email !== undefined &&
-											errors.email !== ''
-										}
-										helperText={touched.email ? errors.email : ''}
-										InputProps={{
-											startAdornment: (
-												<InputAdornment position="start">
-													<EmailIcon color="primary" />
-												</InputAdornment>
-											)
-										}}
-									/>
-								</Box>
-								<Box sx={{ mt: 2 }}>
-									<TextField
-										sx={{ width: '100%' }}
-										variant="outlined"
-										type={showPassword ? 'text' : 'password'}
-										name="password"
-										size="small"
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={
-											touched.password &&
-											errors.password !== undefined &&
-											errors.password !== ''
-										}
-										helperText={touched.password ? errors.password : ''}
-										InputProps={{
-											startAdornment: (
-												<InputAdornment position="start">
-													<IconButton
-														sx={{ padding: 0 }}
-														onClick={() =>
-															setShowPassword(!showPassword)
-														}
-													>
-														{showPassword ? (
-															<VisibilityOff color="primary" />
-														) : (
-															<Visibility color="primary" />
-														)}
-													</IconButton>
-												</InputAdornment>
-											)
-										}}
-									/>
-								</Box>
-								<Box sx={{ mb: 2, display: 'flex', justifyContent: 'end' }}>
-									<Button>Forgot Password</Button>
-								</Box>
-								{isLogginIn ? (
-									<Box>
-										<CircularProgress />
-									</Box>
-								) : (
-									<Box>
-										<Fab color="primary" type="submit" aria-label="Login">
-											<LoginIcon fontSize="large" />
-										</Fab>
-									</Box>
+					<Box
+						sx={{
+							paddingY: 5,
+							width: '80%'
+						}}
+					>
+						<img src={logo} width={100} alt="Cover Me Logo" />
+						<Typography variant="h2">Welcome!</Typography>
+						{isCheckingAuth ? (
+							<Box>
+								<CircularProgress />
+							</Box>
+						) : (
+							<Box sx={{ mt: 2 }}>
+								{loginError && (
+									<Typography sx={{ color: 'error.main' }} variant="body1">
+										{loginError}
+									</Typography>
 								)}
-							</form>
-						</Box>
-					)}
-				</Box>
-			</Paper>
-		</Box>
+								<form onSubmit={handleSubmit}>
+									<Box>
+										<TextField
+											sx={{ width: '100%' }}
+											variant="outlined"
+											type="email"
+											name="email"
+											size="small"
+											onChange={handleChange}
+											onBlur={handleBlur}
+											error={
+												touched.email &&
+												errors.email !== undefined &&
+												errors.email !== ''
+											}
+											helperText={touched.email ? errors.email : ''}
+											InputProps={{
+												startAdornment: (
+													<InputAdornment position="start">
+														<EmailIcon color="primary" />
+													</InputAdornment>
+												)
+											}}
+										/>
+									</Box>
+									<Box sx={{ mt: 2 }}>
+										<TextField
+											sx={{ width: '100%' }}
+											variant="outlined"
+											type={showPassword ? 'text' : 'password'}
+											name="password"
+											size="small"
+											onChange={handleChange}
+											onBlur={handleBlur}
+											error={
+												touched.password &&
+												errors.password !== undefined &&
+												errors.password !== ''
+											}
+											helperText={touched.password ? errors.password : ''}
+											InputProps={{
+												startAdornment: (
+													<InputAdornment position="start">
+														<IconButton
+															sx={{ padding: 0 }}
+															onClick={() =>
+																setShowPassword(!showPassword)
+															}
+														>
+															{showPassword ? (
+																<VisibilityOff color="primary" />
+															) : (
+																<Visibility color="primary" />
+															)}
+														</IconButton>
+													</InputAdornment>
+												)
+											}}
+										/>
+									</Box>
+									<Box sx={{ mb: 2, display: 'flex', justifyContent: 'end' }}>
+										<Button onClick={() => setOpenForgotPassword(true)}>
+											Forgot Password
+										</Button>
+									</Box>
+									{isLogginIn ? (
+										<Box>
+											<CircularProgress />
+										</Box>
+									) : (
+										<Box>
+											<Fab color="primary" type="submit" aria-label="Login">
+												<LoginIcon fontSize="large" />
+											</Fab>
+										</Box>
+									)}
+								</form>
+							</Box>
+						)}
+					</Box>
+				</Paper>
+			</Box>
+			<ForgotPasswordDialog
+				open={openForgotPassword}
+				handleClose={() => setOpenForgotPassword(false)}
+			/>
+		</>
 	);
 };
 

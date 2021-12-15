@@ -1,29 +1,28 @@
 import { fbAdmin } from '../utils/admin';
 import { Request, Response, NextFunction } from 'express';
 
-export default (req: Request, res: Response, next: NextFunction) => {
-	console.log('inside here');
-	if (req.cookies && req.cookies.session) {
-		console.log('test');
-		const sessionCookie = `${req.cookies.session}`;
+export default async (req: Request, res: Response, next: NextFunction) => {
+	console.log(req.cookies);
+	if (!req.cookies) {
+		console.log('no cookies');
+		return res.status(401).send({ message: 'Unauthorized' });
+	}
 
-		fbAdmin
-			.auth()
-			.verifySessionCookie(sessionCookie, true)
-			.then(session => {
-				if (Date.now() < session.exp) {
-					console.log('NEXT');
-					next();
-				} else {
-					console.log('FAI');
-					return res.redirect(401, 'http://localhost:3000/login');
-				}
-			})
-			.catch(error => {
-				return res.redirect(401, 'http://localhost:3000/login');
-			});
+	if (!req.cookies.session) {
+		console.log('no session cookies');
+		return res.status(401).send({ message: 'Unauthorized' });
+	}
+
+	console.log('Pass cookie check');
+
+	const sessionCookie = `${req.cookies.session}`;
+
+	const result = await verifySessionCookie(sessionCookie);
+
+	if (result) {
+		return next();
 	} else {
-		return res.redirect(401, 'http://localhost:3000/login');
+		return res.status(401).send({ message: 'Unauthorized' });
 	}
 };
 
@@ -35,12 +34,8 @@ export const verifySessionCookie = (sessionCookie: string) => {
 	return fbAdmin
 		.auth()
 		.verifySessionCookie(sessionCookie, true)
-		.then(decodedClaims => {
-			if (Date.now() < decodedClaims.exp) {
-				return true;
-			} else {
-				return false;
-			}
+		.then(() => {
+			return true;
 		})
 		.catch(() => {
 			return false;
