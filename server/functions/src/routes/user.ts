@@ -1,13 +1,14 @@
 import express, { Router } from 'express';
+import authGuard from '../utils/authenticate-user';
 import userController from '../controller/user';
 
 const router: Router = express.Router();
 
 // GET
-router.get('/check/:id', userController.checkUser);
-router.get('/:id', userController.getUser);
+router.get('/check/:id', authGuard, userController.checkUser);
+router.get('/:id', authGuard, userController.getUser);
 
 // POST
-router.post('/:id', userController.updateUser);
+router.post('/:id', authGuard, userController.updateUser);
 
 export default router;

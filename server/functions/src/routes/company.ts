@@ -6,8 +6,8 @@ const router: Router = express.Router();
 
 // GET
 router.get('/', authGuard, companyController.getAllCompanies);
-router.get('/check/:id', companyController.checkCompany);
-router.get('/:id', companyController.getCompany);
+router.get('/check/:id', authGuard, companyController.checkCompany);
+router.get('/:id', authGuard, companyController.getCompany);
 
 // POST
 router.post('/create', companyController.createCompany);
