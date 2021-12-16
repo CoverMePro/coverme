@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
+import { SnackbarContext } from 'context/snackbar-context';
 
 const Dashboard: React.FC = () => {
 	const user = useTypedSelector(state => state.user);

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { IUserLogin, IUserInfo } from '../models/User';
 
-import { db, firebaseAuth } from '../utils/admin';
+import { db, fbAuth } from '../utils/admin';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
 import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
@@ -14,7 +14,7 @@ const registerUser = (req: Request, res: Response) => {
 	const { email, password, phoneNo } = req.body;
 
 	let token: string;
-	createUserWithEmailAndPassword(firebaseAuth, email, password)
+	createUserWithEmailAndPassword(fbAuth, email, password)
 		.then(data => {
 			return data.user.getIdToken();
 		})
@@ -51,7 +51,7 @@ const registerUser = (req: Request, res: Response) => {
 const sendRegisterLink = (req: Request, res: Response) => {
 	const { email, firstName, lastName, company, role, position } = req.body;
 
-	emailSignInForUser(firebaseAuth, { email, firstName, lastName, company, role, position })
+	emailSignInForUser(fbAuth, { email, firstName, lastName, company, role, position })
 		.then(() => {
 			return res.json({ message: 'Email link successful', email });
 		})
@@ -98,7 +98,7 @@ const signIn = (req: Request, res: Response) => {
 	// currently it is <6 MINUTES>
 	const expiresIn = 60 * 6 * 1000; //60 * 60 * 24 * 1 * 1000;
 
-	return signInWithEmailAndPassword(firebaseAuth, userLogin.email, userLogin.password)
+	return signInWithEmailAndPassword(fbAuth, userLogin.email, userLogin.password)
 		.then(data => {
 			return data.user.getIdToken();
 		})
@@ -153,7 +153,7 @@ const checkAuth = async (req: Request, res: Response) => {
 const passwordReset = (req: Request, res: Response) => {
 	const { email } = req.body;
 
-	emailPasswordReset(firebaseAuth, email)
+	emailPasswordReset(fbAuth, email)
 		.then(() => {
 			return res.json({ message: 'Reset email sent!' });
 		})

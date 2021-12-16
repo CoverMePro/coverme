@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ICompanyInfo } from '../models/Company';
-import { db, firebaseAuth } from '../utils/admin';
+import { db, fbAuth } from '../utils/admin';
 import { emailSignInForUser } from '../utils/fb-emails';
 
 /**
@@ -87,7 +87,7 @@ const createCompany = async (req: Request, res: Response) => {
 					.doc(`/companies/${companyName}`)
 					.set(companyInfo)
 					.then(() => {
-						emailSignInForUser(firebaseAuth, { ownerEmail, ...ownerInfo, companyName })
+						emailSignInForUser(fbAuth, { ownerEmail, ...ownerInfo, companyName })
 							.then(() => {
 								return res.status(201).json({
 									message: 'Company Created!'

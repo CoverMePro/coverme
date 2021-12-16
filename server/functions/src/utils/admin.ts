@@ -6,7 +6,5 @@ import config from '../config/fb-config';
 const firebaseApp = initializeApp(config);
 
 export const fbAdmin = admin.initializeApp();
-
-export const firebaseAuth = getAuth(firebaseApp);
-
+export const fbAuth = getAuth(firebaseApp);
 export const db = admin.firestore();

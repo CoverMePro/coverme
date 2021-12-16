@@ -1,9 +1,11 @@
 import './index.css';
-import React from 'react';
+import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { store } from './state';
 import { Provider } from 'react-redux';
+
+import { ThemeProvider } from '@mui/material';
 
 import Login from 'pages/auth/Login';
 import Dashboard from 'pages/Dashboard';
@@ -11,23 +13,25 @@ import Onboard from 'pages/auth/Onboard';
 import RegisterUser from 'pages/dev/RegisterUser';
 import CreateCompany from 'pages/dev/CreateCompany';
 
-import { ThemeProvider } from '@mui/material';
 import { theme } from './theme';
+import SnackbarProvider from 'context/snackbar-context';
 
 ReactDOM.render(
 	<React.StrictMode>
 		<ThemeProvider theme={theme}>
 			<Provider store={store}>
-				<BrowserRouter>
-					<Routes>
-						<Route path="/login" element={<Login />} />
-						<Route path="/onboard" element={<Onboard />} />
-						<Route path="/dashboard" element={<Dashboard />} />
-						<Route path="/register-user" element={<RegisterUser />} />
-						<Route path="/create-company" element={<CreateCompany />} />
-						<Route path="/" element={<Navigate replace to="/login" />} />
-					</Routes>
-				</BrowserRouter>
+				<SnackbarProvider>
+					<BrowserRouter>
+						<Routes>
+							<Route path="/login" element={<Login />} />
+							<Route path="/onboard" element={<Onboard />} />
+							<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/register-user" element={<RegisterUser />} />
+							<Route path="/create-company" element={<CreateCompany />} />
+							<Route path="/" element={<Navigate replace to="/login" />} />
+						</Routes>
+					</BrowserRouter>
+				</SnackbarProvider>
 			</Provider>
 		</ThemeProvider>
 	</React.StrictMode>,
