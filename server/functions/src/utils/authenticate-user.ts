@@ -31,13 +31,5 @@ export const assignSessionCookie = (tokenId: string, expiresIn: number) => {
 };
 
 export const verifySessionCookie = (sessionCookie: string) => {
-	return fbAdmin
-		.auth()
-		.verifySessionCookie(sessionCookie, true)
-		.then(() => {
-			return true;
-		})
-		.catch(() => {
-			return false;
-		});
+	return fbAdmin.auth().verifySessionCookie(sessionCookie, true);
 };

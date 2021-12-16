@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { IUserLogin, IUserInfo } from '../models/User';
+import { WEB_CLIENT_DOMAIN } from '../constants';
 
 import { db, fbAuth } from '../utils/admin';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -78,7 +79,7 @@ const registerCallback = (req: Request, res: Response) => {
 		})
 		.then(result => {
 			// To Do: make sure this url is configurable
-			return res.redirect(`http://localhost:3000/onboard?email=${email}`);
+			return res.redirect(`${WEB_CLIENT_DOMAIN}/onboard?email=${email}`);
 		})
 		.catch(err => {
 			console.error(err);
@@ -123,8 +124,13 @@ const signIn = (req: Request, res: Response) => {
 			return res.json({ message: 'login successful', user: userInfo });
 		})
 		.catch(err => {
-			console.error(err);
-			return res.status(403).json({ general: 'Wrong credentials, please try again' });
+			switch (err.code) {
+				case 'auth/wrong-password':
+				case 'auth/user-not-found':
+					return res.status(403).json({ general: 'Wrong credentials, please try again' });
+				default:
+					return res.status(500).json({ error: err });
+			}
 		});
 };
 
@@ -133,13 +139,24 @@ const signIn = (req: Request, res: Response) => {
  */
 const checkAuth = async (req: Request, res: Response) => {
 	if (req.cookies.session) {
-		const sessionCookie = `${req.cookies.session}`;
+		try {
+			const sessionCookie = `${req.cookies.session}`;
 
-		const result = await verifySessionCookie(sessionCookie);
+			const decodedToken = await verifySessionCookie(sessionCookie);
 
-		if (result) {
-			return res.json({ authenticated: true });
-		} else {
+			if (decodedToken.email) {
+				const userData = await db.doc(`/users/${decodedToken.email}`).get();
+
+				const userInfo: IUserInfo = {
+					data: { ...userData.data() },
+					email: userData.id
+				};
+
+				return res.json({ authenticated: true, user: userInfo });
+			} else {
+				return res.status(401).json({ error: 'No email found' });
+			}
+		} catch (error) {
 			return res.status(401).json({ error: 'Session Expired' });
 		}
 	} else {

@@ -3,6 +3,8 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 //import cors from 'cors';
 
+import { WEB_CLIENT_DOMAIN } from './constants';
+
 import authRoutes from './routes/auth';
 import companyRoutes from './routes/company';
 import userRoutes from './routes/user';
@@ -19,7 +21,7 @@ app.use(
 );
 
 app.use(function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+	res.header('Access-Control-Allow-Origin', WEB_CLIENT_DOMAIN);
 	res.header('Access-Control-Allow-Credentials', 'true');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 	res.setHeader('Cache-Control', 'private');

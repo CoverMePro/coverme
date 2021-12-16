@@ -1,5 +1,7 @@
 import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/auth';
 
+import { WEB_CLIENT_DOMAIN, SERVER_DOMAIN } from '../constants';
+
 interface IEmailInfo {
 	email: string;
 	firstName: string;
@@ -14,7 +16,7 @@ export const emailSignInForUser = (firebaseAuth: Auth, emailInfo: IEmailInfo) =>
 
 	const actionCodeSettings = {
 		// TODO: create a variable to set url when needed
-		url: `http://localhost:5001/coverme-47dc7/us-central1/api/auth/register-callback?email=${email}&firstName=${firstName}&lastName=${lastName}&company=${company}&role=${role}&position=${position}`,
+		url: `${SERVER_DOMAIN}/auth/register-callback?email=${email}&firstName=${firstName}&lastName=${lastName}&company=${company}&role=${role}&position=${position}`,
 		// This must be true.
 		handleCodeInApp: true
 	};
@@ -25,7 +27,7 @@ export const emailSignInForUser = (firebaseAuth: Auth, emailInfo: IEmailInfo) =>
 export const emailPasswordReset = (firebaseAuth: Auth, email: string) => {
 	const actionCodeSettings = {
 		// TODO: create a variable to set url when needed
-		url: `http://localhost:3000`,
+		url: WEB_CLIENT_DOMAIN,
 		// This must be true.
 		handleCodeInApp: true
 	};

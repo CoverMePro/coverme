@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
+import { useSnackbar } from 'notistack';
 
 import {
 	Paper,
@@ -20,10 +21,14 @@ import { ICompanyFormInfo } from 'models/Validation';
 import { validateCompany, validateOwner } from 'utils/validation';
 
 import logo from '../../../images/cover-me-logo.png';
-import axios from 'axios';
+import axios from 'utils/axios-intance';
 
 const steps = ['Company Info', 'Owner Info'];
 
+/**
+ * A form to create a compnay into the database
+ * this is a two step process that creates a company, and then and user who owns the company (has extra permissions)
+ */
 const CreateCompanyForm: React.FC = () => {
 	const [company, setCompany] = useState<ICompanyFormInfo>({
 		companyName: '',
@@ -32,9 +37,10 @@ const CreateCompanyForm: React.FC = () => {
 	});
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string | undefined>(undefined);
 
 	const [step, setStep] = useState<number>(0);
+
+	const { enqueueSnackbar } = useSnackbar();
 
 	const companyFormik = useFormik({
 		initialValues: {
@@ -45,7 +51,6 @@ const CreateCompanyForm: React.FC = () => {
 		validate: validateCompany,
 		onSubmit: ({ companyName, companyEmail, companyPhone }) => {
 			setIsLoading(true);
-			setError(undefined);
 
 			axios
 				.get(`${process.env.REACT_APP_SERVER_API}/company/check/${companyName}`)
@@ -59,11 +64,18 @@ const CreateCompanyForm: React.FC = () => {
 						});
 						setStep(1);
 					} else {
-						setError('A company with that name already exists.');
+						enqueueSnackbar('A company with that name already exists.', {
+							variant: 'error',
+							autoHideDuration: 5000
+						});
 					}
 				})
 				.catch(err => {
 					console.log(err);
+					enqueueSnackbar(
+						'An unknow error occured, please try again or contact support.',
+						{ variant: 'error', autoHideDuration: 5000 }
+					);
 					setIsLoading(false);
 				});
 		}
@@ -100,7 +112,6 @@ const CreateCompanyForm: React.FC = () => {
 
 			setIsLoading(true);
 
-			// TO DO: Error handling
 			axios
 				.post(`${process.env.REACT_APP_SERVER_API}/company/create`, companyData)
 				.then(result => {
@@ -110,6 +121,11 @@ const CreateCompanyForm: React.FC = () => {
 				})
 				.catch(err => {
 					console.log(err);
+					// hopfully we can do better for unknown error eventually
+					enqueueSnackbar(
+						'An unknow error occured, please try again or contact support.',
+						{ variant: 'error', autoHideDuration: 5000 }
+					);
 					setIsLoading(false);
 				});
 		}
@@ -148,13 +164,6 @@ const CreateCompanyForm: React.FC = () => {
 						);
 					})}
 				</Stepper>
-				{error && (
-					<Box sx={{ textAlign: 'center', mb: 2 }}>
-						<Typography sx={{ color: 'error.main' }} variant="body1">
-							{error}
-						</Typography>
-					</Box>
-				)}
 				{step === 0 && (
 					<form onSubmit={companyFormik.handleSubmit}>
 						<Box>

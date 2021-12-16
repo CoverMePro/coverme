@@ -1,5 +1,4 @@
 import express, { Router } from 'express';
-import authGuard from '../utils/authenticate-user';
 import authController from '../controller/auth';
 
 const router: Router = express.Router();
@@ -12,6 +11,6 @@ router.get('/register-callback', authController.registerCallback);
 router.post('/register-link', authController.sendRegisterLink);
 router.post('/register', authController.registerUser);
 router.post('/signin', authController.signIn);
-router.post('/reset-password', authGuard, authController.passwordReset);
+router.post('/reset-password', authController.passwordReset);
 
 export default router;

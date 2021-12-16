@@ -24,8 +24,6 @@ import axios from 'axios';
 import { validateRegister } from 'utils/validation';
 import MuiPhoneNumber from 'material-ui-phone-number';
 
-const steps = ['Password', 'Personal Information', 'Upload Photo'];
-
 const Onboard: React.FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [isComplete, setIsComplete] = useState<boolean>(false);
@@ -82,7 +80,7 @@ const Onboard: React.FC = () => {
 		} else {
 			console.log('EMAIL NOT SET');
 		}
-	}, []);
+	}, [searchParams]);
 
 	return (
 		<Box
