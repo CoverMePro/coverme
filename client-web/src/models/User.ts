@@ -4,9 +4,9 @@ export interface IUserInfo {
 	lastName?: string;
 	phoneNo?: string;
 	role?: string;
-	companyId?: string;
-	isOwner?: boolean;
+	company?: string;
 	vacationHours?: number;
 	seniorityDate?: Date;
 	location?: string;
+	status?: string;
 }

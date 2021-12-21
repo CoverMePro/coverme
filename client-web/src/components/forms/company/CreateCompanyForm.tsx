@@ -103,9 +103,9 @@ const CreateCompanyForm: React.FC = () => {
 					data: {
 						firstName: ownerFirstName,
 						lastName: ownerLastName,
-						role: 'manager',
-						company: company.companyName,
-						isOwner: true
+						role: 'owner',
+						position: 'Owner',
+						company: company.companyName
 					}
 				}
 			};

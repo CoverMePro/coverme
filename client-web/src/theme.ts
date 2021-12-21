@@ -39,5 +39,22 @@ export const theme = createTheme({
 		body2: {
 			fontSize: '12px'
 		}
+	},
+	components: {
+		MuiListItemButton: {
+			styleOverrides: {
+				root: {
+					'&.Mui-selected': {
+						backgroundColor: 'rgba(0,0,0,0.5)',
+						'&:hover': {
+							backgroundColor: 'rgba(0,0,0,0.3)'
+						}
+					},
+					'&:hover': {
+						backgroundColor: 'rgba(0,0,0,0.3)'
+					}
+				}
+			}
+		}
 	}
 });

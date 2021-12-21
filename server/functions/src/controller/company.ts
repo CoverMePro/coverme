@@ -81,34 +81,25 @@ const createCompany = async (req: Request, res: Response) => {
 		.get()
 		.then(companyData => {
 			if (companyData.exists) {
-				return res.status(403).json({ error: 'Company with that name already exists' });
+				throw 403;
 			} else {
-				return db
-					.doc(`/companies/${companyName}`)
-					.set(companyInfo)
-					.then(() => {
-						emailSignInForUser(fbAuth, { ownerEmail, ...ownerInfo, companyName })
-							.then(() => {
-								return res.status(201).json({
-									message: 'Company Created!'
-								});
-							})
-							.catch(error => {
-								console.log(error);
-
-								return res.status(500).json({ error });
-							});
-					})
-					.catch(err => {
-						console.error(err);
-						return res.status(500).json({ error: err.code });
-					});
+				return db.doc(`/companies/${companyName}`).set(companyInfo);
 			}
 		})
-		.then()
+		.then(() => {
+			return emailSignInForUser(fbAuth, { email: ownerEmail, ...ownerInfo, companyName });
+		})
+		.then(() => {
+			return res.status(201).json({
+				message: 'Company Created!'
+			});
+		})
 		.catch(err => {
-			console.error(err);
-			return res.status(500).json({ error: err.code });
+			if (err === 403) {
+				return res.status(403).json({ error: 'Company with that name already exists' });
+			} else {
+				return res.status(500).json({ error: err.code });
+			}
 		});
 };
 

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 
 import { IUserLogin, IUserInfo } from '../models/User';
-import { WEB_CLIENT_DOMAIN } from '../constants';
+import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from '../constants';
 
 import { db, fbAuth } from '../utils/admin';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
 import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
 
@@ -22,7 +22,9 @@ const registerUser = (req: Request, res: Response) => {
 		.then(tokenId => {
 			token = tokenId;
 
-			return db.doc(`/users/${email}`).update({ phoneNo });
+			return db
+				.doc(`/users/${email}`)
+				.update({ phoneNo, status: 'Active', statusUpdatedAt: Date.now() });
 		})
 		.then(() => {
 			return db.doc(`/users/${email}`).get();
@@ -54,6 +56,17 @@ const sendRegisterLink = (req: Request, res: Response) => {
 
 	emailSignInForUser(fbAuth, { email, firstName, lastName, company, role, position })
 		.then(() => {
+			return db.doc(`/users/${email}`).set({
+				firstName,
+				lastName,
+				company,
+				role,
+				position,
+				status: 'Pending',
+				statusUpdatedAt: Date.now()
+			});
+		})
+		.then(() => {
 			return res.json({ message: 'Email link successful', email });
 		})
 		.catch(error => {
@@ -67,24 +80,8 @@ const sendRegisterLink = (req: Request, res: Response) => {
  * Callback for when user clicks the sign in link in the email
  */
 const registerCallback = (req: Request, res: Response) => {
-	const { email, firstName, lastName, company, role, position } = req.query;
-
-	db.doc(`/users/${email}`)
-		.set({
-			firstName,
-			lastName,
-			company,
-			role,
-			position
-		})
-		.then(result => {
-			// To Do: make sure this url is configurable
-			return res.redirect(`${WEB_CLIENT_DOMAIN}/onboard?email=${email}`);
-		})
-		.catch(err => {
-			console.error(err);
-			return res.status(500).json({ error: err.code });
-		});
+	const { email } = req.query;
+	return res.redirect(`${WEB_CLIENT_DOMAIN}/onboard?email=${email}`);
 };
 
 /**
@@ -97,7 +94,7 @@ const signIn = (req: Request, res: Response) => {
 
 	// Assign a expiry date for the cookie
 	// currently it is <6 MINUTES>
-	const expiresIn = 60 * 6 * 1000; //60 * 60 * 24 * 1 * 1000;
+	const expiresIn = SESSION_COOKIE_EXPIRY;
 
 	return signInWithEmailAndPassword(fbAuth, userLogin.email, userLogin.password)
 		.then(data => {
@@ -131,6 +128,17 @@ const signIn = (req: Request, res: Response) => {
 				default:
 					return res.status(500).json({ error: err });
 			}
+		});
+};
+
+const logOut = (req: Request, res: Response) => {
+	signOut(fbAuth)
+		.then(() => {
+			res.clearCookie('session');
+			return res.json({ message: 'logged out successfully' });
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err });
 		});
 };
 
@@ -184,6 +192,7 @@ export default {
 	sendRegisterLink,
 	registerUser,
 	signIn,
+	logOut,
 	registerCallback,
 	passwordReset
 };

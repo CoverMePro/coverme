@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUserInfo } from '../models/User';
+import { IUser, IUserInfo } from '../models/User';
 
 import { db } from '../utils/admin';
 
@@ -22,6 +22,34 @@ const getUser = (req: Request, res: Response) => {
 		})
 		.catch(err => {
 			console.error(err);
+			return res.status(500).json({ error: err.code });
+		});
+};
+
+/**
+ * Get all users from a specific company (excluding owner)
+ */
+const getUsersFromCompany = (req: Request, res: Response) => {
+	const company = req.params.company;
+
+	db.collection('users')
+		.where('company', '==', company)
+		.where('role', '!=', 'owner')
+		.get()
+		.then(data => {
+			const users: IUser[] = [];
+
+			data.forEach(doc => {
+				users.push({
+					email: doc.id,
+					...doc.data()
+				});
+			});
+
+			return res.json({ users });
+		})
+		.catch(err => {
+			console.log(err);
 			return res.status(500).json({ error: err.code });
 		});
 };
@@ -64,6 +92,7 @@ const checkUser = (req: Request, res: Response) => {
 
 export default {
 	getUser,
+	getUsersFromCompany,
 	updateUser,
 	checkUser
 };

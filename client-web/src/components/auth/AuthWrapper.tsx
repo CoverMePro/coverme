@@ -12,6 +12,10 @@ interface IAuthWrapperProps {
 	isOwner?: boolean;
 }
 
+/**
+ *  A wrapper around any page that requires to be authenticated and potentially certain permissions (role)
+ */
+
 const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permission, isOwner }) => {
 	const [authed, setAuthed] = useState<boolean>(false);
 	const navigate = useNavigate();
@@ -21,52 +25,37 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permission, isOwne
 
 	const { setUser } = useActions();
 
-	const handlePermissionDenied = () => {
-		enqueueSnackbar(
-			'You do not have permission to access this content, you have been redirected.',
-			{ variant: 'warning' }
-		);
-		navigate('/login');
-	};
-
 	useEffect(() => {
-		axios
-			.get(`${process.env.REACT_APP_SERVER_API}/auth`)
-			.then(result => {
-				console.log(result.data);
-				console.log(user);
-				let userData;
-				if (!user.email) {
-					const retrievedUser = {
+		if (!user.email) {
+			axios
+				.get(`${process.env.REACT_APP_SERVER_API}/auth`)
+				.then(result => {
+					// This is a check depending if a user enters this page directly and there is no redux state
+					//use the information from the auth check
+					const userData = {
 						...result.data.user.data,
 						email: result.data.user.email
 					};
 
-					userData = retrievedUser;
-					setUser(retrievedUser);
-				} else {
-					userData = user;
+					setUser(userData);
+				})
+				.catch(err => {
+					console.log(err);
+				});
+		} else {
+			if (permission) {
+				if (user.role !== permission && user.role !== 'admin') {
+					enqueueSnackbar(
+						'You do not have permission to access this content, you have been redirected.',
+						{ variant: 'warning' }
+					);
+					navigate('/login');
 				}
+			}
 
-				console.log(userData);
-				if (permission) {
-					if (userData.role !== permission) {
-						handlePermissionDenied();
-					} else {
-						if (isOwner) {
-							if (!userData.isOwner) {
-								handlePermissionDenied();
-							}
-						}
-					}
-				}
-
-				setAuthed(true);
-			})
-			.catch(err => {
-				console.log(err);
-			});
-	}, []);
+			setAuthed(true);
+		}
+	}, [permission, setUser, user, enqueueSnackbar, navigate]);
 
 	return <>{authed && children}</>;
 };
