@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
@@ -94,18 +94,13 @@ const Dashboard: React.FC = () => {
 	const user = useTypedSelector(state => state.user);
 	const navigate = useNavigate();
 
-	const [openTeams, setOpenTeams] = useState<boolean>(false);
 	const [openSettings, setOpenSettings] = useState<boolean>(false);
 	const [navSelected, setNavSelected] = useState<number>(0);
 
 	const settingsRef = useRef<any>();
 
-	const handleTeamsClick = () => {
-		setOpenTeams(!openTeams);
-	};
-
-	const handleTopLevelNav = (subRoute: string, selected: number) => {
-		setNavSelected(selected);
+	const location = useLocation();
+	const handleTopLevelNav = (subRoute: string) => {
 		navigate(`./${subRoute}`);
 	};
 
@@ -120,7 +115,23 @@ const Dashboard: React.FC = () => {
 			});
 	};
 
-	console.log(user);
+	useEffect(() => {
+		switch (location.pathname) {
+			case '/dashboard/scheduler':
+				setNavSelected(0);
+				break;
+			case '/dashboard/staff-view':
+				setNavSelected(1);
+				break;
+			case '/dashboard/teams':
+				setNavSelected(2);
+				break;
+			default:
+				setNavSelected(0);
+				break;
+		}
+	}, [location.pathname]);
+
 	return (
 		<Box sx={{ display: 'flex' }}>
 			<CssBaseline />
@@ -182,7 +193,7 @@ const Dashboard: React.FC = () => {
 					<ListItem disablePadding>
 						<ListItemButton
 							selected={navSelected === 0}
-							onClick={() => handleTopLevelNav('scheduler', 0)}
+							onClick={() => handleTopLevelNav('scheduler')}
 						>
 							<ListItemIcon>
 								<HomeIcon color="secondary" />
@@ -192,39 +203,32 @@ const Dashboard: React.FC = () => {
 					</ListItem>
 				</List>
 				<Divider />
-				<List>
-					<ListItem disablePadding>
-						<ListItemButton
-							selected={navSelected === 1}
-							onClick={() => handleTopLevelNav('staff-view', 1)}
-						>
-							<ListItemIcon>
-								<PeopleIcon color="secondary" />
-							</ListItemIcon>
-							<ListItemText primary="Staff" />
-						</ListItemButton>
-					</ListItem>
-					<ListItem disablePadding>
-						<ListItemButton onClick={handleTeamsClick}>
-							<ListItemIcon>
-								<GroupWorkIcon color="secondary" />
-							</ListItemIcon>
-							<ListItemText primary="Teams" />
-							{openTeams ? <ExpandLess /> : <ExpandMore />}
-						</ListItemButton>
-					</ListItem>
-
-					<Collapse in={openTeams} timeout="auto" unmountOnExit>
-						<List component="div" disablePadding>
-							<ListItemButton sx={{ pl: 4 }}>
+				{user.role === 'owner' && (
+					<List>
+						<ListItem disablePadding>
+							<ListItemButton
+								selected={navSelected === 1}
+								onClick={() => handleTopLevelNav('staff-view')}
+							>
 								<ListItemIcon>
-									<GroupAddIcon color="secondary" />
+									<PeopleIcon color="secondary" />
 								</ListItemIcon>
-								<ListItemText primary="Add Team" />
+								<ListItemText primary="Staff" />
 							</ListItemButton>
-						</List>
-					</Collapse>
-				</List>
+						</ListItem>
+						<ListItem disablePadding>
+							<ListItemButton
+								selected={navSelected === 2}
+								onClick={() => handleTopLevelNav('teams')}
+							>
+								<ListItemIcon>
+									<GroupWorkIcon color="secondary" />
+								</ListItemIcon>
+								<ListItemText primary="Teams" />
+							</ListItemButton>
+						</ListItem>
+					</List>
+				)}
 			</Drawer>
 			<Main open={true}>
 				<DrawerHeader />

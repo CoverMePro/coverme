@@ -18,6 +18,7 @@ import AuthWrapper from 'components/auth/AuthWrapper';
 import { theme } from './theme';
 import ScheduleView from 'pages/main/ScheduleView';
 import StaffView from 'pages/main/StaffView';
+import TeamsView from 'pages/main/TeamsView';
 
 ReactDOM.render(
 	<React.StrictMode>
@@ -36,13 +37,39 @@ ReactDOM.render(
 									</AuthWrapper>
 								}
 							>
-								<Route path="scheduler" element={<ScheduleView />} />
-								<Route path="staff-view" element={<StaffView />} />{' '}
+								<Route
+									path=""
+									element={<Navigate replace to="/dashboard/scheduler" />}
+								/>
+								<Route
+									path="scheduler"
+									element={
+										<AuthWrapper>
+											<ScheduleView />
+										</AuthWrapper>
+									}
+								/>
+								<Route
+									path="staff-view"
+									element={
+										<AuthWrapper permissionLevel={2}>
+											<StaffView />
+										</AuthWrapper>
+									}
+								/>
+								<Route
+									path="teams"
+									element={
+										<AuthWrapper permissionLevel={2}>
+											<TeamsView />
+										</AuthWrapper>
+									}
+								/>
 							</Route>
 							<Route
 								path="/create-company"
 								element={
-									<AuthWrapper permission="admin">
+									<AuthWrapper permissionLevel={3}>
 										<CreateCompany />
 									</AuthWrapper>
 								}

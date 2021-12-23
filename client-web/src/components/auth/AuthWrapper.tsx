@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useTypedSelector } from 'hooks/use-typed-selector';
@@ -8,15 +8,14 @@ import { useActions } from 'hooks/use-actions';
 import axios from 'utils/axios-intance';
 
 interface IAuthWrapperProps {
-	permission?: 'manager' | 'admin';
-	isOwner?: boolean;
+	permissionLevel?: number;
 }
 
 /**
  *  A wrapper around any page that requires to be authenticated and potentially certain permissions (role)
  */
 
-const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permission, isOwner }) => {
+const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 0 }) => {
 	const [authed, setAuthed] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const { enqueueSnackbar } = useSnackbar();
@@ -25,8 +24,25 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permission, isOwne
 
 	const { setUser } = useActions();
 
+	const hasPermission = useCallback(() => {
+		switch (permissionLevel) {
+			case 0:
+				return true;
+			case 1:
+				return user.role !== 'staff';
+			case 2:
+				return user.role !== 'staff' && user.role !== 'manager';
+			case 3:
+				return user.role === 'admin';
+			default:
+				return true;
+		}
+	}, [permissionLevel, user.role]);
+
 	useEffect(() => {
+		console.log('run');
 		if (!user.email) {
+			console.log('no user');
 			axios
 				.get(`${process.env.REACT_APP_SERVER_API}/auth`)
 				.then(result => {
@@ -43,19 +59,17 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permission, isOwne
 					console.log(err);
 				});
 		} else {
-			if (permission) {
-				if (user.role !== permission && user.role !== 'admin') {
-					enqueueSnackbar(
-						'You do not have permission to access this content, you have been redirected.',
-						{ variant: 'warning' }
-					);
-					navigate('/login');
-				}
+			if (hasPermission()) {
+				setAuthed(true);
+			} else {
+				enqueueSnackbar(
+					'You do not have permission to access this content, you have been redirected.',
+					{ variant: 'warning' }
+				);
+				navigate('/login');
 			}
-
-			setAuthed(true);
 		}
-	}, [permission, setUser, user, enqueueSnackbar, navigate]);
+	}, [hasPermission, setUser, user, enqueueSnackbar, navigate]);
 
 	return <>{authed && children}</>;
 };
