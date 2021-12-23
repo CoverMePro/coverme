@@ -58,7 +58,7 @@ interface IEnhancedTableProps {
   headerCells: IHeadCell[];
   id: string;
   onAdd: () => void;
-  onDelete: (selected: any[]) => void;
+  onDelete: (selected: any) => void;
 }
 
 const EnhancedTable: React.FC<IEnhancedTableProps> = ({
@@ -71,7 +71,7 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
 }) => {
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<string>('');
-  const [selected, setSelected] = React.useState<string[]>([]);
+  const [selected, setSelected] = React.useState<any>(undefined);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -84,33 +84,21 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelecteds = data.map((n) => n[id]!);
-      setSelected(newSelecteds);
-      return;
+  // const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (event.target.checked) {
+  //     const newSelecteds = data.map((n) => n[id]!);
+  //     setSelected(newSelecteds);
+  //     return;
+  //   }
+  //   setSelected([]);
+  // };
+
+  const handleClick = (event: React.MouseEvent<unknown>, name: any) => {
+    if (selected === name) {
+      setSelected(undefined);
+    } else {
+      setSelected(name);
     }
-    setSelected([]);
-  };
-
-  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected: string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -124,7 +112,8 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     setPage(0);
   };
 
-  const isSelected = (id: any) => selected.indexOf(id) !== -1;
+  const isSelected = (id: any) =>
+    selected !== undefined && selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -134,8 +123,8 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar
+          selected={selected}
           title={title}
-          numSelected={selected.length}
           onAdd={onAdd}
           onDelete={() => onDelete(selected)}
         />
@@ -146,12 +135,9 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
             size="medium"
           >
             <EnhancedTableHead
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={data.length}
               headCells={headerCells}
             />
             <TableBody>
@@ -166,9 +152,7 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
                   return (
                     <TableRow
                       hover
-                      onClick={(event) =>
-                        handleClick(event, row.email! as string)
-                      }
+                      onClick={(event) => handleClick(event, row[id])}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}

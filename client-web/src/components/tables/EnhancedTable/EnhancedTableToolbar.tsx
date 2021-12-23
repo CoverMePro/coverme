@@ -7,14 +7,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 interface IEnhancedTableToolbarProps {
-  numSelected: number;
+  selected: any;
   title: string;
   onAdd: () => void;
   onDelete: () => void;
 }
 
 const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
-  numSelected,
+  selected,
   title,
   onAdd,
   onDelete,
@@ -24,7 +24,7 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
+        ...(selected !== undefined && {
           bgcolor: (theme) =>
             alpha(
               theme.palette.primary.main,
@@ -33,14 +33,14 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
         }),
       }}
     >
-      {numSelected > 0 ? (
+      {selected !== undefined ? (
         <Typography
           sx={{ flex: '1 1 100%' }}
           color="inherit"
           variant="subtitle1"
           component="div"
         >
-          {numSelected} selected
+          {selected} selected
         </Typography>
       ) : (
         <Typography
@@ -52,7 +52,7 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
           {title}
         </Typography>
       )}
-      {numSelected > 0 ? (
+      {selected !== undefined ? (
         <Tooltip title="Delete">
           <IconButton onClick={onDelete} size="large">
             <DeleteIcon color="primary" fontSize="large" />
