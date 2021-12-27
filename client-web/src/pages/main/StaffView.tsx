@@ -12,124 +12,125 @@ import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
 import axios from 'utils/axios-intance';
 
 const StaffView: React.FC = () => {
-	const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
-	const [openDeleteStaff, setOpenDeleteStaff] = useState<boolean>(false);
-	const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
-	const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] = useState<boolean>(false);
-	const [deleteMessage, setDeleteMessage] = useState<string>('');
-	const [selected, setSelected] = useState<any | undefined>(undefined);
-	const [staff, setStaff] = useState<IUserInfo[]>([]);
+  const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
+  const [openDeleteStaff, setOpenDeleteStaff] = useState<boolean>(false);
+  const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
+  const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] =
+    useState<boolean>(false);
+  const [deleteMessage, setDeleteMessage] = useState<string>('');
+  const [selected, setSelected] = useState<any | undefined>(undefined);
+  const [staff, setStaff] = useState<IUserInfo[]>([]);
 
-	const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
-	const user = useTypedSelector(state => state.user);
+  const user = useTypedSelector((state) => state.user);
 
-	const handleSelectStaff = (staff: any | undefined) => {
-		if (selected === staff) {
-			setSelected(undefined);
-		} else {
-			setSelected(staff);
-		}
-	};
+  const handleSelectStaff = (staff: any | undefined) => {
+    if (selected === staff) {
+      setSelected(undefined);
+    } else {
+      setSelected(staff);
+    }
+  };
 
-	const handleAddStaff = () => {
-		setOpenAddStaff(true);
-	};
+  const handleAddStaff = () => {
+    setOpenAddStaff(true);
+  };
 
-	const handleOpenDeleteStaff = (selectedStaff: any) => {
-		setDeleteMessage(`Are you sure you want to delete ${selectedStaff}?`);
-		setOpenDeleteStaff(true);
-	};
+  const handleOpenDeleteStaff = (selectedStaff: any) => {
+    setDeleteMessage(`Are you sure you want to delete ${selectedStaff}?`);
+    setOpenDeleteStaff(true);
+  };
 
-	const handleCloseAddStaff = () => {
-		setOpenAddStaff(false);
-		handleGetUsers();
-	};
+  const handleCloseAddStaff = () => {
+    setOpenAddStaff(false);
+    handleGetUsers();
+  };
 
-	const handleCloseDeleteStaff = () => {
-		setOpenDeleteStaff(false);
-	};
+  const handleCloseDeleteStaff = () => {
+    setOpenDeleteStaff(false);
+  };
 
-	const handleConfirmDeleteStaff = () => {
-		setIsLoadingDeleteStaff(true);
-		axios
-			.get(`${process.env.REACT_APP_SERVER_API}/auth/delete/${selected}`)
-			.then(() => {
-				enqueueSnackbar('User successfully deleted', { variant: 'success' });
-				setSelected(undefined);
-				handleGetUsers();
-			})
-			.catch(err => {
-				enqueueSnackbar('Error trying to delete user, please try again', {
-					variant: 'error'
-				});
-			})
-			.finally(() => {
-				setOpenDeleteStaff(false);
-				setIsLoadingDeleteStaff(false);
-			});
-	};
+  const handleConfirmDeleteStaff = () => {
+    setIsLoadingDeleteStaff(true);
+    axios
+      .get(`${process.env.REACT_APP_SERVER_API}/auth/delete/${selected}`)
+      .then(() => {
+        enqueueSnackbar('User successfully deleted', { variant: 'success' });
+        setSelected(undefined);
+        handleGetUsers();
+      })
+      .catch((err) => {
+        enqueueSnackbar('Error trying to delete user, please try again', {
+          variant: 'error',
+        });
+      })
+      .finally(() => {
+        setOpenDeleteStaff(false);
+        setIsLoadingDeleteStaff(false);
+      });
+  };
 
-	const handleGetUsers = useCallback(() => {
-		axios
-			.get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
-			.then(result => {
-				setStaff(result.data.users);
-			})
-			.catch(err => {
-				console.log(err);
-			});
-	}, [user.company]);
+  const handleGetUsers = useCallback(() => {
+    axios
+      .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+      .then((result) => {
+        setStaff(result.data.users);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [user.company]);
 
-	useEffect(() => {
-		const loadUsers = async () => {
-			setIsLoadingStaff(true);
-			await handleGetUsers();
-			setIsLoadingStaff(false);
-		};
+  useEffect(() => {
+    const loadUsers = async () => {
+      setIsLoadingStaff(true);
+      await handleGetUsers();
+      setIsLoadingStaff(false);
+    };
 
-		loadUsers();
-	}, [handleGetUsers]);
+    loadUsers();
+  }, [handleGetUsers]);
 
-	return (
-		<>
-			{isLoadingStaff ? (
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						height: '100vh'
-					}}
-				>
-					<CircularProgress size={100} />
-				</Box>
-			) : (
-				<Box>
-					<EnhancedTable
-						title="Staff List"
-						data={staff}
-						headerCells={StaffHeaderCells}
-						id="email"
-						selected={selected}
-						onSelect={handleSelectStaff}
-						onAdd={handleAddStaff}
-						onDelete={handleOpenDeleteStaff}
-					/>
-					<Dialog open={openAddStaff} onClose={handleCloseAddStaff}>
-						<RegisterUserForm onFinish={handleCloseAddStaff} />
-					</Dialog>
-					<DeleteConfirmation
-						open={openDeleteStaff}
-						message={deleteMessage}
-						isLoading={isLoadingDeleteStaff}
-						onClose={handleCloseDeleteStaff}
-						onConfirm={handleConfirmDeleteStaff}
-					/>
-				</Box>
-			)}
-		</>
-	);
+  return (
+    <>
+      {isLoadingStaff ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <CircularProgress size={100} />
+        </Box>
+      ) : (
+        <Box>
+          <EnhancedTable
+            title="Staff List"
+            data={staff}
+            headerCells={StaffHeaderCells}
+            id="email"
+            selected={selected}
+            onSelect={handleSelectStaff}
+            onAdd={handleAddStaff}
+            onDelete={handleOpenDeleteStaff}
+          />
+          <Dialog open={openAddStaff} onClose={handleCloseAddStaff}>
+            <RegisterUserForm onFinish={handleCloseAddStaff} />
+          </Dialog>
+          <DeleteConfirmation
+            open={openDeleteStaff}
+            message={deleteMessage}
+            isLoading={isLoadingDeleteStaff}
+            onClose={handleCloseDeleteStaff}
+            onConfirm={handleConfirmDeleteStaff}
+          />
+        </Box>
+      )}
+    </>
+  );
 };
 
 export default StaffView;
