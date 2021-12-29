@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 
 import HowToRegIcon from '@mui/icons-material/Add';
-import logo from '../../../images/cover-me-logo.png';
+import logo from 'images/cover-me-logo.png';
 import axios from 'utils/axios-intance';
 import { validateUserCreate } from 'utils/validation';
 

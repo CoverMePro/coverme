@@ -6,7 +6,7 @@ import { Box, Dialog, CircularProgress } from '@mui/material';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUserInfo } from 'models/User';
-import RegisterUserForm from 'components/forms/user/RegisterUserForm';
+import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';

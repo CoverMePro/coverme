@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Box } from '@mui/material';
 
-import CreateCompanyForm from 'components/forms/company/CreateCompanyForm';
+import CreateCompanyForm from 'components/forms/CreateCompanyForm';
 
 import loginBackground from '../../images/login-background.jpg';
 

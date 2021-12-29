@@ -14,6 +14,7 @@ import {
   Typography,
   Tooltip,
   IconButton,
+  Dialog,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -23,8 +24,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
+import CreateTeamForm from 'components/forms/CreateTeamForm';
+
 const TeamsView: React.FC = () => {
   const [expanded, setExpanded] = useState<string | false>(false);
+  const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
+
+  const handleOpenAddTeam = () => {
+    setOpenAddTeam(true);
+  };
+
+  const handleCloseAddTeam = () => {
+    setOpenAddTeam(false);
+  };
+
+  const handleAddTeam = () => {};
 
   const handleTeamChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -38,7 +52,7 @@ const TeamsView: React.FC = () => {
       >
         <Typography variant="h1">Teams</Typography>
         <Tooltip title="Create Team">
-          <IconButton size="large">
+          <IconButton size="large" onClick={handleOpenAddTeam}>
             <AddCircleIcon color="primary" fontSize="large" />
           </IconButton>
         </Tooltip>
@@ -185,6 +199,9 @@ const TeamsView: React.FC = () => {
           </Tooltip>
         </AccordionActions>
       </Accordion>
+      <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
+        <CreateTeamForm onFinish={handleAddTeam} />
+      </Dialog>
     </Box>
   );
 };

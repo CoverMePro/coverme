@@ -11,5 +11,6 @@ router.get('/:id', authGuard, companyController.getCompany);
 
 // POST
 router.post('/create', companyController.createCompany);
+router.post('/:id/create-team', companyController.createTeam);
 
 export default router;
