@@ -55,6 +55,33 @@ const getUsersFromCompany = (req: Request, res: Response) => {
 };
 
 /**
+ * Get users from a list of emails
+ */
+const getUsersFromList = (req: Request, res: Response) => {
+  const userEmails = req.body.emails;
+
+  db.collection('/users')
+    .where('__name__', 'in', userEmails)
+    .get()
+    .then((userData) => {
+      const managers: IUserInfo[] = [];
+      const staff: IUserInfo[] = [];
+      userData.forEach((user) => {
+        if (user.data().role === 'manager') {
+          managers.push({ email: user.id, ...user.data() });
+        } else if (user.data().role === 'staff') {
+          staff.push({ email: user.id, ...user.data() });
+        }
+      });
+      return res.json({ managers, staff });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+/**
  * Update user info based on their ID
  */
 const updateUser = (req: Request, res: Response) => {
@@ -93,6 +120,7 @@ const checkUser = (req: Request, res: Response) => {
 export default {
   getUser,
   getUsersFromCompany,
+  getUsersFromList,
   updateUser,
   checkUser,
 };

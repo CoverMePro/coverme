@@ -8,9 +8,10 @@ const router: Router = express.Router();
 router.get('/', authGuard, companyController.getAllCompanies);
 router.get('/check/:id', authGuard, companyController.checkCompany);
 router.get('/:id', authGuard, companyController.getCompany);
+router.get('/:id/team', authGuard, companyController.getAllTeams);
 
 // POST
-router.post('/create', companyController.createCompany);
-router.post('/:id/create-team', companyController.createTeam);
+router.post('/create', authGuard, companyController.createCompany);
+router.post('/:id/create-team', authGuard, companyController.createTeam);
 
 export default router;

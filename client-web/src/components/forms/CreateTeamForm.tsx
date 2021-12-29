@@ -16,11 +16,12 @@ import {
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
 import axios from 'utils/axios-intance';
-import { validateUserCreate } from 'utils/validation';
+import { validateCreateTeam } from 'utils/validation';
 
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { IUserInfo } from 'models/User';
+import { AxiosError } from 'axios';
 
 interface ICreateFormProps {
   onFinish: () => void;
@@ -40,35 +41,59 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const handleChangeSelectUsers = (users: IUserInfo[], isStaff: boolean) => {
+    const userEmails = users.map((user) => {
+      return user.email!;
+    });
+
+    isStaff ? setSelectedStaff(userEmails) : setSelectedManagers(userEmails);
+  };
+
   const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik(
     {
       initialValues: {
         teamName: '',
       },
-      validate: validateUserCreate,
+      validate: validateCreateTeam,
       onSubmit: (values: any) => {
-        // setIsLoading(true);
-        // axios
-        //   .post(`${process.env.REACT_APP_SERVER_API}/auth/register-link`, {
-        //     name: values.teamName,
-        //     managers: selectedManagers,
-        //     staff: selectedStaff,
-        //   })
-        //   .then((result) => {
-        //     setIsLoading(false);
-        //     enqueueSnackbar('Team created.', {
-        //       variant: 'success',
-        //     });
-        //     onFinish();
-        //   })
-        //   .catch((err) => {
-        //     setIsLoading(false);
-        //     enqueueSnackbar('An error has occured, please try again', {
-        //       variant: 'error',
-        //     });
-        //     console.log(err);
-        //     onFinish();
-        //   });
+        console.log('test');
+        setIsLoading(true);
+        axios
+          .post(
+            `${
+              process.env.REACT_APP_SERVER_API
+            }/company/${user.company!}/create-team`,
+            {
+              team: {
+                name: values.teamName,
+                managers: selectedManagers,
+                staff: selectedStaff,
+              },
+            }
+          )
+          .then((result) => {
+            console.log(result);
+            enqueueSnackbar('Team created.', {
+              variant: 'success',
+            });
+            onFinish();
+          })
+          .catch((err: AxiosError) => {
+            if (err.response?.status === 403) {
+              enqueueSnackbar('A team with this name already exists', {
+                variant: 'error',
+              });
+            } else {
+              enqueueSnackbar('An error has occured, please try again', {
+                variant: 'error',
+              });
+              console.log(err);
+              onFinish();
+            }
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
       },
     }
   );
@@ -152,7 +177,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
               renderInput={(params) => (
                 <TextField {...params} label="Managers" />
               )}
-              onChange={(e) => console.log(e)}
+              onChange={(e, val) => handleChangeSelectUsers(val, false)}
             />
           </Box>
           <Box sx={{ mt: 2 }}>
@@ -175,7 +200,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                 </li>
               )}
               renderInput={(params) => <TextField {...params} label="Staff" />}
-              onChange={(e) => console.log(e)}
+              onChange={(e, val) => handleChangeSelectUsers(val, true)}
             />
           </Box>
 

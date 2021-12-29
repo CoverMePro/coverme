@@ -129,10 +129,22 @@ const deleteCompany = (req: Request, res: Response) => {
  * Get all teams within a company
  */
 const getAllTeams = (req: Request, res: Response) => {
-  db.doc(`/companies/${req.params.id}/teams`)
+  db.collection(`/companies/${req.params.id}/teams`)
     .get()
-    .then((teamsResult) => {
-      const teams = teamsResult.data();
+    .then((teamData) => {
+      let teams: ITeamInfo[] = [];
+      teamData.forEach((team) => {
+        teams.push({
+          name: team.id,
+          managers: team.data().managers,
+          staff: team.data().staff,
+        });
+      });
+
+      return res.json(teams);
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
@@ -175,4 +187,5 @@ export default {
   getAllCompanies,
   deleteCompany,
   createTeam,
+  getAllTeams,
 };

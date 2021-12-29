@@ -11,5 +11,6 @@ router.get('/all/:company', userController.getUsersFromCompany);
 
 // POST
 router.post('/:id', authGuard, userController.updateUser);
+router.post('/', authGuard, userController.getUsersFromList);
 
 export default router;
