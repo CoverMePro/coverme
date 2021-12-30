@@ -9,6 +9,7 @@ router.get('/', authGuard, companyController.getAllCompanies);
 router.get('/check/:id', authGuard, companyController.checkCompany);
 router.get('/:id', authGuard, companyController.getCompany);
 router.get('/:id/team', authGuard, companyController.getAllTeams);
+router.get('/:companyId/team/:teamId/delete', companyController.deleteTeam);
 
 // POST
 router.post('/create', authGuard, companyController.createCompany);

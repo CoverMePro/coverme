@@ -180,6 +180,23 @@ const createTeam = (req: Request, res: Response) => {
     });
 };
 
+/**
+ * Delete a team from a company
+ */
+
+const deleteTeam = (req: Request, res: Response) => {
+  const { companyId, teamId } = req.params;
+
+  db.doc(`/companies/${companyId}/teams/${teamId}`)
+    .delete()
+    .then(() => {
+      return res.json({ message: 'Team Deleted!' });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 export default {
   createCompany,
   getCompany,
@@ -188,4 +205,5 @@ export default {
   deleteCompany,
   createTeam,
   getAllTeams,
+  deleteTeam,
 };

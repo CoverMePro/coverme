@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
@@ -37,9 +38,15 @@ import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
 const TeamsView: React.FC = () => {
   const [expanded, setExpanded] = useState<string | false>(false);
   const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(false);
+  const [isLoadingDeleteTeam, setIsLoadingDeleteTeam] =
+    useState<boolean>(false);
+  const [teamSelectedForDelete, setTeamSelectedForDelete] =
+    useState<string>('');
+  const [deleteMessage, setDeleteMessage] = useState<string>('');
   const [loadingRosterManager, setLoadingRosterManger] = useState<string[]>([]);
   const [loadingRosterStaff, setLoadingRosterStaff] = useState<string[]>([]);
   const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
+  const [openDeleteTeam, setOpenDeleteTeam] = useState<boolean>(false);
   const [teams, setTeams] = useState<ITeamInfo[]>([]);
   const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>(
     []
@@ -48,12 +55,25 @@ const TeamsView: React.FC = () => {
 
   const user = useTypedSelector((state) => state.user);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const handleOpenAddTeam = () => {
     setOpenAddTeam(true);
   };
 
+  const handleOpenDeleteTeam = (team: string) => {
+    setTeamSelectedForDelete(team);
+    setDeleteMessage(`Are you sure you want to delete ${team}?`);
+    setOpenDeleteTeam(true);
+  };
+
   const handleCloseAddTeam = () => {
     setOpenAddTeam(false);
+  };
+
+  const handleOnTeamAdd = () => {
+    handleCloseAddTeam();
+    handleGetTeams();
   };
 
   const handleTeamChange =
@@ -61,29 +81,64 @@ const TeamsView: React.FC = () => {
       setExpanded(isExpanded ? team.name : false);
       setSelectedTeamManagers([]);
       setSelectedTeamStaff([]);
-      const emails = [...team.managers, ...team.staff];
+
       setLoadingRosterManger([...team.managers]);
       setLoadingRosterStaff([...team.staff]);
-      axios
-        .post(`${process.env.REACT_APP_SERVER_API}/user`, {
-          emails,
-        })
-        .then((result) => {
-          const { managers, staff } = result.data;
-          setSelectedTeamManagers(managers);
-          setSelectedTeamStaff(staff);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setLoadingRosterManger([]);
-          setLoadingRosterStaff([]);
-        });
+
+      const emails = [...team.managers, ...team.staff];
+      if (emails.length > 0) {
+        axios
+          .post(`${process.env.REACT_APP_SERVER_API}/user`, {
+            emails,
+          })
+          .then((result) => {
+            const { managers, staff } = result.data;
+            setSelectedTeamManagers(managers);
+            setSelectedTeamStaff(staff);
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            setLoadingRosterManger([]);
+            setLoadingRosterStaff([]);
+          });
+      }
     };
 
-  useEffect(() => {
-    setIsLoadingTeams(true);
+  const handleConfirmDeleteTeam = () => {
+    setIsLoadingDeleteTeam(true);
+    axios
+      .get(
+        `${
+          process.env.REACT_APP_SERVER_API
+        }/company/${user.company!}/team/${teamSelectedForDelete}/delete`
+      )
+      .then(() => {
+        enqueueSnackbar(`${teamSelectedForDelete} successfully deleted.`, {
+          variant: 'success',
+        });
+        handleGetTeams();
+        setExpanded(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        enqueueSnackbar('An error occured, please try again!', {
+          variant: 'error',
+        });
+      })
+      .finally(() => {
+        setIsLoadingDeleteTeam(false);
+        setTeamSelectedForDelete('');
+        handleCloseDeleteTeam();
+      });
+  };
+
+  const handleCloseDeleteTeam = () => {
+    setOpenDeleteTeam(false);
+  };
+
+  const handleGetTeams = useCallback(() => {
     axios
       .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team`)
       .then((result) => {
@@ -96,6 +151,11 @@ const TeamsView: React.FC = () => {
       .finally(() => {
         setIsLoadingTeams(false);
       });
+  }, [user.company]);
+
+  useEffect(() => {
+    setIsLoadingTeams(true);
+    handleGetTeams();
   }, []);
 
   return (
@@ -137,8 +197,9 @@ const TeamsView: React.FC = () => {
                   <List sx={{ width: '100%' }}>
                     {loadingRosterManager.length > 0 ? (
                       <>
-                        {loadingRosterManager.map(() => (
+                        {loadingRosterManager.map((loadManager) => (
                           <Box
+                            key={loadManager}
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
@@ -221,8 +282,9 @@ const TeamsView: React.FC = () => {
                   <List sx={{ width: '100%' }}>
                     {loadingRosterStaff.length > 0 ? (
                       <>
-                        {loadingRosterManager.map(() => (
+                        {loadingRosterManager.map((loadStaff) => (
                           <Box
+                            key={loadStaff}
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
@@ -307,7 +369,10 @@ const TeamsView: React.FC = () => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete Team">
-                  <IconButton size="large">
+                  <IconButton
+                    size="large"
+                    onClick={() => handleOpenDeleteTeam(team.name)}
+                  >
                     <DeleteIcon color="primary" fontSize="large" />
                   </IconButton>
                 </Tooltip>
@@ -318,15 +383,15 @@ const TeamsView: React.FC = () => {
       )}
 
       <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
-        <CreateTeamForm onFinish={handleCloseAddTeam} />
+        <CreateTeamForm onFinish={handleOnTeamAdd} />
       </Dialog>
-      {/* <DeleteConfirmation
-        open={openDeleteStaff}
+      <DeleteConfirmation
+        open={openDeleteTeam}
         message={deleteMessage}
-        isLoading={isLoadingDeleteStaff}
-        onClose={handleCloseDeleteStaff}
-        onConfirm={handleConfirmDeleteStaff}
-      /> */}
+        isLoading={isLoadingDeleteTeam}
+        onClose={handleCloseDeleteTeam}
+        onConfirm={handleConfirmDeleteTeam}
+      />
     </Box>
   );
 };
