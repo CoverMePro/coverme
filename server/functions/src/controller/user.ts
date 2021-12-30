@@ -3,6 +3,8 @@ import { IUser, IUserInfo } from '../models/User';
 
 import { db } from '../utils/admin';
 
+import { updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+
 /**
  * Get a user based on their ID
  */
@@ -117,10 +119,48 @@ const checkUser = (req: Request, res: Response) => {
     });
 };
 
+const addToTeam = (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const team = req.body.team;
+  const user = db.collection(`/users`).doc(userId);
+
+  user
+    .update({
+      teams: FieldValue.arrayUnion(team),
+    })
+    .then(() => {
+      return res.json({ message: 'Team added to User!' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+const removeFromTeam = async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const team = req.body.team;
+  const user = db.collection(`/users`).doc(userId);
+
+  user
+    .update({
+      teams: arrayRemove(team),
+    })
+    .then(() => {
+      return res.json({ message: 'Team removed to User!' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 export default {
   getUser,
   getUsersFromCompany,
   getUsersFromList,
   updateUser,
   checkUser,
+  addToTeam,
+  removeFromTeam,
 };

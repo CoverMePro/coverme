@@ -4,6 +4,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
   Box,
+  Autocomplete,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -17,8 +18,13 @@ import {
   Tooltip,
   IconButton,
   Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   LinearProgress,
   Skeleton,
+  TextField,
+  Button,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -40,14 +46,17 @@ const TeamsView: React.FC = () => {
   const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(false);
   const [isLoadingDeleteTeam, setIsLoadingDeleteTeam] =
     useState<boolean>(false);
-  const [teamSelectedForDelete, setTeamSelectedForDelete] =
-    useState<string>('');
-  const [deleteMessage, setDeleteMessage] = useState<string>('');
   const [loadingRosterManager, setLoadingRosterManger] = useState<string[]>([]);
   const [loadingRosterStaff, setLoadingRosterStaff] = useState<string[]>([]);
   const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
+  const [openAddUserToTeam, setOpenAddUserToTeam] = useState<boolean>(false);
   const [openDeleteTeam, setOpenDeleteTeam] = useState<boolean>(false);
+  const [deleteMessage, setDeleteMessage] = useState<string>('');
   const [teams, setTeams] = useState<ITeamInfo[]>([]);
+  const [usersToAdd, setUsersToAdd] = useState<IUserInfo[]>([]);
+  const [userSelectedToAdd, setUserSelectedToAdd] = useState<
+    IUserInfo | undefined
+  >(undefined);
   const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>(
     []
   );
@@ -61,14 +70,42 @@ const TeamsView: React.FC = () => {
     setOpenAddTeam(true);
   };
 
-  const handleOpenDeleteTeam = (team: string) => {
-    setTeamSelectedForDelete(team);
-    setDeleteMessage(`Are you sure you want to delete ${team}?`);
+  const hasTeam = (teams: string[]) => {
+    return teams.findIndex((team) => team === (expanded as string)) > -1;
+  };
+
+  const handleOpenAddUserToTeam = () => {
+    axios
+      .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+      .then((result) => {
+        const users: IUserInfo[] = result.data.users;
+
+        const availableUsers = users.filter((user) => {
+          return !user.teams || !hasTeam(user.teams);
+        });
+
+        setUsersToAdd(availableUsers);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    setOpenAddUserToTeam(true);
+  };
+
+  const handleOpenDeleteTeam = () => {
+    setDeleteMessage(
+      `Are you sure you want to delete ${expanded ? expanded : 'this team'}?`
+    );
     setOpenDeleteTeam(true);
   };
 
   const handleCloseAddTeam = () => {
     setOpenAddTeam(false);
+  };
+
+  const handleClostAddUserToTeam = () => {
+    setOpenAddUserToTeam(false);
   };
 
   const handleOnTeamAdd = () => {
@@ -112,10 +149,10 @@ const TeamsView: React.FC = () => {
       .get(
         `${
           process.env.REACT_APP_SERVER_API
-        }/company/${user.company!}/team/${teamSelectedForDelete}/delete`
+        }/company/${user.company!}/team/${expanded}/delete`
       )
       .then(() => {
-        enqueueSnackbar(`${teamSelectedForDelete} successfully deleted.`, {
+        enqueueSnackbar(`${expanded} successfully deleted.`, {
           variant: 'success',
         });
         handleGetTeams();
@@ -129,13 +166,49 @@ const TeamsView: React.FC = () => {
       })
       .finally(() => {
         setIsLoadingDeleteTeam(false);
-        setTeamSelectedForDelete('');
         handleCloseDeleteTeam();
       });
   };
 
   const handleCloseDeleteTeam = () => {
     setOpenDeleteTeam(false);
+  };
+
+  const handleSelectUserToAdd = (selectUser: IUserInfo | null) => {
+    if (selectUser) {
+      setUserSelectedToAdd(selectUser);
+    } else {
+      setUserSelectedToAdd(undefined);
+    }
+  };
+
+  const handleAddUserToTeam = () => {
+    if (expanded !== false && userSelectedToAdd) {
+      axios
+        .post(
+          `${
+            process.env.REACT_APP_SERVER_API
+          }/${userSelectedToAdd.email!}/add-team`,
+          {
+            team: expanded,
+          }
+        )
+        .then(() => {
+          enqueueSnackbar(`User added to ${expanded}`, { variant: 'success' });
+          if (userSelectedToAdd.role === 'manager') {
+            setSelectedTeamManagers((prev) => [...prev, userSelectedToAdd]);
+          } else if (userSelectedToAdd.role === 'staff') {
+            setSelectedTeamStaff((prev) => [...prev, userSelectedToAdd]);
+          }
+          handleClostAddUserToTeam();
+        })
+        .catch((err) => {
+          enqueueSnackbar('An error occured, please try again!', {
+            variant: 'error',
+          });
+          console.log(err);
+        });
+    }
   };
 
   const handleGetTeams = useCallback(() => {
@@ -364,15 +437,12 @@ const TeamsView: React.FC = () => {
               </AccordionDetails>
               <AccordionActions>
                 <Tooltip title="Add To Team">
-                  <IconButton size="large">
+                  <IconButton size="large" onClick={handleOpenAddUserToTeam}>
                     <PersonAddIcon color="primary" fontSize="large" />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete Team">
-                  <IconButton
-                    size="large"
-                    onClick={() => handleOpenDeleteTeam(team.name)}
-                  >
+                  <IconButton size="large" onClick={handleOpenDeleteTeam}>
                     <DeleteIcon color="primary" fontSize="large" />
                   </IconButton>
                 </Tooltip>
@@ -384,6 +454,29 @@ const TeamsView: React.FC = () => {
 
       <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
         <CreateTeamForm onFinish={handleOnTeamAdd} />
+      </Dialog>
+      <Dialog open={openAddUserToTeam} onClose={handleClostAddUserToTeam}>
+        <DialogTitle>Add User to {expanded}</DialogTitle>
+        <DialogContent>
+          <Autocomplete
+            sx={{ mt: 2 }}
+            disablePortal
+            options={usersToAdd}
+            getOptionLabel={(option) =>
+              `${option.firstName} ${option.lastName}`
+            }
+            onChange={(e, val) => {
+              handleSelectUserToAdd(val);
+            }}
+            renderInput={(params: any) => (
+              <TextField {...params} variant="outlined" label="User" />
+            )}
+          />
+          <DialogActions sx={{ mt: 2 }}>
+            <Button onClick={handleClostAddUserToTeam}>Cancel</Button>
+            <Button onClick={handleAddUserToTeam}>Add</Button>
+          </DialogActions>
+        </DialogContent>
       </Dialog>
       <DeleteConfirmation
         open={openDeleteTeam}

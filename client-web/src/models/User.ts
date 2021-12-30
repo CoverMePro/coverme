@@ -10,4 +10,5 @@ export interface IUserInfo {
   location?: string;
   status?: string;
   position?: string;
+  teams?: string[];
 }

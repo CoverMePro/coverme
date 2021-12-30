@@ -166,6 +166,34 @@ const createTeam = (req: Request, res: Response) => {
           .set({ managers: team.managers, staff: team.staff });
       }
     })
+    .then(async () => {
+      const emails = [...team.managers, ...team.staff];
+      if (emails.length > 0) {
+        const batch = db.batch();
+        db.collection('/users')
+          .where('__name__', 'in', emails)
+          .get()
+          .then(async (userData) => {
+            userData.forEach(async (doc) => {
+              let teams = [];
+              const user = db.doc(`/users/${doc.id}`);
+              const userData = doc.data();
+
+              if (userData && userData.teams) {
+                teams = [...userData.teams, team.name];
+              } else {
+                teams = [team.name];
+              }
+
+              batch.update(user, { teams: teams });
+            });
+
+            return batch.commit();
+          });
+      } else {
+        return new Promise<void>((resolve, reject) => {});
+      }
+    })
     .then(() => {
       return res.json({ message: 'Team Created!' });
     })
@@ -189,6 +217,24 @@ const deleteTeam = (req: Request, res: Response) => {
 
   db.doc(`/companies/${companyId}/teams/${teamId}`)
     .delete()
+    .then(() => {
+      db.collection('/users')
+        .where('teams', 'array-contains', teamId)
+        .get()
+        .then(async (userData) => {
+          const batch = db.batch();
+          userData.forEach(async (doc) => {
+            const user = db.doc(`/users/${doc.id}`);
+            const userData = doc.data();
+
+            const teams = userData.teams.filter((t: any) => t != teamId);
+
+            batch.update(user, { teams: teams });
+          });
+
+          return batch.commit();
+        });
+    })
     .then(() => {
       return res.json({ message: 'Team Deleted!' });
     })
