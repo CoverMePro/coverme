@@ -188,7 +188,7 @@ const TeamsView: React.FC = () => {
         .post(
           `${
             process.env.REACT_APP_SERVER_API
-          }/${userSelectedToAdd.email!}/add-team`,
+          }/user/${userSelectedToAdd.email!}/add-team`,
           {
             team: expanded,
           }

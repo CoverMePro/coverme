@@ -11,8 +11,6 @@ router.get('/all/:company', userController.getUsersFromCompany);
 
 // POST
 router.post('/:id', authGuard, userController.updateUser);
-router.post('/:id/add-team', authGuard, userController.addToTeam);
-router.post('/:id/remove-team', authGuard, userController.removeFromTeam);
 router.post('/', authGuard, userController.getUsersFromList);
 
 export default router;

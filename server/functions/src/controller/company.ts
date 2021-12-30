@@ -243,6 +243,58 @@ const deleteTeam = (req: Request, res: Response) => {
     });
 };
 
+// const addUserToTeam = (req: Request, res: Response) => {
+//   const userId = req.params.id;
+//   const team = req.body.team;
+//   db.doc(`/users/${userId}`)
+//     .get()
+//     .then((userData) => {
+//       let newTeams = [team];
+//       const data = userData.data();
+
+//       if (data && data.teams) {
+//         newTeams = [...data.teams, team];
+//       }
+
+//       return db.doc(`/users/${userId}`).update({
+//         teams: newTeams,
+//       });
+//     })
+//     .then(() => {
+//       return res.json({ message: 'Team added to User!' });
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       return res.status(500).json({ error: err.code });
+//     });
+// };
+
+// const removeUserFromTeam = async (req: Request, res: Response) => {
+//   const userId = req.params.id;
+//   const team = req.body.team;
+//   db.doc(`/users/${userId}`)
+//     .get()
+//     .then((userData) => {
+//       let newTeams: any = [];
+//       const data = userData.data();
+
+//       if (data && data.teams) {
+//         newTeams = data.teams.filter((t: any) => t !== team);
+//       }
+
+//       return db.doc(`/users/${userId}`).update({
+//         teams: newTeams,
+//       });
+//     })
+//     .then(() => {
+//       return res.json({ message: 'Team added to User!' });
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       return res.status(500).json({ error: err.code });
+//     });
+// };
+
 export default {
   createCompany,
   getCompany,
