@@ -16,6 +16,8 @@ import {
   Tooltip,
   IconButton,
   Dialog,
+  LinearProgress,
+  Skeleton,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -30,9 +32,13 @@ import CreateTeamForm from 'components/forms/CreateTeamForm';
 import axios from 'utils/axios-intance';
 import { ITeamInfo } from 'models/Team';
 import { IUserInfo } from 'models/User';
+import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
 
 const TeamsView: React.FC = () => {
   const [expanded, setExpanded] = useState<string | false>(false);
+  const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(false);
+  const [loadingRosterManager, setLoadingRosterManger] = useState<string[]>([]);
+  const [loadingRosterStaff, setLoadingRosterStaff] = useState<string[]>([]);
   const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
   const [teams, setTeams] = useState<ITeamInfo[]>([]);
   const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>(
@@ -53,7 +59,11 @@ const TeamsView: React.FC = () => {
   const handleTeamChange =
     (team: ITeamInfo) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? team.name : false);
+      setSelectedTeamManagers([]);
+      setSelectedTeamStaff([]);
       const emails = [...team.managers, ...team.staff];
+      setLoadingRosterManger([...team.managers]);
+      setLoadingRosterStaff([...team.staff]);
       axios
         .post(`${process.env.REACT_APP_SERVER_API}/user`, {
           emails,
@@ -65,10 +75,15 @@ const TeamsView: React.FC = () => {
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          setLoadingRosterManger([]);
+          setLoadingRosterStaff([]);
         });
     };
 
   useEffect(() => {
+    setIsLoadingTeams(true);
     axios
       .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team`)
       .then((result) => {
@@ -77,6 +92,9 @@ const TeamsView: React.FC = () => {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        setIsLoadingTeams(false);
       });
   }, []);
 
@@ -85,103 +103,230 @@ const TeamsView: React.FC = () => {
       <Box
         sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}
       >
-        <Typography variant="h1">Teams</Typography>
+        <Typography variant="h2">Teams</Typography>
         <Tooltip title="Create Team">
           <IconButton size="large" onClick={handleOpenAddTeam}>
             <AddCircleIcon color="primary" fontSize="large" />
           </IconButton>
         </Tooltip>
       </Box>
-      {teams.map((team) => (
-        <Accordion
-          key={team.name}
-          expanded={expanded === team.name}
-          onChange={handleTeamChange(team)}
+      {isLoadingTeams ? (
+        <Box
+          sx={{
+            width: '80%',
+            mt: 3,
+            mx: 'auto',
+          }}
         >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h3">{team.name}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="h4">Managers</Typography>
-              <List sx={{ width: '100%' }}>
-                {selectedTeamManagers.map((manager) => (
-                  <ListItem
-                    key={manager.email!}
-                    sx={{ width: '100%' }}
-                    secondaryAction={
-                      <IconButton edge="end" aria-label="delete">
-                        <RemoveCircleIcon color="primary" />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <AccountCircleIcon color="secondary" />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={`${manager.firstName} ${manager.lastName}`}
-                      secondary={manager.position}
-                    />
-                    <ListItemText
-                      primary={manager.email}
-                      secondary={manager.phoneNo}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
+          <LinearProgress color="primary" />
+        </Box>
+      ) : (
+        <>
+          {teams.map((team) => (
+            <Accordion
+              key={team.name}
+              expanded={expanded === team.name}
+              onChange={handleTeamChange(team)}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h3">{team.name}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="h4">Managers</Typography>
+                  <List sx={{ width: '100%' }}>
+                    {loadingRosterManager.length > 0 ? (
+                      <>
+                        {loadingRosterManager.map(() => (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                ml: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Skeleton
+                                variant="circular"
+                                width={40}
+                                height={40}
+                              />
+                              <Box sx={{ ml: 2 }}>
+                                <Skeleton
+                                  variant="text"
+                                  width={75}
+                                  height={10}
+                                />
+                                <Skeleton
+                                  variant="text"
+                                  width={50}
+                                  height={10}
+                                />
+                              </Box>
+                            </Box>
 
-            <Box>
-              <Typography variant="h4">Staff</Typography>
-              <List sx={{ width: '100%' }}>
-                {selectedTeamStaff.map((staff) => (
-                  <ListItem
-                    key={staff.email!}
-                    sx={{ width: '100%' }}
-                    secondaryAction={
-                      <IconButton edge="end" aria-label="delete">
-                        <RemoveCircleIcon color="primary" />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <AccountCircleIcon color="secondary" />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={`${staff.firstName} ${staff.lastName}`}
-                      secondary={staff.position}
-                    />
-                    <ListItemText
-                      primary={staff.email}
-                      secondary={staff.phoneNo}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </AccordionDetails>
-          <AccordionActions>
-            <Tooltip title="Add To Team">
-              <IconButton size="large">
-                <PersonAddIcon color="primary" fontSize="large" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete Team">
-              <IconButton size="large">
-                <DeleteIcon color="primary" fontSize="large" />
-              </IconButton>
-            </Tooltip>
-          </AccordionActions>
-        </Accordion>
-      ))}
+                            <Box sx={{ ml: 2 }}>
+                              <Skeleton variant="text" width={75} height={10} />
+                              <Skeleton variant="text" width={75} height={10} />
+                            </Box>
+                            <Skeleton
+                              sx={{ mr: 2 }}
+                              variant="circular"
+                              width={20}
+                              height={20}
+                            />
+                          </Box>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {selectedTeamManagers.map((manager) => (
+                          <ListItem
+                            key={manager.email!}
+                            sx={{ width: '100%' }}
+                            secondaryAction={
+                              <IconButton edge="end" aria-label="delete">
+                                <RemoveCircleIcon color="primary" />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemAvatar>
+                              <Avatar sx={{ bgcolor: 'primary.main' }}>
+                                <AccountCircleIcon color="secondary" />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={`${manager.firstName} ${manager.lastName}`}
+                              secondary={manager.position}
+                            />
+                            <ListItemText
+                              primary={manager.email}
+                              secondary={manager.phoneNo}
+                            />
+                          </ListItem>
+                        ))}
+                      </>
+                    )}
+                  </List>
+                </Box>
+
+                <Box>
+                  <Typography variant="h4">Staff</Typography>
+                  <List sx={{ width: '100%' }}>
+                    {loadingRosterStaff.length > 0 ? (
+                      <>
+                        {loadingRosterManager.map(() => (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                ml: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Skeleton
+                                variant="circular"
+                                width={40}
+                                height={40}
+                              />
+                              <Box sx={{ ml: 2 }}>
+                                <Skeleton
+                                  variant="text"
+                                  width={75}
+                                  height={10}
+                                />
+                                <Skeleton
+                                  variant="text"
+                                  width={50}
+                                  height={10}
+                                />
+                              </Box>
+                            </Box>
+
+                            <Box sx={{ ml: 2 }}>
+                              <Skeleton variant="text" width={75} height={10} />
+                              <Skeleton variant="text" width={75} height={10} />
+                            </Box>
+                            <Skeleton
+                              sx={{ mr: 2 }}
+                              variant="circular"
+                              width={20}
+                              height={20}
+                            />
+                          </Box>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {selectedTeamStaff.map((staff) => (
+                          <ListItem
+                            key={staff.email!}
+                            sx={{ width: '100%' }}
+                            secondaryAction={
+                              <IconButton edge="end" aria-label="delete">
+                                <RemoveCircleIcon color="primary" />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemAvatar>
+                              <Avatar sx={{ bgcolor: 'primary.main' }}>
+                                <AccountCircleIcon color="secondary" />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={`${staff.firstName} ${staff.lastName}`}
+                              secondary={staff.position}
+                            />
+                            <ListItemText
+                              primary={staff.email}
+                              secondary={staff.phoneNo}
+                            />
+                          </ListItem>
+                        ))}
+                      </>
+                    )}
+                  </List>
+                </Box>
+              </AccordionDetails>
+              <AccordionActions>
+                <Tooltip title="Add To Team">
+                  <IconButton size="large">
+                    <PersonAddIcon color="primary" fontSize="large" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete Team">
+                  <IconButton size="large">
+                    <DeleteIcon color="primary" fontSize="large" />
+                  </IconButton>
+                </Tooltip>
+              </AccordionActions>
+            </Accordion>
+          ))}
+        </>
+      )}
 
       <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
         <CreateTeamForm onFinish={handleCloseAddTeam} />
       </Dialog>
+      {/* <DeleteConfirmation
+        open={openDeleteStaff}
+        message={deleteMessage}
+        isLoading={isLoadingDeleteStaff}
+        onClose={handleCloseDeleteStaff}
+        onConfirm={handleConfirmDeleteStaff}
+      /> */}
     </Box>
   );
 };
