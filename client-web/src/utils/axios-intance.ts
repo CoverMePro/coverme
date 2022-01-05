@@ -1,5 +1,10 @@
 import axios, { AxiosError } from 'axios';
 
+/**
+ * Creating our instance of axios so we can intercept the request to handle authorization erros
+ * If a request receives an unauthorize error (401), redirect them to login.
+ */
+
 const instance = axios.create({
   withCredentials: true,
 });
