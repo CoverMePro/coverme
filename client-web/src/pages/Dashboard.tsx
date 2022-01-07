@@ -17,7 +17,6 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Collapse,
     Menu,
     MenuItem,
 } from '@mui/material';
@@ -27,9 +26,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import ExpandLess from '@mui/icons-material/ExpandLess';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 

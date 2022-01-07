@@ -1,6 +1,4 @@
 import React from 'react';
-
-import { IUserInfo } from 'models/User';
 import { Box, Skeleton } from '@mui/material';
 
 interface ISkeletonTeamListProps {

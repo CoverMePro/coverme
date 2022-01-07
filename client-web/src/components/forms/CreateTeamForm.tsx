@@ -108,7 +108,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
             .catch((err) => {
                 console.log(err);
             });
-    }, []);
+    }, [user.company]);
 
     return (
         <Box

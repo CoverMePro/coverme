@@ -128,6 +128,7 @@ const signIn = (req: Request, res: Response) => {
             return res.json({ message: 'login successful', user: userInfo });
         })
         .catch((err) => {
+            console.log(err);
             switch (err.code) {
                 case 'auth/wrong-password':
                 case 'auth/user-not-found':

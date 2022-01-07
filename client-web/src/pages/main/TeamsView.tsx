@@ -216,7 +216,7 @@ const TeamsView: React.FC = () => {
     useEffect(() => {
         setIsLoadingTeams(true);
         handleGetTeams();
-    }, []);
+    }, [handleGetTeams]);
 
     return (
         <Box>
