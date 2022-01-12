@@ -1,7 +1,8 @@
+import { ITeamInfo } from './Team';
+
 export interface ICompany {
-  name: string;
-  data: {
-    email: string;
-    phoneNo: string;
-  };
+    name?: string;
+    email?: string;
+    phoneNo?: string;
+    teams?: ITeamInfo[];
 }

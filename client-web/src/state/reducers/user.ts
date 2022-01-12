@@ -5,14 +5,14 @@ import { Action } from 'state/actions';
 const initialState: IUserInfo = {};
 
 const reducer = (state: IUserInfo = initialState, action: Action): IUserInfo => {
-	switch (action.type) {
-		case ActionType.SET_USER: {
-			return { ...action.payload.user };
-		}
+    switch (action.type) {
+        case ActionType.SET_USER: {
+            return { ...action.payload.user };
+        }
 
-		default:
-			return state;
-	}
+        default:
+            return state;
+    }
 };
 
 export default reducer;

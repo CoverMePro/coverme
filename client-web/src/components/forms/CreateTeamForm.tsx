@@ -65,6 +65,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                 .post(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/create-team`, {
                     team: {
                         name: values.teamName,
+                        owner: user.email!,
                         managers: selectedManagers,
                         staff: selectedStaff,
                     },
