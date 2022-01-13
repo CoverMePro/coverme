@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUserInfo } from '../models/User';
+import { IUser } from '../models/User';
 import { db } from '../utils/admin';
 
 const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
@@ -9,13 +9,30 @@ const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
         .where('teams', 'array-contains-any', teams)
         .get()
         .then((staffData) => {
-            const staffList: IUserInfo[] = [];
+            const staffList: IUser[] = [];
 
             staffData.forEach((user) => {
-                staffList.push({ email: user.id, ...user.data() });
+                if (user.data().role !== 'owner') {
+                    staffList.push({ email: user.id, ...user.data() });
+                }
             });
 
-            return res.json({ staff: staffList });
+            const teamStaff: any = [];
+
+            teams.forEach((team) => {
+                const staffInTeam = staffList.filter(
+                    (staff) => staff.teams?.findIndex((t) => t === team) !== -1
+                );
+                staffInTeam.forEach((staff) => {
+                    teamStaff.push({
+                        id: staff.email,
+                        team: team,
+                        title: `${staff.firstName} ${staff.lastName}`,
+                    });
+                });
+            });
+
+            return res.json({ teamStaff: teamStaff });
         })
         .catch((err) => {
             console.error(err);

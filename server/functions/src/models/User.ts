@@ -16,6 +16,7 @@ export interface IUserInfo {
         seniorityDate?: Date;
         location?: string;
         status?: string;
+        teams?: string[];
     };
 }
 
