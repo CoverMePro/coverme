@@ -69,8 +69,16 @@ const transactionShifts = (req: Request, res: Response) => {
                 });
                 break;
             case 'remove':
+                batch.delete(db.doc(`/shifts/${transaction.id}`));
                 break;
             case 'change':
+                batch.update(db.doc(`/shifts/${transaction.id}`), {
+                    userId: transaction.userId,
+                    companyId: transaction.companyId,
+                    teamId: transaction.teamId,
+                    startDateTime: transaction.startDate,
+                    endDateTime: transaction.endDate,
+                });
                 break;
         }
     }

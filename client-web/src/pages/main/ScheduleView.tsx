@@ -4,7 +4,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 import FullCalendar from '@fullcalendar/react'; // must go before plugins
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimegridPlugin from '@fullcalendar/resource-timegrid'; // a plugin
-import interactionPlugin, { Draggable, DropArg } from '@fullcalendar/interaction';
+import interactionPlugin, { Draggable, DropArg, EventDragStopArg } from '@fullcalendar/interaction';
 
 import { Box, LinearProgress, IconButton, Tooltip, Typography } from '@mui/material';
 
@@ -32,12 +32,12 @@ interface IShiftTransaction {
     type: TransactionType;
     id?: string;
     instanceId?: string;
-    name: string;
-    userId: string;
-    companyId: string;
-    teamId: string;
-    startDate: string;
-    endDate: string;
+    name?: string;
+    userId?: string;
+    companyId?: string;
+    teamId?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 const ScheduleView: React.FC = () => {
@@ -60,23 +60,12 @@ const ScheduleView: React.FC = () => {
      */
     const handleEventReceived = (dropEvent: any) => {
         console.log(dropEvent);
-
-        let team = '';
-
-        if (calendarRef.current) {
-            let calendarApi = calendarRef.current.getApi();
-            const resource = calendarApi.getResourceById(dropEvent.event._def.resourceIds[0]);
-            team = resource.extendedProps.team;
-
-            console.log(team);
-        }
-
         const transaction: IShiftTransaction = {
             type: 'add',
             name: dropEvent.event._def.title,
             userId: dropEvent.event._def.resourceIds[0],
             companyId: user.company!,
-            teamId: team,
+            teamId: getTeam(dropEvent.event._def.resourceIds[0]),
             instanceId: dropEvent.event._instance.instanceId,
             startDate: dropEvent.event._instance.range.start.toISOString(),
             endDate: dropEvent.event._instance.range.end.toISOString(),
@@ -87,14 +76,43 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions(newShiftTransactions);
     };
 
+    const getTeam = (resourceId: string) => {
+        let team = '';
+        if (calendarRef.current) {
+            let calendarApi = calendarRef.current.getApi();
+            const resource = calendarApi.getResourceById(resourceId);
+            team = resource.extendedProps.team;
+        }
+
+        return team;
+    };
+
     const removeTransaction = (id: string) => {
         const filtedTransactions = shiftTransactions.filter((shift) => shift.instanceId !== id);
 
         setShiftTransactions(filtedTransactions);
     };
 
-    const handleDragStop = (e: any) => {
-        console.log(e);
+    const changeTransaction = (event: any) => {
+        const filtedTransactions = shiftTransactions.filter(
+            (shift) => shift.instanceId !== event._instance.instanceId
+        );
+
+        const changedtransaction: IShiftTransaction = {
+            type: 'add',
+            instanceId: event._instance.instanceId,
+            userId: event._def.resourceIds[0],
+            companyId: user.company!,
+            teamId: getTeam(event._def.resourceIds[0]),
+            startDate: event._instance.range.start.toISOString(),
+            endDate: event._instance.range.end.toISOString(),
+        };
+
+        setShiftTransactions([...filtedTransactions, changedtransaction]);
+    };
+
+    const handleDragStop = (draggedEvent: any) => {
+        console.log(draggedEvent);
         let trashEl = document.getElementById('fc-trash')!; //as HTMLElement;
 
         let x1 = trashEl.offsetLeft;
@@ -103,18 +121,54 @@ const ScheduleView: React.FC = () => {
         let y2 = trashEl.offsetTop + trashEl.offsetHeight;
 
         if (
-            e.jsEvent.pageX >= x1 &&
-            e.jsEvent.pageX <= x2 &&
-            e.jsEvent.pageY >= y1 &&
-            e.jsEvent.pageY <= y2
+            draggedEvent.jsEvent.pageX >= x1 &&
+            draggedEvent.jsEvent.pageX <= x2 &&
+            draggedEvent.jsEvent.pageY >= y1 &&
+            draggedEvent.jsEvent.pageY <= y2
         ) {
-            e.event.remove();
-            removeTransaction(e.event._instance.instanceId);
+            // check if this is a shift that is in database or not
+            // if so, add a 'remove' transaction instead of deleting the current 'add' transaction of this instance
+            if (draggedEvent.event._def.publicId !== '') {
+                const transaction: IShiftTransaction = {
+                    type: 'remove',
+                    id: draggedEvent.event._def.publicId,
+                };
+
+                const newShiftTransactions = [...shiftTransactions, transaction];
+
+                setShiftTransactions(newShiftTransactions);
+            } else {
+                removeTransaction(draggedEvent.event._instance.instanceId);
+            }
+
+            draggedEvent.event.remove();
         }
     };
 
-    const handleEventChange = (e: any) => {
-        console.log(e);
+    const handleEventChange = (changedEvent: any) => {
+        console.log(changedEvent);
+
+        // check if this is a shift that is in database or not
+        // if so, add a 'change' transaction instead of changing the current 'add' transaction of this instance
+
+        if (changedEvent.event._def.publicId !== '') {
+            const transaction: IShiftTransaction = {
+                type: 'change',
+                id: changedEvent.event._def.publicId,
+                userId: changedEvent.event._def.resourceIds[0],
+                companyId: user.company!,
+                teamId: getTeam(changedEvent.event._def.resourceIds[0]),
+                instanceId: changedEvent.event._instance.instanceId,
+                startDate: changedEvent.event._instance.range.start.toISOString(),
+                endDate: changedEvent.event._instance.range.end.toISOString(),
+            };
+
+            const newShiftTransactions = [...shiftTransactions, transaction];
+
+            setShiftTransactions(newShiftTransactions);
+        } else {
+            changeTransaction(changedEvent.event);
+        }
     };
 
     const handleConfirmTransactions = () => {
