@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
+import { IShiftTransaction } from '../models/ShiftTransaction';
 import { IUser } from '../models/User';
 import { db } from '../utils/admin';
 
 const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
     const teams: string[] = req.body.teams;
-
+    const teamStaff: any = [];
+    const shifts: any = [];
     db.collection('users')
         .where('teams', 'array-contains-any', teams)
         .get()
@@ -16,8 +18,6 @@ const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
                     staffList.push({ email: user.id, ...user.data() });
                 }
             });
-
-            const teamStaff: any = [];
 
             teams.forEach((team) => {
                 const staffInTeam = staffList.filter(
@@ -32,7 +32,53 @@ const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
                 });
             });
 
-            return res.json({ teamStaff: teamStaff });
+            return db.collection('shifts').where('teamId', 'in', teams).get();
+        })
+        .then((shiftData) => {
+            shiftData.forEach((shift) => {
+                shifts.push({ ...shift.data(), id: shift.id });
+            });
+
+            return res.json({ teamStaff: teamStaff, shifts: shifts });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const transactionShifts = (req: Request, res: Response) => {
+    const batch = db.batch();
+
+    const transactions: IShiftTransaction[] = req.body.transactions;
+
+    for (let i = 0; i < transactions.length; i++) {
+        const transaction = transactions[i];
+
+        console.log(transaction);
+
+        switch (transaction.type) {
+            case 'add':
+                batch.create(db.collection('/shifts').doc(), {
+                    name: transaction.name,
+                    userId: transaction.userId,
+                    companyId: transaction.companyId,
+                    teamId: transaction.teamId,
+                    startDateTime: transaction.startDate,
+                    endDateTime: transaction.endDate,
+                });
+                break;
+            case 'remove':
+                break;
+            case 'change':
+                break;
+        }
+    }
+
+    batch
+        .commit()
+        .then(() => {
+            return res.json({ message: 'transactions completed!' });
         })
         .catch((err) => {
             console.error(err);
@@ -42,4 +88,5 @@ const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
 
 export default {
     getStaffandShiftsFromTeams,
+    transactionShifts,
 };
