@@ -1,12 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import FullCalendar from '@fullcalendar/react'; // must go before plugins
+import FullCalendar, { EventInput } from '@fullcalendar/react'; // must go before plugins
+import { EventChangeArg, EventInstance } from '@fullcalendar/common';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimegridPlugin from '@fullcalendar/resource-timegrid'; // a plugin
-import interactionPlugin, { Draggable, DropArg, EventDragStopArg } from '@fullcalendar/interaction';
+import interactionPlugin, {
+    Draggable,
+    EventReceiveArg,
+    EventDragStopArg,
+} from '@fullcalendar/interaction';
 
-import { Box, LinearProgress, IconButton, Tooltip, Typography } from '@mui/material';
+import {
+    Box,
+    LinearProgress,
+    IconButton,
+    Tooltip,
+    Typography,
+    CircularProgress,
+} from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
@@ -42,40 +55,20 @@ interface IShiftTransaction {
 
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isShiftEdit, setIsShiftEdit] = useState<boolean>(false);
-
-    const [events, setEvents] = useState<any[]>([]);
-
+    const [events, setEvents] = useState<EventInput[]>([]);
     const [shiftTransactions, setShiftTransactions] = useState<IShiftTransaction[]>([]);
+
+    const [isShiftEdit, setIsShiftEdit] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingConfirm, setIsLoadingConfirm] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
 
     const calendarRef = useRef<any>(undefined);
 
-    /**
-     * Handler for when an event is drop into the calendar. This means an event was ADDED
-     * Transaction should be recorded that event was ADDED
-     * @param dropEvent - Information on the event that was drop in calendar
-     */
-    const handleEventReceived = (dropEvent: any) => {
-        console.log(dropEvent);
-        const transaction: IShiftTransaction = {
-            type: 'add',
-            name: dropEvent.event._def.title,
-            userId: dropEvent.event._def.resourceIds[0],
-            companyId: user.company!,
-            teamId: getTeam(dropEvent.event._def.resourceIds[0]),
-            instanceId: dropEvent.event._instance.instanceId,
-            startDate: dropEvent.event._instance.range.start.toISOString(),
-            endDate: dropEvent.event._instance.range.end.toISOString(),
-        };
+    const { enqueueSnackbar } = useSnackbar();
 
-        const newShiftTransactions = [...shiftTransactions, transaction];
-
-        setShiftTransactions(newShiftTransactions);
-    };
-
+    // HELPER METHODS
     const getTeam = (resourceId: string) => {
         let team = '';
         if (calendarRef.current) {
@@ -93,26 +86,70 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions(filtedTransactions);
     };
 
-    const changeTransaction = (event: any) => {
+    const changeTransaction = (eventInstance: EventInstance, resourceId: string) => {
         const filtedTransactions = shiftTransactions.filter(
-            (shift) => shift.instanceId !== event._instance.instanceId
+            (shift) => shift.instanceId !== eventInstance.instanceId
         );
 
         const changedtransaction: IShiftTransaction = {
             type: 'add',
-            instanceId: event._instance.instanceId,
-            userId: event._def.resourceIds[0],
+            instanceId: eventInstance.instanceId,
+            userId: resourceId,
             companyId: user.company!,
-            teamId: getTeam(event._def.resourceIds[0]),
-            startDate: event._instance.range.start.toISOString(),
-            endDate: event._instance.range.end.toISOString(),
+            teamId: getTeam(resourceId),
+            startDate: eventInstance.range.start.toISOString(),
+            endDate: eventInstance.range.end.toISOString(),
         };
 
         setShiftTransactions([...filtedTransactions, changedtransaction]);
     };
 
-    const handleDragStop = (draggedEvent: any) => {
-        console.log(draggedEvent);
+    const formatEvents = (shifts: IShift[]) => {
+        const formattedEvents = shifts.map((shift) => {
+            return {
+                id: shift.id,
+                title: shift.name,
+                start: shift.startDateTime,
+                end: shift.endDateTime,
+                resourceId: shift.userId,
+            };
+        });
+
+        setEvents(formattedEvents);
+    };
+
+    /**
+     * Handler for when an event is drop into the calendar. This means an event was ADDED
+     * Transaction should be recorded that event was ADDED
+     * @param dropEvent - Information on the event that was drop in calendar
+     */
+    const handleEventReceived = (dropEvent: EventReceiveArg) => {
+        if (dropEvent.event._instance && dropEvent.event._def.resourceIds) {
+            const transaction: IShiftTransaction = {
+                type: 'add',
+                name: dropEvent.event._def.title,
+                userId: dropEvent.event._def.resourceIds[0],
+                companyId: user.company!,
+                teamId: getTeam(dropEvent.event._def.resourceIds[0]),
+                instanceId: dropEvent.event._instance.instanceId,
+                startDate: dropEvent.event._instance.range.start.toISOString(),
+                endDate: dropEvent.event._instance.range.end.toISOString(),
+            };
+
+            const newShiftTransactions = [...shiftTransactions, transaction];
+
+            setShiftTransactions(newShiftTransactions);
+        } else {
+            console.error('ERROR: unable to find event instance and/or resource ids');
+        }
+    };
+
+    /**
+     * Handler when event dragging has stopped
+     * This is primarily for when dragging event into the trash icon (to remove)
+     * @param draggedEvent - Information on the event that is being dragged
+     */
+    const handleDragStop = (draggedEvent: EventDragStopArg) => {
         let trashEl = document.getElementById('fc-trash')!; //as HTMLElement;
 
         let x1 = trashEl.offsetLeft;
@@ -138,64 +175,66 @@ const ScheduleView: React.FC = () => {
 
                 setShiftTransactions(newShiftTransactions);
             } else {
-                removeTransaction(draggedEvent.event._instance.instanceId);
+                removeTransaction(draggedEvent.event._instance!.instanceId);
             }
 
             draggedEvent.event.remove();
         }
     };
 
-    const handleEventChange = (changedEvent: any) => {
-        console.log(changedEvent);
-
+    /**
+     * Handler for when the event changes in the calendar
+     * @param changedEvent - Information on the old and new event
+     */
+    const handleEventChange = (changedEvent: EventChangeArg) => {
         // check if this is a shift that is in database or not
         // if so, add a 'change' transaction instead of changing the current 'add' transaction of this instance
+        if (changedEvent.event._instance && changedEvent.event._def.resourceIds) {
+            if (changedEvent.event._def.publicId !== '') {
+                const transaction: IShiftTransaction = {
+                    type: 'change',
+                    id: changedEvent.event._def.publicId,
+                    userId: changedEvent.event._def.resourceIds[0],
+                    companyId: user.company!,
+                    teamId: getTeam(changedEvent.event._def.resourceIds[0]),
+                    instanceId: changedEvent.event._instance.instanceId,
+                    startDate: changedEvent.event._instance.range.start.toISOString(),
+                    endDate: changedEvent.event._instance.range.end.toISOString(),
+                };
 
-        if (changedEvent.event._def.publicId !== '') {
-            const transaction: IShiftTransaction = {
-                type: 'change',
-                id: changedEvent.event._def.publicId,
-                userId: changedEvent.event._def.resourceIds[0],
-                companyId: user.company!,
-                teamId: getTeam(changedEvent.event._def.resourceIds[0]),
-                instanceId: changedEvent.event._instance.instanceId,
-                startDate: changedEvent.event._instance.range.start.toISOString(),
-                endDate: changedEvent.event._instance.range.end.toISOString(),
-            };
+                const newShiftTransactions = [...shiftTransactions, transaction];
 
-            const newShiftTransactions = [...shiftTransactions, transaction];
-
-            setShiftTransactions(newShiftTransactions);
+                setShiftTransactions(newShiftTransactions);
+            } else {
+                changeTransaction(
+                    changedEvent.event._instance,
+                    changedEvent.event._def.resourceIds[0]
+                );
+            }
         } else {
-            changeTransaction(changedEvent.event);
+            console.error('ERROR: unable to find event instance and/or resource ids');
         }
     };
 
     const handleConfirmTransactions = () => {
+        setIsLoadingConfirm(true);
         axios
             .post(`${process.env.REACT_APP_SERVER_API}/shift/transactions`, {
                 transactions: shiftTransactions,
             })
             .then(() => {
-                console.log('SUCCESS');
+                enqueueSnackbar('Edits to the schedule have been recorded.', {
+                    variant: 'success',
+                });
+                setShiftTransactions([]);
             })
             .catch((error) => {
                 console.error(error);
+                enqueueSnackbar('An error has occured, please try again.', { variant: 'error' });
+            })
+            .finally(() => {
+                setIsLoadingConfirm(false);
             });
-    };
-
-    const formatEvents = (shifts: IShift[]) => {
-        const formattedEvents = shifts.map((shift) => {
-            return {
-                id: shift.id,
-                title: shift.name,
-                start: shift.startDateTime,
-                end: shift.endDateTime,
-                resourceId: shift.userId,
-            };
-        });
-
-        setEvents(formattedEvents);
     };
 
     useEffect(() => {
@@ -215,9 +254,10 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, []);
+    }, [user.teams]);
 
     useEffect(() => {
+        // Create draggable events that can go into the calendar
         let drag: Draggable;
         if (isShiftEdit) {
             const containerEl = document.getElementById('external-events');
@@ -241,10 +281,6 @@ const ScheduleView: React.FC = () => {
             }
         };
     }, [isShiftEdit]);
-
-    useEffect(() => {
-        console.log(shiftTransactions);
-    }, [shiftTransactions]);
 
     return (
         <Box sx={{ width: '100%', height: '100%' }}>
@@ -317,41 +353,54 @@ const ScheduleView: React.FC = () => {
                                             </div>
                                         </div>
                                     </Box>
-                                    <Box>
-                                        <Tooltip title="Confirm Edit" placement="top">
-                                            <span>
-                                                <IconButton
-                                                    size="large"
-                                                    disabled={shiftTransactions.length === 0}
-                                                    onClick={handleConfirmTransactions}
-                                                >
-                                                    <FactCheckIcon
-                                                        color={
-                                                            shiftTransactions.length === 0
-                                                                ? 'disabled'
-                                                                : 'primary'
-                                                        }
-                                                        fontSize="large"
-                                                    />
-                                                </IconButton>
-                                            </span>
-                                        </Tooltip>
-                                    </Box>
-                                    <Box>
-                                        <Tooltip title="Cancel Edit" placement="top">
-                                            <IconButton
-                                                size="large"
-                                                onClick={() => setIsShiftEdit(false)}
-                                            >
-                                                <EditOffIcon color="primary" fontSize="large" />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Box>
-                                    <Box>
-                                        <div id="fc-trash">
-                                            <DeleteIcon fontSize="large" color="primary" />
-                                        </div>
-                                    </Box>
+                                    {isLoadingConfirm ? (
+                                        <Box sx={{ ml: 5, display: 'flex', alignItems: 'center' }}>
+                                            <CircularProgress size={25} />
+                                        </Box>
+                                    ) : (
+                                        <>
+                                            <Box>
+                                                <Tooltip title="Confirm Edit" placement="top">
+                                                    <span>
+                                                        <IconButton
+                                                            size="large"
+                                                            disabled={
+                                                                shiftTransactions.length === 0
+                                                            }
+                                                            onClick={handleConfirmTransactions}
+                                                        >
+                                                            <FactCheckIcon
+                                                                color={
+                                                                    shiftTransactions.length === 0
+                                                                        ? 'disabled'
+                                                                        : 'primary'
+                                                                }
+                                                                fontSize="large"
+                                                            />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            </Box>
+                                            <Box>
+                                                <Tooltip title="Cancel Edit" placement="top">
+                                                    <IconButton
+                                                        size="large"
+                                                        onClick={() => setIsShiftEdit(false)}
+                                                    >
+                                                        <EditOffIcon
+                                                            color="primary"
+                                                            fontSize="large"
+                                                        />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                            <Box>
+                                                <div id="fc-trash">
+                                                    <DeleteIcon fontSize="large" color="primary" />
+                                                </div>
+                                            </Box>
+                                        </>
+                                    )}
                                 </Box>
                             </Box>
                         ) : (
@@ -384,17 +433,16 @@ const ScheduleView: React.FC = () => {
                             resourceAreaHeaderContent="Staff"
                             resourceGroupField="team"
                             resources={teamStaff}
-                            editable={true}
-                            eventStartEditable={true}
-                            eventResizableFromStart={true}
-                            eventDurationEditable={true}
-                            eventResourceEditable={true}
+                            editable={isShiftEdit}
+                            eventStartEditable={isShiftEdit}
+                            eventResizableFromStart={isShiftEdit}
+                            eventDurationEditable={isShiftEdit}
+                            eventResourceEditable={isShiftEdit}
                             dragRevertDuration={0}
                             eventDragStop={handleDragStop}
                             eventReceive={handleEventReceived}
-                            eventAdd={(e) => console.log(e)}
                             eventChange={handleEventChange}
-                            droppable={true}
+                            droppable={isShiftEdit}
                             events={events}
                             eventDrop={(e) => console.log(e)}
                             height={'auto'}
