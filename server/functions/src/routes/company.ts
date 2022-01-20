@@ -14,5 +14,11 @@ router.get('/:companyId/team/:teamId/delete', companyController.deleteTeam);
 // POST
 router.post('/create', authGuard, companyController.createCompany);
 router.post('/:id/create-team', authGuard, companyController.createTeam);
+router.post('/:companyId/team/:teamId/add-user', authGuard, companyController.addUserToTeam);
+router.post(
+    '/:companyId/team/:teamId/remove-user',
+    authGuard,
+    companyController.removeUserFromTeam
+);
 
 export default router;

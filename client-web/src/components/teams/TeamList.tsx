@@ -8,9 +8,10 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 interface ITeamListProps {
     staff: IUserInfo[];
+    onRemoveUser: (user: IUserInfo) => void;
 }
 
-const TeamList: React.FC<ITeamListProps> = ({ staff }) => {
+const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
     return (
         <>
             {staff.map((user) => (
@@ -18,7 +19,11 @@ const TeamList: React.FC<ITeamListProps> = ({ staff }) => {
                     key={user.email!}
                     sx={{ width: '100%' }}
                     secondaryAction={
-                        <IconButton edge="end" aria-label="delete">
+                        <IconButton
+                            onClick={() => onRemoveUser(user)}
+                            edge="end"
+                            aria-label="delete"
+                        >
                             <RemoveCircleIcon color="primary" />
                         </IconButton>
                     }

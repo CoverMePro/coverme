@@ -20,6 +20,7 @@ import {
     LinearProgress,
     TextField,
     Button,
+    CircularProgress,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -40,16 +41,21 @@ import TeamList from 'components/teams/TeamList';
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);
     const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(false);
-    const [isLoadingDeleteTeam, setIsLoadingDeleteTeam] = useState<boolean>(false);
+    const [isLoadingDataUpdate, setIsLoadingDataUpdate] = useState<boolean>(false);
     const [loadingRosterManager, setLoadingRosterManger] = useState<string[]>([]);
     const [loadingRosterStaff, setLoadingRosterStaff] = useState<string[]>([]);
     const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
     const [openAddUserToTeam, setOpenAddUserToTeam] = useState<boolean>(false);
     const [openDeleteTeam, setOpenDeleteTeam] = useState<boolean>(false);
+    const [openRemoveUser, setOpenRemoveUser] = useState<boolean>(false);
     const [deleteMessage, setDeleteMessage] = useState<string>('');
+    const [removeUserMessage, setRemoveUserMessage] = useState<string>('');
     const [teams, setTeams] = useState<ITeamInfo[]>([]);
     const [usersToAdd, setUsersToAdd] = useState<IUserInfo[]>([]);
     const [userSelectedToAdd, setUserSelectedToAdd] = useState<IUserInfo | undefined>(undefined);
+    const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUserInfo | undefined>(
+        undefined
+    );
     const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>([]);
     const [selectedTeamStaff, setSelectedTeamStaff] = useState<IUserInfo[]>([]);
 
@@ -84,6 +90,16 @@ const TeamsView: React.FC = () => {
         setOpenAddUserToTeam(true);
     };
 
+    const handleOpenRemoveUser = (user: IUserInfo) => {
+        setUserSelectedToRemove(user);
+        setRemoveUserMessage(
+            `Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${
+                expanded ? expanded : 'this team'
+            }`
+        );
+        setOpenRemoveUser(true);
+    };
+
     const handleOpenDeleteTeam = () => {
         setDeleteMessage(`Are you sure you want to delete ${expanded ? expanded : 'this team'}?`);
         setOpenDeleteTeam(true);
@@ -93,8 +109,12 @@ const TeamsView: React.FC = () => {
         setOpenAddTeam(false);
     };
 
-    const handleClostAddUserToTeam = () => {
+    const handleCloseAddUserToTeam = () => {
         setOpenAddUserToTeam(false);
+    };
+
+    const handleCloseRemoveUser = () => {
+        setOpenRemoveUser(false);
     };
 
     const handleOnTeamAdd = () => {
@@ -133,7 +153,7 @@ const TeamsView: React.FC = () => {
         };
 
     const handleConfirmDeleteTeam = () => {
-        setIsLoadingDeleteTeam(true);
+        setIsLoadingDataUpdate(true);
         axios
             .get(
                 `${
@@ -154,7 +174,7 @@ const TeamsView: React.FC = () => {
                 });
             })
             .finally(() => {
-                setIsLoadingDeleteTeam(false);
+                setIsLoadingDataUpdate(false);
                 handleCloseDeleteTeam();
             });
     };
@@ -172,12 +192,15 @@ const TeamsView: React.FC = () => {
     };
 
     const handleAddUserToTeam = () => {
+        setIsLoadingDataUpdate(true);
         if (expanded !== false && userSelectedToAdd) {
             axios
                 .post(
-                    `${process.env.REACT_APP_SERVER_API}/user/${userSelectedToAdd.email!}/add-team`,
+                    `${
+                        process.env.REACT_APP_SERVER_API
+                    }/company/${user.company!}/team/${expanded}/add-user`,
                     {
-                        team: expanded,
+                        user: userSelectedToAdd,
                     }
                 )
                 .then(() => {
@@ -187,13 +210,55 @@ const TeamsView: React.FC = () => {
                     } else if (userSelectedToAdd.role === 'staff') {
                         setSelectedTeamStaff((prev) => [...prev, userSelectedToAdd]);
                     }
-                    handleClostAddUserToTeam();
                 })
                 .catch((err) => {
                     enqueueSnackbar('An error occured, please try again!', {
                         variant: 'error',
                     });
                     console.log(err);
+                })
+                .finally(() => {
+                    setIsLoadingDataUpdate(false);
+                    handleCloseAddUserToTeam();
+                });
+        }
+    };
+
+    const handleRemoveUserFromTeam = () => {
+        setIsLoadingDataUpdate(true);
+        if (expanded !== false && userSelectedToRemove) {
+            axios
+                .post(
+                    `${
+                        process.env.REACT_APP_SERVER_API
+                    }/company/${user.company!}/team/${expanded}/remove-user`,
+                    {
+                        user: userSelectedToRemove,
+                    }
+                )
+                .then(() => {
+                    enqueueSnackbar(`User removed from ${expanded}`, { variant: 'success' });
+                    if (userSelectedToRemove.role === 'manager') {
+                        const newSelectedTeamManagers = selectedTeamManagers.filter(
+                            (manager) => manager.email !== userSelectedToRemove.email
+                        );
+                        setSelectedTeamManagers(newSelectedTeamManagers);
+                    } else if (userSelectedToRemove.role === 'staff') {
+                        const newSelectedTeamStaff = selectedTeamStaff.filter(
+                            (staff) => staff.email !== userSelectedToRemove.email
+                        );
+                        setSelectedTeamStaff(newSelectedTeamStaff);
+                    }
+                })
+                .catch((err) => {
+                    enqueueSnackbar('An error occured, please try again!', {
+                        variant: 'error',
+                    });
+                    console.log(err);
+                })
+                .finally(() => {
+                    setIsLoadingDataUpdate(false);
+                    handleCloseRemoveUser();
                 });
         }
     };
@@ -256,7 +321,10 @@ const TeamsView: React.FC = () => {
                                         {loadingRosterManager.length > 0 ? (
                                             <SkeletonTeamList loadingStaff={loadingRosterManager} />
                                         ) : (
-                                            <TeamList staff={selectedTeamManagers} />
+                                            <TeamList
+                                                staff={selectedTeamManagers}
+                                                onRemoveUser={handleOpenRemoveUser}
+                                            />
                                         )}
                                     </List>
                                 </Box>
@@ -267,7 +335,10 @@ const TeamsView: React.FC = () => {
                                         {loadingRosterStaff.length > 0 ? (
                                             <SkeletonTeamList loadingStaff={loadingRosterStaff} />
                                         ) : (
-                                            <TeamList staff={selectedTeamStaff} />
+                                            <TeamList
+                                                staff={selectedTeamStaff}
+                                                onRemoveUser={handleOpenRemoveUser}
+                                            />
                                         )}
                                     </List>
                                 </Box>
@@ -292,7 +363,7 @@ const TeamsView: React.FC = () => {
             <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
                 <CreateTeamForm onFinish={handleOnTeamAdd} />
             </Dialog>
-            <Dialog open={openAddUserToTeam} onClose={handleClostAddUserToTeam}>
+            <Dialog open={openAddUserToTeam} onClose={handleCloseAddUserToTeam}>
                 <DialogTitle>Add User to {expanded}</DialogTitle>
                 <DialogContent>
                     <Autocomplete
@@ -308,17 +379,30 @@ const TeamsView: React.FC = () => {
                         )}
                     />
                     <DialogActions sx={{ mt: 2 }}>
-                        <Button onClick={handleClostAddUserToTeam}>Cancel</Button>
-                        <Button onClick={handleAddUserToTeam}>Add</Button>
+                        {isLoadingDataUpdate ? (
+                            <CircularProgress sx={{ mb: 1, mr: 1 }} size={25} />
+                        ) : (
+                            <>
+                                <Button onClick={handleCloseAddUserToTeam}>Cancel</Button>
+                                <Button onClick={handleAddUserToTeam}>Add</Button>
+                            </>
+                        )}
                     </DialogActions>
                 </DialogContent>
             </Dialog>
             <DeleteConfirmation
                 open={openDeleteTeam}
                 message={deleteMessage}
-                isLoading={isLoadingDeleteTeam}
+                isLoading={isLoadingDataUpdate}
                 onClose={handleCloseDeleteTeam}
                 onConfirm={handleConfirmDeleteTeam}
+            />
+            <DeleteConfirmation
+                open={openRemoveUser}
+                message={removeUserMessage}
+                isLoading={isLoadingDataUpdate}
+                onClose={handleCloseRemoveUser}
+                onConfirm={handleRemoveUserFromTeam}
             />
         </Box>
     );

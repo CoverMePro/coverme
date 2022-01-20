@@ -240,57 +240,104 @@ const deleteTeam = (req: Request, res: Response) => {
         });
 };
 
-// const addUserToTeam = (req: Request, res: Response) => {
-//   const userId = req.params.id;
-//   const team = req.body.team;
-//   db.doc(`/users/${userId}`)
-//     .get()
-//     .then((userData) => {
-//       let newTeams = [team];
-//       const data = userData.data();
+const addUserToTeam = (req: Request, res: Response) => {
+    const { companyId, teamId } = req.params;
+    const user = req.body.user;
 
-//       if (data && data.teams) {
-//         newTeams = [...data.teams, team];
-//       }
+    // add user to team doc
+    db.doc(`/companies/${companyId}/teams/${teamId}`)
+        .get()
+        .then((teamResult) => {
+            const team = teamResult.data();
 
-//       return db.doc(`/users/${userId}`).update({
-//         teams: newTeams,
-//       });
-//     })
-//     .then(() => {
-//       return res.json({ message: 'Team added to User!' });
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       return res.status(500).json({ error: err.code });
-//     });
-// };
+            if (team) {
+                if (user.role === 'manager') {
+                    team.managers.push(user.email);
+                } else {
+                    team.staff.push(user.email);
+                }
 
-// const removeUserFromTeam = async (req: Request, res: Response) => {
-//   const userId = req.params.id;
-//   const team = req.body.team;
-//   db.doc(`/users/${userId}`)
-//     .get()
-//     .then((userData) => {
-//       let newTeams: any = [];
-//       const data = userData.data();
+                return db.doc(`/companies/${companyId}/teams/${teamId}`).set(team);
+            }
+            throw Error('Team not found!');
+        })
+        .then(() => {
+            return db.doc(`/users/${user.email}`).get();
+        })
+        .then((userResult) => {
+            const userData = userResult.data();
 
-//       if (data && data.teams) {
-//         newTeams = data.teams.filter((t: any) => t !== team);
-//       }
+            if (userData) {
+                if (userData.teams) {
+                    userData.teams.push(teamId);
+                } else {
+                    userData.teams = [teamId];
+                }
 
-//       return db.doc(`/users/${userId}`).update({
-//         teams: newTeams,
-//       });
-//     })
-//     .then(() => {
-//       return res.json({ message: 'Team added to User!' });
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       return res.status(500).json({ error: err.code });
-//     });
-// };
+                return db.doc(`/users/${user.email}`).set(userData);
+            }
+
+            throw Error('User not found!');
+        })
+        .then(() => {
+            return res.json({ message: 'User added to team!' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const removeUserFromTeam = (req: Request, res: Response) => {
+    const { companyId, teamId } = req.params;
+    const user = req.body.user;
+
+    // add user to team doc
+    db.doc(`/companies/${companyId}/teams/${teamId}`)
+        .get()
+        .then((teamResult) => {
+            const team = teamResult.data();
+
+            if (team) {
+                let newTeams = [];
+                if (user.role === 'manager') {
+                    newTeams = team.managers.filter((manager: string) => manager !== user.email);
+
+                    team.managers = newTeams;
+                } else {
+                    newTeams = team.staff.filter((staff: string) => staff !== user.email);
+
+                    team.staff = newTeams;
+                }
+
+                return db.doc(`/companies/${companyId}/teams/${teamId}`).set(team);
+            }
+            throw Error('Team not found!');
+        })
+        .then(() => {
+            return db.doc(`/users/${user.email}`).get();
+        })
+        .then((userResult) => {
+            const userData = userResult.data();
+
+            if (userData) {
+                if (userData.teams) {
+                    const newTeams = userData.teams.filter((team: string) => team !== teamId);
+
+                    userData.teams = newTeams;
+                }
+
+                return db.doc(`/users/${user.email}`).set(userData);
+            }
+
+            throw Error('User not found!');
+        })
+        .then(() => {
+            return res.json({ message: 'User added to team!' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: err.code });
+        });
+};
 
 export default {
     createCompany,
@@ -301,4 +348,6 @@ export default {
     createTeam,
     getAllTeams,
     deleteTeam,
+    addUserToTeam,
+    removeUserFromTeam,
 };
