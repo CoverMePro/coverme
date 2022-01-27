@@ -123,8 +123,13 @@ const signIn = (req: Request, res: Response) => {
                 email: userData.id,
             };
 
-            const cookieOptions = { maxAge: expiresIn, httpOnly: true, secure: true };
-            res.cookie('session', cookie, cookieOptions);
+            const cookieOptions = {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none' as 'none',
+            };
+            res.cookie('__session', cookie, cookieOptions);
             return res.json({ message: 'login successful', user: userInfo });
         })
         .catch((err) => {
@@ -181,7 +186,15 @@ const deleteAuthUser = (req: Request, res: Response) => {
 const logOut = (req: Request, res: Response) => {
     signOut(fbAuth)
         .then(() => {
-            res.clearCookie('session');
+            const expiresIn = SESSION_COOKIE_EXPIRY;
+
+            const cookieOptions = {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none' as 'none',
+            };
+            res.clearCookie('__session', cookieOptions);
             return res.json({ message: 'logged out successfully' });
         })
         .catch((err) => {
@@ -193,9 +206,9 @@ const logOut = (req: Request, res: Response) => {
  * Check if you have a session cookie so you can bypass login
  */
 const checkAuth = async (req: Request, res: Response) => {
-    if (req.cookies.session) {
+    if (req.cookies['__session']) {
         try {
-            const sessionCookie = `${req.cookies.session}`;
+            const sessionCookie = `${req.cookies['__session']}`;
 
             const decodedToken = await verifySessionCookie(sessionCookie);
 

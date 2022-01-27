@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
@@ -29,6 +29,8 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 import { IShift } from 'models/Shift';
+
+import 'styles/calendar.css';
 
 const getDuration = (shift: string) => {
     const shiftDuration: any = {
@@ -227,6 +229,7 @@ const ScheduleView: React.FC = () => {
                     variant: 'success',
                 });
                 setShiftTransactions([]);
+                getShiftsFromTeams();
             })
             .catch((error) => {
                 console.error(error);
@@ -237,7 +240,7 @@ const ScheduleView: React.FC = () => {
             });
     };
 
-    useEffect(() => {
+    const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
             .post(`${process.env.REACT_APP_SERVER_API}/shift/from-teams`, {
@@ -255,6 +258,10 @@ const ScheduleView: React.FC = () => {
                 setIsLoading(false);
             });
     }, [user.teams]);
+
+    useEffect(() => {
+        getShiftsFromTeams();
+    }, [getShiftsFromTeams]);
 
     useEffect(() => {
         // Create draggable events that can go into the calendar
@@ -341,13 +348,27 @@ const ScheduleView: React.FC = () => {
                                         >
                                             <div
                                                 className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
-                                                style={{ cursor: 'pointer' }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    backgroundColor: '#006d77',
+                                                    paddingLeft: '5px',
+                                                    paddingRight: '5px',
+                                                    borderColor: '#006d77',
+                                                    borderRadius: '0',
+                                                }}
                                             >
                                                 <div className="fc-event-main">Full Shift</div>
                                             </div>
                                             <div
                                                 className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
-                                                style={{ cursor: 'pointer' }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    backgroundColor: '#006d77',
+                                                    paddingLeft: '5px',
+                                                    paddingRight: '5px',
+                                                    borderColor: '#006d77',
+                                                    borderRadius: '0',
+                                                }}
                                             >
                                                 <div className="fc-event-main">Half Shift</div>
                                             </div>
@@ -435,6 +456,7 @@ const ScheduleView: React.FC = () => {
                             resources={teamStaff}
                             editable={isShiftEdit}
                             eventStartEditable={isShiftEdit}
+                            eventColor="#006d77"
                             eventResizableFromStart={isShiftEdit}
                             eventDurationEditable={isShiftEdit}
                             eventResourceEditable={isShiftEdit}

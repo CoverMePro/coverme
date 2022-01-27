@@ -2,34 +2,34 @@ import { fbAdmin } from '../utils/admin';
 import { Request, Response, NextFunction } from 'express';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-	console.log(req.cookies);
-	if (!req.cookies) {
-		console.log('no cookies');
-		return res.status(401).send({ message: 'Unauthorized' });
-	}
+    console.log(req.cookies);
+    if (!req.cookies) {
+        console.log('no cookies');
+        return res.status(401).send({ message: 'Unauthorized' });
+    }
 
-	if (!req.cookies.session) {
-		console.log('no session cookies');
-		return res.status(401).send({ message: 'Unauthorized' });
-	}
+    if (!req.cookies['__session']) {
+        console.log('no session cookies');
+        return res.status(401).send({ message: 'Unauthorized' });
+    }
 
-	console.log('Pass cookie check');
+    console.log('Pass cookie check');
 
-	const sessionCookie = `${req.cookies.session}`;
+    const sessionCookie = `${req.cookies['__session']}`;
 
-	const result = await verifySessionCookie(sessionCookie);
+    const result = await verifySessionCookie(sessionCookie);
 
-	if (result) {
-		return next();
-	} else {
-		return res.status(401).send({ message: 'Unauthorized' });
-	}
+    if (result) {
+        return next();
+    } else {
+        return res.status(401).send({ message: 'Unauthorized' });
+    }
 };
 
 export const assignSessionCookie = (tokenId: string, expiresIn: number) => {
-	return fbAdmin.auth().createSessionCookie(tokenId, { expiresIn });
+    return fbAdmin.auth().createSessionCookie(tokenId, { expiresIn });
 };
 
 export const verifySessionCookie = (sessionCookie: string) => {
-	return fbAdmin.auth().verifySessionCookie(sessionCookie, true);
+    return fbAdmin.auth().verifySessionCookie(sessionCookie, true);
 };

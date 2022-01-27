@@ -1,0 +1,20 @@
+.fc-button {
+    background-color: #006d77 !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.fc-button:hover {
+    background-color: #004b52 !important;
+    color: #fff !important;
+}
+
+.fc-button.fc-state-active .fc-button-inner {
+    background-color: green !important;
+    color: #fff !important;
+}
+
+.fc-button .fc-button-inner {
+    background-color: #000 !important;
+    color: #fff !important;
+}
