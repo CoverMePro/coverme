@@ -95,11 +95,19 @@ const createCompany = async (req: Request, res: Response) => {
             });
         })
         .then(() => {
+            return db.doc(`/users/${ownerEmail}`).set({
+                ...ownerInfo,
+                status: 'Pending',
+                statusUpdatedAt: Date.now(),
+            });
+        })
+        .then(() => {
             return res.status(201).json({
                 message: 'Company Created!',
             });
         })
         .catch((err) => {
+            console.error(err);
             if (err === 403) {
                 return res.status(403).json({ error: 'Company with that name already exists' });
             } else {
