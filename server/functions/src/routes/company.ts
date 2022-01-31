@@ -6,6 +6,7 @@ const router: Router = express.Router();
 
 // GET
 router.get('/', authGuard, companyController.getAllCompanies);
+router.get('/info', authGuard, companyController.getAllCompaniesInfo);
 router.get('/check/:id', authGuard, companyController.checkCompany);
 router.get('/:id', authGuard, companyController.getCompany);
 router.get('/:id/team', authGuard, companyController.getAllTeams);

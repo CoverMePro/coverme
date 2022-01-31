@@ -20,7 +20,27 @@ const getAllCompanies = (req: Request, res: Response) => {
             return res.json(companies);
         })
         .catch((err) => {
-            console.log(err);
+            console.error(err);
+        });
+};
+
+const getAllCompaniesInfo = (req: Request, res: Response) => {
+    db.collection('/companies')
+        .get()
+        .then((companyData) => {
+            let companies: any[] = [];
+            companyData.forEach((data) => {
+                companies.push({
+                    name: data.id,
+                    email: data.data().email,
+                    phoneNo: data.data().phone,
+                });
+            });
+
+            return res.json(companies);
+        })
+        .catch((err) => {
+            console.error(err);
         });
 };
 
@@ -352,6 +372,7 @@ export default {
     getCompany,
     checkCompany,
     getAllCompanies,
+    getAllCompaniesInfo,
     deleteCompany,
     createTeam,
     getAllTeams,

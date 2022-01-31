@@ -24,6 +24,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import HomeIcon from '@mui/icons-material/Home';
+import BusinessIcon from '@mui/icons-material/Business';
 import PeopleIcon from '@mui/icons-material/People';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -113,7 +114,7 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         switch (location.pathname) {
-            case '/dashboard/scheduler':
+            case '/dashboard/home':
                 setNavSelected(0);
                 break;
             case '/dashboard/staff-view':
@@ -181,7 +182,7 @@ const Dashboard: React.FC = () => {
             >
                 <DrawerHeader>
                     <Typography variant="h3" component="div" sx={{ flexGrow: 1 }}>
-                        {user.company}
+                        {user.role !== 'admin' ? user.company : 'Admin'}
                     </Typography>
                 </DrawerHeader>
                 <Divider />
@@ -189,7 +190,7 @@ const Dashboard: React.FC = () => {
                     <ListItem disablePadding>
                         <ListItemButton
                             selected={navSelected === 0}
-                            onClick={() => handleTopLevelNav('scheduler')}
+                            onClick={() => handleTopLevelNav('home')}
                         >
                             <ListItemIcon>
                                 <HomeIcon color="secondary" />
@@ -199,6 +200,21 @@ const Dashboard: React.FC = () => {
                     </ListItem>
                 </List>
                 <Divider />
+                {user.role === 'admin' && (
+                    <List disablePadding>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                selected={navSelected === 1}
+                                onClick={() => handleTopLevelNav('companies')}
+                            >
+                                <ListItemIcon>
+                                    <BusinessIcon color="secondary" />
+                                </ListItemIcon>
+                                <ListItemText primary="Companies" />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                )}
                 {user.role === 'owner' && (
                     <List>
                         <ListItem disablePadding>

@@ -57,7 +57,7 @@ const Login: React.FC = () => {
                 )
                 .then((result) => {
                     setIsLoggingIn(false);
-                    navigate('/dashboard/scheduler');
+                    navigate('/dashboard/home');
                 })
                 .catch((err: AxiosError) => {
                     setIsLoggingIn(false);
