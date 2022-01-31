@@ -18,6 +18,7 @@ import MuiPhoneNumber from 'material-ui-phone-number';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { ICompanyFormInfo } from 'models/Validation';
+import { ICompany } from 'models/Company';
 import { validateCompany, validateOwner } from 'utils/validation';
 
 import logo from 'images/cover-me-logo.png';
@@ -25,11 +26,15 @@ import axios from 'utils/axios-intance';
 
 const steps = ['Company Info', 'Owner Info'];
 
+interface ICreateCompanyFormProps {
+    onFinish: (success: boolean, company?: ICompany) => void;
+}
+
 /**
  * A form to create a compnay into the database
  * this is a two step process that creates a company, and then and user who owns the company (has extra permissions)
  */
-const CreateCompanyForm: React.FC = () => {
+const CreateCompanyForm: React.FC<ICreateCompanyFormProps> = ({ onFinish }) => {
     const [company, setCompany] = useState<ICompanyFormInfo>({
         companyName: '',
         companyEmail: '',
@@ -53,7 +58,6 @@ const CreateCompanyForm: React.FC = () => {
             axios
                 .get(`${process.env.REACT_APP_SERVER_API}/company/check/${companyName}`)
                 .then((result) => {
-                    setIsLoading(false);
                     if (result.data.exists === false) {
                         setCompany({
                             companyName,
@@ -74,6 +78,8 @@ const CreateCompanyForm: React.FC = () => {
                         'An unknow error occured, please try again or contact support.',
                         { variant: 'error', autoHideDuration: 5000 }
                     );
+                })
+                .finally(() => {
                     setIsLoading(false);
                 });
         },
@@ -113,8 +119,17 @@ const CreateCompanyForm: React.FC = () => {
             axios
                 .post(`${process.env.REACT_APP_SERVER_API}/company/create`, companyData)
                 .then((result) => {
+                    enqueueSnackbar('Company created!', {
+                        variant: 'success',
+                        autoHideDuration: 3000,
+                    });
                     setIsLoading(false);
-                    setStep(2);
+                    setStep(0);
+                    onFinish(true, {
+                        name: companyData.company.name,
+                        email: companyData.company.data.email,
+                        phoneNo: companyData.company.data.phone,
+                    });
                 })
                 .catch((err) => {
                     console.error(err);
@@ -124,6 +139,8 @@ const CreateCompanyForm: React.FC = () => {
                         { variant: 'error', autoHideDuration: 5000 }
                     );
                     setIsLoading(false);
+                    setStep(0);
+                    onFinish(false);
                 });
         },
     });
@@ -163,6 +180,10 @@ const CreateCompanyForm: React.FC = () => {
                 </Stepper>
                 {step === 0 && (
                     <form onSubmit={companyFormik.handleSubmit}>
+                        <Box sx={{ textAlign: 'center', mb: 2 }}>
+                            <Typography variant="h5">Enter infomation about the company</Typography>
+                        </Box>
+
                         <Box>
                             <TextField
                                 sx={{ width: '100%' }}
@@ -249,6 +270,14 @@ const CreateCompanyForm: React.FC = () => {
                 )}
                 {step === 1 && (
                     <form onSubmit={ownerFormik.handleSubmit}>
+                        <Box sx={{ textAlign: 'center', mb: 2 }}>
+                            <Typography variant="h5">
+                                Enter the owner of company's information{' '}
+                            </Typography>
+                            <Typography variant="body1">
+                                (this will be the user who has admin priviliages over company)
+                            </Typography>
+                        </Box>
                         <Box>
                             <TextField
                                 sx={{ width: '100%' }}

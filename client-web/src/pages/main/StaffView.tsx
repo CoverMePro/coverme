@@ -45,7 +45,6 @@ const StaffView: React.FC = () => {
 
     const handleCloseAddStaff = () => {
         setOpenAddStaff(false);
-        handleGetUsers();
     };
 
     const handleCloseDeleteStaff = () => {
@@ -119,7 +118,12 @@ const StaffView: React.FC = () => {
                         onDelete={handleOpenDeleteStaff}
                     />
                     <Dialog open={openAddStaff} onClose={handleCloseAddStaff}>
-                        <RegisterUserForm onFinish={handleCloseAddStaff} />
+                        <RegisterUserForm
+                            onFinish={() => {
+                                handleCloseAddStaff();
+                                handleGetUsers();
+                            }}
+                        />
                     </Dialog>
                     <DeleteConfirmation
                         open={openDeleteStaff}

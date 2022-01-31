@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
@@ -9,16 +9,76 @@ import { ICompany } from 'models/Company';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 
 import axios from 'utils/axios-intance';
+import CreateCompanyForm from 'components/forms/CreateCompanyForm';
+import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
 
 const Companies: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);
     const [openDeleteCompany, setOpenDeleteCompany] = useState<boolean>(false);
     const [isLoadingCompanies, setIsLoadingCompanies] = useState<boolean>(false);
+    const [isLoadingDeleteCompanies, setIsLoadingDeleteCompanies] = useState<boolean>(false);
     const [deleteMessage, setDeleteMessage] = useState<string>('');
     const [companies, setCompanies] = useState<ICompany[]>([]);
     const [selected, setSelected] = useState<any | undefined>(undefined);
 
-    useEffect(() => {
+    const { enqueueSnackbar } = useSnackbar();
+
+    const handleSelectCompany = (company: any | undefined) => {
+        if (selected === company) {
+            setSelected(undefined);
+        } else {
+            setSelected(company);
+        }
+    };
+
+    const handleAddCompany = () => {
+        setOpenAddCompany(true);
+    };
+
+    const handleCloseAddCompany = () => {
+        setOpenAddCompany(false);
+    };
+
+    const handleCompleteAddCompany = (success: boolean, company?: ICompany) => {
+        if (success && company) {
+            const newCompanies = [...companies, company];
+            setCompanies(newCompanies);
+        }
+        handleCloseAddCompany();
+    };
+
+    const handleOpenDeleteCompany = (selectedCompany: any) => {
+        setDeleteMessage(`Are you sure you want to delete ${selectedCompany}?`);
+        setOpenDeleteCompany(true);
+    };
+
+    const handleCloseDeleteCompany = () => {
+        setOpenDeleteCompany(false);
+    };
+
+    const handleConfirmDeleteCompany = () => {
+        setIsLoadingDeleteCompanies(true);
+        axios
+            .get(`${process.env.REACT_APP_SERVER_API}/company/delete/${selected}`)
+            .then(() => {
+                enqueueSnackbar('User successfully deleted', { variant: 'success' });
+                const newCompanies = companies.filter((company) => company.name !== selected);
+                setCompanies(newCompanies);
+                setSelected(undefined);
+            })
+            .catch((err) => {
+                console.error(err);
+                enqueueSnackbar('Error trying to delete company, please try again', {
+                    variant: 'error',
+                });
+            })
+            .finally(() => {
+                setIsLoadingDeleteCompanies(false);
+                handleCloseDeleteCompany();
+            });
+    };
+
+    const handleGetCompanies = useCallback(() => {
         setIsLoadingCompanies(true);
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/company/info`)
@@ -33,22 +93,9 @@ const Companies: React.FC = () => {
             });
     }, []);
 
-    const handleSelectCompany = (company: any | undefined) => {
-        if (selected === company) {
-            setSelected(undefined);
-        } else {
-            setSelected(company);
-        }
-    };
-
-    const handleAddCompany = () => {
-        setOpenAddCompany(true);
-    };
-
-    const handleOpenDeleteCompany = (selectedStaff: any) => {
-        setDeleteMessage(`Are you sure you want to delete ${selectedStaff}?`);
-        setOpenDeleteCompany(true);
-    };
+    useEffect(() => {
+        handleGetCompanies();
+    }, [handleGetCompanies]);
 
     return (
         <>
@@ -74,6 +121,16 @@ const Companies: React.FC = () => {
                         onSelect={handleSelectCompany}
                         onAdd={handleAddCompany}
                         onDelete={handleOpenDeleteCompany}
+                    />
+                    <Dialog open={openAddCompany} onClose={handleCloseAddCompany}>
+                        <CreateCompanyForm onFinish={handleCompleteAddCompany} />
+                    </Dialog>
+                    <DeleteConfirmation
+                        open={openDeleteCompany}
+                        message={deleteMessage}
+                        isLoading={isLoadingDeleteCompanies}
+                        onClose={handleCloseDeleteCompany}
+                        onConfirm={handleConfirmDeleteCompany}
                     />
                 </Box>
             )}

@@ -18,7 +18,7 @@ const CreateCompany: React.FC = () => {
                 alignItems: 'center',
             }}
         >
-            <CreateCompanyForm />
+            <CreateCompanyForm onFinish={() => {}} />
         </Box>
     );
 };

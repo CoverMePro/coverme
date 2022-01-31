@@ -9,6 +9,7 @@ router.get('/', authGuard, companyController.getAllCompanies);
 router.get('/info', authGuard, companyController.getAllCompaniesInfo);
 router.get('/check/:id', authGuard, companyController.checkCompany);
 router.get('/:id', authGuard, companyController.getCompany);
+router.get('/delete/:id', authGuard, companyController.deleteCompany);
 router.get('/:id/team', authGuard, companyController.getAllTeams);
 router.get('/:companyId/team/:teamId/delete', companyController.deleteTeam);
 
