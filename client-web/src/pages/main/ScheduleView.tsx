@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import FullCalendar, { EventInput } from '@fullcalendar/react'; // must go before plugins
+import FullCalendar, { EventApi, EventInput } from '@fullcalendar/react'; // must go before plugins
 import { EventChangeArg, EventInstance } from '@fullcalendar/common';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimegridPlugin from '@fullcalendar/resource-timegrid'; // a plugin
@@ -58,6 +58,8 @@ interface IShiftTransaction {
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
     const [events, setEvents] = useState<EventInput[]>([]);
+    const [cachedEvents, setCachedEvents] = useState<EventInput[]>([]);
+    const [addedEvents, setAddedEvents] = useState<EventApi[]>([]);
     const [shiftTransactions, setShiftTransactions] = useState<IShiftTransaction[]>([]);
 
     const [isShiftEdit, setIsShiftEdit] = useState<boolean>(false);
@@ -118,6 +120,7 @@ const ScheduleView: React.FC = () => {
         });
 
         setEvents(formattedEvents);
+        setCachedEvents(formattedEvents);
     };
 
     /**
@@ -139,6 +142,9 @@ const ScheduleView: React.FC = () => {
             };
 
             const newShiftTransactions = [...shiftTransactions, transaction];
+
+            const newEvents = [...addedEvents, dropEvent.event];
+            setAddedEvents(newEvents);
 
             setShiftTransactions(newShiftTransactions);
         } else {
@@ -238,6 +244,20 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoadingConfirm(false);
             });
+    };
+
+    const handleCancelEdits = () => {
+        if (shiftTransactions.length > 0) {
+            setShiftTransactions([]);
+            setEvents([...cachedEvents]);
+
+            for (let i = 0, len = addedEvents.length; i < len; i++) {
+                addedEvents[i].remove();
+            }
+
+            setAddedEvents([]);
+        }
+        setIsShiftEdit(false);
     };
 
     const getShiftsFromTeams = useCallback(() => {
@@ -406,7 +426,7 @@ const ScheduleView: React.FC = () => {
                                                 <Tooltip title="Cancel Edit" placement="top">
                                                     <IconButton
                                                         size="large"
-                                                        onClick={() => setIsShiftEdit(false)}
+                                                        onClick={handleCancelEdits}
                                                     >
                                                         <EditOffIcon
                                                             color="primary"

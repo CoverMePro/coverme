@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
+import { useActions } from 'hooks/use-actions';
 
 import { styled } from '@mui/material/styles';
 
@@ -90,6 +91,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const Dashboard: React.FC = () => {
     const user = useTypedSelector((state) => state.user);
     const navigate = useNavigate();
+    const { setUser } = useActions();
 
     const [openSettings, setOpenSettings] = useState<boolean>(false);
     const [navSelected, setNavSelected] = useState<number>(0);
@@ -106,6 +108,7 @@ const Dashboard: React.FC = () => {
             .get(`${process.env.REACT_APP_SERVER_API}/auth/logout`)
             .then(() => {
                 navigate('/login');
+                setUser({});
             })
             .catch((err) => {
                 console.error(err);
@@ -113,20 +116,14 @@ const Dashboard: React.FC = () => {
     };
 
     useEffect(() => {
-        switch (location.pathname) {
-            case '/dashboard/home':
-                setNavSelected(0);
-                break;
-            case '/dashboard/staff-view':
-                setNavSelected(1);
-                break;
-            case '/dashboard/teams':
-                setNavSelected(2);
-                break;
-            default:
-                setNavSelected(0);
-                break;
-        }
+        const navSelected: any = {
+            '/dashboard/home': 0,
+            '/dashboard/staff-view': 1,
+            '/dashboard/teams': 2,
+            '/dashboard/companies': 3,
+        };
+
+        setNavSelected(navSelected[location.pathname]);
     }, [location.pathname]);
 
     return (
@@ -204,7 +201,7 @@ const Dashboard: React.FC = () => {
                     <List disablePadding>
                         <ListItem disablePadding>
                             <ListItemButton
-                                selected={navSelected === 1}
+                                selected={navSelected === 3}
                                 onClick={() => handleTopLevelNav('companies')}
                             >
                                 <ListItemIcon>

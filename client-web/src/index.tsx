@@ -10,7 +10,7 @@ import { SnackbarProvider } from 'notistack';
 
 import Login from 'pages/auth/Login';
 import Dashboard from 'pages/Dashboard';
-import Onboard from 'pages/auth/Onboard';
+import Register from 'pages/auth/Register';
 import CreateCompany from 'pages/dev/CreateCompany';
 
 import AuthWrapper from 'components/auth/AuthWrapper';
@@ -29,7 +29,7 @@ ReactDOM.render(
                     <BrowserRouter>
                         <Routes>
                             <Route path="/login" element={<Login />} />
-                            <Route path="/onboard" element={<Onboard />} />
+                            <Route path="/register" element={<Register />} />
                             <Route
                                 path="/dashboard"
                                 element={

@@ -13,9 +13,11 @@ import {
     CircularProgress,
     Typography,
     Button,
+    IconButton,
 } from '@mui/material';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { ICompanyFormInfo } from 'models/Validation';
 import { ICompany } from 'models/Company';
@@ -153,8 +155,17 @@ const CreateCompanyForm: React.FC<ICreateCompanyFormProps> = ({ onFinish }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                position: 'relative',
             }}
         >
+            {step === 1 && (
+                <Box sx={{ position: 'absolute', left: 5, top: 5 }}>
+                    <IconButton onClick={() => setStep(0)} size="large">
+                        <ArrowBackIcon color="primary" fontSize="large" />
+                    </IconButton>
+                </Box>
+            )}
+
             <Box
                 sx={{
                     paddingY: 5,

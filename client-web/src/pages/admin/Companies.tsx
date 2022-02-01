@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import companyHeadCells from 'models/HeaderCells/CompanyHeadCells';
 import { Box, Dialog, CircularProgress } from '@mui/material';

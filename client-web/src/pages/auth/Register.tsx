@@ -27,7 +27,7 @@ import axios from 'utils/axios-intance';
 
 import MuiPhoneNumber from 'material-ui-phone-number';
 
-const Onboard: React.FC = () => {
+const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isComplete, setIsComplete] = useState<boolean>(false);
@@ -266,4 +266,4 @@ const Onboard: React.FC = () => {
     );
 };
 
-export default Onboard;
+export default Register;

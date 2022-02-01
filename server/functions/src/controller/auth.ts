@@ -88,7 +88,7 @@ const sendRegisterLink = (req: Request, res: Response) => {
  */
 const registerCallback = (req: Request, res: Response) => {
     const { email } = req.query;
-    return res.redirect(`${WEB_CLIENT_DOMAIN}/onboard?email=${email}`);
+    return res.redirect(`${WEB_CLIENT_DOMAIN}/register?email=${email}`);
 };
 
 /**

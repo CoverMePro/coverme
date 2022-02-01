@@ -56,6 +56,7 @@ const TeamsView: React.FC = () => {
     const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUserInfo | undefined>(
         undefined
     );
+    const [cachedSelected, setCachedSelected] = useState<string>('');
     const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>([]);
     const [selectedTeamStaff, setSelectedTeamStaff] = useState<IUserInfo[]>([]);
 
@@ -125,30 +126,34 @@ const TeamsView: React.FC = () => {
     const handleTeamChange =
         (team: ITeamInfo) => (event: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? team.name : false);
-            setSelectedTeamManagers([]);
-            setSelectedTeamStaff([]);
 
-            setLoadingRosterManger([...team.managers]);
-            setLoadingRosterStaff([...team.staff]);
+            if (team.name !== cachedSelected) {
+                setSelectedTeamManagers([]);
+                setSelectedTeamStaff([]);
 
-            const emails = [...team.managers, ...team.staff];
-            if (emails.length > 0) {
-                axios
-                    .post(`${process.env.REACT_APP_SERVER_API}/user`, {
-                        emails,
-                    })
-                    .then((result) => {
-                        const { managers, staff } = result.data;
-                        setSelectedTeamManagers(managers);
-                        setSelectedTeamStaff(staff);
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-                    .finally(() => {
-                        setLoadingRosterManger([]);
-                        setLoadingRosterStaff([]);
-                    });
+                setLoadingRosterManger([...team.managers]);
+                setLoadingRosterStaff([...team.staff]);
+
+                const emails = [...team.managers, ...team.staff];
+                if (emails.length > 0) {
+                    axios
+                        .post(`${process.env.REACT_APP_SERVER_API}/user`, {
+                            emails,
+                        })
+                        .then((result) => {
+                            const { managers, staff } = result.data;
+                            setSelectedTeamManagers(managers);
+                            setSelectedTeamStaff(staff);
+                            setCachedSelected(team.name);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                        .finally(() => {
+                            setLoadingRosterManger([]);
+                            setLoadingRosterStaff([]);
+                        });
+                }
             }
         };
 
