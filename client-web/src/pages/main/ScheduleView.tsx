@@ -49,7 +49,6 @@ interface IShiftTransaction {
     instanceId?: string;
     name?: string;
     userId?: string;
-    companyId?: string;
     teamId?: string;
     startDate?: string;
     endDate?: string;
@@ -78,10 +77,23 @@ const ScheduleView: React.FC = () => {
         if (calendarRef.current) {
             let calendarApi = calendarRef.current.getApi();
             const resource = calendarApi.getResourceById(resourceId);
+            console.log(resource);
             team = resource.extendedProps.team;
         }
 
         return team;
+    };
+
+    const getEmail = (resourceId: string) => {
+        let email = '';
+        if (calendarRef.current) {
+            let calendarApi = calendarRef.current.getApi();
+            const resource = calendarApi.getResourceById(resourceId);
+            console.log(resource);
+            email = resource.extendedProps.email;
+        }
+
+        return email;
     };
 
     const removeTransaction = (id: string) => {
@@ -98,8 +110,7 @@ const ScheduleView: React.FC = () => {
         const changedtransaction: IShiftTransaction = {
             type: 'add',
             instanceId: eventInstance.instanceId,
-            userId: resourceId,
-            companyId: user.company!,
+            userId: getEmail(resourceId),
             teamId: getTeam(resourceId),
             startDate: eventInstance.range.start.toISOString(),
             endDate: eventInstance.range.end.toISOString(),
@@ -115,7 +126,7 @@ const ScheduleView: React.FC = () => {
                 title: shift.name,
                 start: shift.startDateTime,
                 end: shift.endDateTime,
-                resourceId: shift.userId,
+                resourceId: `${shift.teamId}-${shift.userId}`,
             };
         });
 
@@ -133,8 +144,7 @@ const ScheduleView: React.FC = () => {
             const transaction: IShiftTransaction = {
                 type: 'add',
                 name: dropEvent.event._def.title,
-                userId: dropEvent.event._def.resourceIds[0],
-                companyId: user.company!,
+                userId: getEmail(dropEvent.event._def.resourceIds[0]),
                 teamId: getTeam(dropEvent.event._def.resourceIds[0]),
                 instanceId: dropEvent.event._instance.instanceId,
                 startDate: dropEvent.event._instance.range.start.toISOString(),
@@ -202,8 +212,7 @@ const ScheduleView: React.FC = () => {
                 const transaction: IShiftTransaction = {
                     type: 'change',
                     id: changedEvent.event._def.publicId,
-                    userId: changedEvent.event._def.resourceIds[0],
-                    companyId: user.company!,
+                    userId: getEmail(changedEvent.event._def.resourceIds[0]),
                     teamId: getTeam(changedEvent.event._def.resourceIds[0]),
                     instanceId: changedEvent.event._instance.instanceId,
                     startDate: changedEvent.event._instance.range.start.toISOString(),
@@ -227,9 +236,12 @@ const ScheduleView: React.FC = () => {
     const handleConfirmTransactions = () => {
         setIsLoadingConfirm(true);
         axios
-            .post(`${process.env.REACT_APP_SERVER_API}/shift/transactions`, {
-                transactions: shiftTransactions,
-            })
+            .post(
+                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shift-transactions`,
+                {
+                    transactions: shiftTransactions,
+                }
+            )
             .then(() => {
                 enqueueSnackbar('Edits to the schedule have been recorded.', {
                     variant: 'success',
@@ -263,11 +275,8 @@ const ScheduleView: React.FC = () => {
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
-            .post(`${process.env.REACT_APP_SERVER_API}/shift/from-teams`, {
-                teams: user.teams ? user.teams : [],
-            })
+            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
             .then((result: AxiosResponse) => {
-                console.log(result.data);
                 setTeamStaff(result.data.teamStaff);
                 formatEvents(result.data.shifts);
             })
@@ -277,7 +286,7 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user.teams]);
+    }, [user.company]);
 
     useEffect(() => {
         getShiftsFromTeams();

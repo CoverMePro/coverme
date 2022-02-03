@@ -1,38 +1,35 @@
 import { Request, Response } from 'express';
+import { IScheduleStaff } from '../models/ScheduleInfo';
+import { IShift } from '../models/Shift';
 import { IShiftTransaction } from '../models/ShiftTransaction';
-import { IUser } from '../models/User';
 import { db } from '../utils/admin';
 
-const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
-    const teams: string[] = req.body.teams;
-    const teamStaff: any = [];
-    const shifts: any = [];
+const getShiftsAndStaff = (req: Request, res: Response) => {
+    const company = req.params.name;
+
+    const teamStaff: IScheduleStaff[] = [];
+    const shifts: IShift[] = [];
+
     db.collection('users')
-        .where('teams', 'array-contains-any', teams)
+        .where('company', '==', company)
         .get()
         .then((staffData) => {
-            const staffList: IUser[] = [];
-
             staffData.forEach((user) => {
-                if (user.data().role !== 'owner') {
-                    staffList.push({ email: user.id, ...user.data() });
+                const userData = user.data();
+                if (userData.teams && userData.role !== 'owner' && userData.role !== 'manager') {
+                    for (let i = 0, len = userData.teams.length; i < len; i++) {
+                        const team = userData.teams[i];
+                        teamStaff.push({
+                            id: `${team}-${user.id}`,
+                            team: team,
+                            email: user.id,
+                            title: `${userData.firstName} ${userData.lastName}`,
+                        });
+                    }
                 }
             });
 
-            teams.forEach((team) => {
-                const staffInTeam = staffList.filter(
-                    (staff) => staff.teams?.findIndex((t) => t === team) !== -1
-                );
-                staffInTeam.forEach((staff) => {
-                    teamStaff.push({
-                        id: staff.email,
-                        team: team,
-                        title: `${staff.firstName} ${staff.lastName}`,
-                    });
-                });
-            });
-
-            return db.collection('shifts').where('teamId', 'in', teams).get();
+            return db.collection(`/companies/${company}/shifts`).get();
         })
         .then((shiftData) => {
             shiftData.forEach((shift) => {
@@ -50,6 +47,7 @@ const getStaffandShiftsFromTeams = (req: Request, res: Response) => {
 const transactionShifts = (req: Request, res: Response) => {
     const batch = db.batch();
 
+    const { name } = req.params;
     const transactions: IShiftTransaction[] = req.body.transactions;
 
     for (let i = 0; i < transactions.length; i++) {
@@ -59,10 +57,9 @@ const transactionShifts = (req: Request, res: Response) => {
 
         switch (transaction.type) {
             case 'add':
-                batch.create(db.collection('/shifts').doc(), {
+                batch.create(db.collection(`companies/${name}/shifts`).doc(), {
                     name: transaction.name,
                     userId: transaction.userId,
-                    companyId: transaction.companyId,
                     teamId: transaction.teamId,
                     startDateTime: transaction.startDate,
                     endDateTime: transaction.endDate,
@@ -74,7 +71,6 @@ const transactionShifts = (req: Request, res: Response) => {
             case 'change':
                 batch.update(db.doc(`/shifts/${transaction.id}`), {
                     userId: transaction.userId,
-                    companyId: transaction.companyId,
                     teamId: transaction.teamId,
                     startDateTime: transaction.startDate,
                     endDateTime: transaction.endDate,
@@ -95,6 +91,6 @@ const transactionShifts = (req: Request, res: Response) => {
 };
 
 export default {
-    getStaffandShiftsFromTeams,
+    getShiftsAndStaff,
     transactionShifts,
 };
