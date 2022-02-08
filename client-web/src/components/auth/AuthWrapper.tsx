@@ -43,8 +43,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                     // This is a check depending if a user enters this page directly and there is no redux state
                     //use the information from the auth check
                     const userData = {
-                        ...result.data.user.data,
-                        email: result.data.user.email,
+                        ...result.data.user,
                     };
 
                     setUser(userData);

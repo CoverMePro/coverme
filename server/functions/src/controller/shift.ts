@@ -17,15 +17,14 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
             staffData.forEach((user) => {
                 const userData = user.data();
                 if (userData.teams && userData.role !== 'owner' && userData.role !== 'manager') {
-                    for (let i = 0, len = userData.teams.length; i < len; i++) {
-                        const team = userData.teams[i];
+                    userData.teams.foreach((team: string) => {
                         teamStaff.push({
                             id: `${team}-${user.id}`,
                             team: team,
                             email: user.id,
                             title: `${userData.firstName} ${userData.lastName}`,
                         });
-                    }
+                    });
                 }
             });
 
@@ -52,8 +51,6 @@ const transactionShifts = (req: Request, res: Response) => {
 
     for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
-
-        console.log(transaction);
 
         switch (transaction.type) {
             case 'add':

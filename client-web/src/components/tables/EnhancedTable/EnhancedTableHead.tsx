@@ -4,10 +4,10 @@ import { Box, TableHead, TableRow, TableCell, TableSortLabel } from '@mui/materi
 import { visuallyHidden } from '@mui/utils';
 
 import { IHeadCell, Order } from 'models/TableInfo';
-import { IUserInfo } from 'models/User';
+import { IUser } from 'models/User';
 
 interface IEnhancedTableProps {
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof IUserInfo) => void;
+    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof IUser) => void;
     order: Order;
     orderBy: string;
     headCells: IHeadCell[];
@@ -19,7 +19,7 @@ const EnhancedTableHead: React.FC<IEnhancedTableProps> = ({
     headCells,
     onRequestSort,
 }) => {
-    const createSortHandler = (property: keyof IUserInfo) => (event: React.MouseEvent<unknown>) => {
+    const createSortHandler = (property: keyof IUser) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
 

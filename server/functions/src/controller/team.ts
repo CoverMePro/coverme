@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ITeamInfo } from '../models/Team';
+import { ITeam } from '../models/Team';
 import { db } from '../utils/admin';
 
 /**
@@ -9,7 +9,7 @@ const getAllTeams = (req: Request, res: Response) => {
     db.collection(`/companies/${req.params.id}/teams`)
         .get()
         .then((teamData) => {
-            let teams: ITeamInfo[] = [];
+            let teams: ITeam[] = [];
             teamData.forEach((team) => {
                 teams.push({
                     name: team.id,
@@ -23,6 +23,7 @@ const getAllTeams = (req: Request, res: Response) => {
         })
         .catch((err) => {
             console.log(err);
+            return res.status(500).json({ error: err.code });
         });
 };
 
@@ -31,7 +32,7 @@ const getAllTeams = (req: Request, res: Response) => {
  */
 
 const createTeam = (req: Request, res: Response) => {
-    const team: ITeamInfo = req.body.team;
+    const team: ITeam = req.body.team;
     db.doc(`/companies/${req.params.id}/teams/${team.name}`)
         .get()
         .then((teamData) => {
@@ -79,6 +80,7 @@ const createTeam = (req: Request, res: Response) => {
             if (err === 403) {
                 return res.status(403).json({ error: 'Team with that name already exists' });
             } else {
+                console.error(err);
                 return res.status(500).json({ error: err.code });
             }
         });
@@ -115,6 +117,7 @@ const deleteTeam = (req: Request, res: Response) => {
             return res.json({ message: 'Team Deleted!' });
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err.code });
         });
 };
@@ -162,6 +165,7 @@ const addUserToTeam = (req: Request, res: Response) => {
             return res.json({ message: 'User added to team!' });
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err.code });
         });
 };
@@ -214,6 +218,7 @@ const removeUserFromTeam = (req: Request, res: Response) => {
             return res.json({ message: 'User added to team!' });
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err.code });
         });
 };

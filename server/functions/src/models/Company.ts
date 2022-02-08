@@ -1,7 +1,5 @@
-export interface ICompanyInfo {
+export interface ICompany {
     name?: string;
-    data?: {
-        email?: string;
-        phone?: string;
-    };
+    email?: string;
+    phone?: string;
 }

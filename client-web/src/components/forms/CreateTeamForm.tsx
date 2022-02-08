@@ -20,7 +20,7 @@ import { validateCreateTeam } from 'utils/validation';
 
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { IUserInfo } from 'models/User';
+import { IUser } from 'models/User';
 import { AxiosError } from 'axios';
 
 interface ICreateFormProps {
@@ -36,8 +36,8 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [managers, setManagers] = useState<IUserInfo[]>([]);
-    const [staff, setStaff] = useState<IUserInfo[]>([]);
+    const [managers, setManagers] = useState<IUser[]>([]);
+    const [staff, setStaff] = useState<IUser[]>([]);
     const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
     const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
@@ -45,7 +45,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const handleChangeSelectUsers = (users: IUserInfo[], isStaff: boolean) => {
+    const handleChangeSelectUsers = (users: IUser[], isStaff: boolean) => {
         const userEmails = users.map((user) => {
             return user.email!;
         });
@@ -99,7 +99,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
             .then((result) => {
-                const users: IUserInfo[] = result.data.users;
+                const users: IUser[] = result.data.users;
                 const retrievedManagers = users.filter((user) => user.role === 'manager');
                 const retreivedStaff = users.filter((user) => user.role === 'staff');
 

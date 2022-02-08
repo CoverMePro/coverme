@@ -29,7 +29,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { ITeamInfo } from 'models/Team';
-import { IUserInfo } from 'models/User';
+import { IUser } from 'models/User';
 
 import CreateTeamForm from 'components/forms/CreateTeamForm';
 import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
@@ -51,14 +51,12 @@ const TeamsView: React.FC = () => {
     const [deleteMessage, setDeleteMessage] = useState<string>('');
     const [removeUserMessage, setRemoveUserMessage] = useState<string>('');
     const [teams, setTeams] = useState<ITeamInfo[]>([]);
-    const [usersToAdd, setUsersToAdd] = useState<IUserInfo[]>([]);
-    const [userSelectedToAdd, setUserSelectedToAdd] = useState<IUserInfo | undefined>(undefined);
-    const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUserInfo | undefined>(
-        undefined
-    );
+    const [usersToAdd, setUsersToAdd] = useState<IUser[]>([]);
+    const [userSelectedToAdd, setUserSelectedToAdd] = useState<IUser | undefined>(undefined);
+    const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | undefined>(undefined);
     const [cachedSelected, setCachedSelected] = useState<string>('');
-    const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUserInfo[]>([]);
-    const [selectedTeamStaff, setSelectedTeamStaff] = useState<IUserInfo[]>([]);
+    const [selectedTeamManagers, setSelectedTeamManagers] = useState<IUser[]>([]);
+    const [selectedTeamStaff, setSelectedTeamStaff] = useState<IUser[]>([]);
 
     const user = useTypedSelector((state) => state.user);
 
@@ -76,7 +74,7 @@ const TeamsView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
             .then((result) => {
-                const users: IUserInfo[] = result.data.users;
+                const users: IUser[] = result.data.users;
 
                 const availableUsers = users.filter((user) => {
                     return !user.teams || !hasTeam(user.teams);
@@ -91,7 +89,7 @@ const TeamsView: React.FC = () => {
         setOpenAddUserToTeam(true);
     };
 
-    const handleOpenRemoveUser = (user: IUserInfo) => {
+    const handleOpenRemoveUser = (user: IUser) => {
         setUserSelectedToRemove(user);
         setRemoveUserMessage(
             `Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${
@@ -188,7 +186,7 @@ const TeamsView: React.FC = () => {
         setOpenDeleteTeam(false);
     };
 
-    const handleSelectUserToAdd = (selectUser: IUserInfo | null) => {
+    const handleSelectUserToAdd = (selectUser: IUser | null) => {
         if (selectUser) {
             setUserSelectedToAdd(selectUser);
         } else {

@@ -55,7 +55,7 @@ const Login: React.FC = () => {
                     },
                     { withCredentials: true }
                 )
-                .then((result) => {
+                .then(() => {
                     setIsLoggingIn(false);
                     navigate('/dashboard/home');
                 })

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { IUserLogin, IUserInfo } from '../models/User';
+import { IUser, IUserLogin } from '../models/User';
 import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from '../constants';
 
 import { db, fbAuth, fbAdmin } from '../utils/admin';
@@ -14,14 +14,11 @@ import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
 const registerUser = (req: Request, res: Response) => {
     const { email, password, phoneNo } = req.body;
 
-    let token: string;
     createUserWithEmailAndPassword(fbAuth, email, password)
         .then((data) => {
             return data.user.getIdToken();
         })
-        .then((tokenId) => {
-            token = tokenId;
-
+        .then(() => {
             return db
                 .doc(`/users/${email}`)
                 .update({ phoneNo, status: 'Active', statusUpdatedAt: Date.now() });
@@ -29,19 +26,13 @@ const registerUser = (req: Request, res: Response) => {
         .then(() => {
             return db.doc(`/users/${email}`).get();
         })
-        .then((userData) => {
-            const userInfo: IUserInfo = {
-                data: { ...userData.data() },
-                email: userData.id,
-            };
+        .then(() => {
             return res.json({
                 message: 'User created successfully!',
-                user: userInfo,
-                token: token,
             });
         })
         .catch((error) => {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ error });
         });
 };
@@ -77,8 +68,7 @@ const sendRegisterLink = (req: Request, res: Response) => {
             return res.json({ message: 'Email link successful', email });
         })
         .catch((error) => {
-            console.log(error);
-
+            console.error(error);
             return res.status(500).json({ error });
         });
 };
@@ -99,8 +89,6 @@ const signIn = (req: Request, res: Response) => {
 
     let cookie: string;
 
-    // Assign a expiry date for the cookie
-    // currently it is <6 MINUTES>
     const expiresIn = SESSION_COOKIE_EXPIRY;
 
     return signInWithEmailAndPassword(fbAuth, userLogin.email, userLogin.password)
@@ -108,18 +96,15 @@ const signIn = (req: Request, res: Response) => {
             return data.user.getIdToken();
         })
         .then((tokenId) => {
-            // create session cookie
             return assignSessionCookie(tokenId, expiresIn);
         })
         .then((sessionCookie) => {
             cookie = sessionCookie;
-
-            // retreive user info to send to client
             return db.doc(`/users/${userLogin.email}`).get();
         })
         .then((userData) => {
-            const userInfo: IUserInfo = {
-                data: { ...userData.data() },
+            const userInfo: IUser = {
+                ...userData.data(),
                 email: userData.id,
             };
 
@@ -133,17 +118,21 @@ const signIn = (req: Request, res: Response) => {
             return res.json({ message: 'login successful', user: userInfo });
         })
         .catch((err) => {
-            console.log(err);
             switch (err.code) {
                 case 'auth/wrong-password':
                 case 'auth/user-not-found':
                     return res.status(403).json({ general: 'Wrong credentials, please try again' });
-                default:
+                default: {
+                    console.error(err);
                     return res.status(500).json({ error: err });
+                }
             }
         });
 };
 
+/**
+ * Delete user from firebase authentication
+ */
 const deleteAuthUser = (req: Request, res: Response) => {
     const email = req.params.email;
 
@@ -165,6 +154,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
                         return res.json({ message: 'user successfully deleted' });
                     })
                     .catch((err) => {
+                        console.error(err);
                         return res.status(500).json({ error: err });
                     });
             } else {
@@ -174,15 +164,20 @@ const deleteAuthUser = (req: Request, res: Response) => {
                         return res.json({ message: 'user successfully deleted' });
                     })
                     .catch((err) => {
+                        console.error(err);
                         return res.status(500).json({ error: err });
                     });
             }
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err });
         });
 };
 
+/*
+ * Logs user out of the client side application
+ */
 const logOut = (req: Request, res: Response) => {
     signOut(fbAuth)
         .then(() => {
@@ -198,6 +193,7 @@ const logOut = (req: Request, res: Response) => {
             return res.json({ message: 'logged out successfully' });
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err });
         });
 };
@@ -215,8 +211,8 @@ const checkAuth = async (req: Request, res: Response) => {
             if (decodedToken.email) {
                 const userData = await db.doc(`/users/${decodedToken.email}`).get();
 
-                const userInfo: IUserInfo = {
-                    data: { ...userData.data() },
+                const userInfo: IUser = {
+                    ...userData.data(),
                     email: userData.id,
                 };
 
@@ -224,7 +220,7 @@ const checkAuth = async (req: Request, res: Response) => {
             } else {
                 return res.status(401).json({ error: 'No email found' });
             }
-        } catch (error) {
+        } catch (err) {
             return res.status(401).json({ error: 'Session Expired' });
         }
     } else {
@@ -243,6 +239,7 @@ const passwordReset = (req: Request, res: Response) => {
             return res.json({ message: 'Reset email sent!' });
         })
         .catch((err) => {
+            console.error(err);
             return res.status(500).json({ error: err });
         });
 };

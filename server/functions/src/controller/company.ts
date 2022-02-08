@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ICompanyInfo } from '../models/Company';
+import { ICompany } from '../models/Company';
 import { db, fbAuth } from '../utils/admin';
 import { emailSignInForUser } from '../utils/fb-emails';
 
@@ -19,6 +19,7 @@ const getAllCompanies = (req: Request, res: Response) => {
         })
         .catch((err) => {
             console.error(err);
+            return res.status(500).json({ error: err });
         });
 };
 
@@ -39,6 +40,7 @@ const getAllCompaniesInfo = (req: Request, res: Response) => {
         })
         .catch((err) => {
             console.error(err);
+            return res.status(500).json({ error: err });
         });
 };
 
@@ -50,11 +52,9 @@ const getCompany = (req: Request, res: Response) => {
         .get()
         .then((companyData) => {
             if (companyData.exists) {
-                const companyInfo: ICompanyInfo = {
+                const companyInfo: ICompany = {
+                    ...companyData.data(),
                     name: companyData.id,
-                    data: {
-                        ...companyData.data(),
-                    },
                 };
                 return res.json(companyInfo);
             } else {
@@ -125,10 +125,10 @@ const createCompany = async (req: Request, res: Response) => {
             });
         })
         .catch((err) => {
-            console.error(err);
             if (err === 403) {
                 return res.status(403).json({ error: 'Company with that name already exists' });
             } else {
+                console.error(err);
                 return res.status(500).json({ error: err.code });
             }
         });

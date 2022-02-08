@@ -2,7 +2,6 @@ import { fbAdmin } from '../utils/admin';
 import { Request, Response, NextFunction } from 'express';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.cookies);
     if (!req.cookies) {
         console.log('no cookies');
         return res.status(401).send({ message: 'Unauthorized' });

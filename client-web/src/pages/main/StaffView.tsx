@@ -5,7 +5,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 import { Box, Dialog, CircularProgress } from '@mui/material';
 
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
-import { IUserInfo } from 'models/User';
+import { IUser } from 'models/User';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
@@ -20,7 +20,7 @@ const StaffView: React.FC = () => {
     const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] = useState<boolean>(false);
     const [deleteMessage, setDeleteMessage] = useState<string>('');
     const [selected, setSelected] = useState<any | undefined>(undefined);
-    const [staff, setStaff] = useState<IUserInfo[]>([]);
+    const [staff, setStaff] = useState<IUser[]>([]);
 
     const { enqueueSnackbar } = useSnackbar();
 

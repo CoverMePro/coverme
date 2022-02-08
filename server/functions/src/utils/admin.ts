@@ -7,5 +7,4 @@ const firebaseApp = initializeApp(config);
 
 export const fbAdmin = admin.initializeApp();
 export const fbAuth = getAuth(firebaseApp);
-fbAuth.setPersistence({ type: 'NONE' });
 export const db = admin.firestore();

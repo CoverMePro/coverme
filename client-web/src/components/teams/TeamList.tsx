@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { IUserInfo } from 'models/User';
+import { IUser } from 'models/User';
 import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui/material';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 interface ITeamListProps {
-    staff: IUserInfo[];
-    onRemoveUser: (user: IUserInfo) => void;
+    staff: IUser[];
+    onRemoveUser: (user: IUser) => void;
 }
 
 const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
