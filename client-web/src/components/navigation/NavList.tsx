@@ -24,7 +24,7 @@ const NavList: React.FC<INavListProps> = ({ visible, navItems, navSelected }) =>
                 <List disablePadding>
                     {navItems.map((nav) => {
                         return (
-                            <ListItem disablePadding>
+                            <ListItem key={nav.label} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleNav(nav.path)}
                                     selected={navSelected === nav.selectedIndex}

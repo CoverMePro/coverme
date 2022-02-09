@@ -25,5 +25,5 @@ export const ownerNav: INav[] = [
         selectedIndex: 2,
         icon: <PeopleIcon color="secondary" />,
     },
-    { label: 'Teams', path: 'team', selectedIndex: 3, icon: <GroupWorkIcon color="secondary" /> },
+    { label: 'Teams', path: 'teams', selectedIndex: 3, icon: <GroupWorkIcon color="secondary" /> },
 ];

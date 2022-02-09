@@ -288,14 +288,17 @@ const ScheduleView: React.FC = () => {
                 </>
             ) : (
                 <>
-                    <EditSchedule
-                        shiftTransactions={shiftTransactions}
-                        isLoadingConfirm={isLoadingConfirm}
-                        isShiftEdit={isShiftEdit}
-                        onOpenShiftEdit={() => setIsShiftEdit(true)}
-                        onConfirmTransactions={handleConfirmTransactions}
-                        onCancelEdits={handleCancelEdits}
-                    />
+                    {user.role !== 'staff' && (
+                        <EditSchedule
+                            shiftTransactions={shiftTransactions}
+                            isLoadingConfirm={isLoadingConfirm}
+                            isShiftEdit={isShiftEdit}
+                            onOpenShiftEdit={() => setIsShiftEdit(true)}
+                            onConfirmTransactions={handleConfirmTransactions}
+                            onCancelEdits={handleCancelEdits}
+                        />
+                    )}
+
                     <div>
                         <FullCalendar
                             ref={calendarRef}

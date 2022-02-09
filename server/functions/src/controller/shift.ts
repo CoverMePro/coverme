@@ -64,10 +64,10 @@ const transactionShifts = (req: Request, res: Response) => {
                 });
                 break;
             case 'remove':
-                batch.delete(db.doc(`/shifts/${transaction.id}`));
+                batch.delete(db.doc(`companies/${name}/shifts/${transaction.id}`));
                 break;
             case 'change':
-                batch.update(db.doc(`/shifts/${transaction.id}`), {
+                batch.update(db.doc(`companies/${name}/shifts/${transaction.id}`), {
                     userId: transaction.userId,
                     teamId: transaction.teamId,
                     startDateTime: transaction.startDate,

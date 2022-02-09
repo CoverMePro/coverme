@@ -5,11 +5,9 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { styled } from '@mui/material/styles';
 
-import { Box, IconButton, Toolbar, Typography, Drawer, Divider } from '@mui/material';
+import { Box, Toolbar, Typography, Drawer, Divider } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
-
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
