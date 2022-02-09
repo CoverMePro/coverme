@@ -9,7 +9,7 @@ import { IUser } from 'models/User';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
-import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
+import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
 

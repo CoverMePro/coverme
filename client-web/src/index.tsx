@@ -9,16 +9,15 @@ import { ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 
 import Login from 'pages/auth/Login';
-import Dashboard from 'pages/Dashboard';
+import Dashboard from 'pages/main/Dashboard';
 import Register from 'pages/auth/Register';
-import CreateCompany from 'pages/dev/CreateCompany';
 
 import AuthWrapper from 'components/auth/AuthWrapper';
 
 import { theme } from './theme';
-import Home from 'pages/Home';
-import StaffView from 'pages/main/StaffView';
-import TeamsView from 'pages/main/TeamsView';
+import Home from 'pages/main/Home';
+import StaffView from 'pages/owner/StaffView';
+import TeamsView from 'pages/owner/TeamsView';
 import Companies from 'pages/admin/Companies';
 
 ReactDOM.render(
@@ -76,15 +75,6 @@ ReactDOM.render(
                                     }
                                 />
                             </Route>
-
-                            <Route
-                                path="/create-company"
-                                element={
-                                    <AuthWrapper permissionLevel={3}>
-                                        <CreateCompany />
-                                    </AuthWrapper>
-                                }
-                            />
                             <Route path="/" element={<Navigate replace to="/login" />} />
                         </Routes>
                     </BrowserRouter>

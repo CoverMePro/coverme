@@ -9,7 +9,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 
 import axios from 'utils/axios-intance';
 import CreateCompanyForm from 'components/forms/CreateCompanyForm';
-import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
+import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 const Companies: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);

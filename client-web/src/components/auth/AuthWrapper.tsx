@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { useActions } from 'hooks/use-actions';
 
 import axios from 'utils/axios-intance';

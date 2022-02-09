@@ -32,7 +32,7 @@ import { ITeamInfo } from 'models/Team';
 import { IUser } from 'models/User';
 
 import CreateTeamForm from 'components/forms/CreateTeamForm';
-import DeleteConfirmation from 'components/confirmation/DeleteConfirmation';
+import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
 import SkeletonTeamList from 'components/teams/SkeletonTeamList';

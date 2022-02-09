@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFormik } from 'formik';
+import { useActions } from 'hooks/use-actions';
 
 import {
     Box,
@@ -22,9 +23,12 @@ import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 
 import { validateLogin } from 'utils/validation';
+
+import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
+import { IUser } from 'models/User';
+
 import { AxiosError } from 'axios';
 import axios from 'axios';
-import ForgotPasswordDialog from 'components/forgot-password/ForgotPasswordDialog';
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -34,6 +38,7 @@ const Login: React.FC = () => {
     const [loginError, setLoginError] = useState<string | undefined>(undefined);
 
     const navigate = useNavigate();
+    const { setUser } = useActions();
 
     const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
         initialValues: {
@@ -55,7 +60,9 @@ const Login: React.FC = () => {
                     },
                     { withCredentials: true }
                 )
-                .then(() => {
+                .then((result) => {
+                    const userData: IUser = result.data.user;
+                    setUser(userData);
                     setIsLoggingIn(false);
                     navigate('/dashboard/home');
                 })
@@ -76,12 +83,14 @@ const Login: React.FC = () => {
                 withCredentials: true,
             })
             .then((result) => {
+                const userData: IUser = result.data.user;
+                setUser(userData);
                 navigate('/dashboard');
             })
             .catch((err) => {
                 setIsCheckingAuth(false);
             });
-    }, [navigate]);
+    }, [navigate, setUser]);
 
     return (
         <>
