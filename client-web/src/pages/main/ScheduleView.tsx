@@ -64,13 +64,14 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions(filtedTransactions);
     };
 
-    const changeTransaction = (eventInstance: EventInstance, resourceId: string) => {
+    const changeTransaction = (title: string, eventInstance: EventInstance, resourceId: string) => {
         const filtedTransactions = shiftTransactions.filter(
             (shift) => shift.instanceId !== eventInstance.instanceId
         );
 
         const changedtransaction: IShiftTransaction = {
             type: 'add',
+            name: title,
             instanceId: eventInstance.instanceId,
             userId: getEmail(resourceId),
             teamId: getTeam(resourceId),
@@ -186,6 +187,7 @@ const ScheduleView: React.FC = () => {
                 setShiftTransactions(newShiftTransactions);
             } else {
                 changeTransaction(
+                    changedEvent.event._def.title,
                     changedEvent.event._instance,
                     changedEvent.event._def.resourceIds[0]
                 );

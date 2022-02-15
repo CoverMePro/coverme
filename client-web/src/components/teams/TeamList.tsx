@@ -37,7 +37,11 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
                         primary={`${user.firstName} ${user.lastName}`}
                         secondary={user.position}
                     />
-                    <ListItemText primary={user.email} secondary={user.phoneNo} />
+                    <ListItemText
+                        sx={{ width: '50%' }}
+                        primary={user.email}
+                        secondary={user.phoneNo}
+                    />
                 </ListItem>
             ))}
         </>

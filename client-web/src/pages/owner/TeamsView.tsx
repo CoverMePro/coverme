@@ -37,6 +37,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import axios from 'utils/axios-intance';
 import SkeletonTeamList from 'components/teams/SkeletonTeamList';
 import TeamList from 'components/teams/TeamList';
+import FormDialog from 'components/dialogs/FormDialog';
 
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);
@@ -362,10 +363,9 @@ const TeamsView: React.FC = () => {
                     ))}
                 </>
             )}
-
-            <Dialog open={openAddTeam} onClose={handleCloseAddTeam}>
+            <FormDialog open={openAddTeam} onClose={handleCloseAddTeam}>
                 <CreateTeamForm onFinish={handleOnTeamAdd} />
-            </Dialog>
+            </FormDialog>
             <Dialog open={openAddUserToTeam} onClose={handleCloseAddUserToTeam}>
                 <DialogTitle>Add User to {expanded}</DialogTitle>
                 <DialogContent>

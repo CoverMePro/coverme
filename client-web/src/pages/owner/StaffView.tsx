@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, Dialog, CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUser } from 'models/User';
@@ -12,6 +12,7 @@ import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
+import FormDialog from 'components/dialogs/FormDialog';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
@@ -117,14 +118,14 @@ const StaffView: React.FC = () => {
                         onAdd={handleAddStaff}
                         onDelete={handleOpenDeleteStaff}
                     />
-                    <Dialog open={openAddStaff} onClose={handleCloseAddStaff}>
+                    <FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
                         <RegisterUserForm
                             onFinish={() => {
                                 handleCloseAddStaff();
                                 handleGetUsers();
                             }}
                         />
-                    </Dialog>
+                    </FormDialog>
                     <DeleteConfirmation
                         open={openDeleteStaff}
                         message={deleteMessage}

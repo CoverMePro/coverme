@@ -52,7 +52,7 @@ const transactionShifts = (req: Request, res: Response) => {
 
     for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
-
+        console.log(transaction);
         switch (transaction.type) {
             case 'add':
                 batch.create(db.collection(`companies/${name}/shifts`).doc(), {

@@ -2,14 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 
 import companyHeadCells from 'models/HeaderCells/CompanyHeadCells';
-import { Box, Dialog, CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { ICompany } from 'models/Company';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-
-import axios from 'utils/axios-intance';
 import CreateCompanyForm from 'components/forms/CreateCompanyForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
+
+import axios from 'utils/axios-intance';
+import FormDialog from 'components/dialogs/FormDialog';
 
 const Companies: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);
@@ -121,9 +122,9 @@ const Companies: React.FC = () => {
                         onAdd={handleAddCompany}
                         onDelete={handleOpenDeleteCompany}
                     />
-                    <Dialog open={openAddCompany} onClose={handleCloseAddCompany}>
+                    <FormDialog open={openAddCompany} onClose={handleCloseAddCompany}>
                         <CreateCompanyForm onFinish={handleCompleteAddCompany} />
-                    </Dialog>
+                    </FormDialog>
                     <DeleteConfirmation
                         open={openDeleteCompany}
                         message={deleteMessage}
