@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { IScheduleStaff } from '../models/ScheduleInfo';
-import { IShift } from '../models/Shift';
+import { IShift, IShiftDefinition } from '../models/Shift';
 import { IShiftTransaction } from '../models/ShiftTransaction';
 import { db } from '../utils/admin';
 
@@ -88,7 +88,40 @@ const transactionShifts = (req: Request, res: Response) => {
         });
 };
 
+const createShiftDefinition = (req: Request, res: Response) => {
+    const shiftDef: IShiftDefinition = req.body.shiftDef;
+    const company = req.params.name;
+
+    db.collection(`/companies/${company}/shift-definitions`)
+        .add(shiftDef)
+        .then((result) => {
+            console.log(result);
+            res.json({ message: 'Shift definition created!' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const deleteShiftDefinition = (req: Request, res: Response) => {
+    const company = req.params.name;
+    const shiftDefId = req.params.id;
+    db.doc(`/companies/${company}/shift-definition/${shiftDefId}`)
+        .delete()
+        .then((result) => {
+            console.log(result);
+            res.json({ message: 'Shift definition deleted!' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     getShiftsAndStaff,
     transactionShifts,
+    createShiftDefinition,
+    deleteShiftDefinition,
 };

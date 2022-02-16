@@ -7,3 +7,9 @@ export interface IShift {
     startDateTime?: Date;
     endDateTime?: Date;
 }
+
+export interface IShiftDefinition {
+    id?: string;
+    name: string;
+    duration: string;
+}

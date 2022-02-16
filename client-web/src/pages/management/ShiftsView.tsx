@@ -13,6 +13,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
+import CreateShiftForm from 'components/forms/CreateShiftForm';
 
 const ShiftsView: React.FC = () => {
     const [openAddShift, setOpenAddShift] = useState<boolean>(false);
@@ -119,11 +120,7 @@ const ShiftsView: React.FC = () => {
                         onDelete={handleOpenDeleteShift}
                     />
                     <FormDialog open={openAddShift} onClose={handleCloseAddShift}>
-                        <RegisterUserForm
-                            onFinish={() => {
-                                handleCloseAddShift();
-                            }}
-                        />
+                        <CreateShiftForm />
                     </FormDialog>
                     <DeleteConfirmation
                         open={openDeleteShift}

@@ -1,11 +1,4 @@
-import { IShift } from 'models/Shift';
-import { IUser } from 'models/User';
-
-interface IShiftDefinition {
-    name: string;
-    durationHours: string;
-    colour: string;
-}
+import { IShiftDefinition } from 'models/ShiftDefinition';
 
 interface IShiftHeadCell {
     disablePadding: boolean;
@@ -24,17 +17,10 @@ const headCells: IShiftHeadCell[] = [
         label: 'Shift Name',
     },
     {
-        id: 'durationHours',
+        id: 'duration',
         numeric: false,
         disablePadding: false,
-        label: 'Duration',
-        capitalize: true,
-    },
-    {
-        id: 'colour',
-        numeric: false,
-        disablePadding: false,
-        label: 'Colour',
+        label: 'Duration (HH:MM)',
         capitalize: true,
     },
 ];

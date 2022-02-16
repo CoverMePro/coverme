@@ -1,8 +1,8 @@
 import express, { Router } from 'express';
 import authGuard from '../utils/authenticate-user';
-import companyController from '../controller/company';
-import teamController from '../controller/team';
-import shiftController from '../controller/shift';
+import companyController from '../controllers/company';
+import teamController from '../controllers/team';
+import shiftController from '../controllers/shift';
 
 const router: Router = express.Router();
 
@@ -25,6 +25,8 @@ router.post('/:companyId/team/:teamId/remove-user', authGuard, teamController.re
 
 //SHIFT
 router.get('/:name/shifts', authGuard, shiftController.getShiftsAndStaff);
+router.post('/:name/shift-definition', authGuard, shiftController.createShiftDefinition);
+router.get('/:name/shift-definition/:id/delete', authGuard, shiftController.deleteShiftDefinition);
 
 router.post('/:name/shift-transactions', shiftController.transactionShifts);
 
