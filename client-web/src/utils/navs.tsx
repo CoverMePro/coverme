@@ -4,6 +4,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
 import PeopleIcon from '@mui/icons-material/People';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 export const mainNav: INav[] = [
     { label: 'Home', path: 'home', selectedIndex: 0, icon: <HomeIcon color="secondary" /> },
@@ -26,4 +27,13 @@ export const ownerNav: INav[] = [
         icon: <PeopleIcon color="secondary" />,
     },
     { label: 'Teams', path: 'teams', selectedIndex: 3, icon: <GroupWorkIcon color="secondary" /> },
+];
+
+export const managmentNav: INav[] = [
+    {
+        label: 'Shifts',
+        path: 'shifts-view',
+        selectedIndex: 4,
+        icon: <ScheduleIcon color="secondary" />,
+    },
 ];

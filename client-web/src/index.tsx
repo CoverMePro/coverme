@@ -19,6 +19,7 @@ import Home from 'pages/main/Home';
 import StaffView from 'pages/owner/StaffView';
 import TeamsView from 'pages/owner/TeamsView';
 import Companies from 'pages/admin/Companies';
+import ShiftsView from 'pages/management/ShiftsView';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -71,6 +72,14 @@ ReactDOM.render(
                                     element={
                                         <AuthWrapper permissionLevel={3}>
                                             <Companies />
+                                        </AuthWrapper>
+                                    }
+                                />
+                                <Route
+                                    path="shifts-view"
+                                    element={
+                                        <AuthWrapper permissionLevel={1}>
+                                            <ShiftsView />
                                         </AuthWrapper>
                                     }
                                 />

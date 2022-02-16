@@ -12,7 +12,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
 
-import { adminNav, mainNav, ownerNav } from 'utils/navs';
+import { adminNav, mainNav, managmentNav, ownerNav } from 'utils/navs';
 
 const drawerWidth = 300;
 
@@ -82,6 +82,7 @@ const Dashboard: React.FC = () => {
             '/dashboard/companies': 1,
             '/dashboard/staff-view': 2,
             '/dashboard/teams': 3,
+            '/dashboard/shifts-view': 4,
         };
 
         setNavSelected(navSelected[location.pathname]);
@@ -132,7 +133,6 @@ const Dashboard: React.FC = () => {
                 </DrawerHeader>
                 <Divider />
                 <NavList visible={true} navSelected={navSelected} navItems={mainNav} />
-                <Divider />
                 <NavList
                     visible={user.role === 'admin'}
                     navSelected={navSelected}
@@ -142,6 +142,11 @@ const Dashboard: React.FC = () => {
                     visible={user.role === 'owner'}
                     navSelected={navSelected}
                     navItems={ownerNav}
+                />
+                <NavList
+                    visible={user.role !== 'staff'}
+                    navSelected={navSelected}
+                    navItems={managmentNav}
                 />
             </Drawer>
             <Main open={true}>
