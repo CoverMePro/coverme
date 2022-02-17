@@ -13,12 +13,14 @@ import { Box, LinearProgress } from '@mui/material';
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 import { IShift, IShiftTransaction } from 'models/Shift';
+import { IShiftDefinition } from 'models/ShiftDefinition';
 
 import 'styles/calendar.css';
 import EditSchedule from 'components/scheduler/EditSchedule';
 
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
+    const [shiftDefs, setShiftDefs] = useState<IShiftDefinition[]>([]);
     const [events, setEvents] = useState<EventInput[]>([]);
     const [cachedEvents, setCachedEvents] = useState<EventInput[]>([]);
     const [addedEvents, setAddedEvents] = useState<EventApi[]>([]);
@@ -242,6 +244,7 @@ const ScheduleView: React.FC = () => {
             .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
             .then((result: AxiosResponse) => {
                 setTeamStaff(result.data.teamStaff);
+                setShiftDefs(result.data.shiftDefs);
                 formatEvents(result.data.shifts);
             })
             .catch((error) => {
@@ -293,6 +296,7 @@ const ScheduleView: React.FC = () => {
                     {user.role !== 'staff' && (
                         <EditSchedule
                             shiftTransactions={shiftTransactions}
+                            shiftDefs={shiftDefs}
                             isLoadingConfirm={isLoadingConfirm}
                             isShiftEdit={isShiftEdit}
                             onOpenShiftEdit={() => setIsShiftEdit(true)}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, CircularProgress } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUser } from 'models/User';
@@ -80,14 +80,14 @@ const StaffView: React.FC = () => {
             })
             .catch((err) => {
                 console.log(err);
-            });
+            })
+            .finally(() => setIsLoadingStaff(false));
     }, [user.company]);
 
     useEffect(() => {
         const loadUsers = async () => {
             setIsLoadingStaff(true);
             await handleGetUsers();
-            setIsLoadingStaff(false);
         };
 
         loadUsers();
@@ -96,16 +96,35 @@ const StaffView: React.FC = () => {
     return (
         <>
             {isLoadingStaff ? (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100vh',
-                    }}
-                >
-                    <CircularProgress size={100} />
-                </Box>
+                <>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '5px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '5px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '5px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                </>
             ) : (
                 <Box>
                     <EnhancedTable

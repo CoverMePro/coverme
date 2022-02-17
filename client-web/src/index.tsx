@@ -20,6 +20,9 @@ import StaffView from 'pages/owner/StaffView';
 import TeamsView from 'pages/owner/TeamsView';
 import Companies from 'pages/admin/Companies';
 import ShiftsView from 'pages/management/ShiftsView';
+import TradeView from 'pages/requests/TradeView';
+import VacationView from 'pages/requests/VacationView';
+import SickView from 'pages/requests/SickView';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -80,6 +83,33 @@ ReactDOM.render(
                                     element={
                                         <AuthWrapper permissionLevel={1}>
                                             <ShiftsView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="request/trade"
+                                    element={
+                                        <AuthWrapper>
+                                            <TradeView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="request/vacation"
+                                    element={
+                                        <AuthWrapper>
+                                            <VacationView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="request/sick"
+                                    element={
+                                        <AuthWrapper>
+                                            <SickView />
                                         </AuthWrapper>
                                     }
                                 />

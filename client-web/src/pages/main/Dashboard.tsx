@@ -13,6 +13,7 @@ import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
 
 import { adminNav, mainNav, managmentNav, ownerNav } from 'utils/navs';
+import RequestNavList from 'components/navigation/RequestNavList';
 
 const drawerWidth = 300;
 
@@ -83,6 +84,9 @@ const Dashboard: React.FC = () => {
             '/dashboard/staff-view': 2,
             '/dashboard/teams': 3,
             '/dashboard/shifts-view': 4,
+            '/dashboard/request/trade': 5,
+            '/dashboard/request/vacation': 6,
+            '/dashboard/request/sick': 7,
         };
 
         setNavSelected(navSelected[location.pathname]);
@@ -144,10 +148,11 @@ const Dashboard: React.FC = () => {
                     navItems={ownerNav}
                 />
                 <NavList
-                    visible={user.role !== 'staff'}
+                    visible={user.role !== 'staff' && user.role !== 'admin'}
                     navSelected={navSelected}
                     navItems={managmentNav}
                 />
+                <RequestNavList visible={true} navSelected={navSelected} />
             </Drawer>
             <Main open={true}>
                 <DrawerHeader />

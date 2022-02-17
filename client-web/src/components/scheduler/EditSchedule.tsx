@@ -8,9 +8,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { IShiftTransaction } from 'models/Shift';
 import { Draggable } from '@fullcalendar/interaction';
+import { IShiftDefinition } from 'models/ShiftDefinition';
 
 interface IEditScheduleProps {
     shiftTransactions: IShiftTransaction[];
+    shiftDefs: IShiftDefinition[];
     isLoadingConfirm: boolean;
     isShiftEdit: boolean;
     onOpenShiftEdit: () => void;
@@ -18,17 +20,9 @@ interface IEditScheduleProps {
     onCancelEdits: () => void;
 }
 
-const getDuration = (shift: string) => {
-    const shiftDuration: any = {
-        'Full Shift': '08:00',
-        'Half Shift': '04:00',
-    };
-
-    return shiftDuration[shift] ?? '08:00';
-};
-
 const EditSchedule: React.FC<IEditScheduleProps> = ({
     shiftTransactions,
+    shiftDefs,
     isLoadingConfirm,
     isShiftEdit,
     onOpenShiftEdit,
@@ -45,9 +39,10 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
                 drag = new Draggable(containerEl, {
                     itemSelector: '.fc-event',
                     eventData: function (eventEl: any) {
+                        console.log(eventEl.dataset.duration);
                         return {
                             title: eventEl.innerText,
-                            duration: getDuration(eventEl.innerText),
+                            duration: eventEl.dataset.duration,
                         };
                     },
                 });
@@ -82,32 +77,25 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
                             }}
                         >
                             <div id="external-events" style={{ display: 'flex', gap: '10px' }}>
-                                <div
-                                    className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
-                                    style={{
-                                        cursor: 'pointer',
-                                        backgroundColor: '#006d77',
-                                        paddingLeft: '5px',
-                                        paddingRight: '5px',
-                                        borderColor: '#006d77',
-                                        borderRadius: '0',
-                                    }}
-                                >
-                                    <div className="fc-event-main">Full Shift</div>
-                                </div>
-                                <div
-                                    className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
-                                    style={{
-                                        cursor: 'pointer',
-                                        backgroundColor: '#006d77',
-                                        paddingLeft: '5px',
-                                        paddingRight: '5px',
-                                        borderColor: '#006d77',
-                                        borderRadius: '0',
-                                    }}
-                                >
-                                    <div className="fc-event-main">Half Shift</div>
-                                </div>
+                                {shiftDefs.map((shiftDef) => {
+                                    return (
+                                        <div
+                                            key={shiftDef.id!}
+                                            className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
+                                            data-duration={shiftDef.duration}
+                                            style={{
+                                                cursor: 'pointer',
+                                                backgroundColor: '#006d77',
+                                                paddingLeft: '5px',
+                                                paddingRight: '5px',
+                                                borderColor: '#006d77',
+                                                borderRadius: '0',
+                                            }}
+                                        >
+                                            <div className="fc-event-main">{shiftDef.name}</div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </Box>
                         {isLoadingConfirm ? (

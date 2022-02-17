@@ -36,9 +36,7 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
                     color="inherit"
                     variant="subtitle1"
                     component="div"
-                >
-                    {selected} selected
-                </Typography>
+                ></Typography>
             ) : (
                 <Typography sx={{ flex: '1 1 100%' }} variant="h2" id="tableTitle" component="div">
                     {title}

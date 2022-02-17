@@ -9,6 +9,7 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
 
     const teamStaff: IScheduleStaff[] = [];
     const shifts: IShift[] = [];
+    const shiftDefs: IShiftDefinition[] = [];
 
     db.collection('users')
         .where('company', '==', company)
@@ -36,7 +37,17 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
                 shifts.push({ ...shift.data(), id: shift.id });
             });
 
-            return res.json({ teamStaff: teamStaff, shifts: shifts });
+            return db.collection(`/companies/${company}/shift-definitions`).get();
+        })
+        .then((shiftDefData) => {
+            shiftDefData.forEach((shiftDef) => {
+                shiftDefs.push({
+                    id: shiftDef.id,
+                    name: shiftDef.data().name,
+                    duration: shiftDef.data().duration,
+                });
+            });
+            return res.json({ teamStaff: teamStaff, shifts: shifts, shiftDefs: shiftDefs });
         })
         .catch((err) => {
             console.error(err);
@@ -89,14 +100,21 @@ const transactionShifts = (req: Request, res: Response) => {
 };
 
 const createShiftDefinition = (req: Request, res: Response) => {
-    const shiftDef: IShiftDefinition = req.body.shiftDef;
+    const shiftDef: IShiftDefinition = req.body;
     const company = req.params.name;
 
     db.collection(`/companies/${company}/shift-definitions`)
         .add(shiftDef)
         .then((result) => {
-            console.log(result);
-            res.json({ message: 'Shift definition created!' });
+            return result.get();
+        })
+        .then((resultdata) => {
+            const shiftDef: IShiftDefinition = {
+                id: resultdata.id,
+                name: resultdata.data()!.name,
+                duration: resultdata.data()!.duration,
+            };
+            return res.json({ message: 'Shift definition created!', shiftDef: shiftDef });
         })
         .catch((err) => {
             console.error(err);
@@ -107,11 +125,33 @@ const createShiftDefinition = (req: Request, res: Response) => {
 const deleteShiftDefinition = (req: Request, res: Response) => {
     const company = req.params.name;
     const shiftDefId = req.params.id;
-    db.doc(`/companies/${company}/shift-definition/${shiftDefId}`)
+    db.doc(`/companies/${company}/shift-definitions/${shiftDefId}`)
         .delete()
         .then((result) => {
             console.log(result);
-            res.json({ message: 'Shift definition deleted!' });
+            return res.json({ message: 'Shift definition deleted!' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const getShiftDefinitions = (req: Request, res: Response) => {
+    const company = req.params.name;
+    db.collection(`/companies/${company}/shift-definitions`)
+        .get()
+        .then((shiftDefData) => {
+            const shiftDefs: IShiftDefinition[] = [];
+            shiftDefData.forEach((shiftDef) => {
+                shiftDefs.push({
+                    id: shiftDef.id,
+                    name: shiftDef.data().name,
+                    duration: shiftDef.data().duration,
+                });
+            });
+
+            return res.json({ shiftDefs });
         })
         .catch((err) => {
             console.error(err);
@@ -124,4 +164,5 @@ export default {
     transactionShifts,
     createShiftDefinition,
     deleteShiftDefinition,
+    getShiftDefinitions,
 };

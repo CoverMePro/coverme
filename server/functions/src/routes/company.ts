@@ -25,6 +25,7 @@ router.post('/:companyId/team/:teamId/remove-user', authGuard, teamController.re
 
 //SHIFT
 router.get('/:name/shifts', authGuard, shiftController.getShiftsAndStaff);
+router.get('/:name/shift-definition', authGuard, shiftController.getShiftDefinitions);
 router.post('/:name/shift-definition', authGuard, shiftController.createShiftDefinition);
 router.get('/:name/shift-definition/:id/delete', authGuard, shiftController.deleteShiftDefinition);
 

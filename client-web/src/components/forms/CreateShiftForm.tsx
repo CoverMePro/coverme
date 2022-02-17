@@ -4,16 +4,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 
-import {
-    Box,
-    TextField,
-    Fab,
-    CircularProgress,
-    Typography,
-    FormControl,
-    InputLabel,
-    Input,
-} from '@mui/material';
+import { Box, TextField, Fab, CircularProgress, Typography } from '@mui/material';
 
 import logo from 'images/cover-me-logo.png';
 import { validateShift } from 'utils/validation';
@@ -27,6 +18,10 @@ interface CustomProps {
     onChange: (event: { target: { name: string; value: string } }) => void;
     name: string;
 }
+
+const formatDuration = (value: string) => {
+    return value.substring(0, 2) + ':' + value.substring(2);
+};
 
 const DurationCustom = React.forwardRef<any, CustomProps>(function NumberFormatCustom(props, ref) {
     const { onChange, ...other } = props;
@@ -52,7 +47,11 @@ const DurationCustom = React.forwardRef<any, CustomProps>(function NumberFormatC
     );
 });
 
-const CreateShiftForm: React.FC = () => {
+interface ICreateShiftFormProps {
+    onAddComplete(shiftDef: IShiftDefinition): void;
+}
+
+const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const company = useTypedSelector((state) => state.user.company);
@@ -71,19 +70,21 @@ const CreateShiftForm: React.FC = () => {
 
             const shiftDef: IShiftDefinition = {
                 name: shiftName,
-                duration: shiftDuration,
+                duration: formatDuration(shiftDuration),
             };
 
             axios
                 .post(
-                    `${process.env.REACT_APP_SERVER_API}/company/${company}/shift-definition}`,
+                    `${process.env.REACT_APP_SERVER_API}/company/${company}/shift-definition`,
                     shiftDef
                 )
-                .then(() => {
+                .then((result) => {
                     enqueueSnackbar('Shift definition created!', {
                         variant: 'success',
                         autoHideDuration: 3000,
                     });
+
+                    onAddComplete(result.data.shiftDef);
                 })
                 .catch((err) => {
                     console.error(err);

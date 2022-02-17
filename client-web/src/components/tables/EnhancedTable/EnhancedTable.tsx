@@ -139,7 +139,7 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.email!}
+                                            key={row[id]}
                                             selected={isItemSelected}
                                         >
                                             <TableCell padding="checkbox">

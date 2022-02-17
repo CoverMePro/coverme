@@ -298,15 +298,35 @@ const TeamsView: React.FC = () => {
                 </Tooltip>
             </Box>
             {isLoadingTeams ? (
-                <Box
-                    sx={{
-                        width: '80%',
-                        mt: 3,
-                        mx: 'auto',
-                    }}
-                >
-                    <LinearProgress color="primary" />
-                </Box>
+                <>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '10px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '10px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            my: '10px',
+                        }}
+                    >
+                        <LinearProgress />
+                    </Box>
+                </>
             ) : (
                 <>
                     {teams.map((team) => (
