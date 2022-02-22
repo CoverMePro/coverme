@@ -5,6 +5,7 @@ import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import PermissionCheck from 'components/auth/PermissionCheck';
 
 interface ITeamListProps {
     staff: IUser[];
@@ -19,13 +20,15 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
                     key={user.email!}
                     sx={{ width: '100%' }}
                     secondaryAction={
-                        <IconButton
-                            onClick={() => onRemoveUser(user)}
-                            edge="end"
-                            aria-label="delete"
-                        >
-                            <RemoveCircleIcon color="primary" />
-                        </IconButton>
+                        <PermissionCheck permissionLevel={2}>
+                            <IconButton
+                                onClick={() => onRemoveUser(user)}
+                                edge="end"
+                                aria-label="delete"
+                            >
+                                <RemoveCircleIcon color="primary" />
+                            </IconButton>
+                        </PermissionCheck>
                     }
                 >
                     <ListItemAvatar>

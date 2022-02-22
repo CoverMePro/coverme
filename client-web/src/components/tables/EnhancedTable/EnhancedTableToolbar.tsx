@@ -5,6 +5,7 @@ import { alpha } from '@mui/material/styles';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PermissionCheck from 'components/auth/PermissionCheck';
 
 interface IEnhancedTableToolbarProps {
     selected: any;
@@ -42,19 +43,21 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
                     {title}
                 </Typography>
             )}
-            {selected !== undefined ? (
-                <Tooltip title="Delete">
-                    <IconButton onClick={onDelete} size="large">
-                        <DeleteIcon color="primary" fontSize="large" />
-                    </IconButton>
-                </Tooltip>
-            ) : (
-                <Tooltip title="Add">
-                    <IconButton onClick={onAdd} size="large">
-                        <AddCircleIcon color="primary" fontSize="large" />
-                    </IconButton>
-                </Tooltip>
-            )}
+            <PermissionCheck permissionLevel={2}>
+                {selected !== undefined ? (
+                    <Tooltip title="Delete">
+                        <IconButton onClick={onDelete} size="large">
+                            <DeleteIcon color="primary" fontSize="large" />
+                        </IconButton>
+                    </Tooltip>
+                ) : (
+                    <Tooltip title="Add">
+                        <IconButton onClick={onAdd} size="large">
+                            <AddCircleIcon color="primary" fontSize="large" />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </PermissionCheck>
         </Toolbar>
     );
 };

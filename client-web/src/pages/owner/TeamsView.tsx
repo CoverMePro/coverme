@@ -38,6 +38,7 @@ import axios from 'utils/axios-intance';
 import SkeletonTeamList from 'components/teams/SkeletonTeamList';
 import TeamList from 'components/teams/TeamList';
 import FormDialog from 'components/dialogs/FormDialog';
+import PermissionCheck from 'components/auth/PermissionCheck';
 
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);
@@ -291,11 +292,13 @@ const TeamsView: React.FC = () => {
         <Box>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h2">Teams</Typography>
-                <Tooltip title="Create Team">
-                    <IconButton size="large" onClick={handleOpenAddTeam}>
-                        <AddCircleIcon color="primary" fontSize="large" />
-                    </IconButton>
-                </Tooltip>
+                <PermissionCheck permissionLevel={2}>
+                    <Tooltip title="Create Team">
+                        <IconButton size="large" onClick={handleOpenAddTeam}>
+                            <AddCircleIcon color="primary" fontSize="large" />
+                        </IconButton>
+                    </Tooltip>
+                </PermissionCheck>
             </Box>
             {isLoadingTeams ? (
                 <>
@@ -367,18 +370,20 @@ const TeamsView: React.FC = () => {
                                     </List>
                                 </Box>
                             </AccordionDetails>
-                            <AccordionActions>
-                                <Tooltip title="Add To Team">
-                                    <IconButton size="large" onClick={handleOpenAddUserToTeam}>
-                                        <PersonAddIcon color="primary" fontSize="large" />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete Team">
-                                    <IconButton size="large" onClick={handleOpenDeleteTeam}>
-                                        <DeleteIcon color="primary" fontSize="large" />
-                                    </IconButton>
-                                </Tooltip>
-                            </AccordionActions>
+                            <PermissionCheck permissionLevel={2}>
+                                <AccordionActions>
+                                    <Tooltip title="Add To Team">
+                                        <IconButton size="large" onClick={handleOpenAddUserToTeam}>
+                                            <PersonAddIcon color="primary" fontSize="large" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Delete Team">
+                                        <IconButton size="large" onClick={handleOpenDeleteTeam}>
+                                            <DeleteIcon color="primary" fontSize="large" />
+                                        </IconButton>
+                                    </Tooltip>
+                                </AccordionActions>
+                            </PermissionCheck>
                         </Accordion>
                     ))}
                 </>

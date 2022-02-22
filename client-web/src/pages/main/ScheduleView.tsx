@@ -8,7 +8,7 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimegridPlugin from '@fullcalendar/resource-timegrid'; // a plugin
 import interactionPlugin, { EventReceiveArg, EventDragStopArg } from '@fullcalendar/interaction';
 
-import { Box, LinearProgress } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, FormGroup, LinearProgress } from '@mui/material';
 
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
@@ -20,6 +20,7 @@ import EditSchedule from 'components/scheduler/EditSchedule';
 
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
+    const [filteredTeamStaff, setFilteredTeamStaff] = useState<any[]>([]);
     const [shiftDefs, setShiftDefs] = useState<IShiftDefinition[]>([]);
     const [events, setEvents] = useState<EventInput[]>([]);
     const [cachedEvents, setCachedEvents] = useState<EventInput[]>([]);
@@ -27,6 +28,7 @@ const ScheduleView: React.FC = () => {
     const [shiftTransactions, setShiftTransactions] = useState<IShiftTransaction[]>([]);
     const [isShiftEdit, setIsShiftEdit] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showAll, setShowAll] = useState<boolean>(false);
     const [isLoadingConfirm, setIsLoadingConfirm] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
@@ -165,6 +167,10 @@ const ScheduleView: React.FC = () => {
         }
     };
 
+    const handleShowAllChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+        setShowAll(checked);
+    };
+
     /**
      * Handler for when the event changes in the calendar
      * @param changedEvent - Information on the old and new event
@@ -238,12 +244,34 @@ const ScheduleView: React.FC = () => {
         setIsShiftEdit(false);
     };
 
+    const isInTeam = (team: string, userTeams: string[]) => {
+        let result = false;
+        userTeams.forEach((userTeam) => {
+            if (userTeam === team) {
+                result = true;
+            }
+        });
+        return result;
+    };
+
+    const formatStaff = (staff: any[]) => {
+        if (!showAll && user.teams) {
+            const filteredStaff = staff.filter((s) => {
+                return isInTeam(s.team, user.teams!);
+            });
+            return filteredStaff;
+        } else {
+            return staff;
+        }
+    };
+
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
             .then((result: AxiosResponse) => {
                 setTeamStaff(result.data.teamStaff);
+                setFilteredTeamStaff(formatStaff(result.data.teamStaff));
                 setShiftDefs(result.data.shiftDefs);
                 formatEvents(result.data.shifts);
             })
@@ -293,17 +321,33 @@ const ScheduleView: React.FC = () => {
                 </>
             ) : (
                 <>
-                    {user.role !== 'staff' && (
-                        <EditSchedule
-                            shiftTransactions={shiftTransactions}
-                            shiftDefs={shiftDefs}
-                            isLoadingConfirm={isLoadingConfirm}
-                            isShiftEdit={isShiftEdit}
-                            onOpenShiftEdit={() => setIsShiftEdit(true)}
-                            onConfirmTransactions={handleConfirmTransactions}
-                            onCancelEdits={handleCancelEdits}
-                        />
-                    )}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        {user.role !== 'staff' && (
+                            <EditSchedule
+                                shiftTransactions={shiftTransactions}
+                                shiftDefs={shiftDefs}
+                                isLoadingConfirm={isLoadingConfirm}
+                                isShiftEdit={isShiftEdit}
+                                onOpenShiftEdit={() => setIsShiftEdit(true)}
+                                onConfirmTransactions={handleConfirmTransactions}
+                                onCancelEdits={handleCancelEdits}
+                            />
+                        )}
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={showAll} onChange={handleShowAllChange} />
+                                }
+                                label="Show All In Company"
+                            />
+                        </FormGroup>
+                    </Box>
 
                     <div>
                         <FullCalendar
@@ -323,7 +367,7 @@ const ScheduleView: React.FC = () => {
                             }}
                             resourceAreaHeaderContent="Staff"
                             resourceGroupField="team"
-                            resources={teamStaff}
+                            resources={!showAll ? filteredTeamStaff : teamStaff}
                             editable={isShiftEdit}
                             eventStartEditable={isShiftEdit}
                             eventColor="#006d77"
