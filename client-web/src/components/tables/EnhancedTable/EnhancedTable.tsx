@@ -15,6 +15,7 @@ import {
 import { IHeadCell, Order } from 'models/TableInfo';
 import EnhancedTableToolbar from './EnhancedTableToolbar';
 import EnhancedTableHead from './EnhancedTableHead';
+import PermissionCheck from 'components/auth/PermissionCheck';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {

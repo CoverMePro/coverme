@@ -6,7 +6,7 @@ import AdminPortal from '../admin/AdminPortal';
 const Home: React.FC = () => {
     const user = useTypedSelector((state) => state.user);
 
-    return <>{user.role !== 'admin' ? <ScheduleView /> : <AdminPortal />}</>;
+    return <>HOME</>;
 };
 
 export default Home;

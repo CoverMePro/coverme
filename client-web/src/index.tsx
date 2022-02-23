@@ -14,15 +14,20 @@ import Register from 'pages/auth/Register';
 
 import AuthWrapper from 'components/auth/AuthWrapper';
 
-import { theme } from './theme';
 import Home from 'pages/main/Home';
-import StaffView from 'pages/owner/StaffView';
-import TeamsView from 'pages/owner/TeamsView';
+import StaffView from 'pages/company/StaffView';
+import TeamsView from 'pages/company/TeamsView';
 import Companies from 'pages/admin/Companies';
 import ShiftsView from 'pages/management/ShiftsView';
 import TradeView from 'pages/requests/TradeView';
 import VacationView from 'pages/requests/VacationView';
 import SickView from 'pages/requests/SickView';
+import ScheduleView from 'pages/main/ScheduleView';
+import CalendarView from 'pages/main/CalendarView';
+import OvertimeView from 'pages/overtime/OvertimeView';
+import BlogView from 'pages/company/BlogView';
+
+import { theme } from './theme';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -55,9 +60,27 @@ ReactDOM.render(
                                 />
 
                                 <Route
-                                    path="staff-view"
+                                    path="schedule"
                                     element={
-                                        <AuthWrapper permissionLevel={2}>
+                                        <AuthWrapper>
+                                            <ScheduleView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="calendar"
+                                    element={
+                                        <AuthWrapper>
+                                            <CalendarView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="staff"
+                                    element={
+                                        <AuthWrapper>
                                             <StaffView />
                                         </AuthWrapper>
                                     }
@@ -65,8 +88,17 @@ ReactDOM.render(
                                 <Route
                                     path="teams"
                                     element={
-                                        <AuthWrapper permissionLevel={2}>
+                                        <AuthWrapper>
                                             <TeamsView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="blog"
+                                    element={
+                                        <AuthWrapper>
+                                            <BlogView />
                                         </AuthWrapper>
                                     }
                                 />
@@ -79,10 +111,19 @@ ReactDOM.render(
                                     }
                                 />
                                 <Route
-                                    path="shifts-view"
+                                    path="shifts"
                                     element={
                                         <AuthWrapper permissionLevel={1}>
                                             <ShiftsView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="overtime"
+                                    element={
+                                        <AuthWrapper>
+                                            <OvertimeView />
                                         </AuthWrapper>
                                     }
                                 />

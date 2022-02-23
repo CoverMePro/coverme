@@ -57,7 +57,7 @@ const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }
                             <ListItem disablePadding>
                                 <ListItemButton
                                     onClick={() => handleNav('request/trade')}
-                                    selected={navSelected === 5}
+                                    selected={navSelected === 8}
                                 >
                                     <ListItemIcon>
                                         <SwapHorizIcon color="secondary" />
@@ -68,7 +68,7 @@ const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }
                             <ListItem disablePadding>
                                 <ListItemButton
                                     onClick={() => handleNav('request/vacation')}
-                                    selected={navSelected === 6}
+                                    selected={navSelected === 9}
                                 >
                                     <ListItemIcon>
                                         <FlightIcon color="secondary" />
@@ -79,7 +79,7 @@ const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }
                             <ListItem disablePadding>
                                 <ListItemButton
                                     onClick={() => handleNav('request/sick')}
-                                    selected={navSelected === 7}
+                                    selected={navSelected === 10}
                                 >
                                     <ListItemIcon>
                                         <SickIcon color="secondary" />

@@ -12,7 +12,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
 
-import { adminNav, mainNav, managmentNav, ownerNav } from 'utils/navs';
+import { adminNav, mainNav, managmentNav, companyNav, overtimeNav } from 'utils/navs';
 import RequestNavList from 'components/navigation/RequestNavList';
 
 const drawerWidth = 300;
@@ -80,13 +80,17 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const navSelected: any = {
             '/dashboard/home': 0,
-            '/dashboard/companies': 1,
-            '/dashboard/staff-view': 2,
-            '/dashboard/teams': 3,
-            '/dashboard/shifts-view': 4,
-            '/dashboard/request/trade': 5,
-            '/dashboard/request/vacation': 6,
-            '/dashboard/request/sick': 7,
+            '/dashboard/calendar': 1,
+            '/dashboard/schedule': 2,
+            '/dashboard/staff': 3,
+            '/dashboard/teams': 4,
+            '/dashboard/blog': 5,
+            '/dashboard/shifts': 6,
+            '/dashboard/companies': 7,
+            '/dashboard/request/trade': 8,
+            '/dashboard/request/vacation': 9,
+            '/dashboard/request/sick': 10,
+            '/dashboard/overtime': 11,
         };
 
         setNavSelected(navSelected[location.pathname]);
@@ -136,23 +140,35 @@ const Dashboard: React.FC = () => {
                     </Typography>
                 </DrawerHeader>
                 <Divider />
-                <NavList visible={true} navSelected={navSelected} navItems={mainNav} />
                 <NavList
                     visible={user.role === 'admin'}
                     navSelected={navSelected}
                     navItems={adminNav}
                 />
                 <NavList
-                    visible={user.role === 'owner'}
+                    visible={user.role !== 'admin'}
                     navSelected={navSelected}
-                    navItems={ownerNav}
+                    navItems={mainNav}
                 />
+                <Divider />
+                <NavList
+                    visible={user.role !== 'admin'}
+                    navSelected={navSelected}
+                    navItems={companyNav}
+                />
+                <Divider />
                 <NavList
                     visible={user.role !== 'staff' && user.role !== 'admin'}
                     navSelected={navSelected}
                     navItems={managmentNav}
                 />
-                <RequestNavList visible={true} navSelected={navSelected} />
+                <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
+                <Divider />
+                <NavList
+                    visible={user.role !== 'admin'}
+                    navSelected={navSelected}
+                    navItems={overtimeNav}
+                />
             </Drawer>
             <Main open={true}>
                 <DrawerHeader />
