@@ -33,12 +33,12 @@ import { IUser } from 'models/User';
 
 import CreateTeamForm from 'components/forms/CreateTeamForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
-
-import axios from 'utils/axios-intance';
 import SkeletonTeamList from 'components/teams/SkeletonTeamList';
 import TeamList from 'components/teams/TeamList';
 import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
+
+import axios from 'utils/axios-intance';
 
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);

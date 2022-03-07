@@ -3,6 +3,7 @@ import authGuard from '../utils/authenticate-user';
 import companyController from '../controllers/company';
 import teamController from '../controllers/team';
 import shiftController from '../controllers/shift';
+import tradeController from '../controllers/trade';
 
 const router: Router = express.Router();
 
@@ -25,10 +26,14 @@ router.post('/:companyId/team/:teamId/remove-user', authGuard, teamController.re
 
 //SHIFT
 router.get('/:name/shifts', authGuard, shiftController.getShiftsAndStaff);
+router.get('/:name/shifts/:user', authGuard, shiftController.getShiftForUser);
 router.get('/:name/shift-definition', authGuard, shiftController.getShiftDefinitions);
 router.post('/:name/shift-definition', authGuard, shiftController.createShiftDefinition);
 router.get('/:name/shift-definition/:id/delete', authGuard, shiftController.deleteShiftDefinition);
 
-router.post('/:name/shift-transactions', shiftController.transactionShifts);
+router.post('/:name/shift-transactions', authGuard, shiftController.transactionShifts);
+
+// TRADE REQUEST
+router.post('/:name/trade-request', authGuard, tradeController.createTradeRequest);
 
 export default router;

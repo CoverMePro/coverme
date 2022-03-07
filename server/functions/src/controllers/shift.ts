@@ -159,10 +159,33 @@ const getShiftDefinitions = (req: Request, res: Response) => {
         });
 };
 
+const getShiftForUser = (req: Request, res: Response) => {
+    const { name, user } = req.params;
+    db.collection(`/companies/${name}/shifts`)
+        .where('userId', '==', user)
+        .get()
+        .then((shiftData) => {
+            const shifts: IShift[] = [];
+            shiftData.forEach((shift) => {
+                shifts.push({
+                    id: shift.id,
+                    ...shift.data(),
+                });
+            });
+
+            return res.json({ shifts });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     getShiftsAndStaff,
     transactionShifts,
     createShiftDefinition,
     deleteShiftDefinition,
     getShiftDefinitions,
+    getShiftForUser,
 };
