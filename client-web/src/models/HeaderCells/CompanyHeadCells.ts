@@ -6,6 +6,7 @@ interface ICompanyHeadCells {
     label: string;
     numeric: boolean;
     capitalize: boolean;
+    sortable: boolean;
 }
 
 const companyHeadCells: ICompanyHeadCells[] = [
@@ -14,6 +15,7 @@ const companyHeadCells: ICompanyHeadCells[] = [
         numeric: false,
         disablePadding: false,
         capitalize: false,
+        sortable: true,
         label: 'Name',
     },
     {
@@ -21,6 +23,7 @@ const companyHeadCells: ICompanyHeadCells[] = [
         numeric: false,
         disablePadding: false,
         capitalize: false,
+        sortable: true,
         label: 'Email',
     },
     {
@@ -28,6 +31,7 @@ const companyHeadCells: ICompanyHeadCells[] = [
         numeric: false,
         disablePadding: false,
         capitalize: false,
+        sortable: false,
         label: 'Phone Number',
     },
 ];

@@ -3,22 +3,21 @@ import React from 'react';
 import { Toolbar, Typography, Tooltip, IconButton } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import PermissionCheck from 'components/auth/PermissionCheck';
+import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 interface IEnhancedTableToolbarProps {
     selected: any;
     title: string;
-    onAdd: () => void;
-    onDelete: () => void;
+    unSelectedActions: IUnselectedAction[];
+    selectedActions: ISelectedAction[];
 }
 
 const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
     selected,
     title,
-    onAdd,
-    onDelete,
+    unSelectedActions,
+    selectedActions,
 }) => {
     return (
         <Toolbar
@@ -43,21 +42,34 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
                     {title}
                 </Typography>
             )}
-            <PermissionCheck permissionLevel={2}>
-                {selected !== undefined ? (
-                    <Tooltip title="Delete">
-                        <IconButton onClick={onDelete} size="large">
-                            <DeleteIcon color="primary" fontSize="large" />
-                        </IconButton>
-                    </Tooltip>
-                ) : (
-                    <Tooltip title="Add">
-                        <IconButton onClick={onAdd} size="large">
-                            <AddCircleIcon color="primary" fontSize="large" />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </PermissionCheck>
+            {selected !== undefined ? (
+                <>
+                    {unSelectedActions.map((unSelectAction) => (
+                        <PermissionCheck permissionLevel={unSelectAction.permissionLevel}>
+                            <Tooltip title={unSelectAction.tooltipTitle}>
+                                <IconButton onClick={unSelectAction.onClick} size="large">
+                                    {unSelectAction.icon}
+                                </IconButton>
+                            </Tooltip>
+                        </PermissionCheck>
+                    ))}
+                </>
+            ) : (
+                <>
+                    {selectedActions.map((selectAction) => (
+                        <PermissionCheck permissionLevel={selectAction.permissionLevel}>
+                            <Tooltip title={selectAction.tooltipTitle}>
+                                <IconButton
+                                    onClick={() => selectAction.onClick(selected)}
+                                    size="large"
+                                >
+                                    {selectAction.icon}
+                                </IconButton>
+                            </Tooltip>
+                        </PermissionCheck>
+                    ))}
+                </>
+            )}
         </Toolbar>
     );
 };

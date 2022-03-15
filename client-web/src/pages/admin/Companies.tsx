@@ -11,6 +11,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
+import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 const Companies: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);
@@ -96,6 +97,24 @@ const Companies: React.FC = () => {
     useEffect(() => {
         handleGetCompanies();
     }, [handleGetCompanies]);
+
+    const unSelectedTableActions: IUnselectedAction[] = [
+        {
+            tooltipTitle: 'Add Staff',
+            permissionLevel: 2,
+            icon: <AddCircleIcon color="primary" fontSize="large" />,
+            onClick: handleAddStaff,
+        },
+    ];
+
+    const selectedTableActions: ISelectedAction[] = [
+        {
+            tooltipTitle: 'Delete Staff',
+            permissionLevel: 2,
+            icon: <DeleteIcon color="primary" fontSize="large" />,
+            onClick: handleOpenDeleteStaff,
+        },
+    ];
 
     return (
         <>

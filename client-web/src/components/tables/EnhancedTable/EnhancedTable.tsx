@@ -12,7 +12,7 @@ import {
     Checkbox,
 } from '@mui/material';
 
-import { IHeadCell, Order } from 'models/TableInfo';
+import { IHeadCell, ISelectedAction, IUnselectedAction, Order } from 'models/TableInfo';
 import EnhancedTableToolbar from './EnhancedTableToolbar';
 import EnhancedTableHead from './EnhancedTableHead';
 import PermissionCheck from 'components/auth/PermissionCheck';
@@ -57,8 +57,8 @@ interface IEnhancedTableProps {
     id: string;
     selected: any;
     onSelect: (selected: any | undefined) => void;
-    onAdd: () => void;
-    onDelete: (selected: any) => void;
+    unSelectedActions: IUnselectedAction[];
+    selectedActions: ISelectedAction[];
 }
 
 const EnhancedTable: React.FC<IEnhancedTableProps> = ({
@@ -68,8 +68,8 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     title,
     selected,
     onSelect,
-    onAdd,
-    onDelete,
+    unSelectedActions,
+    selectedActions,
 }) => {
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<string>('');
@@ -115,8 +115,8 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
                 <EnhancedTableToolbar
                     selected={selected}
                     title={title}
-                    onAdd={onAdd}
-                    onDelete={() => onDelete(selected)}
+                    unSelectedActions={unSelectedActions}
+                    selectedActions={selectedActions}
                 />
                 <TableContainer>
                     <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">

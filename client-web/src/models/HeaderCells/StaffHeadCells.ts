@@ -6,6 +6,7 @@ interface IStaffHeadCell {
     label: string;
     numeric: boolean;
     capitalize: boolean;
+    sortable: boolean;
 }
 
 const headCells: IStaffHeadCell[] = [
@@ -14,6 +15,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         capitalize: false,
+        sortable: true,
         label: 'Email',
     },
     {
@@ -21,6 +23,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         capitalize: true,
+        sortable: true,
         label: 'First Name',
     },
     {
@@ -28,6 +31,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Last Name',
+        sortable: true,
         capitalize: true,
     },
     {
@@ -35,6 +39,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Role',
+        sortable: true,
         capitalize: true,
     },
     {
@@ -42,6 +47,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Status',
+        sortable: true,
         capitalize: true,
     },
 ];

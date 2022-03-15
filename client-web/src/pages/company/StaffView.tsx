@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, LinearProgress } from '@mui/material';
+import { Box } from '@mui/material';
+
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUser } from 'models/User';
@@ -10,9 +13,12 @@ import { IUser } from 'models/User';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
+import FormDialog from 'components/dialogs/FormDialog';
+import LinearLoading from 'components/loading/LineraLoading';
+
+import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 import axios from 'utils/axios-intance';
-import FormDialog from 'components/dialogs/FormDialog';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
@@ -93,38 +99,28 @@ const StaffView: React.FC = () => {
         loadUsers();
     }, [handleGetUsers]);
 
+    const unSelectedTableActions: IUnselectedAction[] = [
+        {
+            tooltipTitle: 'Add Staff',
+            permissionLevel: 2,
+            icon: <AddCircleIcon color="primary" fontSize="large" />,
+            onClick: handleAddStaff,
+        },
+    ];
+
+    const selectedTableActions: ISelectedAction[] = [
+        {
+            tooltipTitle: 'Delete Staff',
+            permissionLevel: 2,
+            icon: <DeleteIcon color="primary" fontSize="large" />,
+            onClick: handleOpenDeleteStaff,
+        },
+    ];
+
     return (
         <>
             {isLoadingStaff ? (
-                <>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                </>
+                <LinearLoading />
             ) : (
                 <Box>
                     <EnhancedTable
@@ -134,8 +130,8 @@ const StaffView: React.FC = () => {
                         id="email"
                         selected={selected}
                         onSelect={handleSelectStaff}
-                        onAdd={handleAddStaff}
-                        onDelete={handleOpenDeleteStaff}
+                        unSelectedActions={unSelectedTableActions}
+                        selectedActions={selectedTableActions}
                     />
                     <FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
                         <RegisterUserForm

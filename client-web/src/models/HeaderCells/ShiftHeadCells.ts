@@ -6,6 +6,7 @@ interface IShiftHeadCell {
     label: string;
     numeric: boolean;
     capitalize: boolean;
+    sortable: boolean;
 }
 
 const headCells: IShiftHeadCell[] = [
@@ -14,6 +15,7 @@ const headCells: IShiftHeadCell[] = [
         numeric: false,
         disablePadding: false,
         capitalize: true,
+        sortable: true,
         label: 'Shift Name',
     },
     {
@@ -21,6 +23,7 @@ const headCells: IShiftHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Duration (HH:MM)',
+        sortable: true,
         capitalize: true,
     },
 ];
