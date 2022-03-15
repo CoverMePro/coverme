@@ -12,6 +12,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
 import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
+import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
 
 const Companies: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);
@@ -98,24 +99,6 @@ const Companies: React.FC = () => {
         handleGetCompanies();
     }, [handleGetCompanies]);
 
-    const unSelectedTableActions: IUnselectedAction[] = [
-        {
-            tooltipTitle: 'Add Staff',
-            permissionLevel: 2,
-            icon: <AddCircleIcon color="primary" fontSize="large" />,
-            onClick: handleAddStaff,
-        },
-    ];
-
-    const selectedTableActions: ISelectedAction[] = [
-        {
-            tooltipTitle: 'Delete Staff',
-            permissionLevel: 2,
-            icon: <DeleteIcon color="primary" fontSize="large" />,
-            onClick: handleOpenDeleteStaff,
-        },
-    ];
-
     return (
         <>
             {isLoadingCompanies ? (
@@ -138,8 +121,8 @@ const Companies: React.FC = () => {
                         id="name"
                         selected={selected}
                         onSelect={handleSelectCompany}
-                        onAdd={handleAddCompany}
-                        onDelete={handleOpenDeleteCompany}
+                        unSelectedActions={getAddAction(handleAddCompany)}
+                        selectedActions={getDeleteAction(handleOpenDeleteCompany)}
                     />
                     <FormDialog open={openAddCompany} onClose={handleCloseAddCompany}>
                         <CreateCompanyForm onFinish={handleCompleteAddCompany} />

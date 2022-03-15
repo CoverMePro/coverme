@@ -13,6 +13,8 @@ import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateShiftForm from 'components/forms/CreateShiftForm';
 import { IShiftDefinition } from 'models/ShiftDefinition';
+import LinearLoading from 'components/loading/LineraLoading';
+import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
 
 const ShiftsView: React.FC = () => {
     const [openAddShift, setOpenAddShift] = useState<boolean>(false);
@@ -110,35 +112,7 @@ const ShiftsView: React.FC = () => {
     return (
         <>
             {isLoadingShift ? (
-                <>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '5px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                </>
+                <LinearLoading />
             ) : (
                 <Box>
                     <EnhancedTable
@@ -148,8 +122,8 @@ const ShiftsView: React.FC = () => {
                         id="id"
                         selected={selected}
                         onSelect={handleSelectShift}
-                        onAdd={handleAddShift}
-                        onDelete={handleOpenDeleteShift}
+                        unSelectedActions={getAddAction(handleAddShift)}
+                        selectedActions={getDeleteAction(handleOpenDeleteShift)}
                     />
                     <FormDialog open={openAddShift} onClose={handleCloseAddShift}>
                         <CreateShiftForm onAddComplete={handleConfirmAdd} />

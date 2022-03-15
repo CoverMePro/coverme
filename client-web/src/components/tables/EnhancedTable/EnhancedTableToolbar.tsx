@@ -44,11 +44,17 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
             )}
             {selected !== undefined ? (
                 <>
-                    {unSelectedActions.map((unSelectAction) => (
-                        <PermissionCheck permissionLevel={unSelectAction.permissionLevel}>
-                            <Tooltip title={unSelectAction.tooltipTitle}>
-                                <IconButton onClick={unSelectAction.onClick} size="large">
-                                    {unSelectAction.icon}
+                    {selectedActions.map((selectAction) => (
+                        <PermissionCheck
+                            key={selectAction.tooltipTitle}
+                            permissionLevel={selectAction.permissionLevel}
+                        >
+                            <Tooltip title={selectAction.tooltipTitle}>
+                                <IconButton
+                                    onClick={() => selectAction.onClick(selected)}
+                                    size="large"
+                                >
+                                    {selectAction.icon}
                                 </IconButton>
                             </Tooltip>
                         </PermissionCheck>
@@ -56,14 +62,14 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({
                 </>
             ) : (
                 <>
-                    {selectedActions.map((selectAction) => (
-                        <PermissionCheck permissionLevel={selectAction.permissionLevel}>
-                            <Tooltip title={selectAction.tooltipTitle}>
-                                <IconButton
-                                    onClick={() => selectAction.onClick(selected)}
-                                    size="large"
-                                >
-                                    {selectAction.icon}
+                    {unSelectedActions.map((unSelectAction) => (
+                        <PermissionCheck
+                            key={unSelectAction.tooltipTitle}
+                            permissionLevel={unSelectAction.permissionLevel}
+                        >
+                            <Tooltip title={unSelectAction.tooltipTitle}>
+                                <IconButton onClick={unSelectAction.onClick} size="large">
+                                    {unSelectAction.icon}
                                 </IconButton>
                             </Tooltip>
                         </PermissionCheck>

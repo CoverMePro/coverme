@@ -35,7 +35,8 @@ const TradeView: React.FC = () => {
             <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
                 <Tab label="Outgoing Requests" />
                 <Tab label="Incoming Requests" />
-                <Tab label="Request Results" />
+                <Tab label="Approved Trades" />
+                <Tab label="Rejected Trades" />
             </Tabs>
             <FormDialog open={openAddTrade} onClose={handleCloseAddTrade}>
                 <CreateTradeRequestFrom onFinish={handleCloseAddTrade} />

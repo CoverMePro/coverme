@@ -19,6 +19,7 @@ import LinearLoading from 'components/loading/LineraLoading';
 import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 import axios from 'utils/axios-intance';
+import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
@@ -99,24 +100,6 @@ const StaffView: React.FC = () => {
         loadUsers();
     }, [handleGetUsers]);
 
-    const unSelectedTableActions: IUnselectedAction[] = [
-        {
-            tooltipTitle: 'Add Staff',
-            permissionLevel: 2,
-            icon: <AddCircleIcon color="primary" fontSize="large" />,
-            onClick: handleAddStaff,
-        },
-    ];
-
-    const selectedTableActions: ISelectedAction[] = [
-        {
-            tooltipTitle: 'Delete Staff',
-            permissionLevel: 2,
-            icon: <DeleteIcon color="primary" fontSize="large" />,
-            onClick: handleOpenDeleteStaff,
-        },
-    ];
-
     return (
         <>
             {isLoadingStaff ? (
@@ -130,8 +113,8 @@ const StaffView: React.FC = () => {
                         id="email"
                         selected={selected}
                         onSelect={handleSelectStaff}
-                        unSelectedActions={unSelectedTableActions}
-                        selectedActions={selectedTableActions}
+                        unSelectedActions={getAddAction(handleAddStaff)}
+                        selectedActions={getDeleteAction(handleOpenDeleteStaff)}
                     />
                     <FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
                         <RegisterUserForm
