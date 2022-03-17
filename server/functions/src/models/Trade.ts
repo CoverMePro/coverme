@@ -1,12 +1,13 @@
 export interface ITradeRequest {
     id?: string;
+    proposedDate?: Date;
     proposedUser?: string;
     proposedShiftId?: string;
     requestedUser?: string;
     requestedShiftId?: string;
     status?:
-        | 'Pending Response'
-        | 'Declinde'
+        | 'Pending Staff Response'
+        | 'Staff Rejected'
         | 'Waiting Approval'
         | 'Manager Approved'
         | 'Manager Denied';

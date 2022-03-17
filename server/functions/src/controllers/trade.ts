@@ -24,6 +24,69 @@ const createTradeRequest = (req: Request, res: Response) => {
         });
 };
 
+const getUserTradeRequest = (req: Request, res: Response) => {
+    const { company, user } = req.params;
+
+    let proposedTrades: ITradeRequest[] = [];
+    let requestedTrades: ITradeRequest[] = [];
+    let approvedTrades: ITradeRequest[] = [];
+    let declinedTrades: ITradeRequest[] = [];
+
+    db.collection(`/companies/${company}/trade-requests`)
+        .where('proposedUser', '==', user)
+        .get()
+        .then((proposedRequestResults) => {
+            proposedRequestResults.forEach((result) => {
+                const tradeRequest: ITradeRequest = {
+                    id: result.id,
+                    ...result.data(),
+                };
+
+                if (tradeRequest.status === 'Manager Approved') {
+                    approvedTrades.push(tradeRequest);
+                } else if (
+                    tradeRequest.status === 'Staff Rejected' ||
+                    tradeRequest.status === 'Manager Denied'
+                ) {
+                    declinedTrades.push(tradeRequest);
+                } else {
+                    proposedTrades.push(tradeRequest);
+                }
+            });
+
+            return db
+                .collection(`/companies/${company}/trade-requests`)
+                .where('requestedUser', '==', user)
+                .get();
+        })
+        .then((requestedRequestResults) => {
+            requestedRequestResults.forEach((result) => {
+                const tradeRequest: ITradeRequest = {
+                    id: result.id,
+                    ...result.data(),
+                };
+
+                if (tradeRequest.status === 'Manager Approved') {
+                    approvedTrades.push(tradeRequest);
+                } else if (
+                    tradeRequest.status === 'Staff Rejected' ||
+                    tradeRequest.status === 'Manager Denied'
+                ) {
+                    declinedTrades.push(tradeRequest);
+                } else {
+                    requestedTrades.push(tradeRequest);
+                }
+            });
+
+            return res.json({ approvedTrades, declinedTrades, proposedTrades, requestedTrades });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createTradeRequest,
+    getUserTradeRequest,
 };

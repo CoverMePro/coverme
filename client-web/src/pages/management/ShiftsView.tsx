@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, LinearProgress } from '@mui/material';
+import { Box } from '@mui/material';
 
 import ShiftHeaderCells from 'models/HeaderCells/ShiftHeadCells';
 

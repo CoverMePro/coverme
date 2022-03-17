@@ -47,6 +47,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 
     const handleSubmit = () => {
         const tradeRequest: ITradeRequest = {
+            proposedDate: new Date(),
             proposedUser: user.email!,
             proposedShiftId: selectedProposedShiftId,
             requestedUser: selectedRequestedUserId,

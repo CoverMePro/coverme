@@ -4,6 +4,7 @@ import { Box, Tabs, Tab, Typography, Tooltip, IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateTradeRequestFrom from 'components/forms/CreateTradeRequestForm';
+import TabPanel from 'components/tabs/TabPanel';
 
 const TradeView: React.FC = () => {
     const [tabValue, setTabValue] = useState<number>(0);
@@ -38,6 +39,20 @@ const TradeView: React.FC = () => {
                 <Tab label="Approved Trades" />
                 <Tab label="Rejected Trades" />
             </Tabs>
+            <Box>
+                <TabPanel index={0} value={tabValue}>
+                    Outgoing Requests
+                </TabPanel>
+                <TabPanel index={1} value={tabValue}>
+                    Incoming Requests
+                </TabPanel>
+                <TabPanel index={2} value={tabValue}>
+                    Approved
+                </TabPanel>
+                <TabPanel index={3} value={tabValue}>
+                    Rejected
+                </TabPanel>
+            </Box>
             <FormDialog open={openAddTrade} onClose={handleCloseAddTrade}>
                 <CreateTradeRequestFrom onFinish={handleCloseAddTrade} />
             </FormDialog>
