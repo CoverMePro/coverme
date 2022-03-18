@@ -24,66 +24,78 @@ const createTradeRequest = (req: Request, res: Response) => {
         });
 };
 
-const getUserTradeRequest = (req: Request, res: Response) => {
+const getUserTradeRequest = async (req: Request, res: Response) => {
     const { name, user } = req.params;
 
-    let proposedTrades: ITradeRequest[] = [];
-    let requestedTrades: ITradeRequest[] = [];
-    let approvedTrades: ITradeRequest[] = [];
-    let declinedTrades: ITradeRequest[] = [];
+    let tradeRequests: ITradeRequest[] = [];
+    const shiftIds: string[] = [];
+    try {
+        const proposedTrades = db
+            .collection(`/companies/${name}/trade-requests`)
+            .where('proposedUser', '==', user)
+            .get();
 
-    db.collection(`/companies/${name}/trade-requests`)
-        .where('proposedUser', '==', user)
-        .get()
-        .then((proposedRequestResults) => {
-            proposedRequestResults.forEach((result) => {
-                const tradeRequest: ITradeRequest = {
-                    id: result.id,
-                    ...result.data(),
-                };
+        const requestedTrades = db
+            .collection(`/companies/${name}/trade-requests`)
+            .where('requestedUser', '==', user)
+            .get();
 
-                if (tradeRequest.status === 'Manager Approved') {
-                    approvedTrades.push(tradeRequest);
-                } else if (
-                    tradeRequest.status === 'Staff Rejected' ||
-                    tradeRequest.status === 'Manager Denied'
-                ) {
-                    declinedTrades.push(tradeRequest);
-                } else {
-                    proposedTrades.push(tradeRequest);
-                }
-            });
+        const [proposedTradeSnapshot, requestedTradesSnapshot] = await Promise.all([
+            proposedTrades,
+            requestedTrades,
+        ]);
 
-            return db
-                .collection(`/companies/${name}/trade-requests`)
-                .where('requestedUser', '==', user)
-                .get();
-        })
-        .then((requestedRequestResults) => {
-            requestedRequestResults.forEach((result) => {
-                const tradeRequest: ITradeRequest = {
-                    id: result.id,
-                    ...result.data(),
-                };
+        const tradeRequestDocs = proposedTradeSnapshot.docs.concat(requestedTradesSnapshot.docs);
 
-                if (tradeRequest.status === 'Manager Approved') {
-                    approvedTrades.push(tradeRequest);
-                } else if (
-                    tradeRequest.status === 'Staff Rejected' ||
-                    tradeRequest.status === 'Manager Denied'
-                ) {
-                    declinedTrades.push(tradeRequest);
-                } else {
-                    requestedTrades.push(tradeRequest);
-                }
-            });
+        tradeRequestDocs.forEach((tradeRequestdoc) => {
+            const tradeRequest: ITradeRequest = {
+                id: tradeRequestdoc.id,
+                ...tradeRequestdoc.data(),
+            };
 
-            return res.json({ approvedTrades, declinedTrades, proposedTrades, requestedTrades });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) > -1
+            ) {
+                shiftIds.push();
+            }
+
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.requestedShiftId) > -1
+            ) {
+                shiftIds.push();
+            }
+
+            tradeRequests.push(tradeRequest);
         });
+
+        const shiftSnapshot = await db
+            .collection(`/companies/${name}/shifts`)
+            .where('__name__', 'in', shiftIds)
+            .get();
+
+        shiftSnapshot.docs.forEach((shiftDoc) => {
+            for (let i = 0, len = tradeRequests.length; i < len; ++i) {
+                const tradeRequest = tradeRequests[i];
+
+                if (tradeRequest.proposedShiftId === shiftDoc.id) {
+                    tradeRequest.proposedShift = {
+                        ...shiftDoc.data(),
+                    };
+                }
+
+                if (tradeRequest.requestedShiftId === shiftDoc.id) {
+                    tradeRequest.requestedShift = {
+                        ...shiftDoc.data(),
+                    };
+                }
+            }
+        });
+
+        return res.json({ tradeRequests });
+    } catch (err: any) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
 };
 
 export default {
