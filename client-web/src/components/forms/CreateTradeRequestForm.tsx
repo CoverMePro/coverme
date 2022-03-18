@@ -29,7 +29,7 @@ import { formatDateOutputString } from 'utils/date-formatter';
 import { ITradeRequest } from 'models/Trade';
 
 interface ICreateTradeRequestFromProps {
-    onFinish: () => void;
+    onFinish: (tradeRequest: ITradeRequest | undefined) => void;
 }
 
 const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFinish }) => {
@@ -52,7 +52,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
             proposedShiftId: selectedProposedShiftId,
             requestedUser: selectedRequestedUserId,
             requestedShiftId: selectedRequestedShiftId,
-            status: 'Pending Response',
+            status: 'Pending Staff Response',
         };
 
         setIsLoading(true);
@@ -61,20 +61,21 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                 `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/trade-request`,
                 tradeRequest
             )
-            .then(() => {
+            .then((result) => {
                 enqueueSnackbar('Trade request submitted.', {
                     variant: 'success',
                 });
+                onFinish(result.data.tradeRequest);
             })
             .catch((err: AxiosError) => {
                 console.error(err);
                 enqueueSnackbar('An error has occured, please try again', {
                     variant: 'error',
                 });
+                onFinish(undefined);
             })
             .finally(() => {
                 setIsLoading(false);
-                onFinish();
             });
     };
 

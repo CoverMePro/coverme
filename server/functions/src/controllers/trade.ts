@@ -25,14 +25,14 @@ const createTradeRequest = (req: Request, res: Response) => {
 };
 
 const getUserTradeRequest = (req: Request, res: Response) => {
-    const { company, user } = req.params;
+    const { name, user } = req.params;
 
     let proposedTrades: ITradeRequest[] = [];
     let requestedTrades: ITradeRequest[] = [];
     let approvedTrades: ITradeRequest[] = [];
     let declinedTrades: ITradeRequest[] = [];
 
-    db.collection(`/companies/${company}/trade-requests`)
+    db.collection(`/companies/${name}/trade-requests`)
         .where('proposedUser', '==', user)
         .get()
         .then((proposedRequestResults) => {
@@ -55,7 +55,7 @@ const getUserTradeRequest = (req: Request, res: Response) => {
             });
 
             return db
-                .collection(`/companies/${company}/trade-requests`)
+                .collection(`/companies/${name}/trade-requests`)
                 .where('requestedUser', '==', user)
                 .get();
         })
