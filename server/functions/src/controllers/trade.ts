@@ -6,17 +6,47 @@ const createTradeRequest = (req: Request, res: Response) => {
     const company = req.params.name;
     const tradeRequest: ITradeRequest = req.body;
 
+    let fetchedTradeRequest: ITradeRequest;
+
     db.collection(`/companies/${company}/trade-requests`)
         .add(tradeRequest)
         .then((result) => {
             return result.get();
         })
         .then((resultdata) => {
-            const tradeRequest: ITradeRequest = {
+            fetchedTradeRequest = {
                 id: resultdata.id,
                 ...resultdata.data(),
             };
-            return res.json({ message: 'Trade request created!', tradeRequest });
+
+            return db
+                .collection(`/companies/${company}/shifts`)
+                .where('__name__', 'in', [
+                    tradeRequest.proposedShiftId,
+                    tradeRequest.requestedShiftId,
+                ])
+                .get();
+            //
+        })
+        .then((shiftdocs) => {
+            shiftdocs.forEach((shiftDoc) => {
+                if (fetchedTradeRequest.proposedShiftId === shiftDoc.id) {
+                    fetchedTradeRequest.proposedShift = {
+                        ...shiftDoc.data(),
+                    };
+                }
+
+                if (fetchedTradeRequest.requestedShiftId === shiftDoc.id) {
+                    fetchedTradeRequest.requestedShift = {
+                        ...shiftDoc.data(),
+                    };
+                }
+            });
+
+            return res.json({
+                message: 'Trade request created!',
+                tradeRequest: fetchedTradeRequest,
+            });
         })
         .catch((err) => {
             console.error(err);

@@ -9,11 +9,15 @@ export interface ITradeRequest {
     requestedUser: string;
     requestedShiftId: string;
     requestedShift?: IShift;
-    status:
-        | 'Pending Staff Response'
-        | 'Staff Rejected'
-        | 'Waiting Approval'
-        | 'Manager Approved'
-        | 'Manager Denied';
+    status: 'Pending' | 'Approved' | 'Rejected';
     note?: string;
+}
+
+export interface ITradeDisplay {
+    id: string;
+    date: Date;
+    tradeWithUser: string;
+    receiveShift: IShift;
+    tradingShift: IShift;
+    status: string;
 }

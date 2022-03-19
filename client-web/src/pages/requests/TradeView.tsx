@@ -9,10 +9,11 @@ import TabPanel from 'components/tabs/TabPanel';
 import { ITradeRequest } from 'models/Trade';
 
 import axios from 'utils/axios-intance';
+import ProposedTrades from 'components/trades/ProposedTrades';
 
 interface ITrades {
     approvedTrades: ITradeRequest[];
-    declinedTrades: ITradeRequest[];
+    rejectedTrades: ITradeRequest[];
     proposedTrades: ITradeRequest[];
     requestedTrades: ITradeRequest[];
 }
@@ -25,7 +26,7 @@ const TradeView: React.FC = () => {
 
     const [trades, setTrades] = useState<ITrades>({
         approvedTrades: [],
-        declinedTrades: [],
+        rejectedTrades: [],
         proposedTrades: [],
         requestedTrades: [],
     });
@@ -33,16 +34,16 @@ const TradeView: React.FC = () => {
     const formatTradeRequests = (tradeRequests: ITradeRequest[]) => {
         const formattedTrades: ITrades = {
             approvedTrades: [],
-            declinedTrades: [],
+            rejectedTrades: [],
             proposedTrades: [],
             requestedTrades: [],
         };
 
         tradeRequests.forEach((tradeRequest) => {
-            if (tradeRequest.status === 'Manager Approved') {
+            if (tradeRequest.status === 'Approved') {
                 formattedTrades.approvedTrades.push(tradeRequest);
-            } else if (tradeRequest.status === 'Manager Denied') {
-                formattedTrades.declinedTrades.push(tradeRequest);
+            } else if (tradeRequest.status === 'Rejected') {
+                formattedTrades.rejectedTrades.push(tradeRequest);
             } else if (tradeRequest.proposedUser === user.email) {
                 formattedTrades.proposedTrades.push(tradeRequest);
             } else if (tradeRequest.requestedUser === user.email) {
@@ -105,23 +106,19 @@ const TradeView: React.FC = () => {
             </Box>
 
             <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-                <Tab label="Outgoing Requests" />
-                <Tab label="Incoming Requests" />
-                <Tab label="Approved Trades" />
-                <Tab label="Rejected Trades" />
+                <Tab label="Proposed Trades" />
+                <Tab label="Incoming Trades" />
+                <Tab label="Trade Results" />
             </Tabs>
             <Box>
                 <TabPanel index={0} value={tabValue}>
-                    Outgoing Requests
+                    <ProposedTrades tradeRequests={trades.proposedTrades} />
                 </TabPanel>
                 <TabPanel index={1} value={tabValue}>
                     Incoming Requests
                 </TabPanel>
                 <TabPanel index={2} value={tabValue}>
-                    Approved
-                </TabPanel>
-                <TabPanel index={3} value={tabValue}>
-                    Rejected
+                    Trade Results
                 </TabPanel>
             </Box>
             <FormDialog open={openAddTrade} onClose={handleCloseAddTrade}>
