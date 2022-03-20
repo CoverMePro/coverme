@@ -11,6 +11,7 @@ import formatDisplayTrade from 'utils/trade-display-formatter';
 
 import axios from 'utils/axios-intance';
 import ProposedTrades from 'components/trades/ProposedTrades';
+import RequestedTrades from 'components/trades/RequestedTrades';
 
 const TradeView: React.FC = () => {
     const [tabValue, setTabValue] = useState<number>(0);
@@ -110,7 +111,7 @@ const TradeView: React.FC = () => {
                     <ProposedTrades tradeRequests={proposedTrades} />
                 </TabPanel>
                 <TabPanel index={1} value={tabValue}>
-                    Incoming Requests
+                    <RequestedTrades tradeRequests={requestedTrades} />
                 </TabPanel>
                 <TabPanel index={2} value={tabValue}>
                     Trade Results
