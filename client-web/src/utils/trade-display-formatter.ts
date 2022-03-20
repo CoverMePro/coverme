@@ -1,4 +1,5 @@
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
+import { formatDateOutputString } from './date-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     switch (status) {
@@ -11,15 +12,29 @@ const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     }
 };
 
-export default (tradeRequest: ITradeRequest[], isProposed: boolean): ITradeDisplay[] => {
-    return tradeRequest.map((tradeRequest) => {
-        return {
-            id: tradeRequest.id!,
-            date: tradeRequest.proposedDate!,
-            tradeWithUser: isProposed ? tradeRequest.requestedUser! : tradeRequest.proposedUser!,
-            tradingShift: isProposed ? tradeRequest.proposedShift! : tradeRequest.requestedShift!,
-            receiveShift: isProposed ? tradeRequest.requestedShift! : tradeRequest.proposedShift!,
-            status: getStatus(tradeRequest.status),
-        };
-    });
+export default (tradeRequest: ITradeRequest, isProposed: boolean): ITradeDisplay => {
+    return {
+        id: tradeRequest.id!,
+        date: tradeRequest.proposedDate!,
+        tradeWithUser: isProposed ? tradeRequest.requestedUser! : tradeRequest.proposedUser!,
+        tradingShift: isProposed
+            ? formatDateOutputString(
+                  tradeRequest.proposedShift!.startDateTime,
+                  tradeRequest.proposedShift!.endDateTime
+              )
+            : formatDateOutputString(
+                  tradeRequest.requestedShift!.startDateTime,
+                  tradeRequest.requestedShift!.endDateTime
+              ),
+        receiveShift: isProposed
+            ? formatDateOutputString(
+                  tradeRequest.requestedShift!.startDateTime,
+                  tradeRequest.requestedShift!.endDateTime
+              )
+            : formatDateOutputString(
+                  tradeRequest.proposedShift!.startDateTime,
+                  tradeRequest.proposedShift!.endDateTime
+              ),
+        status: getStatus(tradeRequest.status),
+    };
 };

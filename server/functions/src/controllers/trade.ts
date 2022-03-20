@@ -84,45 +84,48 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
             };
 
             if (
-                shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) > -1
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) === -1
             ) {
-                shiftIds.push();
+                shiftIds.push(tradeRequest.proposedShiftId!);
             }
 
             if (
-                shiftIds.findIndex((shift: string) => shift === tradeRequest.requestedShiftId) > -1
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.requestedShiftId) ===
+                -1
             ) {
-                shiftIds.push();
+                shiftIds.push(tradeRequest.requestedShiftId!);
             }
 
             tradeRequests.push(tradeRequest);
         });
 
-        const shiftSnapshot = await db
-            .collection(`/companies/${name}/shifts`)
-            .where('__name__', 'in', shiftIds)
-            .get();
+        if (shiftIds.length > 0) {
+            const shiftSnapshot = await db
+                .collection(`/companies/${name}/shifts`)
+                .where('__name__', 'in', shiftIds)
+                .get();
 
-        shiftSnapshot.docs.forEach((shiftDoc) => {
-            for (let i = 0, len = tradeRequests.length; i < len; ++i) {
-                const tradeRequest = tradeRequests[i];
+            shiftSnapshot.docs.forEach((shiftDoc) => {
+                for (let i = 0, len = tradeRequests.length; i < len; ++i) {
+                    const tradeRequest = tradeRequests[i];
 
-                if (tradeRequest.proposedShiftId === shiftDoc.id) {
-                    tradeRequest.proposedShift = {
-                        ...shiftDoc.data(),
-                    };
+                    if (tradeRequest.proposedShiftId === shiftDoc.id) {
+                        tradeRequest.proposedShift = {
+                            ...shiftDoc.data(),
+                        };
+                    }
+
+                    if (tradeRequest.requestedShiftId === shiftDoc.id) {
+                        tradeRequest.requestedShift = {
+                            ...shiftDoc.data(),
+                        };
+                    }
                 }
-
-                if (tradeRequest.requestedShiftId === shiftDoc.id) {
-                    tradeRequest.requestedShift = {
-                        ...shiftDoc.data(),
-                    };
-                }
-            }
-        });
+            });
+        }
 
         return res.json({ tradeRequests });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         return res.status(500).json({ error: err });
     }

@@ -6,52 +6,47 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateTradeRequestFrom from 'components/forms/CreateTradeRequestForm';
 import TabPanel from 'components/tabs/TabPanel';
-import { ITradeRequest } from 'models/Trade';
+import { ITradeDisplay, ITradeRequest } from 'models/Trade';
+import formatDisplayTrade from 'utils/trade-display-formatter';
 
 import axios from 'utils/axios-intance';
 import ProposedTrades from 'components/trades/ProposedTrades';
-
-interface ITrades {
-    approvedTrades: ITradeRequest[];
-    rejectedTrades: ITradeRequest[];
-    proposedTrades: ITradeRequest[];
-    requestedTrades: ITradeRequest[];
-}
 
 const TradeView: React.FC = () => {
     const [tabValue, setTabValue] = useState<number>(0);
     const [openAddTrade, setOpenAddTrade] = useState<boolean>(false);
 
+    const [approvedTrades, setApprovedTrades] = useState<ITradeDisplay[]>([]);
+    const [rejectedTrades, setRejectedTrades] = useState<ITradeDisplay[]>([]);
+    const [proposedTrades, setProposedTrades] = useState<ITradeDisplay[]>([]);
+    const [requestedTrades, setRequestedTrades] = useState<ITradeDisplay[]>([]);
+
     const user = useTypedSelector((state) => state.user);
 
-    const [trades, setTrades] = useState<ITrades>({
-        approvedTrades: [],
-        rejectedTrades: [],
-        proposedTrades: [],
-        requestedTrades: [],
-    });
-
     const formatTradeRequests = (tradeRequests: ITradeRequest[]) => {
-        const formattedTrades: ITrades = {
-            approvedTrades: [],
-            rejectedTrades: [],
-            proposedTrades: [],
-            requestedTrades: [],
-        };
+        const fetchedApprovedTrades: ITradeDisplay[] = [];
+        const fetchedRejectedTrades: ITradeDisplay[] = [];
+        const fetchedProposedTrades: ITradeDisplay[] = [];
+        const fetchedRequestedTrades: ITradeDisplay[] = [];
 
         tradeRequests.forEach((tradeRequest) => {
+            const isProposed = tradeRequest.proposedUser === user.email;
+
             if (tradeRequest.status === 'Approved') {
-                formattedTrades.approvedTrades.push(tradeRequest);
+                fetchedApprovedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
             } else if (tradeRequest.status === 'Rejected') {
-                formattedTrades.rejectedTrades.push(tradeRequest);
-            } else if (tradeRequest.proposedUser === user.email) {
-                formattedTrades.proposedTrades.push(tradeRequest);
-            } else if (tradeRequest.requestedUser === user.email) {
-                formattedTrades.requestedTrades.push(tradeRequest);
+                fetchedRejectedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
+            } else if (isProposed) {
+                fetchedProposedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
+            } else if (!isProposed) {
+                fetchedRequestedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
             }
         });
 
-        setTrades(formattedTrades);
+        setApprovedTrades(fetchedApprovedTrades);
+        setRejectedTrades(fetchedRejectedTrades);
+        setProposedTrades(fetchedProposedTrades);
+        setRequestedTrades(fetchedRequestedTrades);
     };
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -64,10 +59,9 @@ const TradeView: React.FC = () => {
 
     const handleTradeCreated = (tradeRequest: ITradeRequest | undefined) => {
         if (tradeRequest) {
-            const newTrades = { ...trades };
-            newTrades.proposedTrades = [...newTrades.proposedTrades, tradeRequest];
+            const newProposedTrades = [...proposedTrades, formatDisplayTrade(tradeRequest, true)];
 
-            setTrades(newTrades);
+            setProposedTrades(newProposedTrades);
         }
 
         setOpenAddTrade(false);
@@ -85,7 +79,8 @@ const TradeView: React.FC = () => {
                 }/company/${user.company!}/trade-request/${user.email!}`
             )
             .then((result) => {
-                const tradeRequests = result.data.tradeRequest;
+                console.log(result.data);
+                const tradeRequests = result.data.tradeRequests;
 
                 formatTradeRequests(tradeRequests);
             })
@@ -112,7 +107,7 @@ const TradeView: React.FC = () => {
             </Tabs>
             <Box>
                 <TabPanel index={0} value={tabValue}>
-                    <ProposedTrades tradeRequests={trades.proposedTrades} />
+                    <ProposedTrades tradeRequests={proposedTrades} />
                 </TabPanel>
                 <TabPanel index={1} value={tabValue}>
                     Incoming Requests

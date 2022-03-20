@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 
 import axios from 'utils/axios-intance';
-import { ITradeRequest } from 'models/Trade';
+import { ITradeDisplay } from 'models/Trade';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import { ISelectedAction } from 'models/TableInfo';
-import formatDisplayTrade from 'utils/trade-display-formatter';
 
 import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
 
 import CancelScheduleSendIcon from '@mui/icons-material/CancelScheduleSend';
 
 interface IProposedTradesProps {
-    tradeRequests: ITradeRequest[];
+    tradeRequests: ITradeDisplay[];
 }
 
 const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests }) => {
@@ -38,7 +37,7 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests }) => {
     return (
         <Box>
             <EnhancedTable
-                data={formatDisplayTrade(tradeRequests, true)}
+                data={tradeRequests}
                 id="id"
                 title="Proposed Trades"
                 headerCells={ProposeTradeHeadCells}

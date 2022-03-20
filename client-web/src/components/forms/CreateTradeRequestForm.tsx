@@ -52,7 +52,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
             proposedShiftId: selectedProposedShiftId,
             requestedUser: selectedRequestedUserId,
             requestedShiftId: selectedRequestedShiftId,
-            status: 'Pending Staff Response',
+            status: 'Pending',
         };
 
         setIsLoading(true);

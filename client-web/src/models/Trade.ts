@@ -17,7 +17,7 @@ export interface ITradeDisplay {
     id: string;
     date: Date;
     tradeWithUser: string;
-    receiveShift: IShift;
-    tradingShift: IShift;
+    receiveShift: string;
+    tradingShift: string;
     status: string;
 }

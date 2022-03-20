@@ -23,9 +23,13 @@ export const formatDateOutputString = (startDateTime: string, endDateTime: strin
     } ${startDate.getUTCDate()}  (${startDate.toLocaleTimeString('en', {
         hour12: true,
         timeZone: 'UTC',
+        hour: '2-digit',
+        minute: '2-digit',
     })} - ${endDate.toLocaleTimeString('en', {
         hour12: true,
         timeZone: 'UTC',
+        hour: '2-digit',
+        minute: '2-digit',
     })})`;
 
     return outputString;
