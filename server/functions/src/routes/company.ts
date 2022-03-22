@@ -36,5 +36,8 @@ router.post('/:name/shift-transactions', authGuard, shiftController.transactionS
 // TRADE REQUEST
 router.post('/:name/trade-request', authGuard, tradeController.createTradeRequest);
 router.get('/:name/trade-request/:user', authGuard, tradeController.getUserTradeRequest);
+router.get('/:name/trade-request/:id/delete', authGuard, tradeController.deleteTradeRequest);
+router.get('/:name/trade-request/:id/accept', authGuard, tradeController.acceptTradeRequest);
+router.get('/:name/trade-request/:id/reject', authGuard, tradeController.rejectTradeRequest);
 
 export default router;

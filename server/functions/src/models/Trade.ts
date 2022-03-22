@@ -9,11 +9,6 @@ export interface ITradeRequest {
     requestedUser?: string;
     requestedShiftId?: string;
     requestedShift?: IShift;
-    status?:
-        | 'Pending Staff Response'
-        | 'Staff Rejected'
-        | 'Waiting Approval'
-        | 'Manager Approved'
-        | 'Manager Denied';
+    status?: 'Pending' | 'Approved' | 'Rejected';
     note?: string;
 }

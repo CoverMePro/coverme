@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTypedSelector } from 'hooks/use-typed-selector';
 import { Box } from '@mui/material';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
@@ -13,10 +14,13 @@ import axios from 'utils/axios-intance';
 
 interface IProposedTradesProps {
     tradeRequests: ITradeDisplay[];
+    onDeleteSuccess: (id: string) => void;
 }
 
-const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests }) => {
+const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDeleteSuccess }) => {
     const [selected, setSelected] = useState<any | undefined>(undefined);
+
+    const user = useTypedSelector((state) => state.user);
 
     const handleSelectRequest = (tradeRequest: any | undefined) => {
         if (selected === tradeRequest) {
@@ -26,12 +30,27 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests }) => {
         }
     };
 
+    const handleDeleteTradeRequest = (id: any) => {
+        axios
+            .get(
+                `${
+                    process.env.REACT_APP_SERVER_API
+                }/company/${user.company!}/trade-request/${id}/delete`
+            )
+            .then(() => {
+                onDeleteSuccess(id);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
     const selectedActions: ISelectedAction[] = [
         {
             tooltipTitle: 'Cancel Request',
             permissionLevel: 0,
             icon: <CancelScheduleSendIcon color="primary" fontSize="large" />,
-            onClick: () => {},
+            onClick: handleDeleteTradeRequest,
         },
     ];
 

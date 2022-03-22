@@ -6,9 +6,9 @@ const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
         case 'Pending':
             return "Waiting for staff member's response";
         case 'Approved':
-            return 'Approved! shifts have been traded.';
+            return 'Approved';
         case 'Rejected':
-            return 'Staff member has rejected trade';
+            return 'Rejected';
     }
 };
 

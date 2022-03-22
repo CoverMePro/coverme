@@ -131,7 +131,78 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
     }
 };
 
+const deleteTradeRequest = (req: Request, res: Response) => {
+    const { name, id } = req.params;
+
+    console.log(id);
+
+    db.doc(`/companies/${name}/trade-requests/${id}`)
+        .delete()
+        .then(() => {
+            return res.json({ message: 'trade request deleted.' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const acceptTradeRequest = async (req: Request, res: Response) => {
+    const { name, id } = req.params;
+
+    try {
+        const tradeRequestSnapshot = await db.doc(`/companies/${name}/trade-requests/${id}`).get();
+
+        const tradeRequest: ITradeRequest = {
+            id: tradeRequestSnapshot.id,
+            ...tradeRequestSnapshot.data(),
+        };
+
+        const shift1Update = db
+            .doc(`/companies/${name}/shifts/${tradeRequest.proposedShiftId}`)
+            .update({
+                userId: tradeRequest.requestedUser,
+            });
+
+        const shift2Update = db
+            .doc(`/companies/${name}/shifts/${tradeRequest.requestedShiftId}`)
+            .update({
+                userId: tradeRequest.proposedUser,
+            });
+
+        const tradeRequestUpdate = db.doc(`/companies/${name}/trade-requests/${id}`).update({
+            status: 'Approved',
+        });
+
+        await Promise.all([shift1Update, shift2Update, tradeRequestUpdate]);
+
+        return res.json({ message: 'trade has been made successfully' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
+};
+
+const rejectTradeRequest = (req: Request, res: Response) => {
+    const { name, id } = req.params;
+
+    db.doc(`/companies/${name}/trade-requests/${id}`)
+        .update({
+            status: 'Rejected',
+        })
+        .then(() => {
+            return res.json({ message: 'trade request rejectred.' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createTradeRequest,
     getUserTradeRequest,
+    deleteTradeRequest,
+    acceptTradeRequest,
+    rejectTradeRequest,
 };
