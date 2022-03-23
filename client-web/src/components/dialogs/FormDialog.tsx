@@ -9,7 +9,7 @@ interface IFormDialogProps {
 
 const FormDialog: React.FC<IFormDialogProps> = ({ open, onClose, children }) => {
     return (
-        <Dialog sx={{ position: 'relative' }} open={open}>
+        <Dialog open={open}>
             <Box sx={{ position: 'absolute', right: 5, zIndex: 400 }}>
                 <IconButton onClick={onClose}>
                     <CloseIcon color="primary" fontSize="large" />
