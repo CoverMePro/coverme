@@ -33,6 +33,7 @@ interface ICreateTradeRequestFromProps {
 }
 
 const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFinish }) => {
+    const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [staff, setStaff] = useState<IUser[]>([]);
     const [userShifts, setUserShifts] = useState<IShift[]>([]);
@@ -117,33 +118,52 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     };
 
     useEffect(() => {
-        axios
-            .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
-            .then((result) => {
-                const staffUsers: IUser[] = result.data.users.filter(
+        const loadData = async () => {
+            try {
+                setIsLoadingData(true);
+
+                const getStaffPromise = axios.get(
+                    `${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`
+                );
+                const getShiftsPromise = axios.get(
+                    `${
+                        process.env.REACT_APP_SERVER_API
+                    }/company/${user.company!}/shifts/${user.email!}`
+                );
+
+                const [staffResults, shiftResults] = await Promise.all([
+                    getStaffPromise,
+                    getShiftsPromise,
+                ]);
+
+                const staffUsers: IUser[] = staffResults.data.users.filter(
                     (staffUser: IUser) =>
                         staffUser.role === 'staff' && staffUser.email !== user.email
                 );
                 setStaff(staffUsers);
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-            .finally();
-    }, [user.company]);
+                setUserShifts(shiftResults.data.shifts);
+                setIsLoadingData(false);
+            } catch (err) {
+                console.error(err);
+                setIsLoadingData(false);
+            }
+        };
 
-    useEffect(() => {
-        axios
-            .get(
-                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts/${user.email!}`
-            )
-            .then((result) => {
-                setUserShifts(result.data.shifts);
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-            .finally();
+        loadData();
+
+        // axios
+        //     .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+        //     .then((result) => {
+        //         const staffUsers: IUser[] = result.data.users.filter(
+        //             (staffUser: IUser) =>
+        //                 staffUser.role === 'staff' && staffUser.email !== user.email
+        //         );
+        //         setStaff(staffUsers);
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     })
+        //     .finally();
     }, [user.company]);
 
     return (
@@ -167,79 +187,97 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                 <Typography sx={{ mb: 2 }} variant="h2">
                     Trade Request
                 </Typography>
-                <Box>
-                    <FormControl fullWidth>
-                        <InputLabel id="proposed-shift-label">Your Shift To Trade</InputLabel>
-                        <Select
-                            labelId="proposed-shift-label"
-                            id="proposed-shift-select"
-                            value={selectedProposedShiftId}
-                            label="Your Shift To Trade"
-                            onChange={handlePropsedShiftChange}
-                        >
-                            {userShifts.map((shift) => {
-                                return (
-                                    <MenuItem key={shift.id} value={shift.id}>
-                                        {formatDateOutputString(
-                                            shift.startDateTime,
-                                            shift.endDateTime
-                                        )}
-                                    </MenuItem>
-                                );
-                            })}
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Box sx={{ mt: 2 }}>
-                    <Autocomplete
-                        options={staff}
-                        getOptionLabel={(option) =>
-                            `${option.firstName} ${option.lastName} - ${option.email}`
-                        }
-                        renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                                {option.firstName} {option.lastName} - {option.email}
-                            </li>
-                        )}
-                        renderInput={(params) => (
-                            <TextField {...params} label="Staff to Trade With" />
-                        )}
-                        onChange={handleRequestedUserChange}
-                    />
-                </Box>
-                <Box sx={{ mt: 2 }}>
-                    <FormControl fullWidth>
-                        <InputLabel id="requested-shift-label">Requested Shift</InputLabel>
-                        <Select
-                            labelId="requested-shift-label"
-                            id="requested-shift-select"
-                            value={selectedRequestedShiftId}
-                            label="Requested Shift"
-                            onChange={handleRequestedShiftChange}
-                        >
-                            {requestedShifts.map((shift) => {
-                                return (
-                                    <MenuItem key={shift.id} value={shift.id}>
-                                        {formatDateOutputString(
-                                            shift.startDateTime,
-                                            shift.endDateTime
-                                        )}
-                                    </MenuItem>
-                                );
-                            })}
-                        </Select>
-                    </FormControl>
-                </Box>
-
-                <Box sx={{ mt: 3 }}>
-                    {isLoading ? (
-                        <CircularProgress />
+                <>
+                    {isLoadingData ? (
+                        <Box>
+                            <CircularProgress />
+                        </Box>
                     ) : (
-                        <Fab color="primary" aria-label="Register User" onClick={handleSubmit}>
-                            <HowToRegIcon fontSize="large" />
-                        </Fab>
+                        <>
+                            <Box>
+                                <FormControl fullWidth>
+                                    <InputLabel id="proposed-shift-label">
+                                        Your Shift To Trade
+                                    </InputLabel>
+                                    <Select
+                                        labelId="proposed-shift-label"
+                                        id="proposed-shift-select"
+                                        value={selectedProposedShiftId}
+                                        label="Your Shift To Trade"
+                                        onChange={handlePropsedShiftChange}
+                                    >
+                                        {userShifts.map((shift) => {
+                                            return (
+                                                <MenuItem key={shift.id} value={shift.id}>
+                                                    {formatDateOutputString(
+                                                        shift.startDateTime,
+                                                        shift.endDateTime
+                                                    )}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <Box sx={{ mt: 2 }}>
+                                <Autocomplete
+                                    options={staff}
+                                    getOptionLabel={(option) =>
+                                        `${option.firstName} ${option.lastName} - ${option.email}`
+                                    }
+                                    renderOption={(props, option, { selected }) => (
+                                        <li {...props}>
+                                            {option.firstName} {option.lastName} - {option.email}
+                                        </li>
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Staff to Trade With" />
+                                    )}
+                                    onChange={handleRequestedUserChange}
+                                />
+                            </Box>
+                            <Box sx={{ mt: 2 }}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="requested-shift-label">
+                                        Requested Shift
+                                    </InputLabel>
+                                    <Select
+                                        labelId="requested-shift-label"
+                                        id="requested-shift-select"
+                                        value={selectedRequestedShiftId}
+                                        label="Requested Shift"
+                                        onChange={handleRequestedShiftChange}
+                                    >
+                                        {requestedShifts.map((shift) => {
+                                            return (
+                                                <MenuItem key={shift.id} value={shift.id}>
+                                                    {formatDateOutputString(
+                                                        shift.startDateTime,
+                                                        shift.endDateTime
+                                                    )}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box sx={{ mt: 3 }}>
+                                {isLoading ? (
+                                    <CircularProgress />
+                                ) : (
+                                    <Fab
+                                        color="primary"
+                                        aria-label="Register User"
+                                        onClick={handleSubmit}
+                                    >
+                                        <HowToRegIcon fontSize="large" />
+                                    </Fab>
+                                )}
+                            </Box>
+                        </>
                     )}
-                </Box>
+                </>
             </Box>
         </Box>
     );

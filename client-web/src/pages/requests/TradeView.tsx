@@ -13,10 +13,12 @@ import axios from 'utils/axios-intance';
 import ProposedTrades from 'components/trades/ProposedTrades';
 import RequestedTrades from 'components/trades/RequestedTrades';
 import ResultTrades from 'components/trades/ResultTrades';
+import LinearLoading from 'components/loading/LineraLoading';
 
 const TradeView: React.FC = () => {
     const [tabValue, setTabValue] = useState<number>(0);
     const [openAddTrade, setOpenAddTrade] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [resultTrades, setResultTrades] = useState<ITradeDisplay[]>([]);
     const [proposedTrades, setProposedTrades] = useState<ITradeDisplay[]>([]);
@@ -89,6 +91,7 @@ const TradeView: React.FC = () => {
     };
 
     useEffect(() => {
+        setIsLoading(true);
         axios
             .get(
                 `${
@@ -103,6 +106,9 @@ const TradeView: React.FC = () => {
             })
             .catch((err) => {
                 console.error(err);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     }, []);
 
@@ -116,29 +122,44 @@ const TradeView: React.FC = () => {
                     </IconButton>
                 </Tooltip>
             </Box>
+            <>
+                {isLoading ? (
+                    <Box sx={{ height: '500px' }}>
+                        <LinearLoading />
+                    </Box>
+                ) : (
+                    <>
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleTabChange}
+                            centered
+                            variant="fullWidth"
+                        >
+                            <Tab label="Proposed Trades" />
+                            <Tab label="Incoming Trades" />
+                            <Tab label="Trade Results" />
+                        </Tabs>
+                        <Box>
+                            <TabPanel index={0} value={tabValue}>
+                                <ProposedTrades
+                                    tradeRequests={proposedTrades}
+                                    onDeleteSuccess={handleRemoveProposedTradeRequest}
+                                />
+                            </TabPanel>
+                            <TabPanel index={1} value={tabValue}>
+                                <RequestedTrades
+                                    tradeRequests={requestedTrades}
+                                    onRequestStatusChange={handleMoveRequestToResults}
+                                />
+                            </TabPanel>
+                            <TabPanel index={2} value={tabValue}>
+                                <ResultTrades tradeRequests={resultTrades} />
+                            </TabPanel>
+                        </Box>
+                    </>
+                )}
+            </>
 
-            <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-                <Tab label="Proposed Trades" />
-                <Tab label="Incoming Trades" />
-                <Tab label="Trade Results" />
-            </Tabs>
-            <Box>
-                <TabPanel index={0} value={tabValue}>
-                    <ProposedTrades
-                        tradeRequests={proposedTrades}
-                        onDeleteSuccess={handleRemoveProposedTradeRequest}
-                    />
-                </TabPanel>
-                <TabPanel index={1} value={tabValue}>
-                    <RequestedTrades
-                        tradeRequests={requestedTrades}
-                        onRequestStatusChange={handleMoveRequestToResults}
-                    />
-                </TabPanel>
-                <TabPanel index={2} value={tabValue}>
-                    <ResultTrades tradeRequests={resultTrades} />
-                </TabPanel>
-            </Box>
             <FormDialog open={openAddTrade} onClose={handleCloseAddTrade}>
                 <CreateTradeRequestFrom onFinish={handleTradeCreated} />
             </FormDialog>

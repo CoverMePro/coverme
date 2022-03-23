@@ -8,9 +8,10 @@ import { ITradeDisplay } from 'models/Trade';
 import { ISelectedAction } from 'models/TableInfo';
 import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
 
-import CancelScheduleSendIcon from '@mui/icons-material/CancelScheduleSend';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import axios from 'utils/axios-intance';
+import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 interface IProposedTradesProps {
     tradeRequests: ITradeDisplay[];
@@ -19,38 +20,47 @@ interface IProposedTradesProps {
 
 const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDeleteSuccess }) => {
     const [selected, setSelected] = useState<any | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [openDelete, setOpenDelete] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
 
-    const handleSelectRequest = (tradeRequest: any | undefined) => {
-        if (selected === tradeRequest) {
+    const handleSelectRequest = (tradeRequestId: any | undefined) => {
+        if (selected === tradeRequestId) {
             setSelected(undefined);
         } else {
-            setSelected(tradeRequest);
+            setSelected(tradeRequestId);
         }
     };
 
-    const handleDeleteTradeRequest = (id: any) => {
+    const handleDeleteTradeRequest = () => {
+        setIsLoading(true);
         axios
             .get(
                 `${
                     process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/trade-request/${id}/delete`
+                }/company/${user.company!}/trade-request/${selected}/delete`
             )
             .then(() => {
-                onDeleteSuccess(id);
+                setIsLoading(false);
+                onDeleteSuccess(selected);
+                setSelected(undefined);
             })
             .catch((err) => {
+                setIsLoading(false);
                 console.log(err);
+            })
+            .finally(() => {
+                setOpenDelete(false);
             });
     };
 
     const selectedActions: ISelectedAction[] = [
         {
-            tooltipTitle: 'Cancel Request',
+            tooltipTitle: 'Delete Request',
             permissionLevel: 0,
-            icon: <CancelScheduleSendIcon color="primary" fontSize="large" />,
-            onClick: handleDeleteTradeRequest,
+            icon: <DeleteIcon color="primary" fontSize="large" />,
+            onClick: () => setOpenDelete(true),
         },
     ];
 
@@ -65,6 +75,13 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDelet
                 onSelect={handleSelectRequest}
                 unSelectedActions={[]}
                 selectedActions={selectedActions}
+            />
+            <DeleteConfirmation
+                open={openDelete}
+                message={'Are you sure you want to delete this trade request?'}
+                onClose={() => setOpenDelete(false)}
+                onConfirm={handleDeleteTradeRequest}
+                isLoading={isLoading}
             />
         </Box>
     );
