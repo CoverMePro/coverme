@@ -124,6 +124,10 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
             });
         }
 
+        tradeRequests = tradeRequests.sort((a, b) => {
+            return new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime();
+        });
+
         return res.json({ tradeRequests });
     } catch (err) {
         console.error(err);
@@ -199,10 +203,38 @@ const rejectTradeRequest = (req: Request, res: Response) => {
         });
 };
 
+const archiveTradeRequest = (req: Request, res: Response) => {
+    const { name, id } = req.params;
+
+    db.doc(`/companies/${name}/trade-requests/${id}`)
+        .get()
+        .then((tradeRequestResults) => {
+            let tradeRequestData = tradeRequestResults.data();
+
+            if (tradeRequestData) {
+                if (tradeRequestData.archiveUsers) {
+                    tradeRequestData.archiveUsers.push(req.body.user);
+                } else {
+                    tradeRequestData.archiveUsers = [req.body.user];
+                }
+            }
+
+            return db.doc(`/companies/${name}/trade-requests/${id}`).set(tradeRequestData!);
+        })
+        .then(() => {
+            return res.json({ message: 'archived successfully' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createTradeRequest,
     getUserTradeRequest,
     deleteTradeRequest,
     acceptTradeRequest,
     rejectTradeRequest,
+    archiveTradeRequest,
 };

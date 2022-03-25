@@ -39,5 +39,6 @@ router.get('/:name/trade-request/:user', authGuard, tradeController.getUserTrade
 router.get('/:name/trade-request/:id/delete', authGuard, tradeController.deleteTradeRequest);
 router.get('/:name/trade-request/:id/accept', authGuard, tradeController.acceptTradeRequest);
 router.get('/:name/trade-request/:id/reject', authGuard, tradeController.rejectTradeRequest);
+router.post('/:name/trade-request/:id/archive', authGuard, tradeController.archiveTradeRequest);
 
 export default router;

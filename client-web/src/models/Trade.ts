@@ -10,14 +10,16 @@ export interface ITradeRequest {
     requestedShiftId: string;
     requestedShift?: IShift;
     status: 'Pending' | 'Approved' | 'Rejected';
+    archiveUsers?: string[];
     note?: string;
 }
 
 export interface ITradeDisplay {
     id: string;
-    date: Date;
+    date: string;
     tradeWithUser: string;
     receiveShift: string;
     tradingShift: string;
+    archiveUsers?: string[];
     status: string;
 }

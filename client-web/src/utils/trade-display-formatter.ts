@@ -1,5 +1,5 @@
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
-import { formatDateOutputString } from './date-formatter';
+import { formatDateTimeOutputString, formatTradeDateString } from './date-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     switch (status) {
@@ -15,26 +15,27 @@ const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
 export default (tradeRequest: ITradeRequest, isProposed: boolean): ITradeDisplay => {
     return {
         id: tradeRequest.id!,
-        date: tradeRequest.proposedDate!,
+        date: formatTradeDateString(tradeRequest.proposedDate!),
         tradeWithUser: isProposed ? tradeRequest.requestedUser! : tradeRequest.proposedUser!,
         tradingShift: isProposed
-            ? formatDateOutputString(
+            ? formatDateTimeOutputString(
                   tradeRequest.proposedShift!.startDateTime,
                   tradeRequest.proposedShift!.endDateTime
               )
-            : formatDateOutputString(
+            : formatDateTimeOutputString(
                   tradeRequest.requestedShift!.startDateTime,
                   tradeRequest.requestedShift!.endDateTime
               ),
         receiveShift: isProposed
-            ? formatDateOutputString(
+            ? formatDateTimeOutputString(
                   tradeRequest.requestedShift!.startDateTime,
                   tradeRequest.requestedShift!.endDateTime
               )
-            : formatDateOutputString(
+            : formatDateTimeOutputString(
                   tradeRequest.proposedShift!.startDateTime,
                   tradeRequest.proposedShift!.endDateTime
               ),
+        archiveUsers: tradeRequest.archiveUsers,
         status: getStatus(tradeRequest.status),
     };
 };

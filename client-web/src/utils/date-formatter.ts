@@ -14,7 +14,7 @@ const months = [
 ];
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export const formatDateOutputString = (startDateTime: string, endDateTime: string) => {
+export const formatDateTimeOutputString = (startDateTime: string, endDateTime: string) => {
     const startDate = new Date(startDateTime);
     const endDate = new Date(endDateTime);
 
@@ -33,4 +33,11 @@ export const formatDateOutputString = (startDateTime: string, endDateTime: strin
     })})`;
 
     return outputString;
+};
+
+export const formatTradeDateString = (date: Date) => {
+    const newDate = new Date(date);
+    return `${days[newDate.getDay()]} ${
+        months[newDate.getMonth()]
+    } ${newDate.getUTCDate()}, ${newDate.getFullYear()}`;
 };

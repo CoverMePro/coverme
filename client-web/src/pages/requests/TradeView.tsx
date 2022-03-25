@@ -90,6 +90,12 @@ const TradeView: React.FC = () => {
         }
     };
 
+    const handleRemoveResultRequest = (id: string) => {
+        const newResultTrades = resultTrades.filter((trade) => trade.id !== id);
+
+        setResultTrades(newResultTrades);
+    };
+
     useEffect(() => {
         setIsLoading(true);
         axios
@@ -153,7 +159,10 @@ const TradeView: React.FC = () => {
                                 />
                             </TabPanel>
                             <TabPanel index={2} value={tabValue}>
-                                <ResultTrades tradeRequests={resultTrades} />
+                                <ResultTrades
+                                    tradeRequests={resultTrades}
+                                    onRemoveRequest={handleRemoveResultRequest}
+                                />
                             </TabPanel>
                         </Box>
                     </>

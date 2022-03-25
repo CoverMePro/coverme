@@ -25,7 +25,7 @@ import axios from 'utils/axios-intance';
 import { IUser } from 'models/User';
 import { AxiosError } from 'axios';
 import { IShift } from 'models/Shift';
-import { formatDateOutputString } from 'utils/date-formatter';
+import { formatDateTimeOutputString } from 'utils/date-formatter';
 import { ITradeRequest } from 'models/Trade';
 
 interface ICreateTradeRequestFromProps {
@@ -209,7 +209,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                                         {userShifts.map((shift) => {
                                             return (
                                                 <MenuItem key={shift.id} value={shift.id}>
-                                                    {formatDateOutputString(
+                                                    {formatDateTimeOutputString(
                                                         shift.startDateTime,
                                                         shift.endDateTime
                                                     )}
@@ -251,7 +251,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                                         {requestedShifts.map((shift) => {
                                             return (
                                                 <MenuItem key={shift.id} value={shift.id}>
-                                                    {formatDateOutputString(
+                                                    {formatDateTimeOutputString(
                                                         shift.startDateTime,
                                                         shift.endDateTime
                                                     )}
