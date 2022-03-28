@@ -4,6 +4,7 @@ import companyController from '../controllers/company';
 import teamController from '../controllers/team';
 import shiftController from '../controllers/shift';
 import tradeController from '../controllers/trade';
+import sickController from '../controllers/sick';
 
 const router: Router = express.Router();
 
@@ -40,5 +41,12 @@ router.get('/:name/trade-request/:id/delete', authGuard, tradeController.deleteT
 router.get('/:name/trade-request/:id/accept', authGuard, tradeController.acceptTradeRequest);
 router.get('/:name/trade-request/:id/reject', authGuard, tradeController.rejectTradeRequest);
 router.post('/:name/trade-request/:id/archive', authGuard, tradeController.archiveTradeRequest);
+
+// SICK REQUEST
+router.post('/:name/sick-request', authGuard, sickController.createSickRequest);
+router.get('/:name/sick-request/:user', authGuard, sickController.getSickRequests);
+router.get('/:name/sick-request/:id/approve', authGuard, sickController.approveSickRequest);
+router.get('/:name/sick-request/:id/reject', authGuard, sickController.rejectSickRequest);
+router.get('/:name/sick-request/:id/delete', authGuard, sickController.deleteSickRequest);
 
 export default router;

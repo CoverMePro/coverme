@@ -1,4 +1,5 @@
 import { IShift } from './Shift';
+import { StatusType } from './Types';
 
 export interface ITradeRequest {
     id?: string;
@@ -9,6 +10,6 @@ export interface ITradeRequest {
     requestedUser?: string;
     requestedShiftId?: string;
     requestedShift?: IShift;
-    status?: 'Pending' | 'Approved' | 'Rejected';
+    status?: StatusType;
     note?: string;
 }
