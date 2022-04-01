@@ -22,6 +22,8 @@ const getSickRequests = (req: Request, res: Response) => {
     const { name, user } = req.params;
     const sickRequests: ISickRequest[] = [];
 
+    const shiftIds: string[] = [];
+
     db.collection(`/companies/${name}/sick-requests`)
         .where('userId', '==', user)
         .get()
@@ -33,6 +35,24 @@ const getSickRequests = (req: Request, res: Response) => {
                 };
 
                 sickRequests.push(sickRequest);
+                shiftIds.push(sickRequest.shiftId!);
+            });
+
+            return db
+                .collection(`/companies/${name}/shifts`)
+                .where('__name__', 'in', shiftIds)
+                .get();
+        })
+        .then((shiftResults) => {
+            shiftResults.forEach((shift) => {
+                for (let i = 0, len = sickRequests.length; i < len; ++i) {
+                    if (shift.id === sickRequests[i].shiftId) {
+                        sickRequests[i].shift = {
+                            id: shift.id,
+                            ...shift.data(),
+                        };
+                    }
+                }
             });
 
             return res.json(sickRequests);

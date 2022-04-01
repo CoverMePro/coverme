@@ -1,5 +1,6 @@
+import { ISickDisplay, ISickRequest } from 'models/Sick';
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
-import { formatDateTimeOutputString, formatTradeDateString } from './date-formatter';
+import { formatDateTimeOutputString, formatDateString } from './date-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     switch (status) {
@@ -12,10 +13,13 @@ const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     }
 };
 
-export default (tradeRequest: ITradeRequest, isProposed: boolean): ITradeDisplay => {
+export const formatTradeDisplay = (
+    tradeRequest: ITradeRequest,
+    isProposed: boolean
+): ITradeDisplay => {
     return {
         id: tradeRequest.id!,
-        date: formatTradeDateString(tradeRequest.proposedDate!),
+        date: formatDateString(tradeRequest.proposedDate!),
         tradeWithUser: isProposed ? tradeRequest.requestedUser! : tradeRequest.proposedUser!,
         tradingShift: isProposed
             ? formatDateTimeOutputString(
@@ -37,5 +41,18 @@ export default (tradeRequest: ITradeRequest, isProposed: boolean): ITradeDisplay
               ),
         archiveUsers: tradeRequest.archiveUsers,
         status: getStatus(tradeRequest.status),
+    };
+};
+
+export const formatSickDisplay = (sickRequest: ISickRequest): ISickDisplay => {
+    return {
+        id: sickRequest.id!,
+        date: formatDateString(sickRequest.requestDate!),
+        user: sickRequest.userId!,
+        shift: formatDateTimeOutputString(
+            sickRequest.shift!.startDateTime,
+            sickRequest.shift!.endDateTime
+        ),
+        status: sickRequest.status!,
     };
 };

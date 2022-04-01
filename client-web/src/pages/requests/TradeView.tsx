@@ -7,7 +7,7 @@ import FormDialog from 'components/dialogs/FormDialog';
 import CreateTradeRequestFrom from 'components/forms/CreateTradeRequestForm';
 import TabPanel from 'components/tabs/TabPanel';
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
-import formatDisplayTrade from 'utils/trade-display-formatter';
+import { formatTradeDisplay } from 'utils/display-formatter';
 
 import axios from 'utils/axios-intance';
 import ProposedTrades from 'components/trades/ProposedTrades';
@@ -35,11 +35,11 @@ const TradeView: React.FC = () => {
             const isProposed = tradeRequest.proposedUser === user.email;
 
             if (tradeRequest.status === 'Approved' || tradeRequest.status === 'Rejected') {
-                fetchedResultTrades.push(formatDisplayTrade(tradeRequest, isProposed));
+                fetchedResultTrades.push(formatTradeDisplay(tradeRequest, isProposed));
             } else if (isProposed) {
-                fetchedProposedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
+                fetchedProposedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
             } else if (!isProposed) {
-                fetchedRequestedTrades.push(formatDisplayTrade(tradeRequest, isProposed));
+                fetchedRequestedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
             }
         });
 
@@ -58,7 +58,7 @@ const TradeView: React.FC = () => {
 
     const handleTradeCreated = (tradeRequest: ITradeRequest | undefined) => {
         if (tradeRequest) {
-            const newProposedTrades = [...proposedTrades, formatDisplayTrade(tradeRequest, true)];
+            const newProposedTrades = [...proposedTrades, formatTradeDisplay(tradeRequest, true)];
 
             setProposedTrades(newProposedTrades);
         }

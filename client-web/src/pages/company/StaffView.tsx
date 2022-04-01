@@ -4,9 +4,6 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box } from '@mui/material';
 
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import DeleteIcon from '@mui/icons-material/Delete';
-
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUser } from 'models/User';
 
@@ -15,8 +12,6 @@ import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import LinearLoading from 'components/loading/LineraLoading';
-
-import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 import axios from 'utils/axios-intance';
 import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';

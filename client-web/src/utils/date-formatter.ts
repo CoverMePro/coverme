@@ -35,7 +35,7 @@ export const formatDateTimeOutputString = (startDateTime: string, endDateTime: s
     return outputString;
 };
 
-export const formatTradeDateString = (date: Date) => {
+export const formatDateString = (date: Date) => {
     const newDate = new Date(date);
     return `${days[newDate.getDay()]} ${
         months[newDate.getMonth()]

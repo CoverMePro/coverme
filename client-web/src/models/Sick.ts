@@ -9,3 +9,11 @@ export interface ISickRequest {
     shift?: IShift;
     status?: StatusType;
 }
+
+export interface ISickDisplay {
+    id: string;
+    date: string;
+    user: string;
+    shift: string;
+    status: StatusType;
+}
