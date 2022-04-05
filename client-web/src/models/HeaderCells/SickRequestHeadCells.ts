@@ -24,7 +24,7 @@ const headCells: ISickRequestHeadCell[] = [
         disablePadding: false,
         capitalize: false,
         sortable: false,
-        label: 'Trading with',
+        label: 'Shift',
     },
     {
         id: 'status',

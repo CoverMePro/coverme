@@ -24,10 +24,12 @@ const getSickRequests = (req: Request, res: Response) => {
 
     const shiftIds: string[] = [];
 
+    console.log('IN');
+
     db.collection(`/companies/${name}/sick-requests`)
         .where('userId', '==', user)
         .get()
-        .then((resultData) => {
+        .then(async (resultData) => {
             resultData.forEach((result) => {
                 const sickRequest: ISickRequest = {
                     id: result.id,
@@ -38,24 +40,25 @@ const getSickRequests = (req: Request, res: Response) => {
                 shiftIds.push(sickRequest.shiftId!);
             });
 
-            return db
-                .collection(`/companies/${name}/shifts`)
-                .where('__name__', 'in', shiftIds)
-                .get();
-        })
-        .then((shiftResults) => {
-            shiftResults.forEach((shift) => {
-                for (let i = 0, len = sickRequests.length; i < len; ++i) {
-                    if (shift.id === sickRequests[i].shiftId) {
-                        sickRequests[i].shift = {
-                            id: shift.id,
-                            ...shift.data(),
-                        };
-                    }
-                }
-            });
+            if (shiftIds.length > 0) {
+                const shiftResults = await db
+                    .collection(`/companies/${name}/shifts`)
+                    .where('__name__', 'in', shiftIds)
+                    .get();
 
-            return res.json(sickRequests);
+                shiftResults.forEach((shift) => {
+                    for (let i = 0, len = sickRequests.length; i < len; ++i) {
+                        if (shift.id === sickRequests[i].shiftId) {
+                            sickRequests[i].shift = {
+                                id: shift.id,
+                                ...shift.data(),
+                            };
+                        }
+                    }
+                });
+            }
+
+            return res.json({ sickRequests: sickRequests });
         })
         .catch((err) => {
             console.error(err);

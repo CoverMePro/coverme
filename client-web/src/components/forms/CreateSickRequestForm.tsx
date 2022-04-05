@@ -43,7 +43,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                     sickRequest
                 )
                 .then((result) => {
-                    enqueueSnackbar('Trade request submitted.', {
+                    enqueueSnackbar('Sick request submitted.', {
                         variant: 'success',
                     });
                     onFinish(result.data.sickRequest);
@@ -137,7 +137,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                                         </li>
                                     )}
                                     renderInput={(params) => (
-                                        <TextField {...params} label="Staff to Trade With" />
+                                        <TextField {...params} label="Shift to take off" />
                                     )}
                                     onChange={handleShiftChange}
                                 />
