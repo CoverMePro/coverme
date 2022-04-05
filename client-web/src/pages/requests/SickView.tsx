@@ -40,6 +40,7 @@ const SickView: React.FC = () => {
 
     const handleAddSickRequestSuccessfull = (sickRequest: ISickRequest | undefined) => {
         if (sickRequest) {
+            console.log(sickRequest);
             const newSickRequests = [...sickRequests, formatSickDisplay(sickRequest)];
             setSickRequests(newSickRequests);
         }
@@ -48,6 +49,7 @@ const SickView: React.FC = () => {
     };
 
     useEffect(() => {
+        setIsLoadingSickRequest(true);
         axios
             .get(
                 `${
@@ -55,12 +57,19 @@ const SickView: React.FC = () => {
                 }/company/${user.company!}/sick-request/${user.email!}`
             )
             .then((result) => {
-                console.log(result.data);
-                setSickRequests([...result.data]);
+                const sickRequests: ISickRequest[] = result.data.sickRequests;
+                const sickDisplay: ISickDisplay[] = [];
+
+                sickRequests.forEach((sickRequest) => {
+                    sickDisplay.push(formatSickDisplay(sickRequest));
+                });
+
+                setSickRequests([...sickDisplay]);
             })
             .catch((err) => {
                 console.error(err);
-            });
+            })
+            .finally(() => setIsLoadingSickRequest(false));
     }, []);
 
     return (

@@ -10,7 +10,11 @@ const createSickRequest = (req: Request, res: Response) => {
         .add(sickRequest)
         .then((result) => {
             sickRequest.id = result.id;
-            return res.json(sickRequest);
+            return db.doc(`/companies/${name}/shifts/${sickRequest.shiftId}`).get();
+        })
+        .then((shiftResult) => {
+            sickRequest.shift = { ...shiftResult.data() };
+            return res.json({ sickRequest: sickRequest });
         })
         .catch((err) => {
             console.error(err);
