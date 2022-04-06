@@ -4,8 +4,8 @@ export interface IShift {
     userId?: string;
     companyId?: string;
     teamId?: string;
-    startDateTime?: Date;
-    endDateTime?: Date;
+    startDateTime?: Date | string;
+    endDateTime?: Date | string;
 }
 
 export interface IShiftDefinition {

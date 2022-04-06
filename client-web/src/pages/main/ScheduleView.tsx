@@ -79,8 +79,8 @@ const ScheduleView: React.FC = () => {
             instanceId: eventInstance.instanceId,
             userId: getEmail(resourceId),
             teamId: getTeam(resourceId),
-            startDate: eventInstance.range.start.toISOString(),
-            endDate: eventInstance.range.end.toISOString(),
+            startDate: eventInstance.range.start,
+            endDate: eventInstance.range.end,
         };
 
         setShiftTransactions([...filtedTransactions, changedtransaction]);
@@ -114,8 +114,8 @@ const ScheduleView: React.FC = () => {
                 userId: getEmail(dropEvent.event._def.resourceIds[0]),
                 teamId: getTeam(dropEvent.event._def.resourceIds[0]),
                 instanceId: dropEvent.event._instance.instanceId,
-                startDate: dropEvent.event._instance.range.start.toISOString(),
-                endDate: dropEvent.event._instance.range.end.toISOString(),
+                startDate: dropEvent.event._instance.range.start,
+                endDate: dropEvent.event._instance.range.end,
             };
 
             const newShiftTransactions = [...shiftTransactions, transaction];
@@ -186,8 +186,8 @@ const ScheduleView: React.FC = () => {
                     userId: getEmail(changedEvent.event._def.resourceIds[0]),
                     teamId: getTeam(changedEvent.event._def.resourceIds[0]),
                     instanceId: changedEvent.event._instance.instanceId,
-                    startDate: changedEvent.event._instance.range.start.toISOString(),
-                    endDate: changedEvent.event._instance.range.end.toISOString(),
+                    startDate: changedEvent.event._instance.range.start,
+                    endDate: changedEvent.event._instance.range.end,
                 };
 
                 const newShiftTransactions = [...shiftTransactions, transaction];

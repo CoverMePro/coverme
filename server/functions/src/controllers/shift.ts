@@ -34,7 +34,13 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
         })
         .then((shiftData) => {
             shiftData.forEach((shift) => {
-                shifts.push({ ...shift.data(), id: shift.id });
+                console.log(shift.data().startDateTime);
+                shifts.push({
+                    ...shift.data(),
+                    id: shift.id,
+                    startDateTime: shift.data().startDateTime.toDate(),
+                    endDateTime: shift.data().endDateTime.toDate(),
+                });
             });
 
             return db.collection(`/companies/${company}/shift-definitions`).get();
@@ -70,8 +76,8 @@ const transactionShifts = (req: Request, res: Response) => {
                     name: transaction.name,
                     userId: transaction.userId,
                     teamId: transaction.teamId,
-                    startDateTime: transaction.startDate,
-                    endDateTime: transaction.endDate,
+                    startDateTime: new Date(transaction.startDate),
+                    endDateTime: new Date(transaction.endDate),
                 });
                 break;
             case 'remove':
@@ -81,8 +87,8 @@ const transactionShifts = (req: Request, res: Response) => {
                 batch.update(db.doc(`companies/${name}/shifts/${transaction.id}`), {
                     userId: transaction.userId,
                     teamId: transaction.teamId,
-                    startDateTime: transaction.startDate,
-                    endDateTime: transaction.endDate,
+                    startDateTime: new Date(transaction.startDate),
+                    endDateTime: new Date(transaction.endDate),
                 });
                 break;
         }
