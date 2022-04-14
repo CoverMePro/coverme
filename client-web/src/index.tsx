@@ -138,7 +138,7 @@ ReactDOM.render(
                                 />
 
                                 <Route
-                                    path="request/vacation"
+                                    path="request/time-off"
                                     element={
                                         <AuthWrapper>
                                             <VacationView />

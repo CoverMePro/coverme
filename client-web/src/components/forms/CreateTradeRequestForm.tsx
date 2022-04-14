@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
-import { useFormik } from 'formik';
 
 import {
     Box,
     TextField,
     Fab,
-    Checkbox,
     Autocomplete,
     CircularProgress,
     Typography,
@@ -96,7 +94,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                 .get(
                     `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts/${
                         value.email
-                    }`
+                    }/today`
                 )
                 .then((result) => {
                     setRequestedShifts(result.data.shifts);
@@ -128,7 +126,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                 const getShiftsPromise = axios.get(
                     `${
                         process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/shifts/${user.email!}`
+                    }/company/${user.company!}/shifts/${user.email!}/today`
                 );
 
                 const [staffResults, shiftResults] = await Promise.all([
@@ -150,21 +148,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
         };
 
         loadData();
-
-        // axios
-        //     .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
-        //     .then((result) => {
-        //         const staffUsers: IUser[] = result.data.users.filter(
-        //             (staffUser: IUser) =>
-        //                 staffUser.role === 'staff' && staffUser.email !== user.email
-        //         );
-        //         setStaff(staffUsers);
-        //     })
-        //     .catch((err) => {
-        //         console.log(err);
-        //     })
-        //     .finally();
-    }, [user.company]);
+    }, [user.company, user.email]);
 
     return (
         <Box

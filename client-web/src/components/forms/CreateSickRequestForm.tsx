@@ -77,19 +77,34 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
     };
 
     useEffect(() => {
+        setIsLoadingData(true);
         // TO DO: Get only shift from today (and maybe forward)
+        const todayDate = new Date();
+        const tomorrowDate = new Date();
+        tomorrowDate.setDate(new Date().getDate() + 1);
+        tomorrowDate.setHours(23);
+        tomorrowDate.setMinutes(59);
+
         axios
-            .get(
-                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts/${user.email!}`
+            .post(
+                `${
+                    process.env.REACT_APP_SERVER_API
+                }/company/${user.company!}/shifts/${user.email!}/range`,
+                {
+                    startRange: todayDate,
+                    endRange: tomorrowDate,
+                }
             )
             .then((shiftResults) => {
                 setUserShifts(shiftResults.data.shifts);
             })
             .catch((err) => {
                 console.error(err);
+            })
+            .finally(() => {
                 setIsLoadingData(false);
             });
-    }, []);
+    }, [user.company, user.email]);
 
     return (
         <Box

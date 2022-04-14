@@ -70,7 +70,7 @@ const SickView: React.FC = () => {
                 console.error(err);
             })
             .finally(() => setIsLoadingSickRequest(false));
-    }, []);
+    }, [user.company, user.email]);
 
     return (
         <Box>

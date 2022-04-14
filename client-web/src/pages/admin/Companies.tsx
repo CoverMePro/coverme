@@ -11,7 +11,6 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
-import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
 
 const Companies: React.FC = () => {

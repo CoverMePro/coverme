@@ -67,13 +67,13 @@ const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton
-                                    onClick={() => handleNav('request/vacation')}
+                                    onClick={() => handleNav('request/time-off')}
                                     selected={navSelected === 9}
                                 >
                                     <ListItemIcon>
                                         <FlightIcon color="secondary" />
                                     </ListItemIcon>
-                                    <ListItemText primary="Vacation" />
+                                    <ListItemText primary="Time Off" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>

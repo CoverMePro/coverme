@@ -73,12 +73,20 @@ const getSickRequests = (req: Request, res: Response) => {
 const approveSickRequest = (req: Request, res: Response) => {
     const { name, id } = req.params;
 
+    const shiftId = req.body.shiftId;
+
     db.doc(`/companies/${name}/sick-requests/${id}`)
         .update({
             status: 'Approved',
         })
         .then(() => {
             // Call out time, either here or front end
+            // remove shift from user
+            return db.doc(`/companies/${name}/shifts/${shiftId}`).update({
+                userId: 'unclaimed',
+            });
+        })
+        .then(() => {
             return res.json({ message: 'Sick request approved.' });
         })
         .catch((err) => {

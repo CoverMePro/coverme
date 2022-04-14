@@ -176,6 +176,66 @@ const getShiftForUser = (req: Request, res: Response) => {
                 shifts.push({
                     id: shift.id,
                     ...shift.data(),
+                    startDateTime: shift.data().startDateTime.toDate(),
+                    endDateTime: shift.data().endDateTime.toDate(),
+                });
+            });
+
+            return res.json({ shifts });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const getShiftsFromTodayOnward = (req: Request, res: Response) => {
+    const { name, user } = req.params;
+
+    db.collection(`/companies/${name}/shifts`)
+        .where('userId', '==', user)
+        .where('startDateTime', '>', new Date())
+        .get()
+        .then((shiftData) => {
+            const shifts: IShift[] = [];
+            shiftData.forEach((shift) => {
+                shifts.push({
+                    id: shift.id,
+                    ...shift.data(),
+                    startDateTime: shift.data().startDateTime.toDate(),
+                    endDateTime: shift.data().endDateTime.toDate(),
+                });
+            });
+
+            return res.json({ shifts });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const getShiftsFromDateRange = (req: Request, res: Response) => {
+    const { name, user } = req.params;
+
+    const { startRange, endRange } = req.body;
+
+    console.log(startRange);
+    console.log(endRange);
+
+    db.collection(`/companies/${name}/shifts`)
+        .where('userId', '==', user)
+        .where('startDateTime', '>', new Date(startRange))
+        .where('startDateTime', '<', new Date(endRange))
+        .get()
+        .then((shiftData) => {
+            const shifts: IShift[] = [];
+            shiftData.forEach((shift) => {
+                shifts.push({
+                    id: shift.id,
+                    ...shift.data(),
+                    startDateTime: shift.data().startDateTime.toDate(),
+                    endDateTime: shift.data().endDateTime.toDate(),
                 });
             });
 
@@ -194,4 +254,6 @@ export default {
     deleteShiftDefinition,
     getShiftDefinitions,
     getShiftForUser,
+    getShiftsFromTodayOnward,
+    getShiftsFromDateRange,
 };

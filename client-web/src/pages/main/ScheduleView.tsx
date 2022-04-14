@@ -254,16 +254,19 @@ const ScheduleView: React.FC = () => {
         return result;
     };
 
-    const formatStaff = (staff: any[]) => {
-        if (!showAll && user.teams) {
-            const filteredStaff = staff.filter((s) => {
-                return isInTeam(s.team, user.teams!);
-            });
-            return filteredStaff;
-        } else {
-            return staff;
-        }
-    };
+    const formatStaff = useCallback(
+        (staff: any[]) => {
+            if (!showAll && user.teams) {
+                const filteredStaff = staff.filter((s) => {
+                    return isInTeam(s.team, user.teams!);
+                });
+                return filteredStaff;
+            } else {
+                return staff;
+            }
+        },
+        [showAll, user.teams]
+    );
 
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
@@ -281,7 +284,7 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user.company]);
+    }, [user.company, formatStaff]);
 
     useEffect(() => {
         getShiftsFromTeams();

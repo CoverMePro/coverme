@@ -28,10 +28,12 @@ router.post('/:companyId/team/:teamId/remove-user', authGuard, teamController.re
 //SHIFT
 router.get('/:name/shifts', authGuard, shiftController.getShiftsAndStaff);
 router.get('/:name/shifts/:user', authGuard, shiftController.getShiftForUser);
+router.get('/:name/shifts/:user/today', authGuard, shiftController.getShiftsFromTodayOnward);
 router.get('/:name/shift-definition', authGuard, shiftController.getShiftDefinitions);
 router.post('/:name/shift-definition', authGuard, shiftController.createShiftDefinition);
 router.get('/:name/shift-definition/:id/delete', authGuard, shiftController.deleteShiftDefinition);
 
+router.post('/:name/shifts/:user/range', authGuard, shiftController.getShiftsFromDateRange);
 router.post('/:name/shift-transactions', authGuard, shiftController.transactionShifts);
 
 // TRADE REQUEST

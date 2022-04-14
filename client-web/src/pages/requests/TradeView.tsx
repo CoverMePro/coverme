@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Tabs, Tab, Typography, Tooltip, IconButton } from '@mui/material';
@@ -26,27 +26,30 @@ const TradeView: React.FC = () => {
 
     const user = useTypedSelector((state) => state.user);
 
-    const formatTradeRequests = (tradeRequests: ITradeRequest[]) => {
-        const fetchedResultTrades: ITradeDisplay[] = [];
-        const fetchedProposedTrades: ITradeDisplay[] = [];
-        const fetchedRequestedTrades: ITradeDisplay[] = [];
+    const formatTradeRequests = useCallback(
+        (tradeRequests: ITradeRequest[]) => {
+            const fetchedResultTrades: ITradeDisplay[] = [];
+            const fetchedProposedTrades: ITradeDisplay[] = [];
+            const fetchedRequestedTrades: ITradeDisplay[] = [];
 
-        tradeRequests.forEach((tradeRequest) => {
-            const isProposed = tradeRequest.proposedUser === user.email;
+            tradeRequests.forEach((tradeRequest) => {
+                const isProposed = tradeRequest.proposedUser === user.email;
 
-            if (tradeRequest.status === 'Approved' || tradeRequest.status === 'Rejected') {
-                fetchedResultTrades.push(formatTradeDisplay(tradeRequest, isProposed));
-            } else if (isProposed) {
-                fetchedProposedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
-            } else if (!isProposed) {
-                fetchedRequestedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
-            }
-        });
+                if (tradeRequest.status === 'Approved' || tradeRequest.status === 'Rejected') {
+                    fetchedResultTrades.push(formatTradeDisplay(tradeRequest, isProposed));
+                } else if (isProposed) {
+                    fetchedProposedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
+                } else if (!isProposed) {
+                    fetchedRequestedTrades.push(formatTradeDisplay(tradeRequest, isProposed));
+                }
+            });
 
-        setResultTrades(fetchedResultTrades);
-        setProposedTrades(fetchedProposedTrades);
-        setRequestedTrades(fetchedRequestedTrades);
-    };
+            setResultTrades(fetchedResultTrades);
+            setProposedTrades(fetchedProposedTrades);
+            setRequestedTrades(fetchedRequestedTrades);
+        },
+        [user.email]
+    );
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
@@ -116,7 +119,7 @@ const TradeView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, []);
+    }, [user.company, user.email, formatTradeRequests]);
 
     return (
         <Box>

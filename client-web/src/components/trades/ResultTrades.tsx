@@ -45,6 +45,7 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
 
     const handleConfirmation = () => {
         setIsLoading(true);
+        setShowArchive(false);
         axios
             .post(
                 `${

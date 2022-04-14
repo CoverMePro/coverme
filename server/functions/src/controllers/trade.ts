@@ -8,6 +8,8 @@ const createTradeRequest = (req: Request, res: Response) => {
 
     let fetchedTradeRequest: ITradeRequest;
 
+    tradeRequest.proposedDate = new Date(tradeRequest.proposedDate!);
+
     db.collection(`/companies/${company}/trade-requests`)
         .add(tradeRequest)
         .then((result) => {
@@ -81,6 +83,7 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
             const tradeRequest: ITradeRequest = {
                 id: tradeRequestdoc.id,
                 ...tradeRequestdoc.data(),
+                proposedDate: tradeRequestdoc.data().proposedDate.toDate(),
             };
 
             if (
@@ -112,12 +115,16 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
                     if (tradeRequest.proposedShiftId === shiftDoc.id) {
                         tradeRequest.proposedShift = {
                             ...shiftDoc.data(),
+                            startDateTime: shiftDoc.data().startDateTime.toDate(),
+                            endDateTime: shiftDoc.data().endDateTime.toDate(),
                         };
                     }
 
                     if (tradeRequest.requestedShiftId === shiftDoc.id) {
                         tradeRequest.requestedShift = {
                             ...shiftDoc.data(),
+                            startDateTime: shiftDoc.data().startDateTime.toDate(),
+                            endDateTime: shiftDoc.data().endDateTime.toDate(),
                         };
                     }
                 }
