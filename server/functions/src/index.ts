@@ -6,7 +6,7 @@ import cors from 'cors';
 import { WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN } from './constants';
 
 import authRoutes from './routes/auth';
-import companyRoutes from './routes/company';
+import companyRoutes from './routes/companies/company';
 import userRoutes from './routes/user';
 
 const app = express();

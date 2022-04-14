@@ -6,7 +6,7 @@ import { db } from '../utils/admin';
  * Get all teams within a company
  */
 const getAllTeams = (req: Request, res: Response) => {
-    db.collection(`/companies/${req.params.id}/teams`)
+    db.collection(`/companies/${req.params.name}/teams`)
         .get()
         .then((teamData) => {
             let teams: ITeam[] = [];
@@ -33,7 +33,7 @@ const getAllTeams = (req: Request, res: Response) => {
 
 const createTeam = (req: Request, res: Response) => {
     const team: ITeam = req.body.team;
-    db.doc(`/companies/${req.params.id}/teams/${team.name}`)
+    db.doc(`/companies/${req.params.name}/teams/${team.name}`)
         .get()
         .then((teamData) => {
             if (teamData.exists) {
@@ -41,7 +41,7 @@ const createTeam = (req: Request, res: Response) => {
                 throw 403;
             } else {
                 return db
-                    .doc(`/companies/${req.params.id}/teams/${team.name}`)
+                    .doc(`/companies/${req.params.name}/teams/${team.name}`)
                     .set({ managers: team.managers, staff: team.staff, owner: team.owner });
             }
         })
@@ -91,9 +91,9 @@ const createTeam = (req: Request, res: Response) => {
  */
 
 const deleteTeam = (req: Request, res: Response) => {
-    const { companyId, teamId } = req.params;
+    const { name, teamId } = req.params;
 
-    db.doc(`/companies/${companyId}/teams/${teamId}`)
+    db.doc(`/companies/${name}/teams/${teamId}`)
         .delete()
         .then(() => {
             db.collection('/users')
@@ -123,11 +123,11 @@ const deleteTeam = (req: Request, res: Response) => {
 };
 
 const addUserToTeam = (req: Request, res: Response) => {
-    const { companyId, teamId } = req.params;
+    const { name, teamId } = req.params;
     const user = req.body.user;
 
     // add user to team doc
-    db.doc(`/companies/${companyId}/teams/${teamId}`)
+    db.doc(`/companies/${name}/teams/${teamId}`)
         .get()
         .then((teamResult) => {
             const team = teamResult.data();
@@ -139,7 +139,7 @@ const addUserToTeam = (req: Request, res: Response) => {
                     team.staff.push(user.email);
                 }
 
-                return db.doc(`/companies/${companyId}/teams/${teamId}`).set(team);
+                return db.doc(`/companies/${name}/teams/${teamId}`).set(team);
             }
             throw Error('Team not found!');
         })
@@ -171,11 +171,11 @@ const addUserToTeam = (req: Request, res: Response) => {
 };
 
 const removeUserFromTeam = (req: Request, res: Response) => {
-    const { companyId, teamId } = req.params;
+    const { name, teamId } = req.params;
     const user = req.body.user;
 
     // add user to team doc
-    db.doc(`/companies/${companyId}/teams/${teamId}`)
+    db.doc(`/companies/${name}/teams/${teamId}`)
         .get()
         .then((teamResult) => {
             const team = teamResult.data();
@@ -192,7 +192,7 @@ const removeUserFromTeam = (req: Request, res: Response) => {
                     team.staff = newTeams;
                 }
 
-                return db.doc(`/companies/${companyId}/teams/${teamId}`).set(team);
+                return db.doc(`/companies/${name}/teams/${teamId}`).set(team);
             }
             throw Error('Team not found!');
         })
