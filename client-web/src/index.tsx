@@ -20,7 +20,7 @@ import TeamsView from 'pages/company/TeamsView';
 import Companies from 'pages/admin/Companies';
 import ShiftsView from 'pages/management/ShiftsView';
 import TradeView from 'pages/requests/TradeView';
-import VacationView from 'pages/requests/VacationView';
+import TimeOffView from 'pages/requests/TimeOffView';
 import SickView from 'pages/requests/SickView';
 import ScheduleView from 'pages/main/ScheduleView';
 import CalendarView from 'pages/main/CalendarView';
@@ -141,7 +141,7 @@ ReactDOM.render(
                                     path="request/time-off"
                                     element={
                                         <AuthWrapper>
-                                            <VacationView />
+                                            <TimeOffView />
                                         </AuthWrapper>
                                     }
                                 />
