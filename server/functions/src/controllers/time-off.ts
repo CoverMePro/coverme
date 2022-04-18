@@ -94,10 +94,25 @@ const rejectTimeOffRequest = (req: Request, res: Response) => {
         });
 };
 
+const deleteTimeOffRequest = (req: Request, res: Response) => {
+    const { name, id } = req.params;
+
+    db.doc(`/companies/${name}/time-off/${id}`)
+        .delete()
+        .then(() => {
+            return res.json({ message: 'Time off request deleted.' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createTimeOffRequest,
     getAllTimeOffRequest,
     getUserTimeOffRequest,
     approveTimeOffRequest,
     rejectTimeOffRequest,
+    deleteTimeOffRequest,
 };

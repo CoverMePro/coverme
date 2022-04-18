@@ -1,6 +1,6 @@
 import { StatusType } from './Types';
 
-type TimeOffType = 'Vacation' | 'Lieu' | 'Floater' | 'Other';
+export type TimeOffType = 'Vacation' | 'Lieu' | 'Floater' | 'Other';
 
 export interface ITimeOffRequest {
     id?: string;

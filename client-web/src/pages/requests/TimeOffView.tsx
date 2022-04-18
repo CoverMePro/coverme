@@ -11,6 +11,7 @@ import LinearLoading from 'components/loading/LineraLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import axios from 'utils/axios-intance';
 import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
+import CreateTimeOffForm from 'components/forms/CreateTimeOffForm';
 
 const TimeOffView: React.FC = () => {
     const [openAddTimeOff, setOpenAddTimeOff] = useState<boolean>(false);
@@ -53,7 +54,7 @@ const TimeOffView: React.FC = () => {
             .get(
                 `${
                     process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/sick-request/${user.email!}`
+                }/company/${user.company!}/time-off/${user.email!}`
             )
             .then((result) => {
                 const timeOffRequests: ITimeOffRequest[] = result.data.timeOff;
@@ -89,7 +90,9 @@ const TimeOffView: React.FC = () => {
                     selectedActions={[]}
                 />
             )}
-            <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}></FormDialog>
+            <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}>
+                <CreateTimeOffForm onFinish={handleAddTimeOffSuccessfull} />
+            </FormDialog>
         </Box>
     );
 };
