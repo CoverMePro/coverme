@@ -1,4 +1,5 @@
 import { ISickDisplay, ISickRequest } from 'models/Sick';
+import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
 import { formatDateTimeOutputString, formatDateString } from './date-formatter';
 
@@ -54,5 +55,17 @@ export const formatSickDisplay = (sickRequest: ISickRequest): ISickDisplay => {
             sickRequest.shift!.endDateTime
         ),
         status: sickRequest.status!,
+    };
+};
+
+export const formatTimeOffDisplay = (timeOffRequest: ITimeOffRequest): ITimeOffDisplay => {
+    return {
+        id: timeOffRequest.id!,
+        requestDate: formatDateString(timeOffRequest.requestDate!),
+        type: timeOffRequest.type!,
+        startDate: formatDateString(timeOffRequest.timeOffStart!),
+        endDate: formatDateString(timeOffRequest.timeOffEnd!),
+        status: timeOffRequest.status!,
+        user: timeOffRequest.userId!,
     };
 };
