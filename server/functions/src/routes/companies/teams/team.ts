@@ -3,7 +3,7 @@ import authGuard from '../../../utils/authenticate-user';
 
 import teamController from '../../../controllers/team';
 
-const router: Router = express.Router();
+const router: Router = express.Router({ mergeParams: true });
 
 router.get('/', authGuard, teamController.getAllTeams);
 router.get('/:teamId/delete', teamController.deleteTeam);

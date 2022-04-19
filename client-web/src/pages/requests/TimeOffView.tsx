@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { Box } from '@mui/material';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import TimeOffHeadCells from 'models/HeaderCells/TimeOffHeadCells';
+import {
+    staffTimeOffHeadCells,
+    managerTimeOffHeadCells,
+} from 'models/HeaderCells/TimeOffHeadCells';
 
 import { formatTimeOffDisplay } from 'utils/display-formatter';
 
@@ -13,12 +16,23 @@ import axios from 'utils/axios-intance';
 import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
 import CreateTimeOffForm from 'components/forms/CreateTimeOffForm';
 
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import { ISelectedAction } from 'models/TableInfo';
+import BasicConfirmation from 'components/dialogs/BasicConfirmation';
+
 const TimeOffView: React.FC = () => {
     const [openAddTimeOff, setOpenAddTimeOff] = useState<boolean>(false);
     const [isLoadingTimeOff, setIsLoadingTimeOff] = useState<boolean>(false);
 
     const [selected, setSelected] = useState<any | undefined>(undefined);
     const [timeOff, setTimeOff] = useState<ITimeOffDisplay[]>([]);
+
+    const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [confirmationTitle, setConfirmationTitle] = useState<string>('');
+    const [confirmationMessage, setConfirmationMessage] = useState<string>('');
+    const [isApproving, setIsApproving] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
 
@@ -48,6 +62,92 @@ const TimeOffView: React.FC = () => {
         handleCloseAddTimeOff();
     };
 
+    const handleOpenApproveTimeOffRequest = () => {
+        setConfirmationTitle('Approve Time Off');
+        setConfirmationMessage('Are you sure you want to approve this time off?');
+        setIsApproving(true);
+        setOpenConfirmation(true);
+    };
+
+    const handleOpenRejectTimeOffRequest = () => {
+        setConfirmationTitle('Reject Time Off');
+        setConfirmationMessage('Are you sure you want to reject this time off?');
+        setIsApproving(false);
+        setOpenConfirmation(true);
+    };
+
+    const handleConfirmation = () => {
+        if (isApproving) {
+            handleApproveTimeOffRequest();
+        } else {
+            handleRejectTimeOffRequest();
+        }
+    };
+
+    const handleApproveTimeOffRequest = () => {
+        setIsLoading(true);
+        axios
+            .get(
+                `${
+                    process.env.REACT_APP_SERVER_API
+                }/company/${user.company!}/time-off/${selected}/approve`
+            )
+            .then(() => {
+                // remove from list for now
+                removeTimeOff(selected);
+                setSelected(undefined);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+                setOpenConfirmation(false);
+            });
+    };
+
+    const handleRejectTimeOffRequest = () => {
+        axios
+            .get(
+                `${
+                    process.env.REACT_APP_SERVER_API
+                }/company/${user.company!}/time-off/${selected}/reject`
+            )
+            .then(() => {
+                // remove from list for now
+                removeTimeOff(selected);
+                setSelected(undefined);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+                setOpenConfirmation(false);
+            });
+    };
+
+    const removeTimeOff = (id: string) => {
+        const newTimeOff = timeOff.filter((to) => to.id !== id);
+
+        setTimeOff([...newTimeOff]);
+    };
+
+    const selectedActions: ISelectedAction[] = [
+        {
+            tooltipTitle: 'Approve',
+            permissionLevel: 0,
+            icon: <ThumbUpIcon color="primary" fontSize="large" />,
+            onClick: handleOpenApproveTimeOffRequest,
+        },
+        {
+            tooltipTitle: 'Reject',
+            permissionLevel: 0,
+            icon: <ThumbDownIcon color="primary" fontSize="large" />,
+            onClick: handleOpenRejectTimeOffRequest,
+        },
+    ];
+
     useEffect(() => {
         setIsLoadingTimeOff(true);
         axios
@@ -57,7 +157,7 @@ const TimeOffView: React.FC = () => {
                 }/company/${user.company!}/time-off/${user.email!}`
             )
             .then((result) => {
-                const timeOffRequests: ITimeOffRequest[] = result.data.timeOff;
+                const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
                 const timeOffDisplays: ITimeOffDisplay[] = [];
 
                 timeOffRequests.forEach((timeOff) => {
@@ -73,27 +173,41 @@ const TimeOffView: React.FC = () => {
     }, [user.company, user.email]);
 
     return (
-        <Box>
-            {isLoadingTimeOff ? (
-                <Box>
-                    <LinearLoading />
-                </Box>
-            ) : (
-                <EnhancedTable
-                    title="Sick Requests"
-                    headerCells={TimeOffHeadCells}
-                    id="id"
-                    data={timeOff}
-                    onSelect={handleSelectTimeOff}
-                    selected={selected}
-                    unSelectedActions={getAddAction(handleAddTimeOff, 0)}
-                    selectedActions={[]}
+        <>
+            <Box>
+                {isLoadingTimeOff ? (
+                    <Box>
+                        <LinearLoading />
+                    </Box>
+                ) : (
+                    <EnhancedTable
+                        title="Time Off"
+                        headerCells={
+                            user.role === 'staff' ? staffTimeOffHeadCells : managerTimeOffHeadCells
+                        }
+                        id="id"
+                        data={timeOff}
+                        onSelect={handleSelectTimeOff}
+                        selected={selected}
+                        unSelectedActions={
+                            user.role === 'staff' ? getAddAction(handleAddTimeOff, 0) : []
+                        }
+                        selectedActions={user.role === 'staff' ? [] : selectedActions}
+                    />
+                )}
+                <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}>
+                    <CreateTimeOffForm onFinish={handleAddTimeOffSuccessfull} />
+                </FormDialog>
+                <BasicConfirmation
+                    open={openConfirmation}
+                    isLoading={isLoading}
+                    onClose={() => setOpenConfirmation(false)}
+                    title={confirmationTitle}
+                    message={confirmationMessage}
+                    onConfirm={handleConfirmation}
                 />
-            )}
-            <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}>
-                <CreateTimeOffForm onFinish={handleAddTimeOffSuccessfull} />
-            </FormDialog>
-        </Box>
+            </Box>
+        </>
     );
 };
 

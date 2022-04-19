@@ -5,6 +5,8 @@ import { db } from '../utils/admin';
 const createTimeOffRequest = (req: Request, res: Response) => {
     const timeOffRequest: ITimeOffRequest = req.body;
 
+    console.log(req.params);
+
     db.collection(`/companies/${req.params.name}/time-off-requests`)
         .add(timeOffRequest)
         .then((result) => {
@@ -20,7 +22,7 @@ const createTimeOffRequest = (req: Request, res: Response) => {
 const getAllTimeOffRequest = (req: Request, res: Response) => {
     const timeOffRequests: ITimeOffRequest[] = [];
 
-    db.collection(`/comapnies/${req.params.name}/time-off-requests`)
+    db.collection(`/companies/${req.params.name}/time-off-requests`)
         .get()
         .then((resultData) => {
             resultData.forEach((result) => {
@@ -43,7 +45,7 @@ const getUserTimeOffRequest = (req: Request, res: Response) => {
 
     const timeOffRequests: ITimeOffRequest[] = [];
 
-    db.collection(`/comapnies/${name}/time-off-requests`)
+    db.collection(`/companies/${name}/time-off-requests`)
         .where('userId', '==', user)
         .get()
         .then((resultData) => {
@@ -53,6 +55,8 @@ const getUserTimeOffRequest = (req: Request, res: Response) => {
                     ...result.data(),
                 });
             });
+
+            console.log(timeOffRequests);
 
             return res.json({ timeOffRequests: timeOffRequests });
         })
