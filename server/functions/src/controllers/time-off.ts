@@ -40,6 +40,51 @@ const getAllTimeOffRequest = (req: Request, res: Response) => {
         });
 };
 
+const getTimeOffFromTeams = (req: Request, res: Response) => {
+    console.log('FROM TEAMS');
+    const teams = req.body.teams;
+
+    let users: string[] = [];
+    const timeOffRequests: ITimeOffRequest[] = [];
+
+    db.collection(`/companies/${req.params.name}/teams`)
+        .where('__name__', 'in', teams)
+        .get()
+        .then((teamResult) => {
+            teamResult.forEach((team) => {
+                const teamData = team.data();
+
+                if (teamData.staff) {
+                    users = [...users, ...teamData.staff];
+                }
+            });
+
+            console.log(users);
+
+            return db
+                .collection(`/companies/${req.params.name}/time-off-requests`)
+                .where('userId', 'in', users)
+                .where('status', '==', 'Pending')
+                .get();
+        })
+        .then((resultData) => {
+            resultData.forEach((result) => {
+                timeOffRequests.push({
+                    id: result.id,
+                    ...result.data(),
+                });
+            });
+
+            console.log(timeOffRequests);
+
+            return res.json({ timeOffRequests: timeOffRequests });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 const getUserTimeOffRequest = (req: Request, res: Response) => {
     const { name, user } = req.params;
 
@@ -115,6 +160,7 @@ const deleteTimeOffRequest = (req: Request, res: Response) => {
 export default {
     createTimeOffRequest,
     getAllTimeOffRequest,
+    getTimeOffFromTeams,
     getUserTimeOffRequest,
     approveTimeOffRequest,
     rejectTimeOffRequest,

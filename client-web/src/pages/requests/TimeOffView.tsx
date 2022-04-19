@@ -150,26 +150,50 @@ const TimeOffView: React.FC = () => {
 
     useEffect(() => {
         setIsLoadingTimeOff(true);
-        axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/time-off/${user.email!}`
-            )
-            .then((result) => {
-                const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
-                const timeOffDisplays: ITimeOffDisplay[] = [];
+        if (user.role === 'staff') {
+            axios
+                .get(
+                    `${
+                        process.env.REACT_APP_SERVER_API
+                    }/company/${user.company!}/time-off/${user.email!}`
+                )
+                .then((result) => {
+                    const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
+                    const timeOffDisplays: ITimeOffDisplay[] = [];
 
-                timeOffRequests.forEach((timeOff) => {
-                    timeOffDisplays.push(formatTimeOffDisplay(timeOff));
-                });
+                    timeOffRequests.forEach((timeOff) => {
+                        timeOffDisplays.push(formatTimeOffDisplay(timeOff));
+                    });
 
-                setTimeOff([...timeOffDisplays]);
-            })
-            .catch((err) => {
-                console.error(err);
-            })
-            .finally(() => setIsLoadingTimeOff(false));
+                    setTimeOff([...timeOffDisplays]);
+                })
+                .catch((err) => {
+                    console.error(err);
+                })
+                .finally(() => setIsLoadingTimeOff(false));
+        } else {
+            axios
+                .post(
+                    `${
+                        process.env.REACT_APP_SERVER_API
+                    }/company/${user.company!}/time-off/from-teams`,
+                    { teams: user.teams }
+                )
+                .then((result) => {
+                    const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
+                    const timeOffDisplays: ITimeOffDisplay[] = [];
+
+                    timeOffRequests.forEach((timeOff) => {
+                        timeOffDisplays.push(formatTimeOffDisplay(timeOff));
+                    });
+
+                    setTimeOff([...timeOffDisplays]);
+                })
+                .catch((err) => {
+                    console.error(err);
+                })
+                .finally(() => setIsLoadingTimeOff(false));
+        }
     }, [user.company, user.email]);
 
     return (

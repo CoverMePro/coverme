@@ -162,7 +162,7 @@ const Dashboard: React.FC = () => {
                     navSelected={navSelected}
                     navItems={managmentNav}
                 />
-                <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
+                <RequestNavList visible={true} navSelected={navSelected} />
                 <Divider />
                 <NavList
                     visible={user.role !== 'admin'}

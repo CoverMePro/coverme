@@ -5,6 +5,7 @@ import timeOffController from '../../../controllers/time-off';
 const router: Router = express.Router({ mergeParams: true });
 
 router.post('/', authGuard, timeOffController.createTimeOffRequest);
+router.post('/from-teams', authGuard, timeOffController.getTimeOffFromTeams);
 
 router.get('/', authGuard, timeOffController.getAllTimeOffRequest);
 router.get('/:user', authGuard, timeOffController.getUserTimeOffRequest);
