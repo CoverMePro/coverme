@@ -7,6 +7,10 @@ const createTimeOffRequest = (req: Request, res: Response) => {
 
     console.log(req.params);
 
+    timeOffRequest.requestDate = new Date(timeOffRequest.requestDate!);
+    timeOffRequest.timeOffStart = new Date(timeOffRequest.timeOffStart!);
+    timeOffRequest.timeOffEnd = new Date(timeOffRequest.timeOffEnd!);
+
     db.collection(`/companies/${req.params.name}/time-off-requests`)
         .add(timeOffRequest)
         .then((result) => {
@@ -29,6 +33,9 @@ const getAllTimeOffRequest = (req: Request, res: Response) => {
                 timeOffRequests.push({
                     id: result.id,
                     ...result.data(),
+                    requestDate: result.data().requestDate.toDate(),
+                    timeOffStart: result.data().timeOffStart.toDate(),
+                    timeOffEnd: result.data().timeOffEnd.toDate(),
                 });
             });
 
@@ -72,6 +79,9 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
                 timeOffRequests.push({
                     id: result.id,
                     ...result.data(),
+                    requestDate: result.data().requestDate.toDate(),
+                    timeOffStart: result.data().timeOffStart.toDate(),
+                    timeOffEnd: result.data().timeOffEnd.toDate(),
                 });
             });
 
@@ -98,6 +108,9 @@ const getUserTimeOffRequest = (req: Request, res: Response) => {
                 timeOffRequests.push({
                     id: result.id,
                     ...result.data(),
+                    requestDate: result.data().requestDate.toDate(),
+                    timeOffStart: result.data().timeOffStart.toDate(),
+                    timeOffEnd: result.data().timeOffEnd.toDate(),
                 });
             });
 
@@ -117,6 +130,20 @@ const approveTimeOffRequest = (req: Request, res: Response) => {
     db.doc(`/companies/${name}/time-off-requests/${id}`)
         .update({
             status: 'Approved',
+        })
+        .then(() => {
+            return db.doc(`/companies/${name}/time-off-requests/${id}`).get();
+        })
+        .then((timeOffRequestResult) => {
+            const timeOffData = timeOffRequestResult.data()!;
+
+            return db.collection(`/companies/${name}/time-off`).add({
+                name: timeOffData.type,
+                startDateTime: timeOffData.timeOffStart,
+                endDateTime: timeOffData.timeOffEnd,
+                userId: timeOffData.userId,
+                teams: timeOffData.teams,
+            });
         })
         .then(() => {
             return res.json({ message: 'time off request approved.' });

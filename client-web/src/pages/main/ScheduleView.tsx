@@ -17,6 +17,7 @@ import { IShiftDefinition } from 'models/ShiftDefinition';
 
 import 'styles/calendar.css';
 import EditSchedule from 'components/scheduler/EditSchedule';
+import { ITimeOff } from 'models/TimeOff';
 
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
@@ -86,8 +87,9 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions([...filtedTransactions, changedtransaction]);
     };
 
-    const formatEvents = (shifts: IShift[]) => {
-        const formattedEvents = shifts.map((shift) => {
+    const formatEvents = (shifts: IShift[], timeOff: ITimeOff[]) => {
+        console.log(timeOff);
+        const formattedShifts = shifts.map((shift) => {
             return {
                 id: shift.id,
                 title: shift.name,
@@ -96,6 +98,23 @@ const ScheduleView: React.FC = () => {
                 resourceId: `${shift.teamId}-${shift.userId}`,
             };
         });
+
+        const formattedTimeOff: any[] = [];
+
+        timeOff.forEach((to) => {
+            to.teams.forEach((team) => {
+                formattedTimeOff.push({
+                    id: to.id,
+                    title: to.name,
+                    start: to.startDateTime,
+                    end: to.endDateTime,
+                    resourceId: `${team}-${to.userId}`,
+                    color: 'red',
+                });
+            });
+        });
+
+        const formattedEvents = [...formattedShifts, ...formattedTimeOff];
 
         setEvents(formattedEvents);
         setCachedEvents(formattedEvents);
@@ -260,9 +279,9 @@ const ScheduleView: React.FC = () => {
                 const filteredStaff = staff.filter((s) => {
                     return isInTeam(s.team, user.teams!);
                 });
-                return filteredStaff;
+                return [...filteredStaff];
             } else {
-                return staff;
+                return [...staff];
             }
         },
         [showAll, user.teams]
@@ -273,10 +292,11 @@ const ScheduleView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
             .then((result: AxiosResponse) => {
-                setTeamStaff(result.data.teamStaff);
+                console.log(result.data.teamStaff);
+                setTeamStaff([...result.data.teamStaff]);
                 setFilteredTeamStaff(formatStaff(result.data.teamStaff));
                 setShiftDefs(result.data.shiftDefs);
-                formatEvents(result.data.shifts);
+                formatEvents(result.data.shifts, result.data.timeOff);
             })
             .catch((error) => {
                 console.error(error);

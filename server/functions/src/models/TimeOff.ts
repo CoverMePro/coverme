@@ -7,9 +7,19 @@ export interface ITimeOffRequest {
     requestDate?: Date;
     type?: TimeOffType;
     userId?: string;
+    teams?: string[];
     timeOffStart?: Date;
     timeOffEnd?: Date;
     shiftsIdsEffected?: string[];
     description?: string;
     status?: StatusType;
+}
+
+export interface ITimeOff {
+    id?: string;
+    userId?: string;
+    teams?: string[];
+    name?: string;
+    startDateTime?: string;
+    endDateTime?: string;
 }

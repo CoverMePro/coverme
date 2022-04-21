@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { IScheduleStaff } from '../models/ScheduleInfo';
 import { IShift, IShiftDefinition } from '../models/Shift';
 import { IShiftTransaction } from '../models/ShiftTransaction';
+import { ITimeOff } from '../models/TimeOff';
 import { db } from '../utils/admin';
 
 const getShiftsAndStaff = (req: Request, res: Response) => {
@@ -9,7 +10,10 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
 
     const teamStaff: IScheduleStaff[] = [];
     const shifts: IShift[] = [];
+    const timeOff: ITimeOff[] = [];
     const shiftDefs: IShiftDefinition[] = [];
+
+    const teams: string[] = [];
 
     db.collection('users')
         .where('company', '==', company)
@@ -20,6 +24,17 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
                 if (userData.teams && userData.role !== 'owner' && userData.role !== 'manager') {
                     for (let i = 0, len = userData.teams.length; i < len; i++) {
                         const team = userData.teams[i];
+
+                        if (teams.findIndex((t) => t === team) === -1) {
+                            teams.push(team);
+                            teamStaff.push({
+                                id: `${team}-unclaimed`,
+                                team: team,
+                                email: '',
+                                title: `Unclaimed Shifts`,
+                            });
+                        }
+
                         teamStaff.push({
                             id: `${team}-${user.id}`,
                             team: team,
@@ -43,6 +58,19 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
                 });
             });
 
+            return db.collection(`/companies/${company}/time-off`).get();
+        })
+        .then((timeOffResult) => {
+            timeOffResult.forEach((timeOffData) => {
+                console.log(timeOffData.data().startDateTime);
+                timeOff.push({
+                    ...timeOffData.data(),
+                    id: timeOffData.id,
+                    startDateTime: timeOffData.data().startDateTime.toDate(),
+                    endDateTime: timeOffData.data().endDateTime.toDate(),
+                });
+            });
+
             return db.collection(`/companies/${company}/shift-definitions`).get();
         })
         .then((shiftDefData) => {
@@ -53,7 +81,12 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
                     duration: shiftDef.data().duration,
                 });
             });
-            return res.json({ teamStaff: teamStaff, shifts: shifts, shiftDefs: shiftDefs });
+            return res.json({
+                teamStaff: teamStaff,
+                shifts: shifts,
+                timeOff: timeOff,
+                shiftDefs: shiftDefs,
+            });
         })
         .catch((err) => {
             console.error(err);

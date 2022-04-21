@@ -74,6 +74,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
             timeOffStart: startDateTime,
             timeOffEnd: endDateTime,
             userId: user.email!,
+            teams: user.teams,
             description: description,
             status: 'Pending',
         };

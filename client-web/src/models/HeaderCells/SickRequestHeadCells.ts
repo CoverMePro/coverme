@@ -9,7 +9,7 @@ interface ISickRequestHeadCell {
     sortable: boolean;
 }
 
-const headCells: ISickRequestHeadCell[] = [
+export const staffSickHeadCells: ISickRequestHeadCell[] = [
     {
         id: 'date',
         numeric: false,
@@ -36,4 +36,37 @@ const headCells: ISickRequestHeadCell[] = [
     },
 ];
 
-export default headCells;
+export const managerSickHeadCells: ISickRequestHeadCell[] = [
+    {
+        id: 'date',
+        numeric: false,
+        disablePadding: false,
+        capitalize: false,
+        sortable: true,
+        label: 'Request Date',
+    },
+    {
+        id: 'user',
+        numeric: false,
+        disablePadding: false,
+        capitalize: false,
+        sortable: true,
+        label: 'Staff',
+    },
+    {
+        id: 'shift',
+        numeric: false,
+        disablePadding: false,
+        capitalize: false,
+        sortable: false,
+        label: 'Shift',
+    },
+    {
+        id: 'status',
+        numeric: false,
+        disablePadding: false,
+        capitalize: false,
+        sortable: false,
+        label: 'Status',
+    },
+];
