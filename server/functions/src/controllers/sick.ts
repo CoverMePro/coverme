@@ -14,7 +14,11 @@ const createSickRequest = (req: Request, res: Response) => {
             return db.doc(`/companies/${name}/shifts/${sickRequest.shiftId}`).get();
         })
         .then((shiftResult) => {
-            sickRequest.shift = { ...shiftResult.data() };
+            sickRequest.shift = {
+                ...shiftResult.data(),
+                startDateTime: shiftResult.data()!.startDateTime.toDate(),
+                endDateTime: shiftResult.data()!.endDateTime.toDate(),
+            };
             return res.json({ sickRequest: sickRequest });
         })
         .catch((err) => {

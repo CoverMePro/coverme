@@ -146,11 +146,13 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                         <>
                             <Box sx={{ mt: 2 }}>
                                 <DatePicker
+                                    disablePast
                                     renderInput={(props) => <TextField {...props} fullWidth />}
                                     label="Time Off Start"
                                     value={startDateTime}
                                     onChange={(newValue) => {
                                         if (newValue) {
+                                            newValue.setUTCHours(0, 0, 0, 0);
                                             setStartDateTime(newValue);
                                         }
                                     }}
@@ -158,11 +160,13 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                             </Box>
                             <Box sx={{ mt: 2 }}>
                                 <DatePicker
+                                    disablePast
                                     renderInput={(props) => <TextField {...props} fullWidth />}
                                     label="Time Off End"
                                     value={endDateTime}
                                     onChange={(newValue) => {
                                         if (newValue) {
+                                            newValue.setUTCHours(0, 0, 0, 0);
                                             setEndDateTime(newValue);
                                         }
                                     }}
@@ -174,6 +178,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                         <>
                             <Box sx={{ mt: 2 }}>
                                 <DateTimePicker
+                                    disablePast
                                     renderInput={(props) => <TextField {...props} fullWidth />}
                                     label="Time Off Start"
                                     value={startDateTime}
@@ -186,6 +191,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                             </Box>
                             <Box sx={{ mt: 2 }}>
                                 <DateTimePicker
+                                    disablePast
                                     renderInput={(props) => <TextField {...props} fullWidth />}
                                     label="Time Off End"
                                     value={endDateTime}
