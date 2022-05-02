@@ -36,61 +36,59 @@ const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }
 
     return (
         <>
-            {visible && (
-                <>
-                    <List disablePadding>
+            <List disablePadding>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={handleToggleCollapse}>
+                        <ListItemIcon>
+                            {openCollapse ? (
+                                <KeyboardArrowUpIcon color="secondary" />
+                            ) : (
+                                <KeyboardArrowDownIcon color="secondary" />
+                            )}
+                        </ListItemIcon>
+                        <ListItemText primary="Request" />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+            <Collapse in={openCollapse}>
+                <List disablePadding>
+                    {visible && (
                         <ListItem disablePadding>
-                            <ListItemButton onClick={handleToggleCollapse}>
+                            <ListItemButton
+                                onClick={() => handleNav('request/trade')}
+                                selected={navSelected === 8}
+                            >
                                 <ListItemIcon>
-                                    {openCollapse ? (
-                                        <KeyboardArrowUpIcon color="secondary" />
-                                    ) : (
-                                        <KeyboardArrowDownIcon color="secondary" />
-                                    )}
+                                    <SwapHorizIcon color="secondary" />
                                 </ListItemIcon>
-                                <ListItemText primary="Request" />
+                                <ListItemText primary="Trade" />
                             </ListItemButton>
                         </ListItem>
-                    </List>
-                    <Collapse in={openCollapse}>
-                        <List disablePadding>
-                            <ListItem disablePadding>
-                                <ListItemButton
-                                    onClick={() => handleNav('request/trade')}
-                                    selected={navSelected === 8}
-                                >
-                                    <ListItemIcon>
-                                        <SwapHorizIcon color="secondary" />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Trade" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton
-                                    onClick={() => handleNav('request/time-off')}
-                                    selected={navSelected === 9}
-                                >
-                                    <ListItemIcon>
-                                        <FlightIcon color="secondary" />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Time Off" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton
-                                    onClick={() => handleNav('request/sick')}
-                                    selected={navSelected === 10}
-                                >
-                                    <ListItemIcon>
-                                        <SickIcon color="secondary" />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Sick" />
-                                </ListItemButton>
-                            </ListItem>
-                        </List>
-                    </Collapse>
-                </>
-            )}
+                    )}
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => handleNav('request/time-off')}
+                            selected={navSelected === 9}
+                        >
+                            <ListItemIcon>
+                                <FlightIcon color="secondary" />
+                            </ListItemIcon>
+                            <ListItemText primary="Time Off" />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => handleNav('request/sick')}
+                            selected={navSelected === 10}
+                        >
+                            <ListItemIcon>
+                                <SickIcon color="secondary" />
+                            </ListItemIcon>
+                            <ListItemText primary="Sick" />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+            </Collapse>
         </>
     );
 };

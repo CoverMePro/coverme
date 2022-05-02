@@ -29,3 +29,8 @@ app.use('/company', companyRoutes);
 app.use('/user', userRoutes);
 
 exports.api = functions.https.onRequest(app);
+
+exports.scheduledFunctions = functions.pubsub.schedule('every 5 seconds').onRun((context) => {
+    console.log('THIS IS RUNNING EVERY 5 SECONDS');
+    return null;
+});
