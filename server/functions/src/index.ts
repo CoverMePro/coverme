@@ -8,6 +8,7 @@ import { WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN } from './constants';
 import authRoutes from './routes/auth';
 import companyRoutes from './routes/companies/company';
 import userRoutes from './routes/user';
+import { callout } from './utils/overtime';
 
 const app = express();
 app.use(cors({ origin: [WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN], credentials: true }));
@@ -30,7 +31,9 @@ app.use('/user', userRoutes);
 
 exports.api = functions.https.onRequest(app);
 
-exports.scheduledFunctions = functions.pubsub.schedule('every 5 seconds').onRun((context) => {
-    console.log('THIS IS RUNNING EVERY 5 SECONDS');
-    return null;
-});
+exports.scheduledFunctions = functions
+    .runWith({ memory: '2GB' })
+    .pubsub.schedule('* * * * *')
+    .onRun((context) => {
+        callout();
+    });
