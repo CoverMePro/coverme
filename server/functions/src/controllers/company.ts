@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ICompany } from '../models/Company';
+import { IUser } from '../models/User';
 import { db, fbAuth } from '../utils/admin';
 import { emailSignInForUser } from '../utils/fb-emails';
 
@@ -149,6 +150,39 @@ const deleteCompany = (req: Request, res: Response) => {
         });
 };
 
+/**
+ * Get Overtime List of Users from a company
+ */
+
+const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
+    const company = req.params.id;
+
+    db.collection('/users')
+        .where('company', '==', company)
+        .where('role', '==', 'staff')
+        .orderBy('overtimeCalloutDate', 'asc')
+        .orderBy('hireDate', 'asc')
+        .get()
+        .then((data) => {
+            const users: IUser[] = [];
+
+            data.forEach((doc) => {
+                users.push({
+                    ...doc.data(),
+                    email: doc.id,
+                    hireDate: doc.data().hireDate.toDate(),
+                    overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
+                });
+            });
+
+            return res.json({ users });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createCompany,
     getCompany,
@@ -156,4 +190,5 @@ export default {
     getAllCompanies,
     getAllCompaniesInfo,
     deleteCompany,
+    getCompanyOvertimeCalloutList,
 };

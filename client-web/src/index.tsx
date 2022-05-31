@@ -25,6 +25,7 @@ import SickView from 'pages/requests/SickView';
 import ScheduleView from 'pages/main/ScheduleView';
 import CalendarView from 'pages/main/CalendarView';
 import OvertimeView from 'pages/overtime/OvertimeView';
+import OvertimeCallouts from 'pages/overtime/OvertimeCallouts';
 import BlogView from 'pages/company/BlogView';
 
 import { theme } from './theme';
@@ -120,10 +121,19 @@ ReactDOM.render(
                                 />
 
                                 <Route
-                                    path="overtime"
+                                    path="overtime/list"
                                     element={
                                         <AuthWrapper>
                                             <OvertimeView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="overtime/callouts"
+                                    element={
+                                        <AuthWrapper>
+                                            <OvertimeCallouts />
                                         </AuthWrapper>
                                     }
                                 />

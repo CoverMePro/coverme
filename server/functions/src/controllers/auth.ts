@@ -43,7 +43,9 @@ const registerUser = (req: Request, res: Response) => {
  * This is a hacky approach for now, will look into doing a more custom email approach
  */
 const sendRegisterLink = (req: Request, res: Response) => {
-    const { email, firstName, lastName, company, role, position } = req.body;
+    const { email, firstName, lastName, company, role, position, hireDate } = req.body;
+
+    const newHiredate = new Date(new Date(hireDate).setHours(24, 0, 0, 0));
 
     emailSignInForUser(fbAuth, {
         email,
@@ -62,6 +64,8 @@ const sendRegisterLink = (req: Request, res: Response) => {
                 position,
                 status: 'Pending',
                 statusUpdatedAt: Date.now(),
+                hireDate: newHiredate,
+                overtimeCalloutDate: newHiredate,
             });
         })
         .then(() => {

@@ -19,6 +19,8 @@ router.get('/check/:id', authGuard, companyController.checkCompany);
 router.get('/:id', authGuard, companyController.getCompany);
 router.get('/delete/:id', authGuard, companyController.deleteCompany);
 
+router.get('/:id/overtime-list', authGuard, companyController.getCompanyOvertimeCalloutList);
+
 router.post('/create', authGuard, companyController.createCompany);
 
 // TEAM

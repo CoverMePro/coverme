@@ -15,6 +15,7 @@ import LinearLoading from 'components/loading/LineraLoading';
 
 import axios from 'utils/axios-intance';
 import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
+import { formatDateString } from 'utils/date-formatter';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
@@ -74,11 +75,19 @@ const StaffView: React.FC = () => {
             });
     };
 
+    const formatHireDate = (staff: IUser[]) => {
+        return staff.map((user) => {
+            const date = user.hireDate;
+            user.hireDate = formatDateString(date! as Date);
+            return user;
+        });
+    };
+
     const handleGetUsers = useCallback(() => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
             .then((result) => {
-                setStaff(result.data.users);
+                setStaff(formatHireDate(result.data.users));
             })
             .catch((err) => {
                 console.log(err);

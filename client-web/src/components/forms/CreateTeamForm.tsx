@@ -62,14 +62,17 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
             console.log('test');
             setIsLoading(true);
             axios
-                .post(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/create-team`, {
-                    team: {
-                        name: values.teamName,
-                        owner: user.email!,
-                        managers: selectedManagers,
-                        staff: selectedStaff,
-                    },
-                })
+                .post(
+                    `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team/create-team`,
+                    {
+                        team: {
+                            name: values.teamName,
+                            owner: user.email!,
+                            managers: selectedManagers,
+                            staff: selectedStaff,
+                        },
+                    }
+                )
                 .then(() => {
                     enqueueSnackbar('Team created.', {
                         variant: 'success',

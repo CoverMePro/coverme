@@ -1,6 +1,6 @@
 import { IUser } from 'models/User';
 
-interface IStaffHeadCell {
+interface IOvertimeListHeadCells {
     disablePadding: boolean;
     id: keyof IUser;
     label: string;
@@ -9,13 +9,13 @@ interface IStaffHeadCell {
     sortable: boolean;
 }
 
-const headCells: IStaffHeadCell[] = [
+const headCells: IOvertimeListHeadCells[] = [
     {
         id: 'email',
         numeric: false,
         disablePadding: false,
         capitalize: false,
-        sortable: true,
+        sortable: false,
         label: 'Email',
     },
     {
@@ -23,7 +23,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         capitalize: true,
-        sortable: true,
+        sortable: false,
         label: 'First Name',
     },
     {
@@ -31,15 +31,7 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Last Name',
-        sortable: true,
-        capitalize: true,
-    },
-    {
-        id: 'role',
-        numeric: false,
-        disablePadding: false,
-        label: 'Role',
-        sortable: true,
+        sortable: false,
         capitalize: true,
     },
     {
@@ -47,15 +39,15 @@ const headCells: IStaffHeadCell[] = [
         numeric: false,
         disablePadding: false,
         label: 'Hire Date',
-        sortable: true,
+        sortable: false,
         capitalize: true,
     },
     {
-        id: 'status',
+        id: 'overtimeCalloutDate',
         numeric: false,
         disablePadding: false,
-        label: 'Status',
-        sortable: true,
+        label: 'Last Overtime Accepted',
+        sortable: false,
         capitalize: true,
     },
 ];

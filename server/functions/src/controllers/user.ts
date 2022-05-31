@@ -43,6 +43,8 @@ const getUsersFromCompany = (req: Request, res: Response) => {
                 users.push({
                     ...doc.data(),
                     email: doc.id,
+                    hireDate: doc.data().hireDate.toDate(),
+                    overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
                 });
             });
 

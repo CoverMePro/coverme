@@ -36,8 +36,10 @@ export const formatDateTimeOutputString = (startDateTime: string, endDateTime: s
 };
 
 export const formatDateString = (date: Date) => {
-    const newDate = new Date(date);
-    return `${days[newDate.getDay()]} ${
-        months[newDate.getMonth()]
-    } ${newDate.getUTCDate()}, ${newDate.getFullYear()}`;
+    return new Date(date).toDateString();
+
+    // const newDate = new Date(date);
+    // return `${days[newDate.getDay()]} ${
+    //     months[newDate.getMonth()]
+    // } ${newDate.getUTCDate()}, ${newDate.getFullYear()}`;
 };

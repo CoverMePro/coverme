@@ -6,7 +6,8 @@ export interface IUser {
     role?: string;
     company?: string;
     vacationHours?: number;
-    seniorityDate?: Date;
+    hireDate?: Date | string;
+    overtimeCalloutDate?: Date | string;
     location?: string;
     status?: string;
     position?: string;

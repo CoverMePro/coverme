@@ -9,6 +9,7 @@ import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import TodayIcon from '@mui/icons-material/Today';
 import ArticleIcon from '@mui/icons-material/Article';
 import TimerIcon from '@mui/icons-material/Timer';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 
 export const mainNav: INav[] = [
     { label: 'Home', path: 'home', selectedIndex: 0, icon: <HomeIcon color="secondary" /> },
@@ -48,9 +49,15 @@ export const managmentNav: INav[] = [
 
 export const overtimeNav: INav[] = [
     {
-        label: 'Overtime',
-        path: 'overtime',
+        label: 'Overtime List',
+        path: 'overtime/list',
         selectedIndex: 11,
+        icon: <FormatListNumberedIcon color="secondary" />,
+    },
+    {
+        label: 'Overtime Callouts',
+        path: 'overtime/callouts',
+        selectedIndex: 12,
         icon: <TimerIcon color="secondary" />,
     },
 ];

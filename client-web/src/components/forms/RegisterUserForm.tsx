@@ -15,10 +15,14 @@ import {
     Typography,
 } from '@mui/material';
 
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
-import axios from 'utils/axios-intance';
 import { validateUserCreate } from 'utils/validation';
+import axios from 'utils/axios-intance';
 
 interface IRegisterUserFormProps {
     onFinish: () => void;
@@ -32,6 +36,7 @@ interface IRegisterUserFormProps {
 const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [role, setRole] = useState<string>('staff');
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [hireDate, setHireDate] = useState<Date>(new Date());
 
     const company = useTypedSelector((state) => state.user.company);
 
@@ -47,10 +52,13 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
             lastName: '',
             email: '',
             position: '',
+            hireDate: '',
         },
         validate: validateUserCreate,
         onSubmit: (userValues: any) => {
             const { email, firstName, lastName, position } = userValues;
+
+            console.log(hireDate);
 
             setIsLoading(true);
             axios
@@ -61,6 +69,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                     company: company!,
                     role: role,
                     position,
+                    hireDate: hireDate,
                 })
                 .then((result) => {
                     setIsLoading(false);
@@ -188,6 +197,20 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                             helperText={touched.position ? errors.position : ''}
                         />
                     </Box>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <Box sx={{ mt: 2 }}>
+                            <DatePicker
+                                renderInput={(props) => <TextField {...props} fullWidth />}
+                                label="Hire Date"
+                                value={hireDate}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setHireDate(newValue);
+                                    }
+                                }}
+                            />
+                        </Box>
+                    </LocalizationProvider>
 
                     <Box sx={{ mt: 3 }}>
                         {isLoading ? (
