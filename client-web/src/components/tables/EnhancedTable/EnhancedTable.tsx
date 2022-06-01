@@ -50,7 +50,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 }
 
 interface IEnhancedTableProps {
-    title: string;
+    title?: string;
     data: any[];
     headerCells: IHeadCell[];
     id: string;

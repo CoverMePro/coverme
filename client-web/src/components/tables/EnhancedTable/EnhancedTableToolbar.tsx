@@ -8,7 +8,7 @@ import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 interface IEnhancedTableToolbarProps {
     selected: any;
-    title: string;
+    title?: string;
     unSelectedActions: IUnselectedAction[];
     selectedActions: ISelectedAction[];
 }

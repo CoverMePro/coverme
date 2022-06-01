@@ -39,6 +39,7 @@ import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
 
 import axios from 'utils/axios-intance';
+import LinearLoading from 'components/loading/LineraLoading';
 
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);
@@ -302,33 +303,7 @@ const TeamsView: React.FC = () => {
             </Box>
             {isLoadingTeams ? (
                 <>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '10px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '10px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            my: '10px',
-                        }}
-                    >
-                        <LinearProgress />
-                    </Box>
+                    <LinearLoading />
                 </>
             ) : (
                 <>
