@@ -7,6 +7,7 @@ import { WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN } from './constants';
 
 import authRoutes from './routes/auth';
 import companyRoutes from './routes/companies/company';
+import overtimeRoutes from './routes/overtime-callout';
 import userRoutes from './routes/user';
 //import { callout } from './utils/overtime';
 
@@ -27,6 +28,7 @@ app.use(function (req, res, next) {
 
 app.use('/auth', authRoutes);
 app.use('/company', companyRoutes);
+app.use('/overtime-callout', overtimeRoutes);
 app.use('/user', userRoutes);
 
 exports.api = functions.https.onRequest(app);

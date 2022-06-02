@@ -107,7 +107,7 @@ const transactionShifts = (req: Request, res: Response) => {
             case 'add':
                 batch.create(db.collection(`companies/${name}/shifts`).doc(), {
                     name: transaction.name,
-                    userId: transaction.userId,
+                    userId: transaction.userId === '' ? 'unclaimed' : transaction.userId,
                     teamId: transaction.teamId,
                     startDateTime: new Date(transaction.startDate),
                     endDateTime: new Date(transaction.endDate),
@@ -223,7 +223,9 @@ const getShiftForUser = (req: Request, res: Response) => {
 };
 
 const getShiftsFromTodayOnward = (req: Request, res: Response) => {
-    const { name, user } = req.params;
+    let { name, user } = req.params;
+
+    console.log(user);
 
     db.collection(`/companies/${name}/shifts`)
         .where('userId', '==', user)
