@@ -16,14 +16,18 @@ import { IUser } from 'models/User';
 
 import OvertimeHeadCells from 'models/HeaderCells/OvertimeListHeadCells';
 
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
 import axios from 'utils/axios-intance';
 import { formatDateString } from 'utils/date-formatter';
 import { ITeamInfo } from 'models/Team';
+import { ILastCallouts } from 'models/LastCallouts';
 
 const OvertimeView: React.FC = () => {
     const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
     const [selected, setSelected] = useState<any | undefined>(undefined);
     const [staff, setStaff] = useState<IUser[]>([]);
+    const [lastCallouts, setLastCallouts] = useState<ILastCallouts | undefined>(undefined);
     const [filteredStaff, setFilteredStaff] = useState<IUser[]>([]);
     const [teams, setTeams] = useState<string[]>([]);
     const [selectedTeam, setSelectedTeam] = useState<string>('all');
@@ -38,6 +42,57 @@ const OvertimeView: React.FC = () => {
             user.overtimeCalloutDate = formatDateString(newOvertimeDate! as Date);
             return user;
         });
+    };
+
+    const clearCheck = (staff: IUser[]) => {
+        return staff.map((user) => {
+            user.lastCalledOut = undefined;
+            return user;
+        });
+    };
+
+    const formatLastCalloutStaff = (
+        staff: IUser[],
+        lastCallouts: ILastCallouts | undefined,
+        teams: string
+    ) => {
+        const newStaff = clearCheck([...staff]);
+
+        if (teams === 'all') {
+            if (!lastCallouts || !lastCallouts.external || !lastCallouts.external.email) {
+                newStaff[0].lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
+                return newStaff;
+            }
+
+            const lastExternalCallout = lastCallouts.external.email;
+
+            newStaff.forEach((user) => {
+                if (user.email! === lastExternalCallout)
+                    user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
+            });
+
+            console.log(newStaff);
+
+            return newStaff;
+        }
+
+        const teamFilteredStaff = newStaff.filter((user) => userContainsTeam(user, teams));
+
+        if (!lastCallouts || !lastCallouts.internal || !lastCallouts.internal[teams]) {
+            teamFilteredStaff[0].lastCalledOut = (
+                <CheckCircleIcon color="primary" fontSize="medium" />
+            );
+            return teamFilteredStaff;
+        }
+
+        const lastInternalCallout = lastCallouts.internal[teams];
+
+        teamFilteredStaff.forEach((user) => {
+            if (user.email! === lastInternalCallout)
+                user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
+        });
+
+        return teamFilteredStaff;
     };
 
     const handleSelectStaff = (staff: IUser | undefined) => {
@@ -56,20 +111,21 @@ const OvertimeView: React.FC = () => {
         return user.teams.findIndex((t) => t === team) !== -1;
     };
 
-    const filterListByTeam = (team: string) => {
-        let newFilteredStaff: IUser[] = [];
-        if (team === 'all') {
-            newFilteredStaff = [...staff];
-        } else {
-            newFilteredStaff = staff.filter((user) => userContainsTeam(user, team));
-        }
+    // const filterListByTeam = (team: string) => {
+    //     let newFilteredStaff: IUser[] = [];
+    //     if (team === 'all') {
+    //         newFilteredStaff = [...staff];
+    //     } else {
+    //         newFilteredStaff = staff.filter((user) => userContainsTeam(user, team));
+    //     }
 
-        setFilteredStaff([...newFilteredStaff]);
-    };
+    //     setFilteredStaff([...newFilteredStaff]);
+    // };
 
     const handleTeamChange = (event: SelectChangeEvent) => {
         const team = event.target.value as string;
-        filterListByTeam(team);
+        const newStaffList = formatLastCalloutStaff([...staff], lastCallouts, team);
+        setFilteredStaff([...newStaffList]);
         setSelectedTeam(team);
     };
 
@@ -86,8 +142,20 @@ const OvertimeView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/overtime-list`)
             .then((result) => {
-                setStaff(formatDates(result.data.users));
-                setFilteredStaff(formatDates(result.data.users));
+                const fetchedStaff = formatDates(result.data.users);
+                const fetchedLastCallouts = result.data.lastCallouts;
+
+                console.log(fetchedLastCallouts);
+
+                const formattedFetchedStaff = formatLastCalloutStaff(
+                    fetchedStaff,
+                    fetchedLastCallouts,
+                    'all'
+                );
+
+                setStaff(formattedFetchedStaff);
+                setFilteredStaff(formattedFetchedStaff);
+                setLastCallouts(fetchedLastCallouts);
             })
             .catch((err) => {
                 console.log(err);

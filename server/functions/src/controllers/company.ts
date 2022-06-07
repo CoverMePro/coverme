@@ -156,16 +156,14 @@ const deleteCompany = (req: Request, res: Response) => {
 
 const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
     const company = req.params.id;
-
+    const users: IUser[] = [];
+    let lastCallouts: any;
     db.collection('/users')
         .where('company', '==', company)
         .where('role', '==', 'staff')
-        .orderBy('overtimeCalloutDate', 'asc')
         .orderBy('hireDate', 'asc')
         .get()
         .then((data) => {
-            const users: IUser[] = [];
-
             data.forEach((doc) => {
                 users.push({
                     ...doc.data(),
@@ -175,7 +173,21 @@ const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
                 });
             });
 
-            return res.json({ users });
+            return db.collection(`/companies/${company}/last-callouts`).get();
+        })
+        .then((result) => {
+            if (result.empty) {
+                lastCallouts = undefined;
+            } else {
+                result.docs.forEach((doc) => {
+                    lastCallouts = {
+                        ...lastCallouts,
+                        [doc.id]: doc.data(),
+                    };
+                });
+            }
+
+            return res.json({ users: users, lastCallouts: lastCallouts });
         })
         .catch((err) => {
             console.error(err);

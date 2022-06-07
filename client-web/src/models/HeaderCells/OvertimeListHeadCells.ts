@@ -43,10 +43,10 @@ const headCells: IOvertimeListHeadCells[] = [
         capitalize: true,
     },
     {
-        id: 'overtimeCalloutDate',
+        id: 'lastCalledOut',
         numeric: false,
         disablePadding: false,
-        label: 'Last Overtime Accepted',
+        label: 'Last Called Out',
         sortable: false,
         capitalize: true,
     },

@@ -8,6 +8,7 @@ export interface IUser {
     vacationHours?: number;
     hireDate?: Date | string;
     overtimeCalloutDate?: Date | string;
+    lastCalledOut?: any;
     location?: string;
     status?: string;
     position?: string;
