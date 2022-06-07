@@ -20,7 +20,6 @@ import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutFor
 
 import axios from 'utils/axios-intance';
 import { IOvertime } from 'models/Overtime';
-import { formatDateString } from 'utils/date-formatter';
 
 const OvertimeCallouts: React.FC = () => {
     const [isLoadingCallouts, setIsLoadingCallouts] = useState<boolean>(false);
@@ -67,7 +66,7 @@ const OvertimeCallouts: React.FC = () => {
             .finally(() => {
                 setIsLoadingCallouts(false);
             });
-    }, []);
+    }, [user.company]);
 
     // need to update this page somehow
 

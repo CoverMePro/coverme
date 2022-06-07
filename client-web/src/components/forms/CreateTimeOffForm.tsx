@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { ISickRequest } from 'models/Sick';
-import { IShift } from 'models/Shift';
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
@@ -14,7 +13,6 @@ import {
     Typography,
     CircularProgress,
     Fab,
-    Autocomplete,
     TextField,
     FormControl,
     InputLabel,
@@ -26,14 +24,12 @@ import {
     Radio,
 } from '@mui/material';
 
-import { formatDateTimeOutputString } from 'utils/date-formatter';
 import { ITimeOffRequest, TimeOffType } from 'models/TimeOff';
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 interface ICreateTimeOffFormProps {
     onFinish: (tradeRequest: ISickRequest | undefined) => void;

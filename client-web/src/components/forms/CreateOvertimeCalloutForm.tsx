@@ -88,8 +88,6 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
     useEffect(() => {
         // get unassigned shifts
         setIsLoadingData(true);
-        // TO DO: Get only shift from today (and maybe forward)
-        const todayDate = new Date();
 
         const unclaimedUser = 'unclaimed';
         axios

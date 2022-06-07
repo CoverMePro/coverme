@@ -17,7 +17,6 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    LinearProgress,
     TextField,
     Button,
     CircularProgress,

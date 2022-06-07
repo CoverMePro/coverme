@@ -194,7 +194,7 @@ const TimeOffView: React.FC = () => {
                 })
                 .finally(() => setIsLoadingTimeOff(false));
         }
-    }, [user.company, user.email]);
+    }, [user]);
 
     return (
         <>

@@ -40,12 +40,20 @@ const OvertimeView: React.FC = () => {
         });
     };
 
+    const handleSelectStaff = (staff: IUser | undefined) => {
+        if (selected === staff) {
+            setSelected(undefined);
+        } else {
+            setSelected(staff);
+        }
+    };
+
     const userContainsTeam = (user: IUser, team: string) => {
         if (!user.teams || user.teams.length === 0) {
             return false;
         }
 
-        return user.teams.findIndex((t) => t === team) != -1;
+        return user.teams.findIndex((t) => t === team) !== -1;
     };
 
     const filterListByTeam = (team: string) => {
@@ -95,7 +103,7 @@ const OvertimeView: React.FC = () => {
             .catch((err) => {
                 console.log(err);
             });
-    }, []);
+    }, [user.company]);
 
     return (
         <>
@@ -129,7 +137,7 @@ const OvertimeView: React.FC = () => {
                         headerCells={OvertimeHeadCells}
                         id="email"
                         selected={selected}
-                        onSelect={() => {}}
+                        onSelect={handleSelectStaff}
                         unSelectedActions={[]}
                         selectedActions={[]}
                     />
