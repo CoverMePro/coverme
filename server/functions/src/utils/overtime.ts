@@ -1,136 +1,172 @@
-// import { IOvertime, ICallout } from '../models/Overtime';
-// import { IShift } from '../models/Shift';
-// import { db } from './admin';
+import { IOvertime, ICallout } from '../models/Overtime';
+import { IShift } from '../models/Shift';
+import { IUser } from '../models/User';
+import { db } from './admin';
+import { getCalloutList } from './overtime-user-list';
 
-// export const callout = () => {
-//     db.collection('/overtime-callouts')
-//         .where('status', '==', 'Pending')
-//         .get()
-//         .then((calloutResult) => {
-//             if (calloutResult.empty) {
-//                 console.log('NO CALLOUTS CURRENTLY');
-//                 return;
-//             }
+const userContainsTeam = (user: IUser, team: string) => {
+    if (!user.teams || user.teams.length === 0) {
+        return false;
+    }
 
-//             calloutResult.forEach(async (calloutData) => {
-//                 try {
-//                     const overtimeData: IOvertime = calloutData.data();
-//                     const callouts = overtimeData.callouts ? [...overtimeData.callouts] : [];
+    return user.teams.findIndex((t) => t === team) !== -1;
+};
 
-//                     // Check if there is the correct data to do call out logic
-//                     if (
-//                         overtimeData &&
-//                         overtimeData.company &&
-//                         overtimeData.team &&
-//                         overtimeData.shiftId
-//                     ) {
-//                         const { company, team, shiftId } = overtimeData;
-//                         // get shift information
+const isInCallouts = (callouts: ICallout[], user: IUser) => {
+    return callouts.findIndex(callout => callout.user === user.email) !== -1;
+};
 
-//                         const shiftdoc = await db
-//                             .doc(`/companies/${company}/shifts/${shiftId}`)
-//                             .get();
+export const callout = () => {
+    db.collection('/overtime-callouts')
+        .where('status', '==', 'Pending')
+        .get()
+        .then((calloutResult) => {
+            if (calloutResult.empty) {
+                console.log('NO CALLOUTS CURRENTLY');
+                return;
+            }
 
-//                         if (shiftdoc && shiftdoc.data()) {
-//                             // check if shit start time is in reasonable time to call out
-//                             // if not, notify shift has not been assigned
-//                             const shift: IShift = {
-//                                 ...shiftdoc.data(),
-//                                 id: shiftdoc.id,
-//                                 startDateTime: shiftdoc.data()!.startDateTime.toDate(),
-//                                 endDateTime: shiftdoc.data()!.endDateTime.toDate(),
-//                             };
+            calloutResult.forEach(async (calloutData) => {
+                try {
+                    const overtimeData: IOvertime = calloutData.data();
+                    const callouts = overtimeData.callouts ? [...overtimeData.callouts] : [];
 
-//                             // method to calculate date within a certain time (1 hour)
-//                         }
+                    // Check if there is the correct data to do call out logic
+                    if (
+                        overtimeData &&
+                        overtimeData.company &&
+                        overtimeData.team &&
+                        overtimeData.shiftId &&
+                        overtimeData.shiftInfo
+                    ) {
+                        const { company, team, shiftId } = overtimeData;
+                        // get shift information
 
-//                         // get callout list information
+                        // check if anyone accepted call out
 
-//                         // if all team members not notfied...
-//                         // copy list and filter just team and sort on hire date
+                        const shiftdoc = await db
+                            .doc(`/companies/${company}/shifts/${shiftId}`)
+                            .get();
 
-//                         // get current index for team and begin call out
+                        if (shiftdoc && shiftdoc.data()) {
+                            // check if shit start time is in reasonable time to call out
+                            // if not, notify shift has not been assigned
+                            const shift: IShift = {
+                                ...shiftdoc.data(),
+                                id: shiftdoc.id,
+                                startDateTime: shiftdoc.data()!.startDateTime.toDate(),
+                                endDateTime: shiftdoc.data()!.endDateTime.toDate(),
+                            };
 
-//                         // if all team members were notified
-//                         // go to primary list and start at primary index
-//                         // if part of team, skip
-//                         // once go through entire list, notfiy not been assigned
+                            
+                            // method to calculate date within a certain time (1 hour)
+ 
+                            const msBetweenDates = Math.abs(new Date().getTime() - (shift.startDateTime as Date).getTime());
 
-//                         // NOTE check if user has any shift within 8 hours of this shift
+                            // 👇️ convert ms to hours                  min  sec   ms
+                            const hoursBetweenDates = msBetweenDates / (60 * 60 * 1000);
 
-//                         const teamDoc = await db
-//                             .doc(`/companies/${overtimeData.company}/teams/${overtimeData.team}`)
-//                             .get();
+                            if (hoursBetweenDates < 2) {
+                                // too close for call outs
 
-//                         if (teamDoc && teamDoc.data()) {
-//                             const users: string[] = teamDoc.data()!.staff
-//                                 ? teamDoc.data()!.staff
-//                                 : [];
+                                // end callouts for this one
+                            }
 
-//                             for (let i = 0, len = users.length; i < len; i++) {
-//                                 // is user in callout list?
+                            // get callout list information
+                            const {users, lastCallouts} = await getCalloutList(company);
 
-//                                 console.log('checking user ' + users[i]);
+                            // check if all users are notified, if so then dont go through all this
+                            if (users.length === callouts.length) {
 
-//                                 callouts.forEach(async (callout) => {
-//                                     try {
-//                                         if (callout.user === users[i]) {
-//                                             if (callout.status === 'Accepted') {
-//                                                 // if accepted, assign shift to this user and move them to end of team list
-//                                                 console.log('USER ACCEPTED CALLOUT');
-//                                                 await db
-//                                                     .doc(
-//                                                         `/companies/${overtimeData.company}/shifts/${overtimeData.shiftId}`
-//                                                     )
-//                                                     .update({
-//                                                         userId: users[i],
-//                                                     });
+                                // check if all users declined, then end this callout
+                                return;
+                            }
 
-//                                                 await db
-//                                                     .doc(`/overtime-callouts/${calloutData.id}`)
-//                                                     .update({
-//                                                         status: 'Assigned',
-//                                                     });
-//                                                 return;
-//                                             }
-//                                         }
-//                                     } catch (err) {
-//                                         console.error(err);
-//                                     }
-//                                 });
 
-//                                 if (callouts.length === users.length) {
-//                                     console.log('OVERTIME CALLOUT FAILED');
-//                                     await db.doc(`/overtime-callouts/${calloutData.id}`).update({
-//                                         status: 'UnAssigned',
-//                                     });
-//                                 } else {
-//                                     console.log('NEW CALLOUT TO USER');
-//                                     const newCallout: ICallout = {
-//                                         user: users[i],
-//                                         status: 'Pending',
-//                                         rank: i,
-//                                         team: teamDoc.id,
-//                                     };
+                            // check if its we are in internal or external callout phase
+                            // TODO: Need some sort of phase property
+                            if (!overtimeData.phase || overtimeData.phase === 'Internal') {
+                                
+                                const internalUsers = users.filter((user) => userContainsTeam(user, team));
+                                // get index where last call out was made
 
-//                                     callouts.push(newCallout);
+                                const lastCalloutUserForTeam = lastCallouts[team];
+                                let calloutindex = 0;
 
-//                                     await db.doc(`/overtime-callouts/${calloutData.id}`).update({
-//                                         callouts: [...callouts],
-//                                     });
-//                                 }
+                                if (lastCalloutUserForTeam) {
+                                    const userIndex = internalUsers.findIndex(user => {
+                                        user.email = lastCalloutUserForTeam;
+                                    });
 
-//                                 // reach out to user and add to callout
-//                                 return;
-//                             }
-//                         }
-//                     }
-//                 } catch (err) {
-//                     console.error(err);
-//                 }
-//             });
-//         })
-//         .catch((err) => {
-//             console.error(err);
-//         });
-// };
+                                    if (userIndex !== -1) {
+                                        calloutindex = userIndex;
+                                    }
+                                }
+
+                                // loop through and get next user for call out
+                                while (callouts.length !== internalUsers.length) {
+                                    const nextCalloutuser = internalUsers[calloutindex];
+
+                                    if (isInCallouts(callouts, nextCalloutuser)) {
+                                        continue;
+                                    } else {
+                                        // check if user can take shift ???
+
+
+                                        // initiate callout
+                                        callouts.push({
+                                            user: nextCalloutuser.email!,
+                                            team: 'internal',
+                                            status: 'Pending'
+                                        });
+
+                                        return;
+                                    }
+                                }
+                            } else {
+                                
+                                const lastCalloutUserForCompany = lastCallouts.external.email;
+                                let calloutindex = 0;
+
+                                if (lastCalloutUserForCompany) {
+                                    const userIndex = users.findIndex(user => {
+                                        user.email = lastCalloutUserForCompany;
+                                    });
+
+                                    if (userIndex !== -1) {
+                                        calloutindex = userIndex;
+                                    }
+                                }
+
+                                // loop through and get next user for call out
+                                while (callouts.length !== users.length) {
+                                    const nextCalloutuser = users[calloutindex];
+
+                                    if (isInCallouts(callouts, nextCalloutuser)) {
+                                        continue;
+                                    } else {
+                                              // check if user can take shift ???
+
+
+                                        // initiate callout
+                                        callouts.push({
+                                            user: nextCalloutuser.email!,
+                                            team: 'external',
+                                            status: 'Pending'
+                                        });
+
+                                       return;
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+};

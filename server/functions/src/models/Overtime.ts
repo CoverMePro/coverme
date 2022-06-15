@@ -4,6 +4,8 @@ export interface ICallout {
     team: string;
 }
 
+type OvertimePhase = 'Internal' | 'External';
+
 export interface IOvertime {
     id?: string;
     dateCreated?: Date;
@@ -13,4 +15,5 @@ export interface IOvertime {
     status?: string;
     team?: string;
     callouts?: ICallout[];
+    phase?: OvertimePhase;
 }

@@ -44,7 +44,83 @@ const getPendingOvertimeCallouts = (req: Request, res: Response) => {
         });
 };
 
+const acceptCalloutShift = async (req: Request, res: Response) => {
+    const {id, email} = req.params;
+    db.doc(`/overtime-callouts/${id}`).get()
+    .then(async (overtimeCalloutResult) => {
+        const overtimeCallout: IOvertime = {
+            id: overtimeCalloutResult.id,
+            ...overtimeCalloutResult.data(),
+            dateCreated: overtimeCalloutResult.data()!.dateCreated.toDate()
+        };
+
+        const calloutList = [...overtimeCallout.callouts!];
+
+        const userInListIdx = calloutList.findIndex(user => user.user === email);
+
+        if (userInListIdx != -1) {
+            calloutList[userInListIdx].status = 'Accepted';
+
+            try {
+                await db.doc(`/companies/${overtimeCallout.company!}/shifts/${overtimeCallout.shiftId}`).update({
+                    userId: email
+                });
+
+                await   db.doc(`/overtime-callouts/${id}`).update({
+                    callouts: calloutList,
+                    status: "Completed"
+                })
+
+                return res.json({message: 'shift has been accepted'});
+            } catch(err) {
+                console.error(err);
+                return res.status(500).json({ error: err });
+            }
+        }  
+
+        return res.status(500).json({ error: 'No user found in callout request' });
+
+    });
+}
+
+const rejectedCalloutShift = (req: Request, res: Response) => {
+    const {id, email} = req.params;
+    db.doc(`/overtime-callouts/${id}`).get()
+    .then(async (overtimeCalloutResult) => {
+        const overtimeCallout: IOvertime = {
+            id: overtimeCalloutResult.id,
+            ...overtimeCalloutResult.data(),
+            dateCreated: overtimeCalloutResult.data()!.dateCreated.toDate()
+        };
+
+        const calloutList = [...overtimeCallout.callouts!];
+
+        const userInListIdx = calloutList.findIndex(user => user.user === email);
+
+        if (userInListIdx != -1) {
+            calloutList[userInListIdx].status = 'Rejected';
+
+            try {
+                await   db.doc(`/overtime-callouts/${id}`).update({
+                    callouts: calloutList,
+                })
+
+                return res.json({message: 'shift has been accepted'});
+            } catch(err) {
+                console.error(err);
+                return res.status(500).json({ error: err });
+            }
+        }  
+
+        return res.status(500).json({ error: 'No user found in callout request' });
+
+    });
+
+}
+
 export default {
     createOvertimeCallout,
     getPendingOvertimeCallouts,
+    acceptCalloutShift,
+    rejectedCalloutShift
 };

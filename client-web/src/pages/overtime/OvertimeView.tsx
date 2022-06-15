@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
+import React, { useState, useEffect, useCallback } from "react";
+import { useTypedSelector } from "hooks/use-typed-selector";
 
 import {
     Box,
@@ -9,19 +9,19 @@ import {
     Select,
     MenuItem,
     SelectChangeEvent,
-} from '@mui/material';
-import LinearLoading from 'components/loading/LineraLoading';
-import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import { IUser } from 'models/User';
+} from "@mui/material";
+import LinearLoading from "components/loading/LineraLoading";
+import EnhancedTable from "components/tables/EnhancedTable/EnhancedTable";
+import { IUser } from "models/User";
 
-import OvertimeHeadCells from 'models/HeaderCells/OvertimeListHeadCells';
+import OvertimeHeadCells from "models/HeaderCells/OvertimeListHeadCells";
 
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import axios from 'utils/axios-intance';
-import { formatDateString } from 'utils/date-formatter';
-import { ITeamInfo } from 'models/Team';
-import { ILastCallouts } from 'models/LastCallouts';
+import axios from "utils/axios-intance";
+import { formatDateString } from "utils/date-formatter";
+import { ITeamInfo } from "models/Team";
+import { ILastCallouts } from "models/LastCallouts";
 
 const OvertimeView: React.FC = () => {
     const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
@@ -30,7 +30,7 @@ const OvertimeView: React.FC = () => {
     const [lastCallouts, setLastCallouts] = useState<ILastCallouts | undefined>(undefined);
     const [filteredStaff, setFilteredStaff] = useState<IUser[]>([]);
     const [teams, setTeams] = useState<string[]>([]);
-    const [selectedTeam, setSelectedTeam] = useState<string>('all');
+    const [selectedTeam, setSelectedTeam] = useState<string>("all");
 
     const user = useTypedSelector((state) => state.user);
 
@@ -51,49 +51,50 @@ const OvertimeView: React.FC = () => {
         });
     };
 
-    const formatLastCalloutStaff = (
-        staff: IUser[],
-        lastCallouts: ILastCallouts | undefined,
-        teams: string
-    ) => {
-        const newStaff = clearCheck([...staff]);
+    const formatLastCalloutStaff = useCallback(
+        (staff: IUser[], lastCallouts: ILastCallouts | undefined, teams: string) => {
+            const newStaff = clearCheck([...staff]);
 
-        if (teams === 'all') {
-            if (!lastCallouts || !lastCallouts.external || !lastCallouts.external.email) {
-                newStaff[0].lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
+            if (teams === "all") {
+                if (!lastCallouts || !lastCallouts.external || !lastCallouts.external.email) {
+                    newStaff[0].lastCalledOut = (
+                        <CheckCircleIcon color="primary" fontSize="medium" />
+                    );
+                    return newStaff;
+                }
+
+                const lastExternalCallout = lastCallouts.external.email;
+
+                newStaff.forEach((user) => {
+                    if (user.email! === lastExternalCallout)
+                        user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
+                });
+
+                console.log(newStaff);
+
                 return newStaff;
             }
 
-            const lastExternalCallout = lastCallouts.external.email;
+            const teamFilteredStaff = newStaff.filter((user) => userContainsTeam(user, teams));
 
-            newStaff.forEach((user) => {
-                if (user.email! === lastExternalCallout)
+            if (!lastCallouts || !lastCallouts.internal || !lastCallouts.internal[teams]) {
+                teamFilteredStaff[0].lastCalledOut = (
+                    <CheckCircleIcon color="primary" fontSize="medium" />
+                );
+                return teamFilteredStaff;
+            }
+
+            const lastInternalCallout = lastCallouts.internal[teams];
+
+            teamFilteredStaff.forEach((user) => {
+                if (user.email! === lastInternalCallout)
                     user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
             });
 
-            console.log(newStaff);
-
-            return newStaff;
-        }
-
-        const teamFilteredStaff = newStaff.filter((user) => userContainsTeam(user, teams));
-
-        if (!lastCallouts || !lastCallouts.internal || !lastCallouts.internal[teams]) {
-            teamFilteredStaff[0].lastCalledOut = (
-                <CheckCircleIcon color="primary" fontSize="medium" />
-            );
             return teamFilteredStaff;
-        }
-
-        const lastInternalCallout = lastCallouts.internal[teams];
-
-        teamFilteredStaff.forEach((user) => {
-            if (user.email! === lastInternalCallout)
-                user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
-        });
-
-        return teamFilteredStaff;
-    };
+        },
+        []
+    );
 
     const handleSelectStaff = (staff: IUser | undefined) => {
         if (selected === staff) {
@@ -150,7 +151,7 @@ const OvertimeView: React.FC = () => {
                 const formattedFetchedStaff = formatLastCalloutStaff(
                     fetchedStaff,
                     fetchedLastCallouts,
-                    'all'
+                    "all"
                 );
 
                 setStaff(formattedFetchedStaff);
@@ -171,11 +172,11 @@ const OvertimeView: React.FC = () => {
             .catch((err) => {
                 console.log(err);
             });
-    }, [user.company]);
+    }, [user.company, formatLastCalloutStaff]);
 
     return (
         <>
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between", mb: 2 }}>
                 <Typography variant="h2">Overtime List</Typography>
                 <FormControl>
                     <InputLabel id="team-lable">Teams</InputLabel>
@@ -185,7 +186,7 @@ const OvertimeView: React.FC = () => {
                         label="Teams"
                         onChange={handleTeamChange}
                     >
-                        <MenuItem value={'all'}>All Teams</MenuItem>
+                        <MenuItem value={"all"}>All Teams</MenuItem>
                         {teams.map((team) => {
                             return (
                                 <MenuItem key={team} value={team}>
