@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
-import { IUser } from '../models/User';
+import { Request, Response } from "express";
+import { IUser } from "../models/User";
 
-import { db } from '../utils/admin';
+import { db } from "../utils/admin";
 
 /**
  * Get a user based on their ID
@@ -17,7 +17,7 @@ const getUser = (req: Request, res: Response) => {
                 };
                 return res.json(user);
             } else {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ error: "User not found" });
             }
         })
         .catch((err) => {
@@ -32,9 +32,9 @@ const getUser = (req: Request, res: Response) => {
 const getUsersFromCompany = (req: Request, res: Response) => {
     const company = req.params.company;
 
-    db.collection('users')
-        .where('company', '==', company)
-        .where('role', '!=', 'owner')
+    db.collection("users")
+        .where("company", "==", company)
+        .where("role", "!=", "owner")
         .get()
         .then((data) => {
             const users: IUser[] = [];
@@ -44,7 +44,6 @@ const getUsersFromCompany = (req: Request, res: Response) => {
                     ...doc.data(),
                     email: doc.id,
                     hireDate: doc.data().hireDate.toDate(),
-                    overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
                 });
             });
 
@@ -62,16 +61,16 @@ const getUsersFromCompany = (req: Request, res: Response) => {
 const getUsersFromList = (req: Request, res: Response) => {
     const userEmails = req.body.emails;
 
-    db.collection('/users')
-        .where('__name__', 'in', userEmails)
+    db.collection("/users")
+        .where("__name__", "in", userEmails)
         .get()
         .then((userData) => {
             const managers: IUser[] = [];
             const staff: IUser[] = [];
             userData.forEach((user) => {
-                if (user.data().role === 'manager') {
+                if (user.data().role === "manager") {
                     managers.push({ email: user.id, ...user.data() });
-                } else if (user.data().role === 'staff') {
+                } else if (user.data().role === "staff") {
                     staff.push({ email: user.id, ...user.data() });
                 }
             });
@@ -92,7 +91,7 @@ const updateUser = (req: Request, res: Response) => {
     db.doc(`/users/${req.params.userId}`)
         .update(userInfo)
         .then(() => {
-            return res.json({ message: 'User updated successfully!' });
+            return res.json({ message: "User updated successfully!" });
         })
         .catch((err) => {
             console.error(err);

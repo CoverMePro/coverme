@@ -7,7 +7,6 @@ export interface IUser {
     company?: string;
     vacationHours?: number;
     hireDate?: Date | string;
-    overtimeCalloutDate?: Date | string;
     lastCalledOut?: any;
     location?: string;
     status?: string;

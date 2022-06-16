@@ -13,7 +13,6 @@ export interface IUser {
     company?: string;
     vacationHours?: number;
     hireDate?: Date;
-    overtimeCalloutDate?: Date;
     location?: string;
     status?: string;
     teams?: string[];

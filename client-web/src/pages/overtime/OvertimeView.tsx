@@ -37,9 +37,7 @@ const OvertimeView: React.FC = () => {
     const formatDates = (staff: IUser[]) => {
         return staff.map((user) => {
             const newHireDate = user.hireDate;
-            const newOvertimeDate = user.overtimeCalloutDate;
             user.hireDate = formatDateString(newHireDate! as Date);
-            user.overtimeCalloutDate = formatDateString(newOvertimeDate! as Date);
             return user;
         });
     };

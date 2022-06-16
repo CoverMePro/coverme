@@ -16,7 +16,6 @@ export const getCalloutList = (company: string) => {
                     email: doc.id,
                     ...doc.data(),
                     hireDate: doc.data().hireDate.toDate(),
-                    overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
                 });
             });
 

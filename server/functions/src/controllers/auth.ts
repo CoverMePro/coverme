@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import { IUser, IUserLogin } from '../models/User';
-import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from '../constants';
+import { IUser, IUserLogin } from "../models/User";
+import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from "../constants";
 
-import { db, fbAuth, fbAdmin } from '../utils/admin';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
-import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
+import { db, fbAuth, fbAdmin } from "../utils/admin";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { assignSessionCookie, verifySessionCookie } from "../utils/authenticate-user";
+import { emailSignInForUser, emailPasswordReset } from "../utils/fb-emails";
 
 /**
  * Creates user in firebase authentication and adds the necessary user info into the database
@@ -21,14 +21,14 @@ const registerUser = (req: Request, res: Response) => {
         .then(() => {
             return db
                 .doc(`/users/${email}`)
-                .update({ phoneNo, status: 'Active', statusUpdatedAt: Date.now() });
+                .update({ phoneNo, status: "Active", statusUpdatedAt: Date.now() });
         })
         .then(() => {
             return db.doc(`/users/${email}`).get();
         })
         .then(() => {
             return res.json({
-                message: 'User created successfully!',
+                message: "User created successfully!",
             });
         })
         .catch((error) => {
@@ -62,14 +62,13 @@ const sendRegisterLink = (req: Request, res: Response) => {
                 company,
                 role,
                 position,
-                status: 'Pending',
+                status: "Pending",
                 statusUpdatedAt: Date.now(),
                 hireDate: newHiredate,
-                overtimeCalloutDate: newHiredate,
             });
         })
         .then(() => {
-            return res.json({ message: 'Email link successful', email });
+            return res.json({ message: "Email link successful", email });
         })
         .catch((error) => {
             console.error(error);
@@ -116,16 +115,16 @@ const signIn = (req: Request, res: Response) => {
                 maxAge: expiresIn,
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none' as 'none',
+                sameSite: "none" as "none",
             };
-            res.cookie('__session', cookie, cookieOptions);
-            return res.json({ message: 'login successful', user: userInfo });
+            res.cookie("__session", cookie, cookieOptions);
+            return res.json({ message: "login successful", user: userInfo });
         })
         .catch((err) => {
             switch (err.code) {
-                case 'auth/wrong-password':
-                case 'auth/user-not-found':
-                    return res.status(403).json({ general: 'Wrong credentials, please try again' });
+                case "auth/wrong-password":
+                case "auth/user-not-found":
+                    return res.status(403).json({ general: "Wrong credentials, please try again" });
                 default: {
                     console.error(err);
                     return res.status(500).json({ error: err });
@@ -144,7 +143,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
         .get()
         .then((userData) => {
             const user = userData.data();
-            if (user && user.status === 'Active') {
+            if (user && user.status === "Active") {
                 fbAdmin
                     .auth()
                     .getUserByEmail(email)
@@ -155,7 +154,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
                         return db.doc(`/users/${email}`).delete();
                     })
                     .then(() => {
-                        return res.json({ message: 'user successfully deleted' });
+                        return res.json({ message: "user successfully deleted" });
                     })
                     .catch((err) => {
                         console.error(err);
@@ -165,7 +164,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
                 db.doc(`/users/${email}`)
                     .delete()
                     .then(() => {
-                        return res.json({ message: 'user successfully deleted' });
+                        return res.json({ message: "user successfully deleted" });
                     })
                     .catch((err) => {
                         console.error(err);
@@ -191,10 +190,10 @@ const logOut = (req: Request, res: Response) => {
                 maxAge: expiresIn,
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none' as 'none',
+                sameSite: "none" as "none",
             };
-            res.clearCookie('__session', cookieOptions);
-            return res.json({ message: 'logged out successfully' });
+            res.clearCookie("__session", cookieOptions);
+            return res.json({ message: "logged out successfully" });
         })
         .catch((err) => {
             console.error(err);
@@ -206,9 +205,9 @@ const logOut = (req: Request, res: Response) => {
  * Check if you have a session cookie so you can bypass login
  */
 const checkAuth = async (req: Request, res: Response) => {
-    if (req.cookies['__session']) {
+    if (req.cookies["__session"]) {
         try {
-            const sessionCookie = `${req.cookies['__session']}`;
+            const sessionCookie = `${req.cookies["__session"]}`;
 
             const decodedToken = await verifySessionCookie(sessionCookie);
 
@@ -222,13 +221,13 @@ const checkAuth = async (req: Request, res: Response) => {
 
                 return res.json({ authenticated: true, user: userInfo });
             } else {
-                return res.status(401).json({ error: 'No email found' });
+                return res.status(401).json({ error: "No email found" });
             }
         } catch (err) {
-            return res.status(401).json({ error: 'Session Expired' });
+            return res.status(401).json({ error: "Session Expired" });
         }
     } else {
-        return res.status(401).json({ error: 'Session Empty' });
+        return res.status(401).json({ error: "Session Empty" });
     }
 };
 
@@ -240,7 +239,7 @@ const passwordReset = (req: Request, res: Response) => {
 
     emailPasswordReset(fbAuth, email)
         .then(() => {
-            return res.json({ message: 'Reset email sent!' });
+            return res.json({ message: "Reset email sent!" });
         })
         .catch((err) => {
             console.error(err);

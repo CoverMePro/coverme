@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
-import { ICompany } from '../models/Company';
-import { IUser } from '../models/User';
-import { db, fbAuth } from '../utils/admin';
-import { emailSignInForUser } from '../utils/fb-emails';
+import { Request, Response } from "express";
+import { ICompany } from "../models/Company";
+import { IUser } from "../models/User";
+import { db, fbAuth } from "../utils/admin";
+import { emailSignInForUser } from "../utils/fb-emails";
 
 /**
  * Get all companies in the database
  */
 const getAllCompanies = (req: Request, res: Response) => {
-    db.collection('/companies')
+    db.collection("/companies")
         .get()
         .then((companyData) => {
             let companies: string[] = [];
@@ -25,7 +25,7 @@ const getAllCompanies = (req: Request, res: Response) => {
 };
 
 const getAllCompaniesInfo = (req: Request, res: Response) => {
-    db.collection('/companies')
+    db.collection("/companies")
         .get()
         .then((companyData) => {
             let companies: any[] = [];
@@ -59,7 +59,7 @@ const getCompany = (req: Request, res: Response) => {
                 };
                 return res.json(companyInfo);
             } else {
-                return res.status(404).json({ error: 'Company not found' });
+                return res.status(404).json({ error: "Company not found" });
             }
         })
         .catch((err) => {
@@ -116,18 +116,18 @@ const createCompany = async (req: Request, res: Response) => {
         .then(() => {
             return db.doc(`/users/${ownerEmail}`).set({
                 ...ownerInfo,
-                status: 'Pending',
+                status: "Pending",
                 statusUpdatedAt: Date.now(),
             });
         })
         .then(() => {
             return res.status(201).json({
-                message: 'Company Created!',
+                message: "Company Created!",
             });
         })
         .catch((err) => {
             if (err === 403) {
-                return res.status(403).json({ error: 'Company with that name already exists' });
+                return res.status(403).json({ error: "Company with that name already exists" });
             } else {
                 console.error(err);
                 return res.status(500).json({ error: err.code });
@@ -142,7 +142,7 @@ const deleteCompany = (req: Request, res: Response) => {
     db.doc(`/companies/${req.params.id}`)
         .delete()
         .then(() => {
-            return res.json({ message: 'Company deleted successfully!' });
+            return res.json({ message: "Company deleted successfully!" });
         })
         .catch((err) => {
             console.error(err);
@@ -158,10 +158,10 @@ const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
     const company = req.params.id;
     const users: IUser[] = [];
     let lastCallouts: any;
-    db.collection('/users')
-        .where('company', '==', company)
-        .where('role', '==', 'staff')
-        .orderBy('hireDate', 'asc')
+    db.collection("/users")
+        .where("company", "==", company)
+        .where("role", "==", "staff")
+        .orderBy("hireDate", "asc")
         .get()
         .then((data) => {
             data.forEach((doc) => {
@@ -169,7 +169,6 @@ const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
                     ...doc.data(),
                     email: doc.id,
                     hireDate: doc.data().hireDate.toDate(),
-                    overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
                 });
             });
 

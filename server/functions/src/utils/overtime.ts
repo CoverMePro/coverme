@@ -59,6 +59,31 @@ export const callout = () => {
                                 });
 
                                 // assign shift here too
+                                await db
+                                    .doc(
+                                        `/companies/${overtimeData.company}/shifts/${overtimeData.shiftId}`
+                                    )
+                                    .update({
+                                        userId: callout.user,
+                                    });
+
+                                if (callout.team === "internal") {
+                                    await db
+                                        .doc(
+                                            `/companies/${overtimeData.company}/last-callouts/internal`
+                                        )
+                                        .update({
+                                            [team]: callout.user,
+                                        });
+                                } else {
+                                    await db
+                                        .doc(
+                                            `/companies/${overtimeData.company}/last-callouts/external`
+                                        )
+                                        .update({
+                                            email: callout.user,
+                                        });
+                                }
 
                                 hasAccepted = true;
                             }
