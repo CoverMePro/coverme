@@ -1,14 +1,17 @@
-import express, { Router } from 'express';
-import authGuard from '../utils/authenticate-user';
-import overtimeCalloutController from '../controllers/overtime-callout';
-import { callout } from '../utils/overtime';
+import express, { Router } from "express";
+import authGuard from "../utils/authenticate-user";
+import overtimeCalloutController from "../controllers/overtime-callout";
 
 const router: Router = express.Router();
 
-router.get('/test', authGuard, callout)
+router.get("/test", authGuard, overtimeCalloutController.testCycleCallout);
 
-router.get('/:company', authGuard, overtimeCalloutController.getPendingOvertimeCallouts);
+router.get("/:company", authGuard, overtimeCalloutController.getOvertimeCallouts);
 
-router.post('/', authGuard, overtimeCalloutController.createOvertimeCallout);
+router.post("/:id/accept", authGuard, overtimeCalloutController.acceptCalloutShift);
+
+router.post("/:id/reject", authGuard, overtimeCalloutController.rejectedCalloutShift);
+
+router.post("/", authGuard, overtimeCalloutController.createOvertimeCallout);
 
 export default router;

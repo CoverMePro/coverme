@@ -15,6 +15,7 @@ import {
     ListItemText,
     ListItemAvatar,
     Avatar,
+    CircularProgress,
 } from "@mui/material";
 import LinearLoading from "components/loading/LineraLoading";
 
@@ -22,7 +23,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import UpdateIcon from "@mui/icons-material/Update";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 
@@ -30,7 +30,7 @@ import FormDialog from "components/dialogs/FormDialog";
 import CreateOvertimeCalloutForm from "components/forms/CreateOvertimeCalloutForm";
 
 import axios from "utils/axios-intance";
-import { ICallout, IOvertime } from "models/Overtime";
+import { IOvertime } from "models/Overtime";
 import PermissionCheck from "components/auth/PermissionCheck";
 
 const OvertimeCallouts: React.FC = () => {
@@ -38,6 +38,8 @@ const OvertimeCallouts: React.FC = () => {
     const [callouts, setCallouts] = useState<IOvertime[]>([]);
     const [expanded, setExpanded] = useState<string | false>(false);
     const [openCalloutCreation, setOpenCalloutCreation] = useState<boolean>(false);
+
+    const [isLoadingCycle, setIsLoadingCycle] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
 
@@ -65,11 +67,59 @@ const OvertimeCallouts: React.FC = () => {
     };
 
     const handleCycleCallout = () => {
-        axios.get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/test`).then(() => {});
+        setIsLoadingCycle(true);
+        axios
+            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/test`)
+            .then(() => {
+                setTimeout(() => {
+                    getCalloutsForCompany();
+                }, 1000);
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+            .finally(() => {
+                setIsLoadingCycle(false);
+            });
+    };
+
+    const handleAcceptedCallout = (calloutId: string, calloutUser: string) => {
+        axios
+            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${calloutId}/accept`, {
+                email: calloutUser,
+            })
+            .then(() => {
+                setTimeout(() => {
+                    getCalloutsForCompany();
+                }, 1000);
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+            .finally(() => {
+                setIsLoadingCycle(false);
+            });
+    };
+
+    const handleRejectedCallout = (calloutId: string, calloutUser: string) => {
+        axios
+            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${calloutId}/reject`, {
+                email: calloutUser,
+            })
+            .then(() => {
+                setTimeout(() => {
+                    getCalloutsForCompany();
+                }, 1000);
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+            .finally(() => {
+                setIsLoadingCycle(false);
+            });
     };
 
     const getCalloutsForCompany = useCallback(() => {
-        setIsLoadingCallouts(true);
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${user.company!}`)
             .then((results) => {
@@ -85,15 +135,14 @@ const OvertimeCallouts: React.FC = () => {
 
     useEffect(() => {
         // Get pending callouts
+        setIsLoadingCallouts(true);
         getCalloutsForCompany();
     }, [getCalloutsForCompany]);
 
     // need to update this page somehow
 
-    const renderList = (callout: IOvertime, isInternal: boolean) => {
-        let filteredList = isInternal
-            ? callout.callouts?.filter((calloutUser) => calloutUser.team === callout.team)
-            : callout.callouts?.filter((calloutUser) => calloutUser.team !== callout.team);
+    const renderList = (callout: IOvertime, team: "internal" | "external") => {
+        let filteredList = callout.callouts?.filter((calloutUser) => calloutUser.team === team);
 
         return filteredList?.map((user) => (
             <ListItem
@@ -102,12 +151,18 @@ const OvertimeCallouts: React.FC = () => {
                 secondaryAction={
                     <PermissionCheck permissionLevel={2}>
                         <Tooltip title="Accept Callout">
-                            <IconButton onClick={() => {}} edge="end">
+                            <IconButton
+                                onClick={() => handleAcceptedCallout(callout.id!, user.user)}
+                                edge="end"
+                            >
                                 <ThumbUpIcon color="primary" />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Reject Callout">
-                            <IconButton onClick={() => {}} edge="end">
+                            <IconButton
+                                onClick={() => handleRejectedCallout(callout.id!, user.user)}
+                                edge="end"
+                            >
                                 <ThumbDownIcon color="primary" />
                             </IconButton>
                         </Tooltip>
@@ -130,11 +185,17 @@ const OvertimeCallouts: React.FC = () => {
             <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h2">Overtime Callouts</Typography>
                 <Box>
-                    <Tooltip title="Cycle Callout">
-                        <IconButton size="large" onClick={handleCycleCallout}>
-                            <UpdateIcon color="primary" fontSize="large" />
-                        </IconButton>
-                    </Tooltip>
+                    {isLoadingCycle ? (
+                        <>
+                            <CircularProgress />
+                        </>
+                    ) : (
+                        <Tooltip title="Cycle Callout">
+                            <IconButton size="large" onClick={handleCycleCallout}>
+                                <UpdateIcon color="primary" fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     <Tooltip title="Start Overtime Callout">
                         <IconButton size="large" onClick={handleOpenCalloutCreation}>
                             <AddCircleIcon color="primary" fontSize="large" />
@@ -156,23 +217,28 @@ const OvertimeCallouts: React.FC = () => {
                         >
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h3">
-                                    Overtime Callout for {callout.shiftInfo} - {callout.team}
+                                    Overtime Callout for {callout.shiftInfo} - {callout.team} -{" "}
+                                    {callout.status?.toUpperCase()}
                                 </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <Box>
                                     <Typography variant="h4">Staff Notified Within Team</Typography>
-                                    <List>{renderList(callout, true)}</List>
+                                    <List>{renderList(callout, "internal")}</List>
                                 </Box>
                                 <Box>
                                     <Typography variant="h4">
                                         Staff Notified Outside Team
                                     </Typography>
-                                    <List>{renderList(callout, false)}</List>
+                                    <List>{renderList(callout, "external")}</List>
                                 </Box>
                             </AccordionDetails>
                             <AccordionActions>
-                                <Typography variant="h4">Status - {callout.status}</Typography>
+                                <Typography variant="h4">
+                                    {callout.shiftAcceptedBy && callout.shiftAcceptedBy !== ""
+                                        ? `Shift assigned to ${callout.shiftAcceptedBy}`
+                                        : ""}
+                                </Typography>
                             </AccordionActions>
                         </Accordion>
                     ))}

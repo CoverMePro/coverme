@@ -1,19 +1,20 @@
-import { IUser } from '../models/User';
-import { db } from './admin';
+import { IUser } from "../models/User";
+import { db } from "./admin";
 
 export const getCalloutList = (company: string) => {
     const users: IUser[] = [];
     let lastCallouts: any;
-    return db.collection('/users')
-        .where('company', '==', company)
-        .where('role', '==', 'staff')
-        .orderBy('hireDate', 'asc')
+    return db
+        .collection("/users")
+        .where("company", "==", company)
+        .where("role", "==", "staff")
+        .orderBy("hireDate", "asc")
         .get()
         .then((data) => {
             data.forEach((doc) => {
                 users.push({
-                    ...doc.data(),
                     email: doc.id,
+                    ...doc.data(),
                     hireDate: doc.data().hireDate.toDate(),
                     overtimeCalloutDate: doc.data().overtimeCalloutDate.toDate(),
                 });
@@ -38,4 +39,4 @@ export const getCalloutList = (company: string) => {
         .catch((err) => {
             throw new Error(err);
         });
-}
+};

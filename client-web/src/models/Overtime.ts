@@ -1,6 +1,6 @@
 export interface ICallout {
     user: string;
-    status: 'Pending' | 'Accepted' | 'Rejected';
+    status: "Pending" | "Accepted" | "Rejected";
     team: string;
 }
 
@@ -13,4 +13,5 @@ export interface IOvertime {
     status?: string;
     team?: string;
     callouts?: ICallout[];
+    shiftAcceptedBy?: string;
 }
