@@ -1,5 +1,8 @@
 import React from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+
+import { hasPermission } from 'utils/permissions';
 
 interface IPermissionCheckProps {
     permissionLevel?: number;
@@ -8,18 +11,7 @@ interface IPermissionCheckProps {
 const PermissionCheck: React.FC<IPermissionCheckProps> = ({ permissionLevel = 0, children }) => {
     const user = useTypedSelector((state) => state.user);
 
-    const permissionCheck = () => {
-        const result: { [key: number]: any } = {
-            0: true,
-            1: user.role !== 'staff',
-            2: user.role !== 'staff' && user.role !== 'manager',
-            3: user.role === 'admin',
-        };
-
-        return result[permissionLevel] ?? true;
-    };
-
-    return <>{permissionCheck() && <>{children}</>}</>;
+    return <>{hasPermission(permissionLevel, user.role) && <>{children}</>}</>;
 };
 
 export default PermissionCheck;

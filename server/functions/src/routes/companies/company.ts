@@ -13,13 +13,13 @@ import timeOffRequestRoutes from './requests/time-off-requests';
 const router: Router = express.Router();
 
 // COMPANY
-router.get('/', authGuard, companyController.getAllCompanies);
-router.get('/info', authGuard, companyController.getAllCompaniesInfo);
-router.get('/check/:id', authGuard, companyController.checkCompany);
-router.get('/:id', authGuard, companyController.getCompany);
-router.get('/delete/:id', authGuard, companyController.deleteCompany);
+router.get('/', authGuard, companyController.getAllCompanyNames);
+router.get('/info', authGuard, companyController.getAllCompanies);
+router.get('/check/:name', authGuard, companyController.checkIfCompanyExist);
+router.get('/:name', authGuard, companyController.getCompany);
+router.get('/delete/:name', authGuard, companyController.deleteCompany);
 
-router.get('/:id/overtime-list', authGuard, companyController.getCompanyOvertimeCalloutList);
+router.get('/:name/overtime-list', authGuard, companyController.getCompanyOvertimeCalloutList);
 
 router.post('/create', authGuard, companyController.createCompany);
 

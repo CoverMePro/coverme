@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useTypedSelector } from "hooks/use-typed-selector";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
     Box,
@@ -16,24 +16,25 @@ import {
     ListItemAvatar,
     Avatar,
     CircularProgress,
-} from "@mui/material";
-import LinearLoading from "components/loading/LineraLoading";
+} from '@mui/material';
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import UpdateIcon from "@mui/icons-material/Update";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { IOvertime } from 'models/Overtime';
 
-import FormDialog from "components/dialogs/FormDialog";
-import CreateOvertimeCalloutForm from "components/forms/CreateOvertimeCalloutForm";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import UpdateIcon from '@mui/icons-material/Update';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
-import axios from "utils/axios-intance";
-import { IOvertime } from "models/Overtime";
-import PermissionCheck from "components/auth/PermissionCheck";
+import LinearLoading from 'components/loading/LineraLoading';
+import FormDialog from 'components/dialogs/FormDialog';
+import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutForm';
+import PermissionCheck from 'components/auth/PermissionCheck';
 
-const OvertimeCallouts: React.FC = () => {
+import axios from 'utils/axios-intance';
+
+const OvertimeCalloutsView: React.FC = () => {
     const [isLoadingCallouts, setIsLoadingCallouts] = useState<boolean>(false);
     const [callouts, setCallouts] = useState<IOvertime[]>([]);
     const [expanded, setExpanded] = useState<string | false>(false);
@@ -141,13 +142,13 @@ const OvertimeCallouts: React.FC = () => {
 
     // need to update this page somehow
 
-    const renderList = (callout: IOvertime, team: "internal" | "external") => {
+    const renderList = (callout: IOvertime, team: 'internal' | 'external') => {
         let filteredList = callout.callouts?.filter((calloutUser) => calloutUser.team === team);
 
         return filteredList?.map((user) => (
             <ListItem
                 key={user.user}
-                sx={{ width: "100%" }}
+                sx={{ width: '100%' }}
                 secondaryAction={
                     <PermissionCheck permissionLevel={2}>
                         <Tooltip title="Accept Callout">
@@ -170,19 +171,19 @@ const OvertimeCallouts: React.FC = () => {
                 }
             >
                 <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
                         <AccountCircleIcon color="secondary" />
                     </Avatar>
                 </ListItemAvatar>
                 <ListItemText primary={`${user.user}`} />
-                <ListItemText sx={{ width: "50%" }} primary={user.status} />
+                <ListItemText sx={{ width: '50%' }} primary={user.status} />
             </ListItem>
         ));
     };
 
     return (
         <Box>
-            <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h2">Overtime Callouts</Typography>
                 <Box>
                     {isLoadingCycle ? (
@@ -217,27 +218,27 @@ const OvertimeCallouts: React.FC = () => {
                         >
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h3">
-                                    Overtime Callout for {callout.shiftInfo} - {callout.team} -{" "}
+                                    Overtime Callout for {callout.shiftInfo} - {callout.team} -{' '}
                                     {callout.status?.toUpperCase()}
                                 </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <Box>
                                     <Typography variant="h4">Staff Notified Within Team</Typography>
-                                    <List>{renderList(callout, "internal")}</List>
+                                    <List>{renderList(callout, 'internal')}</List>
                                 </Box>
                                 <Box>
                                     <Typography variant="h4">
                                         Staff Notified Outside Team
                                     </Typography>
-                                    <List>{renderList(callout, "external")}</List>
+                                    <List>{renderList(callout, 'external')}</List>
                                 </Box>
                             </AccordionDetails>
                             <AccordionActions>
                                 <Typography variant="h4">
-                                    {callout.shiftAcceptedBy && callout.shiftAcceptedBy !== ""
+                                    {callout.shiftAcceptedBy && callout.shiftAcceptedBy !== ''
                                         ? `Shift assigned to ${callout.shiftAcceptedBy}`
-                                        : ""}
+                                        : ''}
                                 </Typography>
                             </AccordionActions>
                         </Accordion>
@@ -251,4 +252,4 @@ const OvertimeCallouts: React.FC = () => {
     );
 };
 
-export default OvertimeCallouts;
+export default OvertimeCalloutsView;

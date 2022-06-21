@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { ITradeRequest } from '../models/Trade';
+import { mapToShift } from '../models/Shift';
+import { ITradeRequest, mapToTradeRequest } from '../models/Trade';
 import { db } from '../utils/admin';
 
 const createTradeRequest = (req: Request, res: Response) => {
@@ -15,11 +16,8 @@ const createTradeRequest = (req: Request, res: Response) => {
         .then((result) => {
             return result.get();
         })
-        .then((resultdata) => {
-            fetchedTradeRequest = {
-                id: resultdata.id,
-                ...resultdata.data(),
-            };
+        .then((tradeRequestDoc) => {
+            fetchedTradeRequest = mapToTradeRequest(tradeRequestDoc.id, tradeRequestDoc.data());
 
             return db
                 .collection(`/companies/${company}/shifts`)
@@ -30,18 +28,14 @@ const createTradeRequest = (req: Request, res: Response) => {
                 .get();
             //
         })
-        .then((shiftdocs) => {
-            shiftdocs.forEach((shiftDoc) => {
+        .then((shiftDocs) => {
+            shiftDocs.forEach((shiftDoc) => {
                 if (fetchedTradeRequest.proposedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.proposedShift = {
-                        ...shiftDoc.data(),
-                    };
+                    fetchedTradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data);
                 }
 
                 if (fetchedTradeRequest.requestedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.requestedShift = {
-                        ...shiftDoc.data(),
-                    };
+                    fetchedTradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data);
                 }
             });
 
@@ -79,12 +73,11 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
 
         const tradeRequestDocs = proposedTradeSnapshot.docs.concat(requestedTradesSnapshot.docs);
 
-        tradeRequestDocs.forEach((tradeRequestdoc) => {
-            const tradeRequest: ITradeRequest = {
-                id: tradeRequestdoc.id,
-                ...tradeRequestdoc.data(),
-                proposedDate: tradeRequestdoc.data().proposedDate.toDate(),
-            };
+        tradeRequestDocs.forEach((tradeRequestDoc) => {
+            const tradeRequest: ITradeRequest = mapToTradeRequest(
+                tradeRequestDoc.id,
+                tradeRequestDoc.data()
+            );
 
             if (
                 shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) === -1
@@ -113,19 +106,11 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
                     const tradeRequest = tradeRequests[i];
 
                     if (tradeRequest.proposedShiftId === shiftDoc.id) {
-                        tradeRequest.proposedShift = {
-                            ...shiftDoc.data(),
-                            startDateTime: shiftDoc.data().startDateTime.toDate(),
-                            endDateTime: shiftDoc.data().endDateTime.toDate(),
-                        };
+                        tradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data);
                     }
 
                     if (tradeRequest.requestedShiftId === shiftDoc.id) {
-                        tradeRequest.requestedShift = {
-                            ...shiftDoc.data(),
-                            startDateTime: shiftDoc.data().startDateTime.toDate(),
-                            endDateTime: shiftDoc.data().endDateTime.toDate(),
-                        };
+                        tradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data);
                     }
                 }
             });
@@ -162,12 +147,12 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
     const { name, id } = req.params;
 
     try {
-        const tradeRequestSnapshot = await db.doc(`/companies/${name}/trade-requests/${id}`).get();
+        const tradeRequestDoc = await db.doc(`/companies/${name}/trade-requests/${id}`).get();
 
-        const tradeRequest: ITradeRequest = {
-            id: tradeRequestSnapshot.id,
-            ...tradeRequestSnapshot.data(),
-        };
+        const tradeRequest: ITradeRequest = mapToTradeRequest(
+            tradeRequestDoc.id,
+            tradeRequestDoc.data()
+        );
 
         const shift1Update = db
             .doc(`/companies/${name}/shifts/${tradeRequest.proposedShiftId}`)

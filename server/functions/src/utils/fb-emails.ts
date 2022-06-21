@@ -1,28 +1,25 @@
-import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/auth';
+import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from "firebase/auth";
 
-import { WEB_CLIENT_DOMAIN, SERVER_DOMAIN } from '../constants';
+import { WEB_CLIENT_DOMAIN, SERVER_DOMAIN } from "../constants";
 
-interface IEmailInfo {
-    email: string;
-    firstName: string;
-    lastName: string;
-    company: string;
-    role: string;
-    position: string;
-}
-
-export const emailSignInForUser = (firebaseAuth: Auth, emailInfo: IEmailInfo) => {
-    const { email, firstName, lastName, company, role, position } = emailInfo;
-
+/**
+ * Sends a register email to user
+ * for now its firebase template signIn email but will look into better options for more custom tailored emails
+ */
+export const emailSignInForUser = (firebaseAuth: Auth, email: string) => {
     const actionCodeSettings = {
-        url: `${SERVER_DOMAIN}/auth/register-callback?email=${email}&firstName=${firstName}&lastName=${lastName}&company=${company}&role=${role}&position=${position}`,
-        // This must be true.
+        url: `${SERVER_DOMAIN}/auth/register-callback?email=${email}`,
+
+        // This must be true. Do not truly know why
         handleCodeInApp: true,
     };
 
     return sendSignInLinkToEmail(firebaseAuth, email, actionCodeSettings);
 };
 
+/**
+ * Sends firebase password reset email to user
+ */
 export const emailPasswordReset = (firebaseAuth: Auth, email: string) => {
     const actionCodeSettings = {
         url: WEB_CLIENT_DOMAIN,

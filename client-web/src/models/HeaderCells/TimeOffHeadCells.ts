@@ -1,15 +1,7 @@
 import { ITimeOffDisplay } from 'models/TimeOff';
+import { IHeaderCells } from './HeaderCells';
 
-interface ITimeOffHeadCell {
-    disablePadding: boolean;
-    id: keyof ITimeOffDisplay;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-export const staffTimeOffHeadCells: ITimeOffHeadCell[] = [
+export const staffTimeOffHeadCells: IHeaderCells<ITimeOffDisplay>[] = [
     {
         id: 'requestDate',
         numeric: false,
@@ -52,7 +44,7 @@ export const staffTimeOffHeadCells: ITimeOffHeadCell[] = [
     },
 ];
 
-export const managerTimeOffHeadCells: ITimeOffHeadCell[] = [
+export const managerTimeOffHeadCells: IHeaderCells<ITimeOffDisplay>[] = [
     {
         id: 'requestDate',
         numeric: false,

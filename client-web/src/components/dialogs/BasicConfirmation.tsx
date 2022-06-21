@@ -22,6 +22,8 @@ interface IBasicConfirmationProps {
  * Generic Delete confirmation component used when removing data
  */
 
+// TODO: make this a little more dynamic
+
 const BasicConfirmation: React.FC<IBasicConfirmationProps> = ({
     open,
     title,

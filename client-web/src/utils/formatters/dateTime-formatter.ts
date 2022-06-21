@@ -37,9 +37,8 @@ export const formatDateTimeOutputString = (startDateTime: string, endDateTime: s
 
 export const formatDateString = (date: Date) => {
     return new Date(date).toDateString();
+};
 
-    // const newDate = new Date(date);
-    // return `${days[newDate.getDay()]} ${
-    //     months[newDate.getMonth()]
-    // } ${newDate.getUTCDate()}, ${newDate.getFullYear()}`;
+export const formatDuration = (value: string) => {
+    return value.substring(0, 2) + ':' + value.substring(2);
 };

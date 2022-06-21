@@ -1,19 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Tabs, Tab, Typography, Tooltip, IconButton } from '@mui/material';
+
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+
+import { ITradeDisplay, ITradeRequest } from 'models/Trade';
+
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateTradeRequestFrom from 'components/forms/CreateTradeRequestForm';
 import TabPanel from 'components/tabs/TabPanel';
-import { ITradeDisplay, ITradeRequest } from 'models/Trade';
-import { formatTradeDisplay } from 'utils/display-formatter';
-
-import axios from 'utils/axios-intance';
 import ProposedTrades from 'components/trades/ProposedTrades';
 import RequestedTrades from 'components/trades/RequestedTrades';
 import ResultTrades from 'components/trades/ResultTrades';
 import LinearLoading from 'components/loading/LineraLoading';
+
+import { formatTradeDisplay } from 'utils/formatters/display-formatter';
+import axios from 'utils/axios-intance';
 
 const TradeView: React.FC = () => {
     const [tabValue, setTabValue] = useState<number>(0);

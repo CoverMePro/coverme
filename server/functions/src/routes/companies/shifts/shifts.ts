@@ -4,8 +4,8 @@ import shiftController from '../../../controllers/shift';
 
 const router: Router = express.Router({ mergeParams: true });
 
-router.get('/', authGuard, shiftController.getShiftsAndStaff);
-router.get('/:user', authGuard, shiftController.getShiftForUser);
+router.get('/', authGuard, shiftController.getShiftsAndStaffFromCompany);
+router.get('/:user', authGuard, shiftController.getShiftFromUser);
 router.get('/:user/today', authGuard, shiftController.getShiftsFromTodayOnward);
 
 router.post('/:user/range', authGuard, shiftController.getShiftsFromDateRange);

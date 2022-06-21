@@ -1,15 +1,16 @@
 import { Request, Response } from 'express';
 import { IScheduleStaff } from '../models/ScheduleInfo';
-import { IShift, IShiftDefinition } from '../models/Shift';
+import { IShift, IShiftDefinition, mapToShift, mapToShiftDefinition } from '../models/Shift';
 import { IShiftTransaction } from '../models/ShiftTransaction';
-import { ITimeOff } from '../models/TimeOff';
+import { ITimeOff, mapToTimeOff } from '../models/TimeOff';
 import { db } from '../utils/admin';
+import { formatFirestoreData } from '../utils/db-helpers';
 
-const getShiftsAndStaff = (req: Request, res: Response) => {
+const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
     const company = req.params.name;
 
     const teamStaff: IScheduleStaff[] = [];
-    const shifts: IShift[] = [];
+    let shifts: IShift[] = [];
     const timeOff: ITimeOff[] = [];
     const shiftDefs: IShiftDefinition[] = [];
 
@@ -47,39 +48,21 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
 
             return db.collection(`/companies/${company}/shifts`).get();
         })
-        .then((shiftData) => {
-            shiftData.forEach((shift) => {
-                console.log(shift.data().startDateTime);
-                shifts.push({
-                    ...shift.data(),
-                    id: shift.id,
-                    startDateTime: shift.data().startDateTime.toDate(),
-                    endDateTime: shift.data().endDateTime.toDate(),
-                });
-            });
+        .then((shiftDocs) => {
+            shifts = formatFirestoreData(shiftDocs, mapToShift);
 
             return db.collection(`/companies/${company}/time-off`).get();
         })
-        .then((timeOffResult) => {
-            timeOffResult.forEach((timeOffData) => {
-                console.log(timeOffData.data().startDateTime);
-                timeOff.push({
-                    ...timeOffData.data(),
-                    id: timeOffData.id,
-                    startDateTime: timeOffData.data().startDateTime.toDate(),
-                    endDateTime: timeOffData.data().endDateTime.toDate(),
-                });
+        .then((timeOffDocs) => {
+            timeOffDocs.forEach((doc) => {
+                timeOff.push(mapToTimeOff(doc.id, doc.data()));
             });
 
             return db.collection(`/companies/${company}/shift-definitions`).get();
         })
-        .then((shiftDefData) => {
-            shiftDefData.forEach((shiftDef) => {
-                shiftDefs.push({
-                    id: shiftDef.id,
-                    name: shiftDef.data().name,
-                    duration: shiftDef.data().duration,
-                });
+        .then((shiftDefinitionDocs) => {
+            shiftDefinitionDocs.forEach((doc) => {
+                shiftDefs.push(mapToShiftDefinition(doc.id, doc.data));
             });
             return res.json({
                 teamStaff: teamStaff,
@@ -94,6 +77,9 @@ const getShiftsAndStaff = (req: Request, res: Response) => {
         });
 };
 
+/**
+ *  Organize and carry out specific db request based on transactions (add, change, remove)
+ */
 const transactionShifts = (req: Request, res: Response) => {
     const batch = db.batch();
 
@@ -198,21 +184,13 @@ const getShiftDefinitions = (req: Request, res: Response) => {
         });
 };
 
-const getShiftForUser = (req: Request, res: Response) => {
+const getShiftFromUser = (req: Request, res: Response) => {
     const { name, user } = req.params;
     db.collection(`/companies/${name}/shifts`)
         .where('userId', '==', user)
         .get()
-        .then((shiftData) => {
-            const shifts: IShift[] = [];
-            shiftData.forEach((shift) => {
-                shifts.push({
-                    id: shift.id,
-                    ...shift.data(),
-                    startDateTime: shift.data().startDateTime.toDate(),
-                    endDateTime: shift.data().endDateTime.toDate(),
-                });
-            });
+        .then((shiftDocs) => {
+            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
 
             return res.json({ shifts });
         })
@@ -225,22 +203,12 @@ const getShiftForUser = (req: Request, res: Response) => {
 const getShiftsFromTodayOnward = (req: Request, res: Response) => {
     let { name, user } = req.params;
 
-    console.log(user);
-
     db.collection(`/companies/${name}/shifts`)
         .where('userId', '==', user)
         .where('startDateTime', '>', new Date())
         .get()
-        .then((shiftData) => {
-            const shifts: IShift[] = [];
-            shiftData.forEach((shift) => {
-                shifts.push({
-                    id: shift.id,
-                    ...shift.data(),
-                    startDateTime: shift.data().startDateTime.toDate(),
-                    endDateTime: shift.data().endDateTime.toDate(),
-                });
-            });
+        .then((shiftDocs) => {
+            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
 
             return res.json({ shifts });
         })
@@ -255,24 +223,13 @@ const getShiftsFromDateRange = (req: Request, res: Response) => {
 
     const { startRange, endRange } = req.body;
 
-    console.log(startRange);
-    console.log(endRange);
-
     db.collection(`/companies/${name}/shifts`)
         .where('userId', '==', user)
         .where('startDateTime', '>', new Date(startRange))
         .where('startDateTime', '<', new Date(endRange))
         .get()
-        .then((shiftData) => {
-            const shifts: IShift[] = [];
-            shiftData.forEach((shift) => {
-                shifts.push({
-                    id: shift.id,
-                    ...shift.data(),
-                    startDateTime: shift.data().startDateTime.toDate(),
-                    endDateTime: shift.data().endDateTime.toDate(),
-                });
-            });
+        .then((shiftDocs) => {
+            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
 
             return res.json({ shifts });
         })
@@ -283,12 +240,12 @@ const getShiftsFromDateRange = (req: Request, res: Response) => {
 };
 
 export default {
-    getShiftsAndStaff,
+    getShiftsAndStaffFromCompany,
     transactionShifts,
     createShiftDefinition,
     deleteShiftDefinition,
     getShiftDefinitions,
-    getShiftForUser,
+    getShiftFromUser,
     getShiftsFromTodayOnward,
     getShiftsFromDateRange,
 };

@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
-import { IUser } from "../models/User";
+import { Request, Response } from 'express';
+import { IUser, mapToUser } from '../models/User';
 
-import { db } from "../utils/admin";
+import { db } from '../utils/admin';
+import { formatFirestoreData } from '../utils/db-helpers';
 
 /**
  * Get a user based on their ID
@@ -11,13 +12,10 @@ const getUser = (req: Request, res: Response) => {
         .get()
         .then((userData) => {
             if (userData.exists) {
-                const user: IUser = {
-                    ...userData.data(),
-                    email: userData.id,
-                };
+                const user: IUser = mapToUser(userData.id, userData.data());
                 return res.json(user);
             } else {
-                return res.status(404).json({ error: "User not found" });
+                return res.status(404).json({ error: 'User not found' });
             }
         })
         .catch((err) => {
@@ -32,20 +30,12 @@ const getUser = (req: Request, res: Response) => {
 const getUsersFromCompany = (req: Request, res: Response) => {
     const company = req.params.company;
 
-    db.collection("users")
-        .where("company", "==", company)
-        .where("role", "!=", "owner")
+    db.collection('users')
+        .where('company', '==', company)
+        .where('role', '!=', 'owner')
         .get()
-        .then((data) => {
-            const users: IUser[] = [];
-
-            data.forEach((doc) => {
-                users.push({
-                    ...doc.data(),
-                    email: doc.id,
-                    hireDate: doc.data().hireDate.toDate(),
-                });
-            });
+        .then((userDocs) => {
+            const users: IUser[] = formatFirestoreData(userDocs, mapToUser);
 
             return res.json({ users });
         })
@@ -61,17 +51,17 @@ const getUsersFromCompany = (req: Request, res: Response) => {
 const getUsersFromList = (req: Request, res: Response) => {
     const userEmails = req.body.emails;
 
-    db.collection("/users")
-        .where("__name__", "in", userEmails)
+    db.collection('/users')
+        .where('__name__', 'in', userEmails)
         .get()
         .then((userData) => {
             const managers: IUser[] = [];
             const staff: IUser[] = [];
             userData.forEach((user) => {
-                if (user.data().role === "manager") {
-                    managers.push({ email: user.id, ...user.data() });
-                } else if (user.data().role === "staff") {
-                    staff.push({ email: user.id, ...user.data() });
+                if (user.data().role === 'manager') {
+                    managers.push(mapToUser(user.id, user.data()));
+                } else if (user.data().role === 'staff') {
+                    staff.push(mapToUser(user.id, user.data()));
                 }
             });
             return res.json({ managers, staff });
@@ -91,7 +81,7 @@ const updateUser = (req: Request, res: Response) => {
     db.doc(`/users/${req.params.userId}`)
         .update(userInfo)
         .then(() => {
-            return res.json({ message: "User updated successfully!" });
+            return res.json({ message: 'User updated successfully!' });
         })
         .catch((err) => {
             console.error(err);

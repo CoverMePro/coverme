@@ -1,23 +1,15 @@
 import { Request, Response } from 'express';
-import { ITeam } from '../models/Team';
+import { ITeam, mapToTeams } from '../models/Team';
 import { db } from '../utils/admin';
+import { formatFirestoreData } from '../utils/db-helpers';
 
-/**
- * Get all teams within a company
- */
-const getAllTeams = (req: Request, res: Response) => {
+// TO DO: Refactor and clean this up better (theres gotta be a way)
+
+const getAllTeamsFromCompany = (req: Request, res: Response) => {
     db.collection(`/companies/${req.params.name}/teams`)
         .get()
-        .then((teamData) => {
-            let teams: ITeam[] = [];
-            teamData.forEach((team) => {
-                teams.push({
-                    name: team.id,
-                    owner: team.data().owner,
-                    managers: team.data().managers,
-                    staff: team.data().staff,
-                });
-            });
+        .then((teamDocs) => {
+            const teams: ITeam[] = formatFirestoreData(teamDocs, mapToTeams);
 
             return res.json(teams);
         })
@@ -26,10 +18,6 @@ const getAllTeams = (req: Request, res: Response) => {
             return res.status(500).json({ error: err.code });
         });
 };
-
-/**
- * Create a team within a company
- */
 
 const createTeam = (req: Request, res: Response) => {
     const team: ITeam = req.body.team;
@@ -129,8 +117,8 @@ const addUserToTeam = (req: Request, res: Response) => {
     // add user to team doc
     db.doc(`/companies/${name}/teams/${teamId}`)
         .get()
-        .then((teamResult) => {
-            const team = teamResult.data();
+        .then((teamDoc) => {
+            const team = teamDoc.data();
 
             if (team) {
                 if (user.role === 'manager') {
@@ -225,7 +213,7 @@ const removeUserFromTeam = (req: Request, res: Response) => {
 
 export default {
     createTeam,
-    getAllTeams,
+    getAllTeamsFromCompany,
     deleteTeam,
     addUserToTeam,
     removeUserFromTeam,

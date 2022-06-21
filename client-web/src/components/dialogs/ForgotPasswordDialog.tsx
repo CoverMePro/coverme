@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useSnackbar } from 'notistack';
 
-import { isEmail } from 'utils/validation';
+import { useSnackbar } from 'notistack';
 
 import {
     Button,
@@ -16,6 +15,7 @@ import {
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 
+import { isEmail } from 'utils/validations/shared';
 import axios from 'utils/axios-intance';
 
 interface IForgotPasswordProps {

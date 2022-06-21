@@ -4,15 +4,13 @@ export type TimeOffType = 'Vacation' | 'Lieu' | 'Floater' | 'Other';
 
 export interface ITimeOffRequest {
     id?: string;
-    requestDate?: Date;
-    type?: TimeOffType;
-    userId?: string;
-    teams?: string[];
-    timeOffStart?: Date;
-    timeOffEnd?: Date;
-    shiftsIdsEffected?: string[];
-    description?: string;
-    status?: StatusType;
+    requestDate: Date;
+    type: TimeOffType;
+    userId: string;
+    teams: string[];
+    timeOffStart: Date;
+    timeOffEnd: Date;
+    status: StatusType;
 }
 
 export interface ITimeOffDisplay {

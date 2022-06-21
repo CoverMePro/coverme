@@ -12,9 +12,10 @@ import {
     Checkbox,
 } from '@mui/material';
 
-import { IHeadCell, ISelectedAction, IUnselectedAction, Order } from 'models/TableInfo';
 import EnhancedTableToolbar from './EnhancedTableToolbar';
 import EnhancedTableHead from './EnhancedTableHead';
+
+import { IHeadCell, ISelectedAction, IUnselectedAction, Order } from 'models/TableInfo';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -37,6 +38,7 @@ function getComparator<Key extends keyof any>(
 
 // This method is created for cross-browser compatibility, if you don't
 // need to support IE11, you can use Array.prototype.sort() directly
+// TO DO: get rid of this and make it work without
 function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
     const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
     stabilizedThis.sort((a, b) => {
@@ -59,6 +61,10 @@ interface IEnhancedTableProps {
     unSelectedActions: IUnselectedAction[];
     selectedActions: ISelectedAction[];
 }
+
+// TO DO: make this more adaptable to other data types
+// Allow sorting based on dates perhaps
+// Make it easier to display formatted data instead of relying on new interfaces and strings
 
 const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     data,

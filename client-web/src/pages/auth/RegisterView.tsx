@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useSnackbar } from 'notistack';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 
 import {
@@ -19,15 +20,15 @@ import DoneIcon from '@mui/icons-material/Done';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
+import MuiPhoneNumber from 'material-ui-phone-number';
+
 import onboardBackground from '../../images/onboard-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 
-import { validateRegister } from 'utils/validation';
+import { validateRegister } from 'utils/validations/auth';
 import axios from 'utils/axios-intance';
 
-import MuiPhoneNumber from 'material-ui-phone-number';
-
-const Register: React.FC = () => {
+const RegisterView: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isComplete, setIsComplete] = useState<boolean>(false);
@@ -50,7 +51,7 @@ const Register: React.FC = () => {
         initialValues: {
             password: '',
             confirmPassword: '',
-            phoneNo: '',
+            phone: '',
         },
         validate: validateRegister,
         onSubmit: (values: any) => {
@@ -59,7 +60,7 @@ const Register: React.FC = () => {
                 .post(`${process.env.REACT_APP_SERVER_API}/auth/register`, {
                     email,
                     password: values.password,
-                    phoneNo: values.phoneNo,
+                    phone: values.phone,
                 })
                 .then(() => {
                     setIsLoading(false);
@@ -227,17 +228,17 @@ const Register: React.FC = () => {
                                         onChange={(e) => {
                                             setValues({
                                                 ...values,
-                                                phoneNo: e as string,
+                                                phone: e as string,
                                             });
                                             validateForm();
                                         }}
                                         onBlur={handleBlur}
                                         error={
-                                            touched.phoneNo &&
-                                            errors.phoneNo !== undefined &&
-                                            errors.phoneNo !== ''
+                                            touched.phone &&
+                                            errors.phone !== undefined &&
+                                            errors.phone !== ''
                                         }
-                                        helperText={touched.phoneNo ? errors.phoneNo : ''}
+                                        helperText={touched.phone ? errors.phone : ''}
                                     />
 
                                     {isLoading ? (
@@ -266,4 +267,4 @@ const Register: React.FC = () => {
     );
 };
 
-export default Register;
+export default RegisterView;

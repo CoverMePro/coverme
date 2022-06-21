@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
-import { ISickRequest } from 'models/Sick';
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
@@ -32,7 +31,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 interface ICreateTimeOffFormProps {
-    onFinish: (tradeRequest: ISickRequest | undefined) => void;
+    onFinish: (tradeRequest: ITimeOffRequest | undefined) => void;
 }
 
 const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
@@ -63,6 +62,8 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
         setDayType(changedDayType);
     };
 
+    // TO DO: better form validation using what we have! do more research and figure out how to utilize here
+
     const handleSubmit = () => {
         const timeOffRequest: ITimeOffRequest = {
             requestDate: new Date(),
@@ -71,7 +72,6 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
             timeOffEnd: endDateTime,
             userId: user.email!,
             teams: user.teams,
-            description: description,
             status: 'Pending',
         };
 

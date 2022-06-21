@@ -21,7 +21,7 @@ app.use(
     })
 );
 
-app.use(function (req, res, next) {
+app.use(function (_, res, next) {
     res.setHeader('Cache-Control', 'private');
     next();
 });

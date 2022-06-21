@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-import { Box } from '@mui/material';
 
-import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
+import { Box } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { ITradeDisplay } from 'models/Trade';
 import { ISelectedAction } from 'models/TableInfo';
 import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
 
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
+import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 
 import axios from 'utils/axios-intance';
-import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 interface IProposedTradesProps {
     tradeRequests: ITradeDisplay[];

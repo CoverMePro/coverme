@@ -1,12 +1,13 @@
-import { Request, Response } from "express";
-import { IOvertime } from "../models/Overtime";
-import { db } from "../utils/admin";
-import { callout } from "../utils/overtime";
+import { Request, Response } from 'express';
+import { IOvertime, mapToOvertime } from '../models/Overtime';
+import { db } from '../utils/admin';
+import { formatFirestoreData } from '../utils/db-helpers';
+import calloutCyle from '../utils/overtime';
 
 const createOvertimeCallout = (req: Request, res: Response) => {
     const overtimeCallout: IOvertime = req.body;
 
-    db.collection("/overtime-callouts")
+    db.collection('/overtime-callouts')
         .add({ ...overtimeCallout, dateCreated: new Date() })
         .then((result) => {
             overtimeCallout.id = result.id;
@@ -21,20 +22,15 @@ const createOvertimeCallout = (req: Request, res: Response) => {
 const getOvertimeCallouts = (req: Request, res: Response) => {
     const company = req.params.company;
 
-    const overtimeCallouts: IOvertime[] = [];
-
-    db.collection("/overtime-callouts")
-        .where("company", "==", company)
-        .orderBy("dateCreated")
+    db.collection('/overtime-callouts')
+        .where('company', '==', company)
+        .orderBy('dateCreated')
         .get()
-        .then((resultData) => {
-            resultData.forEach((result) => {
-                overtimeCallouts.push({
-                    id: result.id,
-                    ...result.data(),
-                    dateCreated: result.data().dateCreated.toDate(),
-                });
-            });
+        .then((overtimeCalloutDocs) => {
+            const overtimeCallouts: IOvertime[] = formatFirestoreData(
+                overtimeCalloutDocs,
+                mapToOvertime
+            );
 
             return res.json({ overtimeCallouts: overtimeCallouts });
         })
@@ -49,33 +45,31 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
     const email = req.body.email;
     db.doc(`/overtime-callouts/${id}`)
         .get()
-        .then(async (overtimeCalloutResult) => {
-            const overtimeCallout: IOvertime = {
-                id: overtimeCalloutResult.id,
-                ...overtimeCalloutResult.data(),
-                dateCreated: overtimeCalloutResult.data()!.dateCreated.toDate(),
-            };
-
+        .then(async (overtimeCalloutDoc) => {
+            const overtimeCallout: IOvertime = mapToOvertime(
+                overtimeCalloutDoc.id,
+                overtimeCalloutDoc.data()
+            );
             const calloutList = [...overtimeCallout.callouts!];
 
             const userInListIdx = calloutList.findIndex((user) => user.user === email);
 
             if (userInListIdx != -1) {
-                calloutList[userInListIdx].status = "Accepted";
+                calloutList[userInListIdx].status = 'Accepted';
 
                 try {
                     await db.doc(`/overtime-callouts/${id}`).update({
                         callouts: calloutList,
                     });
 
-                    return res.json({ message: "shift has been accepted" });
+                    return res.json({ message: 'shift has been accepted' });
                 } catch (err) {
                     console.error(err);
                     return res.status(500).json({ error: err });
                 }
             }
 
-            return res.status(500).json({ error: "No user found in callout request" });
+            return res.status(500).json({ error: 'No user found in callout request' });
         })
         .catch((err) => {
             console.error(err);
@@ -88,33 +82,32 @@ const rejectedCalloutShift = (req: Request, res: Response) => {
     const email = req.body.email;
     db.doc(`/overtime-callouts/${id}`)
         .get()
-        .then(async (overtimeCalloutResult) => {
-            const overtimeCallout: IOvertime = {
-                id: overtimeCalloutResult.id,
-                ...overtimeCalloutResult.data(),
-                dateCreated: overtimeCalloutResult.data()!.dateCreated.toDate(),
-            };
+        .then(async (overtimeCalloutDoc) => {
+            const overtimeCallout: IOvertime = mapToOvertime(
+                overtimeCalloutDoc.id,
+                overtimeCalloutDoc.data()
+            );
 
             const calloutList = [...overtimeCallout.callouts!];
 
             const userInListIdx = calloutList.findIndex((user) => user.user === email);
 
             if (userInListIdx != -1) {
-                calloutList[userInListIdx].status = "Rejected";
+                calloutList[userInListIdx].status = 'Rejected';
 
                 try {
                     await db.doc(`/overtime-callouts/${id}`).update({
                         callouts: calloutList,
                     });
 
-                    return res.json({ message: "shift has been rejected" });
+                    return res.json({ message: 'shift has been rejected' });
                 } catch (err) {
                     console.error(err);
                     return res.status(500).json({ error: err });
                 }
             }
 
-            return res.status(500).json({ error: "No user found in callout request" });
+            return res.status(500).json({ error: 'No user found in callout request' });
         })
         .catch((err) => {
             console.error(err);
@@ -122,10 +115,10 @@ const rejectedCalloutShift = (req: Request, res: Response) => {
         });
 };
 
-const testCycleCallout = (req: Request, res: Response) => {
-    callout()
+const testCycleCallout = (_: Request, res: Response) => {
+    calloutCyle()
         .then(() => {
-            return res.json({ message: "callout round complete" });
+            return res.json({ message: 'callout round complete' });
         })
         .catch((err) => {
             console.error(err);

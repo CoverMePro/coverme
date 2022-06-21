@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useSnackbar } from 'notistack';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+import { useSnackbar } from 'notistack';
 
 import { Box } from '@mui/material';
 
 import ShiftHeaderCells from 'models/HeaderCells/ShiftHeadCells';
+import { IShiftDefinition } from 'models/ShiftDefinition';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
-
-import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateShiftForm from 'components/forms/CreateShiftForm';
-import { IShiftDefinition } from 'models/ShiftDefinition';
 import LinearLoading from 'components/loading/LineraLoading';
-import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
+
+import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import axios from 'utils/axios-intance';
 
 const ShiftsView: React.FC = () => {
     const [openAddShift, setOpenAddShift] = useState<boolean>(false);
@@ -29,6 +30,7 @@ const ShiftsView: React.FC = () => {
 
     const user = useTypedSelector((state) => state.user);
 
+    // TO DO: REFACTOR OUTSIDE COMP
     const getShiftName = (id: string) => {
         const shiftFound = shiftDefs.find((shiftDef) => shiftDef.id === id);
 

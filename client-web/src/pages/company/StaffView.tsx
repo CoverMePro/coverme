@@ -13,9 +13,9 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import LinearLoading from 'components/loading/LineraLoading';
 
+import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
-import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
-import { formatDateString } from 'utils/date-formatter';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);

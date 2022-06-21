@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { ISickRequest } from 'models/Sick';
-import { IShift } from 'models/Shift';
+
+import { Box, Typography, CircularProgress, Fab, Autocomplete, TextField } from '@mui/material';
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
 
-import axios from 'utils/axios-intance';
-import { AxiosError } from 'axios';
-import { Box, Typography, CircularProgress, Fab, Autocomplete, TextField } from '@mui/material';
+import { IShift } from 'models/Shift';
 
-import { formatDateTimeOutputString } from 'utils/date-formatter';
+import axios from 'utils/axios-intance';
+import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
+
+import { AxiosError } from 'axios';
 
 interface ICreateSickRequestFromProps {
     onFinish: (tradeRequest: ISickRequest | undefined) => void;
@@ -78,7 +81,6 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
 
     useEffect(() => {
         setIsLoadingData(true);
-        // TO DO: Get only shift from today (and maybe forward)
         const todayDate = new Date();
         const tomorrowDate = new Date();
         tomorrowDate.setDate(new Date().getDate() + 1);

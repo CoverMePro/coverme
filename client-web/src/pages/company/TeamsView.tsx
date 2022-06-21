@@ -36,10 +36,11 @@ import SkeletonTeamList from 'components/teams/SkeletonTeamList';
 import TeamList from 'components/teams/TeamList';
 import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
-
-import axios from 'utils/axios-intance';
 import LinearLoading from 'components/loading/LineraLoading';
 
+import axios from 'utils/axios-intance';
+
+// TO DO: Refactor this to be cleaner
 const TeamsView: React.FC = () => {
     const [expanded, setExpanded] = useState<string | false>(false);
     const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(false);

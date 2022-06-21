@@ -3,9 +3,19 @@ import { StatusType } from './Types';
 
 export interface ISickRequest {
     id?: string;
-    requestDate?: Date;
-    userId?: string;
-    shiftId?: string;
+    requestDate: Date;
+    userId: string;
+    shiftId: string;
     shift?: IShift;
-    status?: StatusType;
+    status: StatusType;
 }
+
+export const mapToSickRequest = (id: string, data: any): ISickRequest => {
+    return {
+        id: id,
+        requestDate: data.requestDate.toDate(),
+        userId: data.userId,
+        shiftId: data.shiftId,
+        status: data.status,
+    };
+};

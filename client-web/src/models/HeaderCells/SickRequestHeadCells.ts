@@ -1,15 +1,7 @@
 import { ISickDisplay } from 'models/Sick';
+import { IHeaderCells } from './HeaderCells';
 
-interface ISickRequestHeadCell {
-    disablePadding: boolean;
-    id: keyof ISickDisplay;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-export const staffSickHeadCells: ISickRequestHeadCell[] = [
+export const staffSickHeadCells: IHeaderCells<ISickDisplay>[] = [
     {
         id: 'date',
         numeric: false,
@@ -36,7 +28,7 @@ export const staffSickHeadCells: ISickRequestHeadCell[] = [
     },
 ];
 
-export const managerSickHeadCells: ISickRequestHeadCell[] = [
+export const managerSickHeadCells: IHeaderCells<ISickDisplay>[] = [
     {
         id: 'date',
         numeric: false,

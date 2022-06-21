@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { ITimeOffRequest } from '../models/TimeOff';
+import { ITimeOffRequest, mapToTimeOffRequest } from '../models/TimeOff';
 import { db } from '../utils/admin';
+import { formatFirestoreData } from '../utils/db-helpers';
 
 const createTimeOffRequest = (req: Request, res: Response) => {
     const timeOffRequest: ITimeOffRequest = req.body;
@@ -24,20 +25,10 @@ const createTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const getAllTimeOffRequest = (req: Request, res: Response) => {
-    const timeOffRequests: ITimeOffRequest[] = [];
-
     db.collection(`/companies/${req.params.name}/time-off-requests`)
         .get()
-        .then((resultData) => {
-            resultData.forEach((result) => {
-                timeOffRequests.push({
-                    id: result.id,
-                    ...result.data(),
-                    requestDate: result.data().requestDate.toDate(),
-                    timeOffStart: result.data().timeOffStart.toDate(),
-                    timeOffEnd: result.data().timeOffEnd.toDate(),
-                });
-            });
+        .then((timeoffRequestDocs) => {
+            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
 
             return res.json({ timeOffRequests: timeOffRequests });
         })
@@ -48,11 +39,9 @@ const getAllTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const getTimeOffFromTeams = (req: Request, res: Response) => {
-    console.log('FROM TEAMS');
     const teams = req.body.teams;
 
     let users: string[] = [];
-    const timeOffRequests: ITimeOffRequest[] = [];
 
     db.collection(`/companies/${req.params.name}/teams`)
         .where('__name__', 'in', teams)
@@ -74,18 +63,8 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
                 .where('status', '==', 'Pending')
                 .get();
         })
-        .then((resultData) => {
-            resultData.forEach((result) => {
-                timeOffRequests.push({
-                    id: result.id,
-                    ...result.data(),
-                    requestDate: result.data().requestDate.toDate(),
-                    timeOffStart: result.data().timeOffStart.toDate(),
-                    timeOffEnd: result.data().timeOffEnd.toDate(),
-                });
-            });
-
-            console.log(timeOffRequests);
+        .then((timeoffRequestDocs) => {
+            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
 
             return res.json({ timeOffRequests: timeOffRequests });
         })
@@ -98,23 +77,11 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
 const getUserTimeOffRequest = (req: Request, res: Response) => {
     const { name, user } = req.params;
 
-    const timeOffRequests: ITimeOffRequest[] = [];
-
     db.collection(`/companies/${name}/time-off-requests`)
         .where('userId', '==', user)
         .get()
-        .then((resultData) => {
-            resultData.forEach((result) => {
-                timeOffRequests.push({
-                    id: result.id,
-                    ...result.data(),
-                    requestDate: result.data().requestDate.toDate(),
-                    timeOffStart: result.data().timeOffStart.toDate(),
-                    timeOffEnd: result.data().timeOffEnd.toDate(),
-                });
-            });
-
-            console.log(timeOffRequests);
+        .then((timeoffRequestDocs) => {
+            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
 
             return res.json({ timeOffRequests: timeOffRequests });
         })

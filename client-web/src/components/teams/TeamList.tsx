@@ -1,10 +1,12 @@
 import React from 'react';
 
-import { IUser } from 'models/User';
 import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui/material';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+
+import { IUser } from 'models/User';
+
 import PermissionCheck from 'components/auth/PermissionCheck';
 
 interface ITeamListProps {
@@ -43,7 +45,7 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
                     <ListItemText
                         sx={{ width: '50%' }}
                         primary={user.email}
-                        secondary={user.phoneNo}
+                        secondary={user.phone}
                     />
                 </ListItem>
             ))}

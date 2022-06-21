@@ -1,51 +1,23 @@
 import React, { useState } from 'react';
-import NumberFormat from 'react-number-format';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 
 import { Box, TextField, Fab, CircularProgress, Typography } from '@mui/material';
 
-import logo from 'images/cover-me-logo.png';
-import { validateShift } from 'utils/validation';
-
 import MoreTimeIcon from '@mui/icons-material/MoreTime';
+
+import logo from 'images/cover-me-logo.png';
+
+import DurationCustom from 'components/number-formats/DurationCustom';
+
 import { IShiftDefinition } from 'models/ShiftDefinition';
 
+import { validateShift } from 'utils/validations/shift';
+import { formatDuration } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
-
-interface CustomProps {
-    onChange: (event: { target: { name: string; value: string } }) => void;
-    name: string;
-}
-
-const formatDuration = (value: string) => {
-    return value.substring(0, 2) + ':' + value.substring(2);
-};
-
-const DurationCustom = React.forwardRef<any, CustomProps>(function NumberFormatCustom(props, ref) {
-    const { onChange, ...other } = props;
-
-    return (
-        <NumberFormat
-            {...other}
-            getInputRef={ref}
-            name="shiftDuration"
-            onValueChange={(values) => {
-                onChange({
-                    target: {
-                        name: props.name,
-                        value: values.value,
-                    },
-                });
-            }}
-            format="##:##"
-            placeholder="HH:MM"
-            mask={['H', 'H', 'M', 'M']}
-            isNumericString
-        />
-    );
-});
 
 interface ICreateShiftFormProps {
     onAddComplete(shiftDef: IShiftDefinition): void;

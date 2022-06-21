@@ -1,19 +1,20 @@
-import { Request, Response } from "express";
-import { ICompany } from "../models/Company";
-import { IUser } from "../models/User";
-import { db, fbAuth } from "../utils/admin";
-import { emailSignInForUser } from "../utils/fb-emails";
+import { Request, Response } from 'express';
 
-/**
- * Get all companies in the database
- */
-const getAllCompanies = (req: Request, res: Response) => {
-    db.collection("/companies")
+import { ICompany, mapToCompany } from '../models/Company';
+import { IUser, mapToUser } from '../models/User';
+
+import { db, fbAuth } from '../utils/admin';
+import { getCalloutList, updateNewUserIntoDb } from '../utils/db-helpers';
+import { emailSignInForUser } from '../utils/fb-emails';
+
+const getAllCompanyNames = (_: Request, res: Response) => {
+    db.collection('/companies')
         .get()
-        .then((companyData) => {
+        .then((companyDocs) => {
             let companies: string[] = [];
-            companyData.forEach((data) => {
-                companies.push(data.id);
+
+            companyDocs.forEach((doc) => {
+                companies.push(doc.id);
             });
 
             return res.json(companies);
@@ -24,17 +25,14 @@ const getAllCompanies = (req: Request, res: Response) => {
         });
 };
 
-const getAllCompaniesInfo = (req: Request, res: Response) => {
-    db.collection("/companies")
+const getAllCompanies = (_: Request, res: Response) => {
+    db.collection('/companies')
         .get()
-        .then((companyData) => {
+        .then((companyDocs) => {
             let companies: any[] = [];
-            companyData.forEach((data) => {
-                companies.push({
-                    name: data.id,
-                    email: data.data().email,
-                    phoneNo: data.data().phone,
-                });
+
+            companyDocs.forEach((doc) => {
+                companies.push(mapToCompany(doc.id, doc.data()));
             });
 
             return res.json(companies);
@@ -45,21 +43,15 @@ const getAllCompaniesInfo = (req: Request, res: Response) => {
         });
 };
 
-/**
- * Get a company based on their ID (name)
- */
 const getCompany = (req: Request, res: Response) => {
-    db.doc(`/companies/${req.params.id}`)
+    db.doc(`/companies/${req.params.name}`)
         .get()
-        .then((companyData) => {
-            if (companyData.exists) {
-                const companyInfo: ICompany = {
-                    ...companyData.data(),
-                    name: companyData.id,
-                };
+        .then((companyDoc) => {
+            if (companyDoc.exists) {
+                const companyInfo: ICompany = mapToCompany(companyDoc.id, companyDoc.data());
                 return res.json(companyInfo);
             } else {
-                return res.status(404).json({ error: "Company not found" });
+                return res.status(404).json({ error: 'Company not found' });
             }
         })
         .catch((err) => {
@@ -68,11 +60,8 @@ const getCompany = (req: Request, res: Response) => {
         });
 };
 
-/**
- * A check if a company name already exist in database (for creating company)
- */
-const checkCompany = (req: Request, res: Response) => {
-    db.doc(`/companies/${req.params.id}`)
+const checkIfCompanyExist = (req: Request, res: Response) => {
+    db.doc(`/companies/${req.params.name}`)
         .get()
         .then((companyData) => {
             if (companyData.exists) {
@@ -87,9 +76,6 @@ const checkCompany = (req: Request, res: Response) => {
         });
 };
 
-/**
- * Creates a company and a user who owns the company (defaulted to manager role)
- */
 const createCompany = async (req: Request, res: Response) => {
     const companyName = req.body.company.name;
     const companyInfo = req.body.company.data;
@@ -107,27 +93,20 @@ const createCompany = async (req: Request, res: Response) => {
             }
         })
         .then(() => {
-            return emailSignInForUser(fbAuth, {
-                email: ownerEmail,
-                ...ownerInfo,
-                companyName,
-            });
+            return emailSignInForUser(fbAuth, ownerEmail);
         })
         .then(() => {
-            return db.doc(`/users/${ownerEmail}`).set({
-                ...ownerInfo,
-                status: "Pending",
-                statusUpdatedAt: Date.now(),
-            });
+            const ownerUser: IUser = mapToUser(ownerEmail, { ...ownerInfo, phone: '' });
+            return updateNewUserIntoDb(ownerUser, new Date());
         })
         .then(() => {
             return res.status(201).json({
-                message: "Company Created!",
+                message: 'Company Created!',
             });
         })
         .catch((err) => {
             if (err === 403) {
-                return res.status(403).json({ error: "Company with that name already exists" });
+                return res.status(403).json({ error: 'Company with that name already exists' });
             } else {
                 console.error(err);
                 return res.status(500).json({ error: err.code });
@@ -135,14 +114,11 @@ const createCompany = async (req: Request, res: Response) => {
         });
 };
 
-/**
- * Delete a company based on the ID (name)
- */
 const deleteCompany = (req: Request, res: Response) => {
-    db.doc(`/companies/${req.params.id}`)
+    db.doc(`/companies/${req.params.name}`)
         .delete()
         .then(() => {
-            return res.json({ message: "Company deleted successfully!" });
+            return res.json({ message: 'Company deleted successfully!' });
         })
         .catch((err) => {
             console.error(err);
@@ -153,39 +129,10 @@ const deleteCompany = (req: Request, res: Response) => {
 /**
  * Get Overtime List of Users from a company
  */
-
 const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
-    const company = req.params.id;
-    const users: IUser[] = [];
-    let lastCallouts: any;
-    db.collection("/users")
-        .where("company", "==", company)
-        .where("role", "==", "staff")
-        .orderBy("hireDate", "asc")
-        .get()
-        .then((data) => {
-            data.forEach((doc) => {
-                users.push({
-                    ...doc.data(),
-                    email: doc.id,
-                    hireDate: doc.data().hireDate.toDate(),
-                });
-            });
-
-            return db.collection(`/companies/${company}/last-callouts`).get();
-        })
-        .then((result) => {
-            if (result.empty) {
-                lastCallouts = undefined;
-            } else {
-                result.docs.forEach((doc) => {
-                    lastCallouts = {
-                        ...lastCallouts,
-                        [doc.id]: doc.data(),
-                    };
-                });
-            }
-
+    const company = req.params.name;
+    getCalloutList(company)
+        .then(({ users, lastCallouts }) => {
             return res.json({ users: users, lastCallouts: lastCallouts });
         })
         .catch((err) => {
@@ -197,9 +144,9 @@ const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
 export default {
     createCompany,
     getCompany,
-    checkCompany,
+    checkIfCompanyExist,
+    getAllCompanyNames,
     getAllCompanies,
-    getAllCompaniesInfo,
     deleteCompany,
     getCompanyOvertimeCalloutList,
 };

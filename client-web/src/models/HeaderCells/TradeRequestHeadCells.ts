@@ -1,15 +1,7 @@
 import { ITradeDisplay } from 'models/Trade';
+import { IHeaderCells } from './HeaderCells';
 
-interface ITradeRequestHeadCell {
-    disablePadding: boolean;
-    id: keyof ITradeDisplay;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-const staffTradeRequestHeadCells: ITradeRequestHeadCell[] = [
+const staffTradeRequestHeadCells: IHeaderCells<ITradeDisplay>[] = [
     {
         id: 'date',
         numeric: false,
@@ -52,7 +44,7 @@ const staffTradeRequestHeadCells: ITradeRequestHeadCell[] = [
     },
 ];
 
-export const managerTradeRequestHeadCells: ITradeRequestHeadCell[] = [
+export const managerTradeRequestHeadCells: IHeaderCells<ITradeDisplay>[] = [
     {
         id: 'date',
         numeric: false,

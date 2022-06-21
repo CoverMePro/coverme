@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-import { Box } from '@mui/material';
 
+import { Box } from '@mui/material';
 import ArchiveIcon from '@mui/icons-material/Archive';
 
 import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
@@ -33,15 +33,6 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
             setSelected(tradeRequest);
         }
     };
-
-    const selectedActions: ISelectedAction[] = [
-        {
-            tooltipTitle: 'Acknowledge and Archive',
-            permissionLevel: 0,
-            icon: <ArchiveIcon color="primary" fontSize="large" />,
-            onClick: () => setOpenConfirmation(true),
-        },
-    ];
 
     const handleConfirmation = () => {
         setIsLoading(true);
@@ -78,6 +69,15 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
             return filteredRequests;
         }
     };
+
+    const selectedActions: ISelectedAction[] = [
+        {
+            tooltipTitle: 'Acknowledge and Archive',
+            permissionLevel: 0,
+            icon: <ArchiveIcon color="primary" fontSize="large" />,
+            onClick: () => setOpenConfirmation(true),
+        },
+    ];
 
     return (
         <Box>

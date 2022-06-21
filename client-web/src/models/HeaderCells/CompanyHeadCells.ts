@@ -1,15 +1,7 @@
 import { ICompany } from 'models/Company';
+import { IHeaderCells } from './HeaderCells';
 
-interface ICompanyHeadCells {
-    disablePadding: boolean;
-    id: keyof ICompany;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-const companyHeadCells: ICompanyHeadCells[] = [
+const companyHeadCells: IHeaderCells<ICompany>[] = [
     {
         id: 'name',
         numeric: false,
@@ -27,7 +19,7 @@ const companyHeadCells: ICompanyHeadCells[] = [
         label: 'Email',
     },
     {
-        id: 'phoneNo',
+        id: 'phone',
         numeric: false,
         disablePadding: false,
         capitalize: false,

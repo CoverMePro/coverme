@@ -1,15 +1,7 @@
 import { IUser } from 'models/User';
+import { IHeaderCells } from './HeaderCells';
 
-interface IStaffHeadCell {
-    disablePadding: boolean;
-    id: keyof IUser;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-const headCells: IStaffHeadCell[] = [
+const headCells: IHeaderCells<IUser>[] = [
     {
         id: 'email',
         numeric: false,

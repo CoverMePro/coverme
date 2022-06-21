@@ -2,30 +2,30 @@ import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import { store } from './state';
 import { Provider } from 'react-redux';
 
 import { ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 
-import Login from 'pages/auth/Login';
-import Dashboard from 'pages/main/Dashboard';
-import Register from 'pages/auth/Register';
-
+import Dashboard from 'components/dashboard/Dashboard';
 import AuthWrapper from 'components/auth/AuthWrapper';
 
-import Home from 'pages/main/Home';
+import LoginView from 'pages/auth/LoginView';
+import RegisterView from 'pages/auth/RegisterView';
+import HomeView from 'pages/main/HomeView';
 import StaffView from 'pages/company/StaffView';
 import TeamsView from 'pages/company/TeamsView';
-import Companies from 'pages/admin/Companies';
+import Companies from 'pages/admin/CompaniesView';
 import ShiftsView from 'pages/management/ShiftsView';
 import TradeView from 'pages/requests/TradeView';
 import TimeOffView from 'pages/requests/TimeOffView';
 import SickView from 'pages/requests/SickView';
 import ScheduleView from 'pages/main/ScheduleView';
 import CalendarView from 'pages/main/CalendarView';
-import OvertimeView from 'pages/overtime/OvertimeView';
-import OvertimeCallouts from 'pages/overtime/OvertimeCallouts';
+import OvertimeListView from 'pages/overtime/OvertimeListView';
+import OvertimeCalloutsView from 'pages/overtime/OvertimeCalloutsView';
 import BlogView from 'pages/company/BlogView';
 
 import { theme } from './theme';
@@ -37,8 +37,8 @@ ReactDOM.render(
                 <SnackbarProvider maxSnack={1}>
                     <BrowserRouter>
                         <Routes>
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/register" element={<Register />} />
+                            <Route path="/login" element={<LoginView />} />
+                            <Route path="/register" element={<RegisterView />} />
                             <Route
                                 path="/dashboard"
                                 element={
@@ -55,7 +55,7 @@ ReactDOM.render(
                                     path="home"
                                     element={
                                         <AuthWrapper>
-                                            <Home />
+                                            <HomeView />
                                         </AuthWrapper>
                                     }
                                 />
@@ -124,7 +124,7 @@ ReactDOM.render(
                                     path="overtime/list"
                                     element={
                                         <AuthWrapper>
-                                            <OvertimeView />
+                                            <OvertimeListView />
                                         </AuthWrapper>
                                     }
                                 />
@@ -133,7 +133,7 @@ ReactDOM.render(
                                     path="overtime/callouts"
                                     element={
                                         <AuthWrapper>
-                                            <OvertimeCallouts />
+                                            <OvertimeCalloutsView />
                                         </AuthWrapper>
                                     }
                                 />

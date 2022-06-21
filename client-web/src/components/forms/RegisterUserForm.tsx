@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
@@ -21,7 +22,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
-import { validateUserCreate } from 'utils/validation';
+
+import { validateUserCreate } from 'utils/validations/user';
 import axios from 'utils/axios-intance';
 
 interface IRegisterUserFormProps {

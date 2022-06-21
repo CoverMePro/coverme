@@ -21,6 +21,8 @@ interface IRequestNavListProps {
     navSelected: number;
 }
 
+// TO DO: Switch back to just using Nav List probably
+
 const RequestNavList: React.FC<IRequestNavListProps> = ({ visible, navSelected }) => {
     const [openCollapse, setOpenCollapse] = useState<boolean>(false);
 

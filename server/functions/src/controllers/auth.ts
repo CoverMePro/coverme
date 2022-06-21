@@ -1,18 +1,17 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
-import { IUser, IUserLogin } from "../models/User";
-import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from "../constants";
+import { IUser, IUserLogin, mapToUser } from '../models/User';
 
-import { db, fbAuth, fbAdmin } from "../utils/admin";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { assignSessionCookie, verifySessionCookie } from "../utils/authenticate-user";
-import { emailSignInForUser, emailPasswordReset } from "../utils/fb-emails";
+import { SESSION_COOKIE_EXPIRY, WEB_CLIENT_DOMAIN } from '../constants';
 
-/**
- * Creates user in firebase authentication and adds the necessary user info into the database
- */
+import { db, fbAuth, fbAdmin } from '../utils/admin';
+import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
+import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
+import { updateNewUserIntoDb } from '../utils/db-helpers';
+
 const registerUser = (req: Request, res: Response) => {
-    const { email, password, phoneNo } = req.body;
+    const { email, password, phone } = req.body;
 
     createUserWithEmailAndPassword(fbAuth, email, password)
         .then((data) => {
@@ -21,14 +20,14 @@ const registerUser = (req: Request, res: Response) => {
         .then(() => {
             return db
                 .doc(`/users/${email}`)
-                .update({ phoneNo, status: "Active", statusUpdatedAt: Date.now() });
+                .update({ phone, status: 'Active', statusUpdatedAt: Date.now() });
         })
         .then(() => {
             return db.doc(`/users/${email}`).get();
         })
         .then(() => {
             return res.json({
-                message: "User created successfully!",
+                message: 'User created successfully!',
             });
         })
         .catch((error) => {
@@ -43,32 +42,16 @@ const registerUser = (req: Request, res: Response) => {
  * This is a hacky approach for now, will look into doing a more custom email approach
  */
 const sendRegisterLink = (req: Request, res: Response) => {
-    const { email, firstName, lastName, company, role, position, hireDate } = req.body;
+    const userInfo: IUser = req.body;
 
-    const newHiredate = new Date(new Date(hireDate).setHours(24, 0, 0, 0));
+    const newHiredate = new Date(new Date(userInfo.hireDate as Date).setHours(24, 0, 0, 0));
 
-    emailSignInForUser(fbAuth, {
-        email,
-        firstName,
-        lastName,
-        company,
-        role,
-        position,
-    })
+    emailSignInForUser(fbAuth, userInfo.email)
         .then(() => {
-            return db.doc(`/users/${email}`).set({
-                firstName,
-                lastName,
-                company,
-                role,
-                position,
-                status: "Pending",
-                statusUpdatedAt: Date.now(),
-                hireDate: newHiredate,
-            });
+            return updateNewUserIntoDb(userInfo, newHiredate);
         })
         .then(() => {
-            return res.json({ message: "Email link successful", email });
+            return res.json({ message: 'Email link successful', email: userInfo.email });
         })
         .catch((error) => {
             console.error(error);
@@ -76,17 +59,11 @@ const sendRegisterLink = (req: Request, res: Response) => {
         });
 };
 
-/**
- * Callback for when user clicks the sign in link in the email
- */
 const registerCallback = (req: Request, res: Response) => {
     const { email } = req.query;
     return res.redirect(`${WEB_CLIENT_DOMAIN}/register?email=${email}`);
 };
 
-/**
- * Logs user into the application
- */
 const signIn = (req: Request, res: Response) => {
     const userLogin: IUserLogin = req.body;
 
@@ -106,25 +83,22 @@ const signIn = (req: Request, res: Response) => {
             return db.doc(`/users/${userLogin.email}`).get();
         })
         .then((userData) => {
-            const userInfo: IUser = {
-                ...userData.data(),
-                email: userData.id,
-            };
+            const userInfo: IUser = mapToUser(userData.id, userData.data());
 
             const cookieOptions = {
                 maxAge: expiresIn,
                 httpOnly: true,
                 secure: true,
-                sameSite: "none" as "none",
+                sameSite: 'none' as 'none',
             };
-            res.cookie("__session", cookie, cookieOptions);
-            return res.json({ message: "login successful", user: userInfo });
+            res.cookie('__session', cookie, cookieOptions);
+            return res.json({ message: 'login successful', user: userInfo });
         })
         .catch((err) => {
             switch (err.code) {
-                case "auth/wrong-password":
-                case "auth/user-not-found":
-                    return res.status(403).json({ general: "Wrong credentials, please try again" });
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                    return res.status(403).json({ general: 'Wrong credentials, please try again' });
                 default: {
                     console.error(err);
                     return res.status(500).json({ error: err });
@@ -133,9 +107,6 @@ const signIn = (req: Request, res: Response) => {
         });
 };
 
-/**
- * Delete user from firebase authentication
- */
 const deleteAuthUser = (req: Request, res: Response) => {
     const email = req.params.email;
 
@@ -143,7 +114,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
         .get()
         .then((userData) => {
             const user = userData.data();
-            if (user && user.status === "Active") {
+            if (user && user.status === 'Active') {
                 fbAdmin
                     .auth()
                     .getUserByEmail(email)
@@ -154,7 +125,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
                         return db.doc(`/users/${email}`).delete();
                     })
                     .then(() => {
-                        return res.json({ message: "user successfully deleted" });
+                        return res.json({ message: 'user successfully deleted' });
                     })
                     .catch((err) => {
                         console.error(err);
@@ -164,7 +135,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
                 db.doc(`/users/${email}`)
                     .delete()
                     .then(() => {
-                        return res.json({ message: "user successfully deleted" });
+                        return res.json({ message: 'user successfully deleted' });
                     })
                     .catch((err) => {
                         console.error(err);
@@ -178,10 +149,7 @@ const deleteAuthUser = (req: Request, res: Response) => {
         });
 };
 
-/*
- * Logs user out of the client side application
- */
-const logOut = (req: Request, res: Response) => {
+const logOut = (_: Request, res: Response) => {
     signOut(fbAuth)
         .then(() => {
             const expiresIn = SESSION_COOKIE_EXPIRY;
@@ -190,10 +158,10 @@ const logOut = (req: Request, res: Response) => {
                 maxAge: expiresIn,
                 httpOnly: true,
                 secure: true,
-                sameSite: "none" as "none",
+                sameSite: 'none' as 'none',
             };
-            res.clearCookie("__session", cookieOptions);
-            return res.json({ message: "logged out successfully" });
+            res.clearCookie('__session', cookieOptions);
+            return res.json({ message: 'logged out successfully' });
         })
         .catch((err) => {
             console.error(err);
@@ -205,41 +173,35 @@ const logOut = (req: Request, res: Response) => {
  * Check if you have a session cookie so you can bypass login
  */
 const checkAuth = async (req: Request, res: Response) => {
-    if (req.cookies["__session"]) {
+    if (req.cookies['__session']) {
         try {
-            const sessionCookie = `${req.cookies["__session"]}`;
+            const sessionCookie = `${req.cookies['__session']}`;
 
             const decodedToken = await verifySessionCookie(sessionCookie);
 
             if (decodedToken.email) {
                 const userData = await db.doc(`/users/${decodedToken.email}`).get();
 
-                const userInfo: IUser = {
-                    ...userData.data(),
-                    email: userData.id,
-                };
+                const userInfo: IUser = mapToUser(userData.id, userData.data());
 
-                return res.json({ authenticated: true, user: userInfo });
+                return res.json(userInfo);
             } else {
-                return res.status(401).json({ error: "No email found" });
+                return res.status(401).json({ error: 'No email found' });
             }
         } catch (err) {
-            return res.status(401).json({ error: "Session Expired" });
+            return res.status(401).json({ error: 'Session Expired' });
         }
     } else {
-        return res.status(401).json({ error: "Session Empty" });
+        return res.status(401).json({ error: 'Session Empty' });
     }
 };
 
-/**
- * Reset a users password
- */
 const passwordReset = (req: Request, res: Response) => {
     const { email } = req.body;
 
     emailPasswordReset(fbAuth, email)
         .then(() => {
-            return res.json({ message: "Reset email sent!" });
+            return res.json({ message: 'Reset email sent!' });
         })
         .catch((err) => {
             console.error(err);

@@ -14,6 +14,11 @@ import {
     Paper,
     CircularProgress,
 } from '@mui/material';
+
+import { IUser } from 'models/User';
+
+import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
+
 import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -22,15 +27,12 @@ import LoginIcon from '@mui/icons-material/Login';
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 
-import { validateLogin } from 'utils/validation';
-
-import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
-import { IUser } from 'models/User';
+import { validateLogin } from 'utils/validations/auth';
 
 import { AxiosError } from 'axios';
 import axios from 'axios';
 
-const Login: React.FC = () => {
+const LoginView: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [isLogginIn, setIsLoggingIn] = useState<boolean>(false);
     const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
@@ -79,15 +81,15 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/auth`, {
+            .get<IUser>(`${process.env.REACT_APP_SERVER_API}/auth`, {
                 withCredentials: true,
             })
-            .then((result) => {
-                const userData: IUser = result.data.user;
-                setUser(userData);
+            .then((userResult) => {
+                setUser(userResult.data);
                 navigate('/dashboard');
             })
             .catch((err) => {
+                console.error(err);
                 setIsCheckingAuth(false);
             });
     }, [navigate, setUser]);
@@ -231,4 +233,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default LoginView;

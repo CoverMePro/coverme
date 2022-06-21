@@ -9,11 +9,11 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateCompanyForm from 'components/forms/CreateCompanyForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
-import axios from 'utils/axios-intance';
 import FormDialog from 'components/dialogs/FormDialog';
-import { getAddAction, getDeleteAction } from 'utils/table-actions-helper';
+import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import axios from 'utils/axios-intance';
 
-const Companies: React.FC = () => {
+const CompaniesView: React.FC = () => {
     const [openAddCompany, setOpenAddCompany] = useState<boolean>(false);
     const [openDeleteCompany, setOpenDeleteCompany] = useState<boolean>(false);
     const [isLoadingCompanies, setIsLoadingCompanies] = useState<boolean>(false);
@@ -139,4 +139,4 @@ const Companies: React.FC = () => {
     );
 };
 
-export default Companies;
+export default CompaniesView;

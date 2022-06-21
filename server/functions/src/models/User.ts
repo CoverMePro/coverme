@@ -4,16 +4,39 @@ export interface IUserLogin {
 }
 
 export interface IUser {
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    phoneNo?: string;
-    role?: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    role: string;
+    company: string;
+    hireDate: Date;
+    status: string;
+    teams: string[];
     position?: string;
-    company?: string;
-    vacationHours?: number;
-    hireDate?: Date;
     location?: string;
-    status?: string;
-    teams?: string[];
 }
+
+export const mapToUser = (id: string, data: any): IUser => {
+    let user: IUser = {
+        email: id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        company: data.company,
+        role: data.role,
+        hireDate: data.hireDate ? data.hireDate.toDate() : undefined,
+        phone: data.phone,
+        status: data.status,
+        teams: data.teams ? data.teams : [],
+    };
+
+    if (data.position) {
+        user.position = data.position;
+    }
+
+    if (data.location) {
+        user.location = data.location;
+    }
+
+    return user;
+};

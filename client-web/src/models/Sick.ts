@@ -3,11 +3,11 @@ import { StatusType } from './Types';
 
 export interface ISickRequest {
     id?: string;
-    requestDate?: Date;
-    userId?: string;
-    shiftId?: string;
+    requestDate: Date;
+    userId: string;
+    shiftId: string;
     shift?: IShift;
-    status?: StatusType;
+    status: StatusType;
 }
 
 export interface ISickDisplay {

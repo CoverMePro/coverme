@@ -21,6 +21,8 @@ interface IDeleteConfirmationProps {
  * Generic Delete confirmation component used when removing data
  */
 
+// TO DO: Inherit from Basic confirmation and expand
+
 const DeleteConfirmation: React.FC<IDeleteConfirmationProps> = ({
     open,
     message,

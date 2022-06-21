@@ -3,72 +3,20 @@ import { useLocation } from 'react-router-dom';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { styled } from '@mui/material/styles';
-
 import { Box, Toolbar, Typography, Drawer, Divider } from '@mui/material';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
+
+import { DRAWER_WIDTH } from '../../constants';
 
 import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
-
-import { adminNav, mainNav, managmentNav, companyNav, overtimeNav } from 'utils/navs';
 import RequestNavList from 'components/navigation/RequestNavList';
 
-const drawerWidth = 300;
+import AppBar from './AppBar';
+import DrawerHeader from './DrawerHeader';
+import MainSection from './MainSection';
 
-// Styling the main view to adapt to the nav drawer
-// Currently it is always open, but we may change this later
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-    open?: boolean;
-}>(({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-    }),
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-    open?: boolean;
-}
-
-// Styling the App bar to adapt to the nav drawer
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
-
-// Drawer header style to have a title and flush with the app Bar
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
-}));
+import { adminNav, mainNav, managmentNav, companyNav, overtimeNav } from 'utils/react/navs';
 
 const Dashboard: React.FC = () => {
     const user = useTypedSelector((state) => state.user);
@@ -121,10 +69,10 @@ const Dashboard: React.FC = () => {
             </AppBar>
             <Drawer
                 sx={{
-                    width: drawerWidth,
+                    width: DRAWER_WIDTH,
                     flexShrink: 0,
                     '& .MuiDrawer-paper': {
-                        width: drawerWidth,
+                        width: DRAWER_WIDTH,
                         boxSizing: 'border-box',
                         backgroundColor: 'primary.main',
                         color: 'white',
@@ -162,7 +110,9 @@ const Dashboard: React.FC = () => {
                     navSelected={navSelected}
                     navItems={managmentNav}
                 />
-                <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
+                {user.role !== 'admin' && (
+                    <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
+                )}
                 <Divider />
                 <NavList
                     visible={user.role !== 'admin'}
@@ -170,10 +120,10 @@ const Dashboard: React.FC = () => {
                     navItems={overtimeNav}
                 />
             </Drawer>
-            <Main open={true}>
+            <MainSection open={true}>
                 <DrawerHeader />
                 <Outlet />
-            </Main>
+            </MainSection>
         </Box>
     );
 };

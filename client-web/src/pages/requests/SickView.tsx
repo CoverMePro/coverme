@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+
 import { Box } from '@mui/material';
-import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import { staffSickHeadCells, managerSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
-
-import { formatSickDisplay } from 'utils/display-formatter';
-
-import { ISickDisplay, ISickRequest } from 'models/Sick';
-import { getAddAction } from 'utils/table-actions-helper';
-import LinearLoading from 'components/loading/LineraLoading';
-import FormDialog from 'components/dialogs/FormDialog';
-import CreateSickRequestForm from 'components/forms/CreateSickRequestForm';
-import axios from 'utils/axios-intance';
 
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+
+import { staffSickHeadCells, managerSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
 import { ISelectedAction } from 'models/TableInfo';
+import { ISickDisplay, ISickRequest } from 'models/Sick';
+
+import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
+import LinearLoading from 'components/loading/LineraLoading';
+import FormDialog from 'components/dialogs/FormDialog';
+import CreateSickRequestForm from 'components/forms/CreateSickRequestForm';
 import BasicConfirmation from 'components/dialogs/BasicConfirmation';
+
+import { getAddAction } from 'utils/react/table-actions-helper';
+import { formatSickDisplay } from 'utils/formatters/display-formatter';
+import axios from 'utils/axios-intance';
 
 const SickView: React.FC = () => {
     const [openAddSickRequest, setOpenAddSickRequest] = useState<boolean>(false);
     const [isLoadingSickRequest, setIsLoadingSickRequest] = useState<boolean>(false);
-
     const [selected, setSelected] = useState<any | undefined>(undefined);
     const [sickRequests, setSickRequests] = useState<ISickDisplay[]>([]);
-
     const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [confirmationTitle, setConfirmationTitle] = useState<string>('');

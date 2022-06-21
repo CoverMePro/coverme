@@ -5,7 +5,7 @@ import teamController from '../../../controllers/team';
 
 const router: Router = express.Router({ mergeParams: true });
 
-router.get('/', authGuard, teamController.getAllTeams);
+router.get('/', authGuard, teamController.getAllTeamsFromCompany);
 router.get('/:teamId/delete', teamController.deleteTeam);
 
 router.post('/create-team', authGuard, teamController.createTeam);

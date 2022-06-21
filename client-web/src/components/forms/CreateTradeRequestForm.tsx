@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+
 import { useSnackbar } from 'notistack';
 
 import {
@@ -18,13 +20,15 @@ import {
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
+
+import { ITradeRequest } from 'models/Trade';
+import { IUser } from 'models/User';
+import { IShift } from 'models/Shift';
+
+import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
 
-import { IUser } from 'models/User';
 import { AxiosError } from 'axios';
-import { IShift } from 'models/Shift';
-import { formatDateTimeOutputString } from 'utils/date-formatter';
-import { ITradeRequest } from 'models/Trade';
 
 interface ICreateTradeRequestFromProps {
     onFinish: (tradeRequest: ITradeRequest | undefined) => void;
@@ -43,6 +47,8 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     const user = useTypedSelector((state) => state.user);
 
     const { enqueueSnackbar } = useSnackbar();
+
+    // TO DO: better form validation using what we have! do more research and figure out how to utilize here
 
     const handleSubmit = () => {
         const tradeRequest: ITradeRequest = {

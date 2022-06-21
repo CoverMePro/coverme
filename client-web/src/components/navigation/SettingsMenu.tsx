@@ -18,7 +18,15 @@ const SettingsMenu: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/auth/logout`)
             .then(() => {
-                setUser({});
+                setUser({
+                    email: '',
+                    company: '',
+                    firstName: '',
+                    lastName: '',
+                    phone: '',
+                    role: '',
+                    teams: [],
+                });
                 navigate('/login');
             })
             .catch((err) => {

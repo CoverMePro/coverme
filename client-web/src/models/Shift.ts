@@ -10,7 +10,7 @@ export interface IShift {
 type TransactionType = 'add' | 'remove' | 'change';
 
 export interface IShiftTransaction {
-    type: TransactionType;
+    type?: TransactionType;
     id?: string;
     instanceId?: string;
     name?: string;

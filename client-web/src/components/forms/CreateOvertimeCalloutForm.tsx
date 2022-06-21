@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 
 import { Box, Typography, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 
 import HowToRegIcon from '@mui/icons-material/Add';
+
 import logo from 'images/cover-me-logo.png';
 
-import axios from 'utils/axios-intance';
 import { IShift } from 'models/Shift';
-import { formatDateTimeOutputString } from 'utils/date-formatter';
 import { IOvertime } from 'models/Overtime';
+
+import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
+import axios from 'utils/axios-intance';
+
 import { AxiosError } from 'axios';
 
 interface ICreateOvertimeCalloutFormProps {
@@ -33,10 +37,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const handleShiftChange = (
-        event: React.SyntheticEvent<Element, Event>,
-        value: IShift | null
-    ) => {
+    const handleShiftChange = (_: React.SyntheticEvent<Element, Event>, value: IShift | null) => {
         if (value) {
             setSelectedShift({
                 id: value.id,
@@ -49,9 +50,10 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
     };
 
     const handleSubmit = () => {
+        // TO DO: Handle when a shift already has a callout?
         if (selectedShift) {
             const overtimeCallout: IOvertime = {
-                company: user.company,
+                company: user.company!,
                 shiftId: selectedShift.id,
                 shiftInfo: selectedShift.dateString,
                 team: selectedShift.team,

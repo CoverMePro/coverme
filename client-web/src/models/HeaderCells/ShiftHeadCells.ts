@@ -1,15 +1,7 @@
 import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IHeaderCells } from './HeaderCells';
 
-interface IShiftHeadCell {
-    disablePadding: boolean;
-    id: keyof IShiftDefinition;
-    label: string;
-    numeric: boolean;
-    capitalize: boolean;
-    sortable: boolean;
-}
-
-const headCells: IShiftHeadCell[] = [
+const headCells: IHeaderCells<IShiftDefinition>[] = [
     {
         id: 'name',
         numeric: false,

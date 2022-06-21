@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
+
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 
@@ -13,26 +15,21 @@ import {
     Typography,
 } from '@mui/material';
 
-import HowToRegIcon from '@mui/icons-material/Add';
-import logo from 'images/cover-me-logo.png';
-import axios from 'utils/axios-intance';
-import { validateCreateTeam } from 'utils/validation';
-
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import HowToRegIcon from '@mui/icons-material/Add';
+import logo from 'images/cover-me-logo.png';
+
 import { IUser } from 'models/User';
+
+import { validateCreateTeam } from 'utils/validations/team';
+import axios from 'utils/axios-intance';
+
 import { AxiosError } from 'axios';
 
 interface ICreateFormProps {
     onFinish: () => void;
 }
-
-/**
- * Form for creating a team in a company
- */
-
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -162,8 +159,8 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                             renderOption={(props, option, { selected }) => (
                                 <li {...props}>
                                     <Checkbox
-                                        icon={icon}
-                                        checkedIcon={checkedIcon}
+                                        icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                                        checkedIcon={<CheckBoxIcon fontSize="small" />}
                                         style={{ marginRight: 8 }}
                                         checked={selected}
                                     />
@@ -183,8 +180,8 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                             renderOption={(props, option, { selected }) => (
                                 <li {...props}>
                                     <Checkbox
-                                        icon={icon}
-                                        checkedIcon={checkedIcon}
+                                        icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                                        checkedIcon={<CheckBoxIcon fontSize="small" />}
                                         style={{ marginRight: 8 }}
                                         checked={selected}
                                     />

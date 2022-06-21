@@ -1,7 +1,7 @@
 import { ISickDisplay, ISickRequest } from 'models/Sick';
 import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
 import { ITradeDisplay, ITradeRequest } from 'models/Trade';
-import { formatDateTimeOutputString, formatDateString } from './date-formatter';
+import { formatDateTimeOutputString, formatDateString } from './dateTime-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     switch (status) {

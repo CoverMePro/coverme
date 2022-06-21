@@ -2,7 +2,15 @@ import { IUser } from 'models/User';
 import { ActionType } from 'state/action-types';
 import { Action } from 'state/actions';
 
-const initialState: IUser = {};
+const initialState: IUser = {
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    role: '',
+    company: '',
+    teams: [],
+};
 
 const reducer = (state: IUser = initialState, action: Action): IUser => {
     switch (action.type) {

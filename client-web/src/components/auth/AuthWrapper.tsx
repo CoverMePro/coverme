@@ -1,9 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
+
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useActions } from 'hooks/use-actions';
 
+import { IUser } from 'models/User';
+
+import { hasPermission } from 'utils/permissions';
 import axios from 'utils/axios-intance';
 
 interface IAuthWrapperProps {
@@ -15,7 +20,7 @@ interface IAuthWrapperProps {
  */
 
 const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 0 }) => {
-    const [authed, setAuthed] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
     const { setUser } = useActions();
@@ -23,29 +28,16 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
 
-    const hasPermission = useCallback(() => {
-        const result: { [key: number]: any } = {
-            0: true,
-            1: user.role !== 'staff',
-            2: user.role !== 'staff' && user.role !== 'manager',
-            3: user.role === 'admin',
-        };
-
-        return result[permissionLevel] ?? true;
+    const userHasPermission = useCallback(() => {
+        return hasPermission(permissionLevel, user.role);
     }, [permissionLevel, user.role]);
 
     useEffect(() => {
         if (!user.email) {
             axios
-                .get(`${process.env.REACT_APP_SERVER_API}/auth`)
-                .then((result) => {
-                    // This is a check depending if a user enters this page directly and there is no redux state
-                    //use the information from the auth check
-                    const userData = {
-                        ...result.data.user,
-                    };
-
-                    setUser(userData);
+                .get<IUser>(`${process.env.REACT_APP_SERVER_API}/auth`)
+                .then((userResult) => {
+                    setUser(userResult.data);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -57,8 +49,8 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                     navigate('/login');
                 });
         } else {
-            if (hasPermission()) {
-                setAuthed(true);
+            if (userHasPermission()) {
+                setIsAuthenticated(true);
             } else {
                 enqueueSnackbar(
                     'You do not have permission to access this content, you have been redirected.',
@@ -67,9 +59,9 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                 navigate('/login');
             }
         }
-    }, [hasPermission, setUser, user, enqueueSnackbar, navigate]);
+    }, [userHasPermission, setUser, user, enqueueSnackbar, navigate]);
 
-    return <>{authed && children}</>;
+    return <>{isAuthenticated && children}</>;
 };
 
 export default AuthWrapper;

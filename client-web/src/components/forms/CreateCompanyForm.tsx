@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 
@@ -16,26 +17,24 @@ import {
     IconButton,
 } from '@mui/material';
 import MuiPhoneNumber from 'material-ui-phone-number';
+
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-import { ICompanyFormInfo } from 'models/Validation';
-import { ICompany } from 'models/Company';
-import { validateCompany, validateOwner } from 'utils/validation';
 
 import logo from 'images/cover-me-logo.png';
 import axios from 'utils/axios-intance';
 
-const steps = ['Company Info', 'Owner Info'];
+import { ICompanyFormInfo } from 'models/Validation';
+import { ICompany } from 'models/Company';
+
+import { validateCompany, validateOwner } from 'utils/validations/company';
+
+const STEPS = ['Company Info', 'Owner Info'];
 
 interface ICreateCompanyFormProps {
     onFinish: (success: boolean, company?: ICompany) => void;
 }
 
-/**
- * A form to create a compnay into the database
- * this is a two step process that creates a company, and then and user who owns the company (has extra permissions)
- */
 const CreateCompanyForm: React.FC<ICreateCompanyFormProps> = ({ onFinish }) => {
     const [company, setCompany] = useState<ICompanyFormInfo>({
         companyName: '',
@@ -130,7 +129,7 @@ const CreateCompanyForm: React.FC<ICreateCompanyFormProps> = ({ onFinish }) => {
                     onFinish(true, {
                         name: companyData.company.name,
                         email: companyData.company.data.email,
-                        phoneNo: companyData.company.data.phone,
+                        phone: companyData.company.data.phone,
                     });
                 })
                 .catch((err) => {
@@ -177,7 +176,7 @@ const CreateCompanyForm: React.FC<ICreateCompanyFormProps> = ({ onFinish }) => {
                     <Typography variant="h2">Create a Company!</Typography>
                 </Box>
                 <Stepper sx={{ my: 2 }} activeStep={step}>
-                    {steps.map((label, index) => {
+                    {STEPS.map((label, index) => {
                         const stepProps: { completed?: boolean } = {};
                         const labelProps: {
                             optional?: React.ReactNode;

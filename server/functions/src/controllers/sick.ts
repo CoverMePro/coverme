@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { ISickRequest } from '../models/Sick';
+import { mapToShift } from '../models/Shift';
+import { ISickRequest, mapToSickRequest } from '../models/Sick';
 import { db } from '../utils/admin';
 
 const createSickRequest = (req: Request, res: Response) => {
@@ -13,12 +14,8 @@ const createSickRequest = (req: Request, res: Response) => {
             sickRequest.id = result.id;
             return db.doc(`/companies/${name}/shifts/${sickRequest.shiftId}`).get();
         })
-        .then((shiftResult) => {
-            sickRequest.shift = {
-                ...shiftResult.data(),
-                startDateTime: shiftResult.data()!.startDateTime.toDate(),
-                endDateTime: shiftResult.data()!.endDateTime.toDate(),
-            };
+        .then((shiftDoc) => {
+            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
             return res.json({ sickRequest: sickRequest });
         })
         .catch((err) => {
@@ -38,33 +35,29 @@ const getSickRequests = (req: Request, res: Response) => {
     db.collection(`/companies/${name}/sick-requests`)
         .where('userId', '==', user)
         .get()
-        .then(async (resultData) => {
-            resultData.forEach((result) => {
-                const sickRequest: ISickRequest = {
-                    id: result.id,
-                    ...result.data(),
-                    requestDate: result.data().requestDate.toDate(),
-                };
+        .then(async (sickRequestDocs) => {
+            sickRequestDocs.forEach((sickRequestDoc) => {
+                const sickRequest: ISickRequest = mapToSickRequest(
+                    sickRequestDoc.id,
+                    sickRequestDoc.data()
+                );
 
                 sickRequests.push(sickRequest);
                 shiftIds.push(sickRequest.shiftId!);
             });
 
             if (shiftIds.length > 0) {
-                const shiftResults = await db
+                const shiftDocs = await db
                     .collection(`/companies/${name}/shifts`)
                     .where('__name__', 'in', shiftIds)
                     .get();
 
-                shiftResults.forEach((shift) => {
+                shiftDocs.forEach((shiftDoc) => {
                     for (let i = 0, len = sickRequests.length; i < len; ++i) {
-                        if (shift.id === sickRequests[i].shiftId) {
-                            sickRequests[i].shift = {
-                                id: shift.id,
-                                ...shift.data(),
-                                startDateTime: shift.data().startDateTime.toDate(),
-                                endDateTime: shift.data().endDateTime.toDate(),
-                            };
+                        const sickRequest = sickRequests[i];
+
+                        if (shiftDoc.id === sickRequest.shiftId) {
+                            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
                         }
                     }
                 });
@@ -99,21 +92,18 @@ const getSickRequestsFromTeams = (req: Request, res: Response) => {
                 }
             });
 
-            console.log(users);
-
             return db
                 .collection(`/companies/${req.params.name}/sick-requests`)
                 .where('userId', 'in', users)
                 .where('status', '==', 'Pending')
                 .get();
         })
-        .then(async (resultData) => {
-            resultData.forEach((result) => {
-                const sickRequest: ISickRequest = {
-                    id: result.id,
-                    ...result.data(),
-                    requestDate: result.data().requestDate.toDate(),
-                };
+        .then(async (sickRequestDocs) => {
+            sickRequestDocs.forEach((sickRequestDoc) => {
+                const sickRequest: ISickRequest = mapToSickRequest(
+                    sickRequestDoc.id,
+                    sickRequestDoc.data()
+                );
 
                 sickRequests.push(sickRequest);
 
@@ -121,20 +111,16 @@ const getSickRequestsFromTeams = (req: Request, res: Response) => {
             });
 
             if (shiftIds.length > 0) {
-                const shiftResults = await db
+                const shiftDocs = await db
                     .collection(`/companies/${req.params.name}/shifts`)
                     .where('__name__', 'in', shiftIds)
                     .get();
 
-                shiftResults.forEach((shift) => {
+                shiftDocs.forEach((shiftDoc) => {
                     for (let i = 0, len = sickRequests.length; i < len; ++i) {
-                        if (shift.id === sickRequests[i].shiftId) {
-                            sickRequests[i].shift = {
-                                id: shift.id,
-                                ...shift.data(),
-                                startDateTime: shift.data().startDateTime.toDate(),
-                                endDateTime: shift.data().endDateTime.toDate(),
-                            };
+                        const sickRequest = sickRequests[i];
+                        if (shiftDoc.id === sickRequest.shiftId) {
+                            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
                         }
                     }
                 });
@@ -158,10 +144,11 @@ const approveSickRequest = (req: Request, res: Response) => {
         .then(() => {
             // Call out time, either here or front end
             // remove shift from user
+            // TO DO: Create callout from here
             return db.doc(`/companies/${name}/sick-requests/${id}`).get();
         })
-        .then((sickRequestResult) => {
-            const shiftId = sickRequestResult.data()!.shiftId;
+        .then((sickRequestDoc) => {
+            const shiftId = sickRequestDoc.data()!.shiftId;
             return db.doc(`/companies/${name}/shifts/${shiftId}`).update({
                 userId: 'unclaimed',
             });

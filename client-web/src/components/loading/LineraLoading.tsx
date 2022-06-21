@@ -1,6 +1,8 @@
 import { Box, LinearProgress } from '@mui/material';
 import React from 'react';
 
+// TO DO: Make better, and make different types?
+
 const LinearLoading: React.FC = () => {
     return (
         <Box
