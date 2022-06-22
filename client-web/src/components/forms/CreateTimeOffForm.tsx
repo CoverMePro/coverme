@@ -63,6 +63,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
     };
 
     // TO DO: better form validation using what we have! do more research and figure out how to utilize here
+    // TO DO: better date picker for here?
 
     const handleSubmit = () => {
         const timeOffRequest: ITimeOffRequest = {

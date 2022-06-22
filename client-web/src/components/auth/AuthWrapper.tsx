@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
@@ -8,16 +8,12 @@ import { useActions } from 'hooks/use-actions';
 
 import { IUser } from 'models/User';
 
-import { hasPermission } from 'utils/permissions';
+import { hasPermission } from 'utils/validations/permissions';
 import axios from 'utils/axios-intance';
 
 interface IAuthWrapperProps {
     permissionLevel?: number;
 }
-
-/**
- *  A wrapper around any page that requires to be authenticated and potentially certain permissions (role)
- */
 
 const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 0 }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -27,10 +23,6 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
 
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
-
-    const userHasPermission = useCallback(() => {
-        return hasPermission(permissionLevel, user.role);
-    }, [permissionLevel, user.role]);
 
     useEffect(() => {
         if (!user.email) {
@@ -49,7 +41,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                     navigate('/login');
                 });
         } else {
-            if (userHasPermission()) {
+            if (hasPermission(permissionLevel, user.role)) {
                 setIsAuthenticated(true);
             } else {
                 enqueueSnackbar(
@@ -59,7 +51,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                 navigate('/login');
             }
         }
-    }, [userHasPermission, setUser, user, enqueueSnackbar, navigate]);
+    }, [setUser, user, enqueueSnackbar, navigate]);
 
     return <>{isAuthenticated && children}</>;
 };

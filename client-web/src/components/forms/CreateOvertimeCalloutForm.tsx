@@ -50,7 +50,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
     };
 
     const handleSubmit = () => {
-        // TO DO: Handle when a shift already has a callout?
+        // TO DO: Handle when a shift already has a callout? - NEEDS TO TEST
         if (selectedShift) {
             const overtimeCallout: IOvertime = {
                 company: user.company!,
@@ -71,10 +71,16 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                     onFinish(result.data.overtimeCallout);
                 })
                 .catch((err: AxiosError) => {
-                    console.error(err);
-                    enqueueSnackbar('An error has occured, please try again', {
-                        variant: 'error',
-                    });
+                    if (err.response?.status === 403) {
+                        enqueueSnackbar('A callout for this shift has already been made', {
+                            variant: 'error',
+                        });
+                    } else {
+                        console.error(err);
+                        enqueueSnackbar('An error has occured, please try again', {
+                            variant: 'error',
+                        });
+                    }
                     onFinish(undefined);
                 })
                 .finally(() => {

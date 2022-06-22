@@ -9,20 +9,20 @@ import {
     CircularProgress,
 } from '@mui/material';
 
+interface IConfirmationButton {
+    text: string;
+    color: 'primary' | 'success' | 'error' | 'warning';
+    onClick: () => void;
+}
+
 interface IBasicConfirmationProps {
     open: boolean;
     title: string;
     message: string;
     isLoading: boolean;
     onClose: () => void;
-    onConfirm: () => void;
+    buttons: IConfirmationButton[];
 }
-
-/**
- * Generic Delete confirmation component used when removing data
- */
-
-// TODO: make this a little more dynamic
 
 const BasicConfirmation: React.FC<IBasicConfirmationProps> = ({
     open,
@@ -30,7 +30,7 @@ const BasicConfirmation: React.FC<IBasicConfirmationProps> = ({
     message,
     isLoading,
     onClose,
-    onConfirm,
+    buttons,
 }) => {
     return (
         <Dialog open={open} onClose={onClose}>
@@ -43,12 +43,11 @@ const BasicConfirmation: React.FC<IBasicConfirmationProps> = ({
                     <CircularProgress sx={{ mb: 1, mr: 1 }} size={25} />
                 ) : (
                     <>
-                        <Button color="error" onClick={onClose}>
-                            No
-                        </Button>
-                        <Button color="success" onClick={onConfirm} autoFocus>
-                            Yes
-                        </Button>
+                        {buttons.map((button) => {
+                            <Button color={button.color} onClick={button.onClick}>
+                                {button.text}
+                            </Button>;
+                        })}
                     </>
                 )}
             </DialogActions>

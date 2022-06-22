@@ -6,7 +6,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { ICompany } from 'models/Company';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import CreateCompanyForm from 'components/forms/CreateCompanyForm';
+import CreateCompanyForm from 'components/forms/company/CreateCompanyForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 
 import FormDialog from 'components/dialogs/FormDialog';

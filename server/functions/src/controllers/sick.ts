@@ -9,18 +9,29 @@ const createSickRequest = (req: Request, res: Response) => {
     sickRequest.requestDate = new Date(sickRequest.requestDate!);
 
     db.collection(`/companies/${name}/sick-requests`)
-        .add(sickRequest)
-        .then((result) => {
-            sickRequest.id = result.id;
-            return db.doc(`/companies/${name}/shifts/${sickRequest.shiftId}`).get();
-        })
-        .then((shiftDoc) => {
-            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
-            return res.json({ sickRequest: sickRequest });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+        .where('shiftId', '==', sickRequest.shiftId)
+        .get()
+        .then((sickRequestDocs) => {
+            if (sickRequestDocs.empty) {
+                db.collection(`/companies/${name}/sick-requests`)
+                    .add(sickRequest)
+                    .then((result) => {
+                        sickRequest.id = result.id;
+                        return db.doc(`/companies/${name}/shifts/${sickRequest.shiftId}`).get();
+                    })
+                    .then((shiftDoc) => {
+                        sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
+                        return res.json({ sickRequest: sickRequest });
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        return res.status(500).json({ error: err.code });
+                    });
+            }
+
+            return res
+                .status(403)
+                .json({ error: 'A sick request was already made with this shift' });
         });
 };
 

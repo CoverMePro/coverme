@@ -30,11 +30,6 @@ interface IRegisterUserFormProps {
     onFinish: () => void;
 }
 
-/**
- * Form use to initially register user to the databse
- * User then must follow email instructions to complete registration
- */
-
 const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [role, setRole] = useState<string>('staff');
     const [isLoading, setIsLoading] = useState<boolean>(false);

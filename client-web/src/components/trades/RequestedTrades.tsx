@@ -24,7 +24,6 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
     onRequestStatusChange,
 }) => {
     const [selected, setSelected] = useState<any | undefined>(undefined);
-
     const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [confirmationTitle, setConfirmationTitle] = useState<string>('');
@@ -41,12 +40,23 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
         }
     };
 
+    const handleCloseConfirmation = () => {
+        setOpenConfirmation(false);
+    };
+
     const handleOpenAcceptConfirmation = () => {
         setConfirmationTitle('Accept Trade Request?');
         setConfirmationMessage(
             'Are you sure you want to accept this trade request? This will apply immediately.'
         );
         setIsAccepting(true);
+        setOpenConfirmation(true);
+    };
+
+    const handleOpenRejectConfirmation = () => {
+        setConfirmationTitle('Reject Trade Request?');
+        setConfirmationMessage('Are you sure you want to reject this trade request?');
+        setIsAccepting(false);
         setOpenConfirmation(true);
     };
 
@@ -69,13 +79,6 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
                 setIsLoading(false);
                 setOpenConfirmation(false);
             });
-    };
-
-    const handleOpenRejectConfirmation = () => {
-        setConfirmationTitle('Reject Trade Request?');
-        setConfirmationMessage('Are you sure you want to reject this trade request?');
-        setIsAccepting(false);
-        setOpenConfirmation(true);
     };
 
     const handleRejectTrade = () => {
@@ -137,10 +140,17 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
             <BasicConfirmation
                 open={openConfirmation}
                 isLoading={isLoading}
-                onClose={() => setOpenConfirmation(false)}
+                onClose={() => handleCloseConfirmation}
                 title={confirmationTitle}
                 message={confirmationMessage}
-                onConfirm={handleConfirmation}
+                buttons={[
+                    { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
+                    {
+                        text: isAccepting ? 'Accept' : 'Reject',
+                        color: 'primary',
+                        onClick: handleConfirmation,
+                    },
+                ]}
             />
         </Box>
     );

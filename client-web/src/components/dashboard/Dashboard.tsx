@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Outlet } from 'react-router';
+
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Toolbar, Typography, Drawer, Divider } from '@mui/material';
@@ -19,10 +20,9 @@ import MainSection from './MainSection';
 import { adminNav, mainNav, managmentNav, companyNav, overtimeNav } from 'utils/react/navs';
 
 const Dashboard: React.FC = () => {
-    const user = useTypedSelector((state) => state.user);
-
     const [navSelected, setNavSelected] = useState<number>(0);
 
+    const user = useTypedSelector((state) => state.user);
     const location = useLocation();
 
     useEffect(() => {
@@ -93,6 +93,7 @@ const Dashboard: React.FC = () => {
                     navSelected={navSelected}
                     navItems={adminNav}
                 />
+                <Divider />
                 <NavList
                     visible={user.role !== 'admin'}
                     navSelected={navSelected}
@@ -110,6 +111,7 @@ const Dashboard: React.FC = () => {
                     navSelected={navSelected}
                     navItems={managmentNav}
                 />
+                <Divider />
                 {user.role !== 'admin' && (
                     <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
                 )}

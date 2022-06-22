@@ -1,12 +1,15 @@
 import React from 'react';
 import NumberFormat from 'react-number-format';
 
-interface CustomProps {
+interface IDurationFormatProps {
     onChange: (event: { target: { name: string; value: string } }) => void;
     name: string;
 }
 
-const DurationCustom = React.forwardRef<any, CustomProps>(function NumberFormatCustom(props, ref) {
+const DurationFormat = React.forwardRef<any, IDurationFormatProps>(function NumberFormatCustom(
+    props,
+    ref
+) {
     const { onChange, ...other } = props;
 
     return (
@@ -30,4 +33,4 @@ const DurationCustom = React.forwardRef<any, CustomProps>(function NumberFormatC
     );
 });
 
-export default DurationCustom;
+export default DurationFormat;

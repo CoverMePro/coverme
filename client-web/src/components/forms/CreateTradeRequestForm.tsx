@@ -89,7 +89,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     };
 
     const handleRequestedUserChange = (
-        event: React.SyntheticEvent<Element, Event>,
+        _: React.SyntheticEvent<Element, Event>,
         value: IUser | null
     ) => {
         if (value) {

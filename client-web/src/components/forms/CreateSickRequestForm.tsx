@@ -11,9 +11,9 @@ import logo from 'images/cover-me-logo.png';
 
 import { IShift } from 'models/Shift';
 
-import axios from 'utils/axios-intance';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
-
+import { getTodayAndTomorrowDates } from 'utils/helpers/dateTime-helpers';
+import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
 
 interface ICreateSickRequestFromProps {
@@ -52,10 +52,16 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                     onFinish(result.data.sickRequest);
                 })
                 .catch((err: AxiosError) => {
-                    console.error(err);
-                    enqueueSnackbar('An error has occured, please try again', {
-                        variant: 'error',
-                    });
+                    if (err.response?.status === 403) {
+                        enqueueSnackbar('A sick request for this shift has already been made', {
+                            variant: 'error',
+                        });
+                    } else {
+                        console.error(err);
+                        enqueueSnackbar('An error has occured, please try again', {
+                            variant: 'error',
+                        });
+                    }
                     onFinish(undefined);
                 })
                 .finally(() => {
@@ -68,10 +74,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
         }
     };
 
-    const handleShiftChange = (
-        event: React.SyntheticEvent<Element, Event>,
-        value: IShift | null
-    ) => {
+    const handleShiftChange = (_: React.SyntheticEvent<Element, Event>, value: IShift | null) => {
         if (value) {
             setSelectedShiftId(value.id);
         } else {
@@ -81,11 +84,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
 
     useEffect(() => {
         setIsLoadingData(true);
-        const todayDate = new Date();
-        const tomorrowDate = new Date();
-        tomorrowDate.setDate(new Date().getDate() + 1);
-        tomorrowDate.setHours(23);
-        tomorrowDate.setMinutes(59);
+        const dates = getTodayAndTomorrowDates();
 
         axios
             .post(
@@ -93,8 +92,8 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                     process.env.REACT_APP_SERVER_API
                 }/company/${user.company!}/shifts/${user.email!}/range`,
                 {
-                    startRange: todayDate,
-                    endRange: tomorrowDate,
+                    startRange: dates.today,
+                    endRange: dates.tomorrow,
                 }
             )
             .then((shiftResults) => {

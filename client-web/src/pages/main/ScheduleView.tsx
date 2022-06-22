@@ -19,6 +19,8 @@ import 'styles/calendar.css';
 import EditSchedule from 'components/scheduler/EditSchedule';
 import { ITimeOff } from 'models/TimeOff';
 
+// TODO: Refactor and split up code to other files/functions
+
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
     const [filteredTeamStaff, setFilteredTeamStaff] = useState<any[]>([]);

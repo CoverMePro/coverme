@@ -34,6 +34,10 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
         }
     };
 
+    const handleCloseConfirmation = () => {
+        setOpenConfirmation(false);
+    };
+
     const handleConfirmation = () => {
         setIsLoading(true);
         setShowArchive(false);
@@ -94,12 +98,19 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
             <BasicConfirmation
                 open={openConfirmation}
                 isLoading={isLoading}
-                onClose={() => setOpenConfirmation(false)}
+                onClose={handleCloseConfirmation}
                 title={'Archive Trade Request'}
                 message={
                     'Do you want to archive this trade request? you will no longer see this request in this table.'
                 }
-                onConfirm={handleConfirmation}
+                buttons={[
+                    { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
+                    {
+                        text: 'Archive',
+                        color: 'primary',
+                        onClick: handleConfirmation,
+                    },
+                ]}
             />
         </Box>
     );

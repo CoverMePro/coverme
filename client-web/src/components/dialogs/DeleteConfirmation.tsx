@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Button,
-    CircularProgress,
-} from '@mui/material';
+import BasicConfirmation from './BasicConfirmation';
 
 interface IDeleteConfirmationProps {
     open: boolean;
@@ -17,12 +9,6 @@ interface IDeleteConfirmationProps {
     onConfirm: () => void;
 }
 
-/**
- * Generic Delete confirmation component used when removing data
- */
-
-// TO DO: Inherit from Basic confirmation and expand
-
 const DeleteConfirmation: React.FC<IDeleteConfirmationProps> = ({
     open,
     message,
@@ -31,24 +17,17 @@ const DeleteConfirmation: React.FC<IDeleteConfirmationProps> = ({
     onConfirm,
 }) => {
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Delete Confirmation</DialogTitle>
-            <DialogContent>
-                <DialogContentText>{message}</DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                {isLoading ? (
-                    <CircularProgress sx={{ mb: 1, mr: 1 }} size={25} />
-                ) : (
-                    <>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button color="error" onClick={onConfirm} autoFocus>
-                            Delete
-                        </Button>
-                    </>
-                )}
-            </DialogActions>
-        </Dialog>
+        <BasicConfirmation
+            title="Delete Confirmation"
+            message={message}
+            open={open}
+            isLoading={isLoading}
+            onClose={onClose}
+            buttons={[
+                { text: 'Cancel', color: 'primary', onClick: onClose },
+                { text: 'Delete', color: 'error', onClick: onConfirm },
+            ]}
+        />
     );
 };
 

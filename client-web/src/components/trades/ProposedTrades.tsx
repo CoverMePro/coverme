@@ -47,8 +47,8 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDelet
                 setSelected(undefined);
             })
             .catch((err) => {
+                console.error(err);
                 setIsLoading(false);
-                console.log(err);
             })
             .finally(() => {
                 setOpenDelete(false);

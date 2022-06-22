@@ -74,6 +74,10 @@ const SickView: React.FC = () => {
         }
     };
 
+    const handleCloseConfirmation = () => {
+        setOpenConfirmation(false);
+    };
+
     const handleOpenApproveTimeOffRequest = () => {
         setConfirmationTitle('Approve Sick Request');
         setConfirmationMessage('Are you sure you want to approve this sick request?');
@@ -106,7 +110,7 @@ const SickView: React.FC = () => {
             })
             .finally(() => {
                 setIsLoading(false);
-                setOpenConfirmation(false);
+                handleCloseConfirmation();
             });
     };
 
@@ -224,10 +228,17 @@ const SickView: React.FC = () => {
             <BasicConfirmation
                 open={openConfirmation}
                 isLoading={isLoading}
-                onClose={() => setOpenConfirmation(false)}
+                onClose={handleCloseConfirmation}
                 title={confirmationTitle}
                 message={confirmationMessage}
-                onConfirm={handleConfirmation}
+                buttons={[
+                    { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
+                    {
+                        text: isApproving ? 'Approve' : 'Reject',
+                        color: 'primary',
+                        onClick: handleConfirmation,
+                    },
+                ]}
             />
         </Box>
     );

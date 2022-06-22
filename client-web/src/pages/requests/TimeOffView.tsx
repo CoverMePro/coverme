@@ -87,6 +87,10 @@ const TimeOffView: React.FC = () => {
         }
     };
 
+    const handleCloseConfirmation = () => {
+        setOpenConfirmation(false);
+    };
+
     const handleApproveTimeOffRequest = () => {
         setIsLoading(true);
         axios
@@ -105,7 +109,7 @@ const TimeOffView: React.FC = () => {
             })
             .finally(() => {
                 setIsLoading(false);
-                setOpenConfirmation(false);
+                handleCloseConfirmation();
             });
     };
 
@@ -126,7 +130,7 @@ const TimeOffView: React.FC = () => {
             })
             .finally(() => {
                 setIsLoading(false);
-                setOpenConfirmation(false);
+                handleCloseConfirmation();
             });
     };
 
@@ -228,10 +232,17 @@ const TimeOffView: React.FC = () => {
                 <BasicConfirmation
                     open={openConfirmation}
                     isLoading={isLoading}
-                    onClose={() => setOpenConfirmation(false)}
+                    onClose={handleCloseConfirmation}
                     title={confirmationTitle}
                     message={confirmationMessage}
-                    onConfirm={handleConfirmation}
+                    buttons={[
+                        { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
+                        {
+                            text: isApproving ? 'Approve' : 'Reject',
+                            color: 'primary',
+                            onClick: handleConfirmation,
+                        },
+                    ]}
                 />
             </Box>
         </>

@@ -20,14 +20,10 @@ import axios from 'utils/axios-intance';
 
 interface IForgotPasswordProps {
     open: boolean;
-    handleClose: () => void;
+    onClose: () => void;
 }
 
-/**
- * A simple dialog component to initate the password reset process
- */
-
-const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, handleClose }) => {
+const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, onClose }) => {
     const [email, setEmail] = useState<string>('');
     const [error, setError] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -49,7 +45,7 @@ const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, handleClos
                         variant: 'success',
                         autoHideDuration: 3000,
                     });
-                    handleClose();
+                    onClose();
                 })
                 .catch((err) => {
                     console.error(err);
@@ -65,7 +61,7 @@ const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, handleClos
     };
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={onClose}>
             <DialogTitle>Forgot Password</DialogTitle>
             <DialogContent>
                 <DialogContentText>
@@ -97,7 +93,7 @@ const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, handleClos
                     <CircularProgress size="2rem" sx={{ mr: 4, mb: 1 }} />
                 ) : (
                     <>
-                        <Button color="error" onClick={handleClose}>
+                        <Button color="error" onClick={onClose}>
                             Cancel
                         </Button>
                         <Button onClick={handleSendPasswordReset}>Send</Button>
