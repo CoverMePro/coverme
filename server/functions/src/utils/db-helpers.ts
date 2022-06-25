@@ -29,7 +29,7 @@ export const getCalloutList = (company: string) => {
         })
         .then((result) => {
             if (result.empty) {
-                lastCallouts = undefined;
+                lastCallouts = {};
             } else {
                 result.docs.forEach((doc) => {
                     lastCallouts = {

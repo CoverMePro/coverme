@@ -104,7 +104,7 @@ const hasAllUsersBeenNotifiedOrDeclined = (users: IUser[], callouts: ICallout[])
 const handleCalloutCycle = async (
     callouts: ICallout[],
     users: IUser[],
-    lastCalloutUser: string,
+    lastCalloutUser: string | undefined,
     overtimeId: string,
     phase: 'internal' | 'external'
 ) => {
@@ -114,12 +114,16 @@ const handleCalloutCycle = async (
 
     if (lastCalloutUser) {
         console.log(lastCalloutUser);
-        const userIndex = users.findIndex((user) => user.email === lastCalloutUser);
+        const userIndex = lastCalloutUser
+            ? users.findIndex((user) => user.email === lastCalloutUser)
+            : -1;
 
         console.log(userIndex);
 
         if (userIndex !== -1) {
             calloutindex = userIndex + 1 >= users.length ? 0 : userIndex + 1;
+        } else {
+            calloutindex = 0;
         }
     }
 
@@ -212,9 +216,13 @@ const callout = () => {
                                 userContainsTeam(user, team)
                             );
                             // get index where last call out was made
+
+                            // if no last callout setup nyet, gotta upate that
                             console.log(lastCallouts);
 
-                            const lastCalloutUserForTeam = lastCallouts.internal[team];
+                            const lastCalloutUserForTeam = lastCallouts.internal[team]
+                                ? lastCallouts.internal[team]
+                                : undefined;
 
                             await handleCalloutCycle(
                                 callouts,

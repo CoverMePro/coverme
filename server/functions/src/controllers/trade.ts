@@ -31,11 +31,11 @@ const createTradeRequest = (req: Request, res: Response) => {
         .then((shiftDocs) => {
             shiftDocs.forEach((shiftDoc) => {
                 if (fetchedTradeRequest.proposedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data);
+                    fetchedTradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data());
                 }
 
                 if (fetchedTradeRequest.requestedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data);
+                    fetchedTradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data());
                 }
             });
 
@@ -106,11 +106,11 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
                     const tradeRequest = tradeRequests[i];
 
                     if (tradeRequest.proposedShiftId === shiftDoc.id) {
-                        tradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data);
+                        tradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data());
                     }
 
                     if (tradeRequest.requestedShiftId === shiftDoc.id) {
-                        tradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data);
+                        tradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data());
                     }
                 }
             });

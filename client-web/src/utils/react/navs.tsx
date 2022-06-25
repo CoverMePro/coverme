@@ -63,6 +63,7 @@ export const overtimeNav: INav[] = [
 ];
 
 export const adminNav: INav[] = [
+    { label: 'Home', path: 'home', selectedIndex: 0, icon: <HomeIcon color="secondary" /> },
     {
         label: 'Companies',
         path: 'companies',

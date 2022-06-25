@@ -10,21 +10,23 @@ const createOvertimeCallout = (req: Request, res: Response) => {
     db.collection('/overtyime-callouts')
         .where('shiftId', '==', overtimeCallout.shiftId)
         .get()
-        .then((overtimeDocs) => {
-            if (overtimeDocs.empty) {
-                db.collection('/overtime-callouts')
-                    .add({ ...overtimeCallout, dateCreated: new Date() })
-                    .then((result) => {
-                        overtimeCallout.id = result.id;
-                        return res.json({ overtimeCallout: overtimeCallout });
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        return res.status(500).json({ error: err.code });
-                    });
+        .then(async (overtimeDocs) => {
+            if (!overtimeDocs.empty) {
+                return res
+                    .status(403)
+                    .json({ error: 'A Callout already has been made on this shift' });
             }
+            try {
+                const overtimeCalloutDoc = await db
+                    .collection('/overtime-callouts')
+                    .add({ ...overtimeCallout, dateCreated: new Date() });
 
-            return res.status(403).json({ error: 'A Callout already has been made on this shift' });
+                overtimeCallout.id = overtimeCalloutDoc.id;
+                return res.json({ overtimeCallout: overtimeCallout });
+            } catch (err) {
+                console.error(err);
+                return res.status(500).json({ error: err });
+            }
         });
 };
 

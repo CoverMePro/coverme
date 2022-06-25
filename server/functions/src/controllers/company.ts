@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { ICompany, mapToCompany } from '../models/Company';
+import { ILastCallouts } from '../models/LastCallout';
 import { IUser, mapToUser } from '../models/User';
 
 import { db, fbAuth } from '../utils/admin';
@@ -82,6 +83,15 @@ const createCompany = async (req: Request, res: Response) => {
 
     const ownerEmail = req.body.owner.email;
     const ownerInfo = req.body.owner.data;
+
+    const lastCallouts: ILastCallouts = {
+        external: {
+            email: '',
+        },
+        internal: {},
+    };
+
+    companyInfo.lastCallouts = lastCallouts;
 
     db.doc(`/companies/${companyName}`)
         .get()

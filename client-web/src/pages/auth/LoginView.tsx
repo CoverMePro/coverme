@@ -227,7 +227,7 @@ const LoginView: React.FC = () => {
             </Box>
             <ForgotPasswordDialog
                 open={openForgotPassword}
-                handleClose={() => setOpenForgotPassword(false)}
+                onClose={() => setOpenForgotPassword(false)}
             />
         </>
     );

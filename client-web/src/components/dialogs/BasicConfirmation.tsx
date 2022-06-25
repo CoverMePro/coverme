@@ -43,11 +43,11 @@ const BasicConfirmation: React.FC<IBasicConfirmationProps> = ({
                     <CircularProgress sx={{ mb: 1, mr: 1 }} size={25} />
                 ) : (
                     <>
-                        {buttons.map((button) => {
-                            <Button color={button.color} onClick={button.onClick}>
+                        {buttons.map((button) => (
+                            <Button key={button.text} color={button.color} onClick={button.onClick}>
                                 {button.text}
-                            </Button>;
-                        })}
+                            </Button>
+                        ))}
                     </>
                 )}
             </DialogActions>

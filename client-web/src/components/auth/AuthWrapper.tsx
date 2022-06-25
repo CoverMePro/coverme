@@ -51,7 +51,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                 navigate('/login');
             }
         }
-    }, [setUser, user, enqueueSnackbar, navigate]);
+    }, [setUser, user, enqueueSnackbar, navigate, permissionLevel]);
 
     return <>{isAuthenticated && children}</>;
 };

@@ -62,7 +62,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
         })
         .then((shiftDefinitionDocs) => {
             shiftDefinitionDocs.forEach((doc) => {
-                shiftDefs.push(mapToShiftDefinition(doc.id, doc.data));
+                shiftDefs.push(mapToShiftDefinition(doc.id, doc.data()));
             });
             return res.json({
                 teamStaff: teamStaff,
