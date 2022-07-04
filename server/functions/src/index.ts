@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import companyRoutes from './routes/companies/company';
 import overtimeRoutes from './routes/overtime-callout';
 import userRoutes from './routes/user';
+import { replySms, sendSms } from './utils/sms';
 // import { callout } from './utils/overtime';
 
 const app = express();
@@ -30,6 +31,9 @@ app.use('/auth', authRoutes);
 app.use('/company', companyRoutes);
 app.use('/overtime-callout', overtimeRoutes);
 app.use('/user', userRoutes);
+
+app.post('/send-sms', sendSms);
+app.post('/reply-sms', replySms);
 
 exports.api = functions.https.onRequest(app);
 

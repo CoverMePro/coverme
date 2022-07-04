@@ -1,12 +1,14 @@
-import { isEmpty, isPhone, minLength } from './shared';
+import { isEmail, isEmpty, isPhone, minLength } from './shared';
 
 export const validateLogin = (values: { email: string; password: string }) => {
     const errors: any = {};
     if (isEmpty(values.email as string)) {
         errors.email = 'Required';
+    } else if (!isEmail(values.email)) {
+        errors.email = 'Must be a valid email address';
     }
 
-    if (isEmpty(values.email as string)) {
+    if (isEmpty(values.password as string)) {
         errors.password = 'Required';
     }
 
@@ -32,9 +34,9 @@ export const validateRegister = (values: {
     }
 
     if (isEmpty(values.phone as string)) {
-        errors.phoneNo = 'Required';
+        errors.phone = 'Required';
     } else if (!isPhone(values.phone)) {
-        errors.phoneNo = '+1 (xxx) xxx-xxxx';
+        errors.phone = '+1 (xxx) xxx-xxxx';
     }
 
     return errors;

@@ -33,7 +33,7 @@ interface IRegisterUserFormProps {
 const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [role, setRole] = useState<string>('staff');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [hireDate, setHireDate] = useState<Date>(new Date());
+    const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 
     const company = useTypedSelector((state) => state.user.company);
 
@@ -43,51 +43,50 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
         setRole((event.target as HTMLInputElement).value);
     };
 
-    const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
-        initialValues: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            position: '',
-            hireDate: '',
-        },
-        validate: validateUserCreate,
-        onSubmit: (userValues: any) => {
-            const { email, firstName, lastName, position } = userValues;
+    const { handleSubmit, handleChange, handleBlur, setValues, values, touched, errors } =
+        useFormik({
+            initialValues: {
+                firstName: '',
+                lastName: '',
+                email: '',
+                position: '',
+                hireDate: '',
+            },
+            validate: validateUserCreate,
+            onSubmit: (userValues: any) => {
+                const { email, firstName, lastName, position } = userValues;
 
-            console.log(hireDate);
-
-            setIsLoading(true);
-            axios
-                .post(`${process.env.REACT_APP_SERVER_API}/auth/register-link`, {
-                    email,
-                    firstName,
-                    lastName,
-                    company: company!,
-                    role: role,
-                    position,
-                    hireDate: hireDate,
-                })
-                .then((result) => {
-                    setIsLoading(false);
-                    enqueueSnackbar(
-                        'Success! an email has been sent out to this user to complete registration.',
-                        {
-                            variant: 'success',
-                        }
-                    );
-                    onFinish();
-                })
-                .catch((err) => {
-                    console.error(err);
-                    setIsLoading(false);
-                    enqueueSnackbar('An error has occured, please try again', {
-                        variant: 'error',
+                setIsLoading(true);
+                axios
+                    .post(`${process.env.REACT_APP_SERVER_API}/auth/register-link`, {
+                        email,
+                        firstName,
+                        lastName,
+                        company: company!,
+                        role: role,
+                        position,
+                        hireDate: savedHireDate,
+                    })
+                    .then((result) => {
+                        setIsLoading(false);
+                        enqueueSnackbar(
+                            'Success! an email has been sent out to this user to complete registration.',
+                            {
+                                variant: 'success',
+                            }
+                        );
+                        onFinish();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        setIsLoading(false);
+                        enqueueSnackbar('An error has occured, please try again', {
+                            variant: 'error',
+                        });
+                        onFinish();
                     });
-                    onFinish();
-                });
-        },
-    });
+            },
+        });
 
     return (
         <Box
@@ -197,12 +196,37 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <Box sx={{ mt: 2 }}>
                             <DatePicker
-                                renderInput={(props) => <TextField {...props} fullWidth />}
+                                renderInput={(props) => (
+                                    <TextField
+                                        {...props}
+                                        fullWidth
+                                        name="hireDate"
+                                        value={values.hireDate}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.hireDate &&
+                                            errors.hireDate !== undefined &&
+                                            errors.hireDate !== ''
+                                        }
+                                        helperText={touched.hireDate ? errors.hireDate : ''}
+                                    />
+                                )}
+                                InputProps={{ readOnly: true }}
                                 label="Hire Date"
-                                value={hireDate}
-                                onChange={(newValue) => {
-                                    if (newValue) {
-                                        setHireDate(newValue);
+                                value={savedHireDate}
+                                onChange={(newValue, keyboardValue) => {
+                                    if (newValue && keyboardValue === undefined) {
+                                        setSavedHireDate(newValue);
+                                        setValues({
+                                            ...values,
+                                            hireDate: newValue.toString(),
+                                        });
+                                    } else if (keyboardValue !== undefined) {
+                                        setValues({
+                                            ...values,
+                                            hireDate: savedHireDate.toString(),
+                                        });
                                     }
                                 }}
                             />

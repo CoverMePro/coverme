@@ -45,6 +45,7 @@ const ForgotPasswordDialog: React.FC<IForgotPasswordProps> = ({ open, onClose })
                         variant: 'success',
                         autoHideDuration: 3000,
                     });
+                    setEmail('');
                     onClose();
                 })
                 .catch((err) => {

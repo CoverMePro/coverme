@@ -4,7 +4,7 @@ import { ICompany, mapToCompany } from '../models/Company';
 import { ILastCallouts } from '../models/LastCallout';
 import { IUser, mapToUser } from '../models/User';
 
-import { db, fbAuth } from '../utils/admin';
+import { db, fbAuth, fbAdmin } from '../utils/admin';
 import { getCalloutList, updateNewUserIntoDb } from '../utils/db-helpers';
 import { emailSignInForUser } from '../utils/fb-emails';
 
@@ -124,16 +124,52 @@ const createCompany = async (req: Request, res: Response) => {
         });
 };
 
-const deleteCompany = (req: Request, res: Response) => {
-    db.doc(`/companies/${req.params.name}`)
-        .delete()
-        .then(() => {
-            return res.json({ message: 'Company deleted successfully!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+const deleteCompany = async (req: Request, res: Response) => {
+    const company = req.params.name;
+    const batch = db.batch();
+
+    const userEmails: any = [];
+    try {
+        await db
+            .collection('/users')
+            .where('company', '==', company)
+            .get()
+            .then((userDocs) => {
+                userDocs.forEach((userDoc) => {
+                    userEmails.push({ email: userDoc.id });
+                    batch.delete(db.doc(`/users/${userDoc.id}`));
+                });
+            });
+
+        await db
+            .collection('/overtime-callouts')
+            .where('company', '==', company)
+            .get()
+            .then((overtimeDocs) => {
+                overtimeDocs.forEach((overtimeDoc) => {
+                    batch.delete(db.doc(`/overtime-callouts/${overtimeDoc.id}`));
+                });
+            });
+
+        batch.delete(db.doc(`/companies/${req.params.name}`));
+
+        await batch.commit();
+
+        const userResults = await fbAdmin.auth().getUsers(userEmails);
+
+        const batchDeleteUsers: any = [];
+
+        userResults.users.forEach((user) => {
+            batchDeleteUsers.push(user);
         });
+
+        await fbAdmin.auth().deleteUsers(batchDeleteUsers);
+
+        return res.json({ message: 'Company successfully deleted' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
 };
 
 /**

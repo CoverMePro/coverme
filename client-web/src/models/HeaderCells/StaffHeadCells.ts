@@ -35,6 +35,14 @@ const headCells: IHeaderCells<IUser>[] = [
         capitalize: true,
     },
     {
+        id: 'position',
+        numeric: false,
+        disablePadding: false,
+        label: 'Position',
+        sortable: true,
+        capitalize: true,
+    },
+    {
         id: 'hireDate',
         numeric: false,
         disablePadding: false,

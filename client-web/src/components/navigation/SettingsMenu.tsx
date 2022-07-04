@@ -10,7 +10,6 @@ import axios from 'utils/axios-intance';
 
 const SettingsMenu: React.FC = () => {
     const navigate = useNavigate();
-    const { setUser } = useActions();
     const [openSettings, setOpenSettings] = useState<boolean>(false);
     const settingsRef = useRef<any>();
 
@@ -18,15 +17,6 @@ const SettingsMenu: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/auth/logout`)
             .then(() => {
-                setUser({
-                    email: '',
-                    company: '',
-                    firstName: '',
-                    lastName: '',
-                    phone: '',
-                    role: '',
-                    teams: [],
-                });
                 navigate('/login');
             })
             .catch((err) => {

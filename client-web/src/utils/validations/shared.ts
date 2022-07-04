@@ -15,3 +15,8 @@ export const isEmail = (email: string) => {
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
 };
+
+export const isDate = (date: any) => {
+    console.log(new Date(date));
+    return !isNaN(Date.parse(date));
+};

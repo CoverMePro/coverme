@@ -7,7 +7,7 @@ import calloutCyle from '../utils/overtime';
 const createOvertimeCallout = (req: Request, res: Response) => {
     const overtimeCallout: IOvertime = req.body;
 
-    db.collection('/overtyime-callouts')
+    db.collection('/overtime-callouts')
         .where('shiftId', '==', overtimeCallout.shiftId)
         .get()
         .then(async (overtimeDocs) => {

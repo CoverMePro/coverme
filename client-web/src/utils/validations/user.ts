@@ -1,4 +1,4 @@
-import { isEmail, isEmpty } from './shared';
+import { isDate, isEmail, isEmpty } from './shared';
 
 export const validateUserCreate = (values: any) => {
     let errors: any = {};
@@ -19,6 +19,13 @@ export const validateUserCreate = (values: any) => {
 
     if (isEmpty(values.position as string)) {
         errors.position = 'Required';
+    }
+
+    if (isEmpty(values.hireDate)) {
+        errors.hireDate = 'Required';
+    } else if (!isDate(values.hireDate)) {
+        console.log('in here');
+        errors.hireDate = 'Must be a valid date';
     }
 
     return errors;

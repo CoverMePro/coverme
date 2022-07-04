@@ -1,0 +1,3 @@
+https://us-central1-coverme-47dc7.cloudfunctions.net/api
+
+http://localhost:5001/coverme-47dc7/us-central1/api

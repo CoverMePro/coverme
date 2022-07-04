@@ -224,7 +224,7 @@ const RegisterView: React.FC = () => {
                                         variant="outlined"
                                         label="Phone Number"
                                         type="tel"
-                                        name="phoneNo"
+                                        name="phone"
                                         onChange={(e) => {
                                             setValues({
                                                 ...values,
