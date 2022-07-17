@@ -5,9 +5,9 @@ import { db } from '../utils/admin';
 import { Twilio, twiml } from 'twilio';
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER } from '../constants';
 
-// const formatNumber = (phone: string) => {
-//     return phone.replace(/[- )(]/g, '');
-// };
+const formatNumber = (phone: string) => {
+    return phone.replace(/[- )(]/g, '');
+};
 
 export const sendSms = (req: Request, res: Response) => {
     const userId = req.body.userId;
@@ -25,11 +25,13 @@ export const sendSms = (req: Request, res: Response) => {
 
                 const message = await client.messages.create({
                     from: TWILIO_NUMBER,
-                    to: user.phone,
+                    to: formatNumber(user.phone),
                     body: `Hello ${user.firstName} ${user.lastName}! Test send sms from twilio!`,
+                    addressRetention: 'retain',
                 });
 
                 console.log(message.sid);
+                console.log(message);
 
                 return res.json({ message: 'sms successfully sent' });
             } catch (err) {
@@ -40,12 +42,12 @@ export const sendSms = (req: Request, res: Response) => {
 };
 
 export const replySms = async (req: Request, res: Response) => {
-    console.log('HERE');
     const { MessagingResponse } = twiml;
-    console.log(req.body);
 
     const fromPhone = req.body.From;
     const message = req.body.Body;
+
+    console.log(req.body);
 
     console.log((fromPhone as string).trim());
 

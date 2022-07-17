@@ -24,7 +24,6 @@ export const validateUserCreate = (values: any) => {
     if (isEmpty(values.hireDate)) {
         errors.hireDate = 'Required';
     } else if (!isDate(values.hireDate)) {
-        console.log('in here');
         errors.hireDate = 'Must be a valid date';
     }
 
