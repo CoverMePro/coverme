@@ -51,6 +51,50 @@ const getOvertimeCallouts = (req: Request, res: Response) => {
         });
 };
 
+const getOvertimeCalloutInfo = (req: Request, res: Response) => {
+    const { user, id } = req.params;
+
+    db.collection('/overtime-callouts')
+        .where('__name__', '==', id)
+        .limit(1)
+        .get()
+        .then((overtimeCalloutDocs) => {
+            const overtimeCallout = mapToOvertime(
+                overtimeCalloutDocs.docs[0].id,
+                overtimeCalloutDocs.docs[0].data()
+            );
+
+            let hasBeenReached = false;
+            let hasAnswered = false;
+
+            overtimeCallout.callouts.forEach((callout) => {
+                if (callout.user === user) {
+                    hasBeenReached = true;
+
+                    if (callout.status !== 'Pending') {
+                        hasAnswered = true;
+                    }
+                }
+            });
+
+            if (!hasBeenReached) {
+                // ERROR: NOT CONTACTED
+                return res.status(400).json({ error: 'NOT_CONTACTED' });
+            }
+
+            if (hasAnswered) {
+                // ERROR: ALREADY ANSWERED
+                return res.status(409).json({ error: 'ALREADY_ANSWERED' });
+            }
+
+            return res.json({ overtimeCallout: overtimeCallout });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 const acceptCalloutShift = async (req: Request, res: Response) => {
     const { id } = req.params;
     const email = req.body.email;
@@ -140,6 +184,7 @@ const testCycleCallout = (_: Request, res: Response) => {
 export default {
     createOvertimeCallout,
     getOvertimeCallouts,
+    getOvertimeCalloutInfo,
     acceptCalloutShift,
     rejectedCalloutShift,
     testCycleCallout,

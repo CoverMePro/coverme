@@ -2,8 +2,14 @@ import { Request, Response } from 'express';
 import { IUser, mapToUser } from '../models/User';
 import { db } from '../utils/admin';
 
-import { Twilio, twiml } from 'twilio';
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER } from '../constants';
+import { Twilio } from 'twilio';
+import {
+    TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_NUMBER,
+    WEB_CLIENT_DOMAIN,
+} from '../constants';
+import { IOvertime } from '../models/Overtime';
 
 const formatNumber = (phone: string) => {
     return phone.replace(/[- )(]/g, '');
@@ -27,7 +33,6 @@ export const sendSms = (req: Request, res: Response) => {
                     from: TWILIO_NUMBER,
                     to: formatNumber(user.phone),
                     body: `Hello ${user.firstName} ${user.lastName}! Test send sms from twilio!`,
-                    addressRetention: 'retain',
                 });
 
                 console.log(message.sid);
@@ -41,37 +46,36 @@ export const sendSms = (req: Request, res: Response) => {
         });
 };
 
-export const replySms = async (req: Request, res: Response) => {
-    const { MessagingResponse } = twiml;
+export const sendOvertimeSms = (user: IUser, overtimeInfo: IOvertime, overtimeId: string) => {
+    const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-    const fromPhone = req.body.From;
-    const message = req.body.Body;
+    const link = `${WEB_CLIENT_DOMAIN}/overtime-confirmation?user=${user.email}&overtimeId=${overtimeId}`;
 
-    console.log(req.body);
+    const bodyTemplate = `Hello,\n\n There is a shift available: \n ${overtimeInfo.shiftInfo} \n\n from the following team: \n ${overtimeInfo.team} \n\n Please go to the link below if you wish to accept this shift \n\n ${link}`;
 
-    console.log((fromPhone as string).trim());
+    return client.messages
+        .create({
+            from: TWILIO_NUMBER,
+            to: formatNumber(user.phone),
+            body: bodyTemplate,
+        })
+        .catch((err) => {
+            throw new Error(err);
+        });
+};
 
-    return db
-        .collection('/users')
-        .where('phone', '==', fromPhone)
-        .get()
-        .then(async (userDocs) => {
-            if (userDocs.empty) {
-                console.log('Cant find user!');
-                return res.status(403).json({ error: 'No user exists' });
-            }
+export const sendConfirmOvertimeSms = (phone: string, overtimeInfo: IOvertime) => {
+    const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-            const user = mapToUser(userDocs.docs[0].id, userDocs.docs[0].data());
-            console.log(user);
-            if (!user) {
-                console.log('Unsuccessful user!!');
-                return res.status(403).json({ error: 'No user exists' });
-            }
+    const bodyTemplate = `Hello,\n\n You have successfully claimed the following shift: \n ${overtimeInfo.shiftInfo}\n\n from the following team: \n ${overtimeInfo.team} \n\n This shift will be updated on your schedule`;
 
-            const response = new MessagingResponse();
-            response.message(`Hello ${user.firstName} ${user.lastName}! You said "${message}"`);
-
-            res.set('Content-Type', 'application/xml');
-            return res.send(response.toString());
+    return client.messages
+        .create({
+            from: TWILIO_NUMBER,
+            to: formatNumber(phone),
+            body: bodyTemplate,
+        })
+        .catch((err) => {
+            throw new Error(err);
         });
 };

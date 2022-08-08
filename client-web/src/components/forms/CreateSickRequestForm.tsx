@@ -26,6 +26,8 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
     const [selectedShiftId, setSelectedShiftId] = useState<string | undefined>(undefined);
     const [userShifts, setUserShifts] = useState<IShift[]>([]);
 
+    const [error, setError] = useState<string | undefined>(undefined);
+
     const user = useTypedSelector((state) => state.user);
 
     const { enqueueSnackbar } = useSnackbar();
@@ -40,6 +42,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
             };
 
             setIsLoading(true);
+            setError(undefined);
             axios
                 .post(
                     `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/sick-request`,
@@ -53,24 +56,20 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                 })
                 .catch((err: AxiosError) => {
                     if (err.response?.status === 403) {
-                        enqueueSnackbar('A sick request for this shift has already been made', {
-                            variant: 'error',
-                        });
+                        setError('A sick request for this shift has already been made');
                     } else {
                         console.error(err);
                         enqueueSnackbar('An error has occured, please try again', {
                             variant: 'error',
                         });
+                        onFinish(undefined);
                     }
-                    onFinish(undefined);
                 })
                 .finally(() => {
                     setIsLoading(false);
                 });
         } else {
-            enqueueSnackbar('A valid shift was not selected', {
-                variant: 'error',
-            });
+            setError('A valid shift was not selected');
         }
     };
 
@@ -135,42 +134,60 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                         </Box>
                     ) : (
                         <>
-                            <Box sx={{ mt: 2 }}>
-                                <Autocomplete
-                                    options={userShifts}
-                                    getOptionLabel={(option) =>
-                                        `${formatDateTimeOutputString(
-                                            option.startDateTime,
-                                            option.endDateTime
-                                        )}`
-                                    }
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            {formatDateTimeOutputString(
-                                                option.startDateTime,
-                                                option.endDateTime
+                            {userShifts.length > 0 ? (
+                                <>
+                                    <Box sx={{ mt: 2 }}>
+                                        {error && (
+                                            <Box sx={{ my: 1 }}>
+                                                <Typography sx={{ color: 'red' }} variant="body1">
+                                                    {error}
+                                                </Typography>
+                                            </Box>
+                                        )}
+
+                                        <Autocomplete
+                                            options={userShifts}
+                                            getOptionLabel={(option) =>
+                                                `${formatDateTimeOutputString(
+                                                    option.startDateTime,
+                                                    option.endDateTime
+                                                )}`
+                                            }
+                                            renderOption={(props, option, { selected }) => (
+                                                <li {...props}>
+                                                    {formatDateTimeOutputString(
+                                                        option.startDateTime,
+                                                        option.endDateTime
+                                                    )}
+                                                </li>
                                             )}
-                                        </li>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Shift to take off" />
-                                    )}
-                                    onChange={handleShiftChange}
-                                />
-                            </Box>
-                            <Box sx={{ mt: 3 }}>
-                                {isLoading ? (
-                                    <CircularProgress />
-                                ) : (
-                                    <Fab
-                                        color="primary"
-                                        aria-label="Register User"
-                                        onClick={handleSubmit}
-                                    >
-                                        <HowToRegIcon fontSize="large" />
-                                    </Fab>
-                                )}
-                            </Box>
+                                            renderInput={(params) => (
+                                                <TextField {...params} label="Shift to take off" />
+                                            )}
+                                            onChange={handleShiftChange}
+                                        />
+                                    </Box>
+                                    <Box sx={{ mt: 3 }}>
+                                        {isLoading ? (
+                                            <CircularProgress />
+                                        ) : (
+                                            <Fab
+                                                color="primary"
+                                                aria-label="Register User"
+                                                onClick={handleSubmit}
+                                            >
+                                                <HowToRegIcon fontSize="large" />
+                                            </Fab>
+                                        )}
+                                    </Box>
+                                </>
+                            ) : (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="h4">
+                                        There are no shifts available for a sick request
+                                    </Typography>
+                                </Box>
+                            )}
                         </>
                     )}
                 </>

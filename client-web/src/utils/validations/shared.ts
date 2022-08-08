@@ -20,3 +20,7 @@ export const isDate = (date: any) => {
     console.log(new Date(date));
     return !isNaN(Date.parse(date));
 };
+
+export const isDateAfter = (dateBefore: any, dateAfter: any) => {
+    return new Date(dateBefore).getMilliseconds() < new Date(dateAfter).getMilliseconds();
+};

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Draggable } from '@fullcalendar/interaction';
 
@@ -8,18 +8,23 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import QueueIcon from '@mui/icons-material/Queue';
 
 import { IShiftTransaction } from 'models/Shift';
 import { IShiftDefinition } from 'models/ShiftDefinition';
+import FormDialog from 'components/dialogs/FormDialog';
+import CreateManualShiftForm from 'components/forms/CreateManualShiftForm';
 
 interface IEditScheduleProps {
     shiftTransactions: IShiftTransaction[];
     shiftDefs: IShiftDefinition[];
     isLoadingConfirm: boolean;
     isShiftEdit: boolean;
+    teamsAndUsers: any;
     onOpenShiftEdit: () => void;
     onConfirmTransactions: () => void;
     onCancelEdits: () => void;
+    onCreateShift: (values: any) => void;
 }
 
 const EditSchedule: React.FC<IEditScheduleProps> = ({
@@ -27,10 +32,14 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
     shiftDefs,
     isLoadingConfirm,
     isShiftEdit,
+    teamsAndUsers,
     onOpenShiftEdit,
     onConfirmTransactions,
     onCancelEdits,
+    onCreateShift,
 }) => {
+    const [openCreateShift, setOpenCreatShift] = useState<boolean>(false);
+
     useEffect(() => {
         // Create draggable events that can go into the calendar
         let drag: Draggable;
@@ -57,6 +66,11 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
             }
         };
     }, [isShiftEdit]);
+
+    const handleShiftAdded = (values: any) => {
+        onCreateShift(values);
+        setOpenCreatShift(false);
+    };
 
     return (
         <Box sx={{ marginBottom: '24px' }}>
@@ -107,6 +121,16 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
                         ) : (
                             <>
                                 <Box>
+                                    <Tooltip title="Create Shift" placement="top">
+                                        <IconButton
+                                            size="large"
+                                            onClick={() => setOpenCreatShift(true)}
+                                        >
+                                            <QueueIcon color="primary" fontSize="large" />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                                <Box>
                                     <Tooltip title="Confirm Edit" placement="top">
                                         <span>
                                             <IconButton
@@ -151,6 +175,12 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
                     </Tooltip>
                 </Box>
             )}
+            <FormDialog open={openCreateShift} onClose={() => setOpenCreatShift(false)}>
+                <CreateManualShiftForm
+                    teamsAndUsers={teamsAndUsers}
+                    onCompleteAdd={handleShiftAdded}
+                />
+            </FormDialog>
         </Box>
     );
 };

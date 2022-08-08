@@ -150,6 +150,37 @@ const ScheduleView: React.FC = () => {
         }
     };
 
+    const handleCreateShift = (values: any) => {
+        // const transaction: IShiftTransaction = {
+        //     type: 'add',
+        //     name: values.name,
+        //     userId: values.user,
+        //     teamId: values.team,
+        //     startDate: values.startDate,
+        //     endDate: values.endDate,
+        // };
+
+        // const newShiftTransactions = [...shiftTransactions, transaction];
+
+        if (calendarRef.current) {
+            console.log(values);
+            let calendarApi = calendarRef.current.getApi();
+            const event = calendarApi.addEvent({
+                title: values.name,
+                start: new Date(values.startDate),
+                end: new Date(values.endDate),
+                resourceId: `${values.team}-${values.user}`,
+            });
+
+            console.log(event);
+
+            // const newEvents = [...addedEvents, event];
+            // setAddedEvents(newEvents);
+        }
+
+        //setShiftTransactions(newShiftTransactions);
+    };
+
     /**
      * Handler when event dragging has stopped
      * This is primarily for when dragging event into the trash icon (to remove)
@@ -308,6 +339,24 @@ const ScheduleView: React.FC = () => {
             });
     }, [user.company, formatStaff]);
 
+    const getUserAndTeams = () => {
+        const users: any[] = [];
+        const teams: any[] = [];
+        teamStaff.forEach((staff: any) => {
+            const staffEmail = staff.email;
+            const staffTeam = staff.team;
+            users.push({
+                email: staffEmail,
+                team: staffTeam,
+            });
+            if (staffTeam !== '' && teams.findIndex((team) => team === staffTeam) === -1) {
+                teams.push(staffTeam);
+            }
+        });
+
+        return { users, teams };
+    };
+
     useEffect(() => {
         getShiftsFromTeams();
     }, [getShiftsFromTeams]);
@@ -362,6 +411,8 @@ const ScheduleView: React.FC = () => {
                                 onOpenShiftEdit={() => setIsShiftEdit(true)}
                                 onConfirmTransactions={handleConfirmTransactions}
                                 onCancelEdits={handleCancelEdits}
+                                teamsAndUsers={getUserAndTeams()}
+                                onCreateShift={handleCreateShift}
                             />
                         )}
                         <FormGroup>

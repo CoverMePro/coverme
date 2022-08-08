@@ -29,6 +29,7 @@ import OvertimeCalloutsView from 'pages/overtime/OvertimeCalloutsView';
 import BlogView from 'pages/company/BlogView';
 
 import { theme } from './theme';
+import OvertimeConfirmationView from 'pages/overtime/OvertimeConfirmationView';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -165,6 +166,11 @@ ReactDOM.render(
                                     }
                                 />
                             </Route>
+
+                            <Route
+                                path="overtime-confirmation"
+                                element={<OvertimeConfirmationView />}
+                            />
                             <Route path="/" element={<Navigate replace to="/login" />} />
                         </Routes>
                     </BrowserRouter>

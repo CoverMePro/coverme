@@ -3,6 +3,7 @@ import { IShift, mapToShift } from '../models/Shift';
 import { IUser } from '../models/User';
 import { db } from './admin';
 import { getCalloutList } from './db-helpers';
+import { sendConfirmOvertimeSms, sendOvertimeSms } from './sms';
 
 const userContainsTeam = (user: IUser, team: string) => {
     if (!user.teams || user.teams.length === 0) {
@@ -48,6 +49,8 @@ const hasUserAcceptedCallout = async (
                     email: callout.user,
                 });
             }
+
+            sendConfirmOvertimeSms(callout.phone, overtimeData);
 
             hasAccepted = true;
         }
@@ -106,6 +109,7 @@ const handleCalloutCycle = async (
     users: IUser[],
     lastCalloutUser: string | undefined,
     overtimeId: string,
+    overtimeInfo: IOvertime,
     phase: 'internal' | 'external'
 ) => {
     let calloutindex = 0;
@@ -142,9 +146,12 @@ const handleCalloutCycle = async (
             // initiate callout
             callouts.push({
                 user: nextCalloutuser.email!,
+                phone: nextCalloutuser.phone,
                 team: phase,
                 status: 'Pending',
             });
+
+            await sendOvertimeSms(nextCalloutuser, overtimeInfo, overtimeId);
 
             await db.doc(`/overtime-callouts/${overtimeId}`).update({
                 callouts: [...callouts],
@@ -229,6 +236,7 @@ const callout = () => {
                                 internalUsers,
                                 lastCalloutUserForTeam,
                                 overtimeData.id!,
+                                overtimeData,
                                 'internal'
                             );
 
@@ -248,6 +256,7 @@ const callout = () => {
                                 users,
                                 lastCalloutUserForCompany,
                                 overtimeData.id!,
+                                overtimeData,
                                 'external'
                             );
 
