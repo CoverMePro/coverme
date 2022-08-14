@@ -24,14 +24,8 @@ const getUser = (req: Request, res: Response) => {
         });
 };
 
-/**
- * Get all users from a specific company (excluding owner)
- */
-const getUsersFromCompany = (req: Request, res: Response) => {
-    const company = req.params.company;
-
+const getAllUsers = (_: Request, res: Response) => {
     db.collection('users')
-        .where('company', '==', company)
         .where('role', '!=', 'owner')
         .get()
         .then((userDocs) => {
@@ -110,7 +104,7 @@ const checkUser = (req: Request, res: Response) => {
 
 export default {
     getUser,
-    getUsersFromCompany,
+    getAllUsers,
     getUsersFromList,
     updateUser,
     checkUser,

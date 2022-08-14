@@ -1,23 +1,20 @@
 import { Request, Response } from 'express';
 import { IScheduleStaff } from '../models/ScheduleInfo';
-import { IShift, IShiftDefinition, mapToShift, mapToShiftDefinition } from '../models/Shift';
+import { IShift, IShiftTemplate, mapToShift, mapToShiftDefinition } from '../models/Shift';
 import { IShiftTransaction } from '../models/ShiftTransaction';
 import { ITimeOff, mapToTimeOff } from '../models/TimeOff';
 import { db } from '../utils/admin';
 import { formatFirestoreData } from '../utils/db-helpers';
 
 const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
-    const company = req.params.name;
-
     const teamStaff: IScheduleStaff[] = [];
     let shifts: IShift[] = [];
     const timeOff: ITimeOff[] = [];
-    const shiftDefs: IShiftDefinition[] = [];
+    const shiftDefs: IShiftTemplate[] = [];
 
     const teams: string[] = [];
 
     db.collection('users')
-        .where('company', '==', company)
         .get()
         .then((staffData) => {
             staffData.forEach((user) => {
@@ -46,19 +43,19 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                 }
             });
 
-            return db.collection(`/companies/${company}/shifts`).get();
+            return db.collection(`/shifts`).get();
         })
         .then((shiftDocs) => {
             shifts = formatFirestoreData(shiftDocs, mapToShift);
 
-            return db.collection(`/companies/${company}/time-off`).get();
+            return db.collection(`/time-off`).get();
         })
         .then((timeOffDocs) => {
             timeOffDocs.forEach((doc) => {
                 timeOff.push(mapToTimeOff(doc.id, doc.data()));
             });
 
-            return db.collection(`/companies/${company}/shift-definitions`).get();
+            return db.collection(`/shift-templates`).get();
         })
         .then((shiftDefinitionDocs) => {
             shiftDefinitionDocs.forEach((doc) => {
@@ -83,7 +80,6 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
 const transactionShifts = (req: Request, res: Response) => {
     const batch = db.batch();
 
-    const { name } = req.params;
     const transactions: IShiftTransaction[] = req.body.transactions;
 
     for (let i = 0; i < transactions.length; i++) {
@@ -91,7 +87,7 @@ const transactionShifts = (req: Request, res: Response) => {
         console.log(transaction);
         switch (transaction.type) {
             case 'add':
-                batch.create(db.collection(`companies/${name}/shifts`).doc(), {
+                batch.create(db.collection(`/shifts`).doc(), {
                     name: transaction.name,
                     userId: transaction.userId === '' ? 'unclaimed' : transaction.userId,
                     teamId: transaction.teamId,
@@ -100,10 +96,10 @@ const transactionShifts = (req: Request, res: Response) => {
                 });
                 break;
             case 'remove':
-                batch.delete(db.doc(`companies/${name}/shifts/${transaction.id}`));
+                batch.delete(db.doc(`/shifts/${transaction.id}`));
                 break;
             case 'change':
-                batch.update(db.doc(`companies/${name}/shifts/${transaction.id}`), {
+                batch.update(db.doc(`/shifts/${transaction.id}`), {
                     userId: transaction.userId,
                     teamId: transaction.teamId,
                     startDateTime: new Date(transaction.startDate),
@@ -119,27 +115,24 @@ const transactionShifts = (req: Request, res: Response) => {
             return res.json({ message: 'transactions completed!' });
         })
         .catch((err) => {
-            console.error(err);
             return res.status(500).json({ error: err.code });
         });
 };
 
-const createShiftDefinition = (req: Request, res: Response) => {
-    const shiftDef: IShiftDefinition = req.body;
-    const company = req.params.name;
-
-    db.collection(`/companies/${company}/shift-definitions`)
-        .add(shiftDef)
+const createShiftTemplate = (req: Request, res: Response) => {
+    const shiftTemplateToAdd: IShiftTemplate = req.body;
+    db.collection(`/shift-templates`)
+        .add(shiftTemplateToAdd)
         .then((result) => {
             return result.get();
         })
         .then((resultdata) => {
-            const shiftDef: IShiftDefinition = {
+            const shiftTemplate: IShiftTemplate = {
                 id: resultdata.id,
                 name: resultdata.data()!.name,
                 duration: resultdata.data()!.duration,
             };
-            return res.json({ message: 'Shift definition created!', shiftDef: shiftDef });
+            return res.json({ message: 'Shift definition created!', shiftTemplate: shiftTemplate });
         })
         .catch((err) => {
             console.error(err);
@@ -147,14 +140,13 @@ const createShiftDefinition = (req: Request, res: Response) => {
         });
 };
 
-const deleteShiftDefinition = (req: Request, res: Response) => {
-    const company = req.params.name;
-    const shiftDefId = req.params.id;
-    db.doc(`/companies/${company}/shift-definitions/${shiftDefId}`)
+const deleteShiftTemplate = (req: Request, res: Response) => {
+    const id = req.params.id;
+    db.doc(`/shift-templates/${id}`)
         .delete()
         .then((result) => {
             console.log(result);
-            return res.json({ message: 'Shift definition deleted!' });
+            return res.json({ message: 'Shift template deleted!' });
         })
         .catch((err) => {
             console.error(err);
@@ -162,21 +154,20 @@ const deleteShiftDefinition = (req: Request, res: Response) => {
         });
 };
 
-const getShiftDefinitions = (req: Request, res: Response) => {
-    const company = req.params.name;
-    db.collection(`/companies/${company}/shift-definitions`)
+const getShiftTemplates = (_: Request, res: Response) => {
+    db.collection(`/shift-templates`)
         .get()
-        .then((shiftDefData) => {
-            const shiftDefs: IShiftDefinition[] = [];
-            shiftDefData.forEach((shiftDef) => {
-                shiftDefs.push({
-                    id: shiftDef.id,
-                    name: shiftDef.data().name,
-                    duration: shiftDef.data().duration,
+        .then((shiftTemplateDocs) => {
+            const shiftTemplates: IShiftTemplate[] = [];
+            shiftTemplateDocs.forEach((shiftTemplateDoc) => {
+                shiftTemplates.push({
+                    id: shiftTemplateDoc.id,
+                    name: shiftTemplateDoc.data().name,
+                    duration: shiftTemplateDoc.data().duration,
                 });
             });
 
-            return res.json({ shiftDefs });
+            return res.json(shiftTemplates);
         })
         .catch((err) => {
             console.error(err);
@@ -242,9 +233,9 @@ const getShiftsFromDateRange = (req: Request, res: Response) => {
 export default {
     getShiftsAndStaffFromCompany,
     transactionShifts,
-    createShiftDefinition,
-    deleteShiftDefinition,
-    getShiftDefinitions,
+    createShiftTemplate,
+    deleteShiftTemplate,
+    getShiftTemplates,
     getShiftFromUser,
     getShiftsFromTodayOnward,
     getShiftsFromDateRange,

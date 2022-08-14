@@ -1,3 +1,4 @@
+import { ICompany } from 'models/Company';
 import { IUser } from 'models/User';
 import { ActionType } from 'state/action-types';
 
@@ -8,4 +9,11 @@ export interface SetUserAction {
     };
 }
 
-export type Action = SetUserAction;
+export interface SetCompanyAction {
+    type: ActionType.SET_COMPANY;
+    payload: {
+        company: ICompany;
+    };
+}
+
+export type Action = SetUserAction | SetCompanyAction;

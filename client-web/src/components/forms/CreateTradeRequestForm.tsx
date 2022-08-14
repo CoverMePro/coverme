@@ -126,9 +126,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
             try {
                 setIsLoadingData(true);
 
-                const getStaffPromise = axios.get(
-                    `${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`
-                );
+                const getStaffPromise = axios.get(`${process.env.REACT_APP_SERVER_API}/users`);
                 const getShiftsPromise = axios.get(
                     `${
                         process.env.REACT_APP_SERVER_API

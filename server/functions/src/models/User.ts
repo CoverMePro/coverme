@@ -4,6 +4,7 @@ export interface IUserLogin {
 }
 
 export interface IUser {
+    id: string;
     email: string;
     firstName: string;
     lastName: string;
@@ -19,7 +20,8 @@ export interface IUser {
 
 export const mapToUser = (id: string, data: any): IUser => {
     let user: IUser = {
-        email: id,
+        id: id,
+        email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
         company: data.company,

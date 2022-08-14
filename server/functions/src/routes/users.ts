@@ -4,9 +4,9 @@ import userController from '../controllers/user';
 
 const router: Router = express.Router();
 
+router.get('/', authGuard, userController.getAllUsers);
 router.get('/check/:id', authGuard, userController.checkUser);
 router.get('/:id', authGuard, userController.getUser);
-router.get('/all/:company', userController.getUsersFromCompany);
 
 router.post('/:id', authGuard, userController.updateUser);
 router.post('/', authGuard, userController.getUsersFromList);

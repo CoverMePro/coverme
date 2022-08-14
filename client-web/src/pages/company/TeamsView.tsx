@@ -54,11 +54,7 @@ const TeamsView: React.FC = () => {
     const handleConfirmDeleteTeam = () => {
         setIsLoadingDataUpdate(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/team/${selectedTeam}/delete`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/teams/${selectedTeam}/delete`)
             .then(() => {
                 enqueueSnackbar(`${selectedTeam} successfully deleted.`, {
                     variant: 'success',
@@ -83,7 +79,7 @@ const TeamsView: React.FC = () => {
 
     const handleGetTeams = useCallback(() => {
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team`)
+            .get(`${process.env.REACT_APP_SERVER_API}/teams`)
             .then((result) => {
                 console.log(result.data);
                 setTeams(result.data);

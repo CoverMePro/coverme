@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import authGuard from '../../../utils/authenticate-user';
-import sickController from '../../../controllers/sick';
+import authGuard from '../../utils/authenticate-user';
+import sickController from '../../controllers/sick';
 
 const router: Router = express.Router({ mergeParams: true });
 

@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "coverme-47dc7"
-  }
+    "dev": "coverme-47dc7",
+    "demo": "covermedemo",
+    "asm": "covermeasmglobal",
+    "oakville": "covermeoakville"
+  },
+  "targets": {}
 }

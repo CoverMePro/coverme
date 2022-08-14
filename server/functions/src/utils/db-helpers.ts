@@ -2,7 +2,7 @@ import { IUser, mapToUser } from '../models/User';
 import { db } from './admin';
 
 export const updateNewUserIntoDb = (userInfo: IUser, hireDate: Date) => {
-    return db.doc(`/users/${userInfo.email}`).set({
+    return db.collection(`/users`).add({
         ...userInfo,
         status: 'Pending',
         statusUpdatedAt: Date.now(),

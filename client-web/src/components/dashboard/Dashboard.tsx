@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
     const [navSelected, setNavSelected] = useState<number>(0);
 
     const user = useTypedSelector((state) => state.user);
+    const company = useTypedSelector((state) => state.company);
     const location = useLocation();
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const Dashboard: React.FC = () => {
             >
                 <DrawerHeader>
                     <Typography variant="h3" component="div" sx={{ flexGrow: 1 }}>
-                        {user.role !== 'admin' ? user.company : 'Admin'}
+                        {user.role !== 'admin' ? company.name : 'Admin'}
                     </Typography>
                 </DrawerHeader>
                 <Divider />
@@ -123,7 +124,6 @@ const Dashboard: React.FC = () => {
                 />
             </Drawer>
             <MainSection open={true}>
-                <DrawerHeader />
                 <Outlet />
             </MainSection>
         </Box>

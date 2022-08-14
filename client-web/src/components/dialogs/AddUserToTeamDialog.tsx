@@ -50,14 +50,9 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
         setIsLoading(true);
         if (userSelectedToAdd) {
             axios
-                .post(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/team/${teamName}/add-user`,
-                    {
-                        user: userSelectedToAdd,
-                    }
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/teams/${teamName}/add-user`, {
+                    user: userSelectedToAdd,
+                })
                 .then(() => {
                     enqueueSnackbar(`User added to ${teamName}`, { variant: 'success' });
 

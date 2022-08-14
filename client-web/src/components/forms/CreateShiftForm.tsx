@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 
@@ -13,20 +11,18 @@ import logo from 'images/cover-me-logo.png';
 
 import DurationCustom from 'components/number-formats/DurationCustom';
 
-import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IShiftTemplate } from 'models/ShiftTemplate';
 
 import { validateShift } from 'utils/validations/shift';
 import { formatDuration } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
 
 interface ICreateShiftFormProps {
-    onAddComplete(shiftDef: IShiftDefinition): void;
+    onAddComplete(shiftDef: IShiftTemplate): void;
 }
 
 const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const company = useTypedSelector((state) => state.user.company);
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -40,23 +36,20 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
             setIsLoading(true);
             const { shiftName, shiftDuration } = shiftValues;
 
-            const shiftDef: IShiftDefinition = {
+            const shiftTemplate: IShiftTemplate = {
                 name: shiftName,
                 duration: formatDuration(shiftDuration),
             };
 
             axios
-                .post(
-                    `${process.env.REACT_APP_SERVER_API}/company/${company}/shift-definition`,
-                    shiftDef
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/shift-templates`, shiftTemplate)
                 .then((result) => {
                     enqueueSnackbar('Shift definition created!', {
                         variant: 'success',
                         autoHideDuration: 3000,
                     });
 
-                    onAddComplete(result.data.shiftDef);
+                    onAddComplete(result.data.shiftTemplate);
                 })
                 .catch((err) => {
                     console.error(err);

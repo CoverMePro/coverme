@@ -3,12 +3,7 @@ import { IUser, mapToUser } from '../models/User';
 import { db } from '../utils/admin';
 
 import { Twilio } from 'twilio';
-import {
-    TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN,
-    TWILIO_NUMBER,
-    WEB_CLIENT_DOMAIN,
-} from '../constants';
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER } from '../constants';
 import { IOvertime } from '../models/Overtime';
 
 const formatNumber = (phone: string) => {
@@ -49,7 +44,7 @@ export const sendSms = (req: Request, res: Response) => {
 export const sendOvertimeSms = (user: IUser, overtimeInfo: IOvertime, overtimeId: string) => {
     const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-    const link = `${WEB_CLIENT_DOMAIN}/overtime-confirmation?user=${user.email}&overtimeId=${overtimeId}`;
+    const link = `${process.env.WEB_CLIENT_DOMAIN}/overtime-confirmation?user=${user.email}&overtimeId=${overtimeId}`;
 
     const bodyTemplate = `Hello,\n\n There is a shift available: \n ${overtimeInfo.shiftInfo} \n\n from the following team: \n ${overtimeInfo.team} \n\n Please go to the link below if you wish to accept this shift \n\n ${link}`;
 

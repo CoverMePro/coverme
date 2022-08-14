@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box } from '@mui/material';
 
@@ -28,8 +27,6 @@ const StaffView: React.FC = () => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const user = useTypedSelector((state) => state.user);
-
     const handleSelectStaff = (staff: any | undefined) => {
         if (selected === staff) {
             setSelected(undefined);
@@ -42,8 +39,13 @@ const StaffView: React.FC = () => {
         setOpenAddStaff(true);
     };
 
+    const getSelectedStaffName = (selectedStaffId: any) => {
+        return staff.find((user) => user.id === selectedStaffId);
+    };
+
     const handleOpenDeleteStaff = (selectedStaff: any) => {
-        setDeleteMessage(`Are you sure you want to delete ${selectedStaff}?`);
+        const user = getSelectedStaffName(selectedStaff);
+        setDeleteMessage(`Are you sure you want to delete ${user?.firstName} ${user?.lastName}?`);
         setOpenDeleteStaff(true);
     };
 
@@ -85,15 +87,15 @@ const StaffView: React.FC = () => {
 
     const handleGetUsers = useCallback(() => {
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+            .get(`${process.env.REACT_APP_SERVER_API}/users`)
             .then((result) => {
                 setStaff(formatHireDate(result.data.users));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => setIsLoadingStaff(false));
-    }, [user.company]);
+    }, []);
 
     useEffect(() => {
         const loadUsers = async () => {
@@ -114,11 +116,11 @@ const StaffView: React.FC = () => {
                         title="Staff List"
                         data={staff}
                         headerCells={StaffHeaderCells}
-                        id="email"
+                        id="id"
                         selected={selected}
                         onSelect={handleSelectStaff}
-                        unSelectedActions={getAddAction(handleAddStaff)}
-                        selectedActions={getDeleteAction(handleOpenDeleteStaff)}
+                        unSelectedActions={getAddAction('Staff', handleAddStaff)}
+                        selectedActions={getDeleteAction('Staff', handleOpenDeleteStaff)}
                     />
                     <FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
                         <RegisterUserForm

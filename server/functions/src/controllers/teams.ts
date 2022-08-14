@@ -5,8 +5,8 @@ import { formatFirestoreData } from '../utils/db-helpers';
 
 // TO DO: Refactor and clean this up better (theres gotta be a way)
 
-const getAllTeamsFromCompany = (req: Request, res: Response) => {
-    db.collection(`/companies/${req.params.name}/teams`)
+const getAllTeams = (_: Request, res: Response) => {
+    db.collection(`/teams`)
         .get()
         .then((teamDocs) => {
             const teams: ITeam[] = formatFirestoreData(teamDocs, mapToTeams);
@@ -21,7 +21,7 @@ const getAllTeamsFromCompany = (req: Request, res: Response) => {
 
 const createTeam = (req: Request, res: Response) => {
     const team: ITeam = req.body.team;
-    db.doc(`/companies/${req.params.name}/teams/${team.name}`)
+    db.doc(`/teams/${team.name}`)
         .get()
         .then((teamData) => {
             if (teamData.exists) {
@@ -29,7 +29,7 @@ const createTeam = (req: Request, res: Response) => {
                 throw 403;
             } else {
                 return db
-                    .doc(`/companies/${req.params.name}/teams/${team.name}`)
+                    .doc(`/teams/${team.name}`)
                     .set({ managers: team.managers, staff: team.staff, owner: team.owner });
             }
         })
@@ -79,13 +79,13 @@ const createTeam = (req: Request, res: Response) => {
  */
 
 const deleteTeam = (req: Request, res: Response) => {
-    const { name, teamId } = req.params;
+    const { name } = req.params;
 
-    db.doc(`/companies/${name}/teams/${teamId}`)
+    db.doc(`/teams/${name}`)
         .delete()
         .then(() => {
             db.collection('/users')
-                .where('teams', 'array-contains', teamId)
+                .where('teams', 'array-contains', name)
                 .get()
                 .then(async (userData) => {
                     const batch = db.batch();
@@ -93,7 +93,7 @@ const deleteTeam = (req: Request, res: Response) => {
                         const user = db.doc(`/users/${doc.id}`);
                         const userData = doc.data();
 
-                        const teams = userData.teams.filter((t: any) => t != teamId);
+                        const teams = userData.teams.filter((t: any) => t != name);
 
                         batch.update(user, { teams: teams });
                     });
@@ -111,40 +111,40 @@ const deleteTeam = (req: Request, res: Response) => {
 };
 
 const addUserToTeam = (req: Request, res: Response) => {
-    const { name, teamId } = req.params;
+    const { name } = req.params;
     const user = req.body.user;
 
     // add user to team doc
-    db.doc(`/companies/${name}/teams/${teamId}`)
+    db.doc(`/teams/${name}`)
         .get()
         .then((teamDoc) => {
             const team = teamDoc.data();
 
             if (team) {
                 if (user.role === 'manager') {
-                    team.managers.push(user.email);
+                    team.managers.push(user.id);
                 } else {
-                    team.staff.push(user.email);
+                    team.staff.push(user.id);
                 }
 
-                return db.doc(`/companies/${name}/teams/${teamId}`).set(team);
+                return db.doc(`/teams/${name}`).set(team);
             }
             throw Error('Team not found!');
         })
         .then(() => {
-            return db.doc(`/users/${user.email}`).get();
+            return db.doc(`/users/${user.id}`).get();
         })
         .then((userResult) => {
             const userData = userResult.data();
 
             if (userData) {
                 if (userData.teams) {
-                    userData.teams.push(teamId);
+                    userData.teams.push(name);
                 } else {
-                    userData.teams = [teamId];
+                    userData.teams = [name];
                 }
 
-                return db.doc(`/users/${user.email}`).set(userData);
+                return db.doc(`/users/${user.id}`).set(userData);
             }
 
             throw Error('User not found!');
@@ -159,11 +159,11 @@ const addUserToTeam = (req: Request, res: Response) => {
 };
 
 const removeUserFromTeam = (req: Request, res: Response) => {
-    const { name, teamId } = req.params;
+    const { name } = req.params;
     const user = req.body.user;
 
     // add user to team doc
-    db.doc(`/companies/${name}/teams/${teamId}`)
+    db.doc(`/teams/${name}`)
         .get()
         .then((teamResult) => {
             const team = teamResult.data();
@@ -171,33 +171,33 @@ const removeUserFromTeam = (req: Request, res: Response) => {
             if (team) {
                 let newTeams = [];
                 if (user.role === 'manager') {
-                    newTeams = team.managers.filter((manager: string) => manager !== user.email);
+                    newTeams = team.managers.filter((manager: string) => manager !== user.id);
 
                     team.managers = newTeams;
                 } else {
-                    newTeams = team.staff.filter((staff: string) => staff !== user.email);
+                    newTeams = team.staff.filter((staff: string) => staff !== user.id);
 
                     team.staff = newTeams;
                 }
 
-                return db.doc(`/companies/${name}/teams/${teamId}`).set(team);
+                return db.doc(`/teams/${name}`).set(team);
             }
             throw Error('Team not found!');
         })
         .then(() => {
-            return db.doc(`/users/${user.email}`).get();
+            return db.doc(`/users/${user.id}`).get();
         })
         .then((userResult) => {
             const userData = userResult.data();
 
             if (userData) {
                 if (userData.teams) {
-                    const newTeams = userData.teams.filter((team: string) => team !== teamId);
+                    const newTeams = userData.teams.filter((team: string) => team !== name);
 
                     userData.teams = newTeams;
                 }
 
-                return db.doc(`/users/${user.email}`).set(userData);
+                return db.doc(`/users/${user.id}`).set(userData);
             }
 
             throw Error('User not found!');
@@ -213,7 +213,7 @@ const removeUserFromTeam = (req: Request, res: Response) => {
 
 export default {
     createTeam,
-    getAllTeamsFromCompany,
+    getAllTeams,
     deleteTeam,
     addUserToTeam,
     removeUserFromTeam,

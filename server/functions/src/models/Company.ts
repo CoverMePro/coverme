@@ -4,9 +4,9 @@ export interface ICompany {
     phone: string;
 }
 
-export const mapToCompany = (id: string, data: any): ICompany => {
+export const mapToCompany = (data: any): ICompany => {
     return {
-        name: id,
+        name: data.name,
         email: data.email,
         phone: data.phone,
     };

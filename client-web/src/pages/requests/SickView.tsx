@@ -217,7 +217,9 @@ const SickView: React.FC = () => {
                     onSelect={handleSelectSickRequest}
                     selected={selected}
                     unSelectedActions={
-                        user.role === 'staff' ? getAddAction(handleAddSickRequest, 0) : []
+                        user.role === 'staff'
+                            ? getAddAction('Request', handleAddSickRequest, 0)
+                            : []
                     }
                     selectedActions={user.role === 'staff' ? [] : selectedActions}
                 />

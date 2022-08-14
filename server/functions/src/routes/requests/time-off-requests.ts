@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import authGuard from '../../../utils/authenticate-user';
-import timeOffController from '../../../controllers/time-off';
+import authGuard from '../../utils/authenticate-user';
+import timeOffController from '../../controllers/time-off';
 
 const router: Router = express.Router({ mergeParams: true });
 

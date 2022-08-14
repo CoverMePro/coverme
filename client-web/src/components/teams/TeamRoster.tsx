@@ -70,7 +70,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
                 const emails = [...team.managers, ...team.staff];
                 if (emails.length > 0) {
                     axios
-                        .post(`${process.env.REACT_APP_SERVER_API}/user`, {
+                        .post(`${process.env.REACT_APP_SERVER_API}/users`, {
                             emails,
                         })
                         .then((result) => {
@@ -97,7 +97,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
     const handleOpenAddUserToTeam = () => {
         setUsersToAdd([]);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+            .get(`${process.env.REACT_APP_SERVER_API}/users`)
             .then((result) => {
                 const users: IUser[] = result.data.users;
 
@@ -126,14 +126,9 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
         setIsLoading(true);
         if (userSelectedToRemove) {
             axios
-                .post(
-                    `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team/${
-                        team.name
-                    }/remove-user`,
-                    {
-                        user: userSelectedToRemove,
-                    }
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/teams/${team.name}/remove-user`, {
+                    user: userSelectedToRemove,
+                })
                 .then(() => {
                     enqueueSnackbar(`User removed from ${team.name}`, { variant: 'success' });
                     if (userSelectedToRemove.role === 'manager') {

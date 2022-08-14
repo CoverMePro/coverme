@@ -3,17 +3,24 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN } from './constants';
-
 import authRoutes from './routes/auth';
-import companyRoutes from './routes/companies/company';
+// import companyRoutes from './routes/companies/company';
+import teamRoutes from './routes/teams';
+import shiftRoutes from './routes/shifts/shifts';
+import shiftTemplateRoutes from './routes/shifts/shift-templates';
+import shiftTransactionRoutes from './routes/shifts/shift-transaction';
 import overtimeRoutes from './routes/overtime-callout';
-import userRoutes from './routes/user';
+import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
 // import { callout } from './utils/overtime';
 
 const app = express();
-app.use(cors({ origin: [WEB_CLIENT_DOMAIN, LOCAL_CLIENT_DOMAIN], credentials: true }));
+app.use(
+    cors({
+        origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
+        credentials: true,
+    })
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(
@@ -28,9 +35,13 @@ app.use(function (_, res, next) {
 });
 
 app.use('/auth', authRoutes);
-app.use('/company', companyRoutes);
-app.use('/overtime-callout', overtimeRoutes);
-app.use('/user', userRoutes);
+//app.use('/company', companyRoutes);
+app.use('/overtime-callouts', overtimeRoutes);
+app.use('/users', userRoutes);
+app.use('/teams', teamRoutes);
+app.use('/shifts', shiftRoutes);
+app.use('/shift-templates', shiftTemplateRoutes);
+app.use('/shift-transactions', shiftTransactionRoutes);
 
 app.post('/send-sms', sendSms);
 

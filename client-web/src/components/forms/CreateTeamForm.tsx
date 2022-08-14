@@ -43,11 +43,11 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
     const { enqueueSnackbar } = useSnackbar();
 
     const handleChangeSelectUsers = (users: IUser[], isStaff: boolean) => {
-        const userEmails = users.map((user) => {
-            return user.email!;
+        const userIds = users.map((user) => {
+            return user.id!;
         });
 
-        isStaff ? setSelectedStaff(userEmails) : setSelectedManagers(userEmails);
+        isStaff ? setSelectedStaff(userIds) : setSelectedManagers(userIds);
     };
 
     const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
@@ -59,17 +59,14 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
             console.log('test');
             setIsLoading(true);
             axios
-                .post(
-                    `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team/create-team`,
-                    {
-                        team: {
-                            name: values.teamName,
-                            owner: user.email!,
-                            managers: selectedManagers,
-                            staff: selectedStaff,
-                        },
-                    }
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/teams`, {
+                    team: {
+                        name: values.teamName,
+                        owner: user.id!,
+                        managers: selectedManagers,
+                        staff: selectedStaff,
+                    },
+                })
                 .then(() => {
                     enqueueSnackbar('Team created.', {
                         variant: 'success',
@@ -97,7 +94,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 
     useEffect(() => {
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/user/all/${user.company!}`)
+            .get(`${process.env.REACT_APP_SERVER_API}/users`)
             .then((result) => {
                 const users: IUser[] = result.data.users;
                 const retrievedManagers = users.filter((user) => user.role === 'manager');

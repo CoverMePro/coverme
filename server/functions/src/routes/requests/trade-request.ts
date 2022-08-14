@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import authGuard from '../../../utils/authenticate-user';
-import tradeController from '../../../controllers/trade';
+import authGuard from '../../utils/authenticate-user';
+import tradeController from '../../controllers/trade';
 
 const router: Router = express.Router({ mergeParams: true });
 

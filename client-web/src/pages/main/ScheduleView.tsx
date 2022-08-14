@@ -13,7 +13,7 @@ import { Box, Checkbox, FormControlLabel, FormGroup, LinearProgress } from '@mui
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 import { IShift, IShiftTransaction } from 'models/Shift';
-import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IShiftTemplate } from 'models/ShiftTemplate';
 
 import 'styles/calendar.css';
 import EditSchedule from 'components/scheduler/EditSchedule';
@@ -24,7 +24,7 @@ import { ITimeOff } from 'models/TimeOff';
 const ScheduleView: React.FC = () => {
     const [teamStaff, setTeamStaff] = useState<any[]>([]);
     const [filteredTeamStaff, setFilteredTeamStaff] = useState<any[]>([]);
-    const [shiftDefs, setShiftDefs] = useState<IShiftDefinition[]>([]);
+    const [shiftDefs, setShiftDefs] = useState<IShiftTemplate[]>([]);
     const [events, setEvents] = useState<EventInput[]>([]);
     const [cachedEvents, setCachedEvents] = useState<EventInput[]>([]);
     const [addedEvents, setAddedEvents] = useState<EventApi[]>([]);
@@ -219,7 +219,7 @@ const ScheduleView: React.FC = () => {
         }
     };
 
-    const handleShowAllChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    const handleShowAllChange = (_: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
         setShowAll(checked);
     };
 
@@ -260,12 +260,9 @@ const ScheduleView: React.FC = () => {
     const handleConfirmTransactions = () => {
         setIsLoadingConfirm(true);
         axios
-            .post(
-                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shift-transactions`,
-                {
-                    transactions: shiftTransactions,
-                }
-            )
+            .post(`${process.env.REACT_APP_SERVER_API}/shift-transactions`, {
+                transactions: shiftTransactions,
+            })
             .then(() => {
                 enqueueSnackbar('Edits to the schedule have been recorded.', {
                     variant: 'success',
@@ -323,7 +320,7 @@ const ScheduleView: React.FC = () => {
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
+            .get(`${process.env.REACT_APP_SERVER_API}/shifts`)
             .then((result: AxiosResponse) => {
                 console.log(result.data.teamStaff);
                 setTeamStaff([...result.data.teamStaff]);
@@ -459,6 +456,7 @@ const ScheduleView: React.FC = () => {
                             eventDrop={(e) => console.log(e)}
                             height={'auto'}
                             contentHeight={'auto'}
+                            nowIndicator={true}
                         />
                     </div>
                 </>

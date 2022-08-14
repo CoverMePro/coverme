@@ -26,30 +26,12 @@ const getAllCompanyNames = (_: Request, res: Response) => {
         });
 };
 
-const getAllCompanies = (_: Request, res: Response) => {
-    db.collection('/companies')
-        .get()
-        .then((companyDocs) => {
-            let companies: any[] = [];
-
-            companyDocs.forEach((doc) => {
-                companies.push(mapToCompany(doc.id, doc.data()));
-            });
-
-            return res.json(companies);
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err });
-        });
-};
-
 const getCompany = (req: Request, res: Response) => {
     db.doc(`/companies/${req.params.name}`)
         .get()
         .then((companyDoc) => {
             if (companyDoc.exists) {
-                const companyInfo: ICompany = mapToCompany(companyDoc.id, companyDoc.data());
+                const companyInfo: ICompany = mapToCompany(companyDoc.data());
                 return res.json(companyInfo);
             } else {
                 return res.status(404).json({ error: 'Company not found' });
@@ -192,7 +174,6 @@ export default {
     getCompany,
     checkIfCompanyExist,
     getAllCompanyNames,
-    getAllCompanies,
     deleteCompany,
     getCompanyOvertimeCalloutList,
 };

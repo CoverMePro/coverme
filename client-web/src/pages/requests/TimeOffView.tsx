@@ -221,7 +221,9 @@ const TimeOffView: React.FC = () => {
                         onSelect={handleSelectTimeOff}
                         selected={selected}
                         unSelectedActions={
-                            user.role === 'staff' ? getAddAction(handleAddTimeOff, 0) : []
+                            user.role === 'staff'
+                                ? getAddAction('Request', handleAddTimeOff, 0)
+                                : []
                         }
                         selectedActions={user.role === 'staff' ? [] : selectedActions}
                     />

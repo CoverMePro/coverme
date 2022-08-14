@@ -35,8 +35,6 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 
-    const company = useTypedSelector((state) => state.user.company);
-
     const { enqueueSnackbar } = useSnackbar();
 
     const handleChangeRole = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +60,6 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                         email,
                         firstName,
                         lastName,
-                        company: company!,
                         role: role,
                         position,
                         hireDate: savedHireDate,

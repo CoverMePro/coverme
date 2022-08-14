@@ -1,14 +1,13 @@
-import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from "firebase/auth";
-
-import { WEB_CLIENT_DOMAIN, SERVER_DOMAIN } from "../constants";
+import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/auth';
 
 /**
  * Sends a register email to user
  * for now its firebase template signIn email but will look into better options for more custom tailored emails
  */
 export const emailSignInForUser = (firebaseAuth: Auth, email: string) => {
+    console.log(process.env.LOCAL_SERVER_DOMAIN);
     const actionCodeSettings = {
-        url: `${SERVER_DOMAIN}/auth/register-callback?email=${email}`,
+        url: `${process.env.LOCAL_SERVER_DOMAIN}/auth/register-callback?email=${email}`,
 
         // This must be true. Do not truly know why
         handleCodeInApp: true,
@@ -22,7 +21,7 @@ export const emailSignInForUser = (firebaseAuth: Auth, email: string) => {
  */
 export const emailPasswordReset = (firebaseAuth: Auth, email: string) => {
     const actionCodeSettings = {
-        url: WEB_CLIENT_DOMAIN,
+        url: process.env.LOCAL_CLIENT_DOMAIN!,
         // This must be true.
         handleCodeInApp: true,
     };

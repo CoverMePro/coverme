@@ -6,7 +6,7 @@ const router: Router = express.Router();
 router.get('/', authController.checkAuth);
 router.get('/register-callback', authController.registerCallback);
 router.get('/logout', authController.logOut);
-router.get('/delete/:email', authController.deleteAuthUser);
+router.get('/delete/:id', authController.deleteAuthUser);
 
 router.post('/register-link', authController.sendRegisterLink);
 router.post('/register', authController.registerUser);

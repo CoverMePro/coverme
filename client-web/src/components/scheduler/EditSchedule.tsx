@@ -11,13 +11,13 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import QueueIcon from '@mui/icons-material/Queue';
 
 import { IShiftTransaction } from 'models/Shift';
-import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IShiftTemplate } from 'models/ShiftTemplate';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateManualShiftForm from 'components/forms/CreateManualShiftForm';
 
 interface IEditScheduleProps {
     shiftTransactions: IShiftTransaction[];
-    shiftDefs: IShiftDefinition[];
+    shiftDefs: IShiftTemplate[];
     isLoadingConfirm: boolean;
     isShiftEdit: boolean;
     teamsAndUsers: any;

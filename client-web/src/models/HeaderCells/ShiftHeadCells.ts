@@ -1,7 +1,7 @@
-import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IShiftTemplate } from 'models/ShiftTemplate';
 import { IHeaderCells } from './HeaderCells';
 
-const headCells: IHeaderCells<IShiftDefinition>[] = [
+const headCells: IHeaderCells<IShiftTemplate>[] = [
     {
         id: 'name',
         numeric: false,

@@ -6,7 +6,7 @@ import { useSnackbar } from 'notistack';
 import { Box } from '@mui/material';
 
 import ShiftHeaderCells from 'models/HeaderCells/ShiftHeadCells';
-import { IShiftDefinition } from 'models/ShiftDefinition';
+import { IShiftTemplate } from 'models/ShiftTemplate';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
@@ -24,7 +24,7 @@ const ShiftsView: React.FC = () => {
     const [isLoadingDeleteShift, setIsLoadingDeleteShift] = useState<boolean>(false);
     const [deleteMessage, setDeleteMessage] = useState<string>('');
     const [selected, setSelected] = useState<any | undefined>(undefined);
-    const [shiftDefs, setShiftDefs] = useState<IShiftDefinition[]>([]);
+    const [shiftTemplates, setShiftTemplates] = useState<IShiftTemplate[]>([]);
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -32,7 +32,7 @@ const ShiftsView: React.FC = () => {
 
     // TO DO: REFACTOR OUTSIDE COMP
     const getShiftName = (id: string) => {
-        const shiftFound = shiftDefs.find((shiftDef) => shiftDef.id === id);
+        const shiftFound = shiftTemplates.find((shiftTemplate) => shiftTemplate.id === id);
 
         if (shiftFound) {
             return shiftFound.name;
@@ -69,15 +69,13 @@ const ShiftsView: React.FC = () => {
     const handleConfirmDeleteShift = () => {
         setIsLoadingDeleteShift(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/shift-definition/${selected}/delete`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/shift-templates/${selected}/delete`)
             .then(() => {
                 enqueueSnackbar('User successfully deleted', { variant: 'success' });
-                const newShiftDefs = shiftDefs.filter((shiftDef) => shiftDef.id !== selected);
-                setShiftDefs(newShiftDefs);
+                const newShiftDefs = shiftTemplates.filter(
+                    (shiftTemplate) => shiftTemplate.id !== selected
+                );
+                setShiftTemplates(newShiftDefs);
                 setSelected(undefined);
             })
             .catch((err) => {
@@ -91,19 +89,20 @@ const ShiftsView: React.FC = () => {
             });
     };
 
-    const handleConfirmAdd = (shiftDef: IShiftDefinition) => {
+    const handleConfirmAdd = (shiftTemplate: IShiftTemplate) => {
         handleCloseAddShift();
 
-        const newShiftDefs = [...shiftDefs, shiftDef];
-        setShiftDefs(newShiftDefs);
+        const newShiftDefs = [...shiftTemplates, shiftTemplate];
+        setShiftTemplates(newShiftDefs);
     };
 
     useEffect(() => {
         setIsLoadingShift(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shift-definition`)
+            .get<IShiftTemplate[]>(`${process.env.REACT_APP_SERVER_API}/shift-templates`)
             .then((result) => {
-                setShiftDefs(result.data.shiftDefs);
+                console.log(result.data);
+                setShiftTemplates(result.data);
             })
             .catch((err) => {
                 console.log(err);
@@ -119,13 +118,13 @@ const ShiftsView: React.FC = () => {
                 <Box>
                     <EnhancedTable
                         title="Shifts"
-                        data={shiftDefs}
+                        data={shiftTemplates}
                         headerCells={ShiftHeaderCells}
                         id="id"
                         selected={selected}
                         onSelect={handleSelectShift}
-                        unSelectedActions={getAddAction(handleAddShift)}
-                        selectedActions={getDeleteAction(handleOpenDeleteShift)}
+                        unSelectedActions={getAddAction('Shift', handleAddShift)}
+                        selectedActions={getDeleteAction('Shift', handleOpenDeleteShift)}
                     />
                     <FormDialog open={openAddShift} onClose={handleCloseAddShift}>
                         <CreateShiftForm onAddComplete={handleConfirmAdd} />

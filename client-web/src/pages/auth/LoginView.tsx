@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 
 import { IUser } from 'models/User';
+import { ICompany } from 'models/Company';
 
 import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
 
@@ -40,7 +41,7 @@ const LoginView: React.FC = () => {
     const [loginError, setLoginError] = useState<string | undefined>(undefined);
 
     const navigate = useNavigate();
-    const { setUser } = useActions();
+    const { setUser, setCompany } = useActions();
 
     const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
         initialValues: {
@@ -64,7 +65,9 @@ const LoginView: React.FC = () => {
                 )
                 .then((result) => {
                     const userData: IUser = result.data.user;
+                    const companyData: ICompany = result.data.companyInfo;
                     setUser(userData);
+                    setCompany(companyData);
                     setIsLoggingIn(false);
                     navigate('/dashboard/home');
                 })
@@ -81,11 +84,12 @@ const LoginView: React.FC = () => {
 
     useEffect(() => {
         axios
-            .get<IUser>(`${process.env.REACT_APP_SERVER_API}/auth`, {
+            .get(`${process.env.REACT_APP_SERVER_API}/auth`, {
                 withCredentials: true,
             })
             .then((userResult) => {
-                setUser(userResult.data);
+                setUser(userResult.data.userInfo);
+                setCompany(userResult.data.companyInfo);
                 navigate('/dashboard');
             })
             .catch((err) => {

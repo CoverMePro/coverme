@@ -8,7 +8,7 @@ export interface IShift {
     endDateTime: Date;
 }
 
-export interface IShiftDefinition {
+export interface IShiftTemplate {
     id?: string;
     name: string;
     duration: string;
@@ -26,7 +26,7 @@ export const mapToShift = (id: string, data: any): IShift => {
     };
 };
 
-export const mapToShiftDefinition = (id: string, data: any): IShiftDefinition => {
+export const mapToShiftDefinition = (id: string, data: any): IShiftTemplate => {
     return {
         id: id,
         name: data.name,

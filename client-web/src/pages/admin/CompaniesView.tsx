@@ -120,8 +120,8 @@ const CompaniesView: React.FC = () => {
                         id="name"
                         selected={selected}
                         onSelect={handleSelectCompany}
-                        unSelectedActions={getAddAction(handleAddCompany)}
-                        selectedActions={getDeleteAction(handleOpenDeleteCompany)}
+                        unSelectedActions={getAddAction('Company', handleAddCompany)}
+                        selectedActions={getDeleteAction('Company', handleOpenDeleteCompany)}
                     />
                     <FormDialog open={openAddCompany} onClose={handleCloseAddCompany}>
                         <CreateCompanyForm onFinish={handleCompleteAddCompany} />
