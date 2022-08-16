@@ -53,7 +53,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     const handleSubmit = () => {
         const tradeRequest: ITradeRequest = {
             proposedDate: new Date(),
-            proposedUser: user.email!,
+            proposedUser: user.id,
             proposedShiftId: selectedProposedShiftId,
             requestedUser: selectedRequestedUserId,
             requestedShiftId: selectedRequestedShiftId,
@@ -62,10 +62,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 
         setIsLoading(true);
         axios
-            .post(
-                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/trade-request`,
-                tradeRequest
-            )
+            .post(`${process.env.REACT_APP_SERVER_API}/trade-request`, tradeRequest)
             .then((result) => {
                 enqueueSnackbar('Trade request submitted.', {
                     variant: 'success',
@@ -93,15 +90,11 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
         value: IUser | null
     ) => {
         if (value) {
-            setSelectedRequestedUserId(value.email!);
+            setSelectedRequestedUserId(value.id);
             // get shifts
 
             axios
-                .get(
-                    `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts/${
-                        value.email
-                    }/today`
-                )
+                .get(`${process.env.REACT_APP_SERVER_API}/shifts/${value.id}/today`)
                 .then((result) => {
                     setRequestedShifts(result.data.shifts);
                 })
@@ -128,9 +121,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 
                 const getStaffPromise = axios.get(`${process.env.REACT_APP_SERVER_API}/users`);
                 const getShiftsPromise = axios.get(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/shifts/${user.email!}/today`
+                    `${process.env.REACT_APP_SERVER_API}/shifts/${user.id!}/today`
                 );
 
                 const [staffResults, shiftResults] = await Promise.all([

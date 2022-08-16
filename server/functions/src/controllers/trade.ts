@@ -4,14 +4,13 @@ import { ITradeRequest, mapToTradeRequest } from '../models/Trade';
 import { db } from '../utils/admin';
 
 const createTradeRequest = (req: Request, res: Response) => {
-    const company = req.params.name;
     const tradeRequest: ITradeRequest = req.body;
 
     let fetchedTradeRequest: ITradeRequest;
 
     tradeRequest.proposedDate = new Date(tradeRequest.proposedDate!);
 
-    db.collection(`/companies/${company}/trade-requests`)
+    db.collection(`/trade-requests`)
         .add(tradeRequest)
         .then((result) => {
             return result.get();
@@ -20,7 +19,7 @@ const createTradeRequest = (req: Request, res: Response) => {
             fetchedTradeRequest = mapToTradeRequest(tradeRequestDoc.id, tradeRequestDoc.data());
 
             return db
-                .collection(`/companies/${company}/shifts`)
+                .collection(`/shifts`)
                 .where('__name__', 'in', [
                     tradeRequest.proposedShiftId,
                     tradeRequest.requestedShiftId,
@@ -51,18 +50,18 @@ const createTradeRequest = (req: Request, res: Response) => {
 };
 
 const getUserTradeRequest = async (req: Request, res: Response) => {
-    const { name, user } = req.params;
+    const user = req.params.user;
 
     let tradeRequests: ITradeRequest[] = [];
     const shiftIds: string[] = [];
     try {
         const proposedTrades = db
-            .collection(`/companies/${name}/trade-requests`)
+            .collection(`/trade-requests`)
             .where('proposedUser', '==', user)
             .get();
 
         const requestedTrades = db
-            .collection(`/companies/${name}/trade-requests`)
+            .collection(`/trade-requests`)
             .where('requestedUser', '==', user)
             .get();
 
@@ -97,7 +96,7 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
 
         if (shiftIds.length > 0) {
             const shiftSnapshot = await db
-                .collection(`/companies/${name}/shifts`)
+                .collection(`/shifts`)
                 .where('__name__', 'in', shiftIds)
                 .get();
 
@@ -128,11 +127,11 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
 };
 
 const deleteTradeRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const id = req.params.id;
 
     console.log(id);
 
-    db.doc(`/companies/${name}/trade-requests/${id}`)
+    db.doc(`/trade-requests/${id}`)
         .delete()
         .then(() => {
             return res.json({ message: 'trade request deleted.' });
@@ -144,29 +143,25 @@ const deleteTradeRequest = (req: Request, res: Response) => {
 };
 
 const acceptTradeRequest = async (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const id = req.params.id;
 
     try {
-        const tradeRequestDoc = await db.doc(`/companies/${name}/trade-requests/${id}`).get();
+        const tradeRequestDoc = await db.doc(`/trade-requests/${id}`).get();
 
         const tradeRequest: ITradeRequest = mapToTradeRequest(
             tradeRequestDoc.id,
             tradeRequestDoc.data()
         );
 
-        const shift1Update = db
-            .doc(`/companies/${name}/shifts/${tradeRequest.proposedShiftId}`)
-            .update({
-                userId: tradeRequest.requestedUser,
-            });
+        const shift1Update = db.doc(`/shifts/${tradeRequest.proposedShiftId}`).update({
+            userId: tradeRequest.requestedUser,
+        });
 
-        const shift2Update = db
-            .doc(`/companies/${name}/shifts/${tradeRequest.requestedShiftId}`)
-            .update({
-                userId: tradeRequest.proposedUser,
-            });
+        const shift2Update = db.doc(`/shifts/${tradeRequest.requestedShiftId}`).update({
+            userId: tradeRequest.proposedUser,
+        });
 
-        const tradeRequestUpdate = db.doc(`/companies/${name}/trade-requests/${id}`).update({
+        const tradeRequestUpdate = db.doc(`/trade-requests/${id}`).update({
             status: 'Approved',
         });
 
@@ -180,9 +175,9 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
 };
 
 const rejectTradeRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const id = req.params.id;
 
-    db.doc(`/companies/${name}/trade-requests/${id}`)
+    db.doc(`/trade-requests/${id}`)
         .update({
             status: 'Rejected',
         })
@@ -196,9 +191,9 @@ const rejectTradeRequest = (req: Request, res: Response) => {
 };
 
 const archiveTradeRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const id = req.params.id;
 
-    db.doc(`/companies/${name}/trade-requests/${id}`)
+    db.doc(`/trade-requests/${id}`)
         .get()
         .then((tradeRequestResults) => {
             let tradeRequestData = tradeRequestResults.data();
@@ -211,7 +206,7 @@ const archiveTradeRequest = (req: Request, res: Response) => {
                 }
             }
 
-            return db.doc(`/companies/${name}/trade-requests/${id}`).set(tradeRequestData!);
+            return db.doc(`/trade-requests/${id}`).set(tradeRequestData!);
         })
         .then(() => {
             return res.json({ message: 'archived successfully' });

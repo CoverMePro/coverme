@@ -106,11 +106,7 @@ const TradeView: React.FC = () => {
     useEffect(() => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/trade-request/${user.email!}`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${user.email!}`)
             .then((result) => {
                 console.log(result.data);
                 const tradeRequests = result.data.tradeRequests;

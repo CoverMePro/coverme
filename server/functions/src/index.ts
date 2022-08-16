@@ -9,6 +9,7 @@ import teamRoutes from './routes/teams';
 import shiftRoutes from './routes/shifts/shifts';
 import shiftTemplateRoutes from './routes/shifts/shift-templates';
 import shiftTransactionRoutes from './routes/shifts/shift-transaction';
+import tradeRequestRoutes from './routes/requests/trade-request';
 import overtimeRoutes from './routes/overtime-callout';
 import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
@@ -42,6 +43,7 @@ app.use('/teams', teamRoutes);
 app.use('/shifts', shiftRoutes);
 app.use('/shift-templates', shiftTemplateRoutes);
 app.use('/shift-transactions', shiftTransactionRoutes);
+app.use('/trade-request', tradeRequestRoutes);
 
 app.post('/send-sms', sendSms);
 

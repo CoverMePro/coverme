@@ -176,8 +176,8 @@ const getShiftTemplates = (_: Request, res: Response) => {
 };
 
 const getShiftFromUser = (req: Request, res: Response) => {
-    const { name, user } = req.params;
-    db.collection(`/companies/${name}/shifts`)
+    const { user } = req.params;
+    db.collection(`/shifts`)
         .where('userId', '==', user)
         .get()
         .then((shiftDocs) => {
@@ -192,9 +192,9 @@ const getShiftFromUser = (req: Request, res: Response) => {
 };
 
 const getShiftsFromTodayOnward = (req: Request, res: Response) => {
-    let { name, user } = req.params;
+    let { user } = req.params;
 
-    db.collection(`/companies/${name}/shifts`)
+    db.collection(`/shifts`)
         .where('userId', '==', user)
         .where('startDateTime', '>', new Date())
         .get()
@@ -210,11 +210,11 @@ const getShiftsFromTodayOnward = (req: Request, res: Response) => {
 };
 
 const getShiftsFromDateRange = (req: Request, res: Response) => {
-    const { name, user } = req.params;
+    const { user } = req.params;
 
     const { startRange, endRange } = req.body;
 
-    db.collection(`/companies/${name}/shifts`)
+    db.collection(`/shifts`)
         .where('userId', '==', user)
         .where('startDateTime', '>', new Date(startRange))
         .where('startDateTime', '<', new Date(endRange))
