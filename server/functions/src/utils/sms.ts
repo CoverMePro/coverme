@@ -24,7 +24,7 @@ export const sendSms = (req: Request, res: Response) => {
 
                 const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-                const message = await client.messages.create({
+                await client.messages.create({
                     from: TWILIO_NUMBER,
                     to: formatNumber(user.phone),
                     body: `Hello ${user.firstName} ${user.lastName}! Test send sms from twilio!`,

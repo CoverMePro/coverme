@@ -15,8 +15,8 @@ import AuthWrapper from 'components/auth/AuthWrapper';
 import LoginView from 'pages/auth/LoginView';
 import RegisterView from 'pages/auth/RegisterView';
 import HomeView from 'pages/main/HomeView';
-import StaffView from 'pages/company/StaffView';
-import TeamsView from 'pages/company/TeamsView';
+import StaffView from 'pages/main/StaffView';
+import TeamsView from 'pages/main/TeamsView';
 import Companies from 'pages/admin/CompaniesView';
 import ShiftsView from 'pages/management/ShiftsView';
 import TradeView from 'pages/requests/TradeView';
@@ -26,7 +26,7 @@ import ScheduleView from 'pages/main/ScheduleView';
 import CalendarView from 'pages/main/CalendarView';
 import OvertimeListView from 'pages/overtime/OvertimeListView';
 import OvertimeCalloutsView from 'pages/overtime/OvertimeCalloutsView';
-import BlogView from 'pages/company/BlogView';
+import MessageBoardView from 'pages/main/MessageBoardView';
 
 import { theme } from './theme';
 import OvertimeConfirmationView from 'pages/overtime/OvertimeConfirmationView';
@@ -100,7 +100,7 @@ ReactDOM.render(
                                     path="blog"
                                     element={
                                         <AuthWrapper>
-                                            <BlogView />
+                                            <MessageBoardView />
                                         </AuthWrapper>
                                     }
                                 />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
 import { IUser } from 'models/User';
@@ -10,11 +10,11 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import LinearLoading from 'components/loading/LineraLoading';
 
 import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
+import PageLoading from 'components/loading/PageLoading';
 
 const StaffView: React.FC = () => {
     const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
@@ -108,12 +108,14 @@ const StaffView: React.FC = () => {
 
     return (
         <>
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h1">Staff</Typography>
+            </Box>
             {isLoadingStaff ? (
-                <LinearLoading />
+                <PageLoading />
             ) : (
                 <Box>
                     <EnhancedTable
-                        title="Staff List"
                         data={staff}
                         headerCells={StaffHeaderCells}
                         id="id"

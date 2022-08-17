@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -16,7 +16,7 @@ import { ISelectedAction } from 'models/TableInfo';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateTimeOffForm from 'components/forms/CreateTimeOffForm';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import BasicConfirmation from 'components/dialogs/BasicConfirmation';
 
@@ -189,48 +189,44 @@ const TimeOffView: React.FC = () => {
 
     return (
         <>
-            <Box>
-                {isLoadingTimeOff ? (
-                    <Box>
-                        <LinearLoading />
-                    </Box>
-                ) : (
-                    <EnhancedTable
-                        title="Time Off"
-                        headerCells={
-                            user.role === 'staff' ? staffTimeOffHeadCells : managerTimeOffHeadCells
-                        }
-                        id="id"
-                        data={timeOff}
-                        onSelect={handleSelectTimeOff}
-                        selected={selected}
-                        unSelectedActions={
-                            user.role === 'staff'
-                                ? getAddAction('Request', handleAddTimeOff, 0)
-                                : []
-                        }
-                        selectedActions={user.role === 'staff' ? [] : selectedActions}
-                    />
-                )}
-                <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}>
-                    <CreateTimeOffForm onFinish={handleAddTimeOffSuccessfull} />
-                </FormDialog>
-                <BasicConfirmation
-                    open={openConfirmation}
-                    isLoading={isLoading}
-                    onClose={handleCloseConfirmation}
-                    title={confirmationTitle}
-                    message={confirmationMessage}
-                    buttons={[
-                        { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
-                        {
-                            text: isApproving ? 'Approve' : 'Reject',
-                            color: 'primary',
-                            onClick: handleConfirmation,
-                        },
-                    ]}
-                />
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h1">Time Off Requests</Typography>
             </Box>
+            {isLoadingTimeOff ? (
+                <PageLoading />
+            ) : (
+                <EnhancedTable
+                    headerCells={
+                        user.role === 'staff' ? staffTimeOffHeadCells : managerTimeOffHeadCells
+                    }
+                    id="id"
+                    data={timeOff}
+                    onSelect={handleSelectTimeOff}
+                    selected={selected}
+                    unSelectedActions={
+                        user.role === 'staff' ? getAddAction('Request', handleAddTimeOff, 0) : []
+                    }
+                    selectedActions={user.role === 'staff' ? [] : selectedActions}
+                />
+            )}
+            <FormDialog open={openAddTimeOff} onClose={handleCloseAddTimeOff}>
+                <CreateTimeOffForm onFinish={handleAddTimeOffSuccessfull} />
+            </FormDialog>
+            <BasicConfirmation
+                open={openConfirmation}
+                isLoading={isLoading}
+                onClose={handleCloseConfirmation}
+                title={confirmationTitle}
+                message={confirmationMessage}
+                buttons={[
+                    { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
+                    {
+                        text: isApproving ? 'Approve' : 'Reject',
+                        color: 'primary',
+                        onClick: handleConfirmation,
+                    },
+                ]}
+            />
         </>
     );
 };

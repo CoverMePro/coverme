@@ -10,6 +10,9 @@ import TodayIcon from '@mui/icons-material/Today';
 import ArticleIcon from '@mui/icons-material/Article';
 import TimerIcon from '@mui/icons-material/Timer';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import FlightIcon from '@mui/icons-material/Flight';
+import SickIcon from '@mui/icons-material/Sick';
 
 export const mainNav: INav[] = [
     { label: 'Home', path: 'home', selectedIndex: 0, icon: <HomeIcon color="secondary" /> },
@@ -19,15 +22,7 @@ export const mainNav: INav[] = [
         selectedIndex: 1,
         icon: <TodayIcon color="secondary" />,
     },
-    {
-        label: 'Schedule',
-        path: 'schedule',
-        selectedIndex: 2,
-        icon: <CalendarViewMonthIcon color="secondary" />,
-    },
-];
 
-export const companyNav: INav[] = [
     {
         label: 'Staff',
         path: 'staff',
@@ -35,7 +30,12 @@ export const companyNav: INav[] = [
         icon: <PeopleIcon color="secondary" />,
     },
     { label: 'Teams', path: 'teams', selectedIndex: 4, icon: <GroupWorkIcon color="secondary" /> },
-    { label: 'Blog', path: 'blog', selectedIndex: 5, icon: <ArticleIcon color="secondary" /> },
+    {
+        label: 'Message Board',
+        path: 'blog',
+        selectedIndex: 5,
+        icon: <ArticleIcon color="secondary" />,
+    },
 ];
 
 export const managmentNav: INav[] = [
@@ -44,6 +44,12 @@ export const managmentNav: INav[] = [
         path: 'shifts',
         selectedIndex: 6,
         icon: <ScheduleIcon color="secondary" />,
+    },
+    {
+        label: 'Schedule',
+        path: 'schedule',
+        selectedIndex: 2,
+        icon: <CalendarViewMonthIcon color="secondary" />,
     },
 ];
 
@@ -69,5 +75,26 @@ export const adminNav: INav[] = [
         path: 'companies',
         selectedIndex: 7,
         icon: <BusinessIcon color="secondary" />,
+    },
+];
+
+export const requestNav: INav[] = [
+    {
+        label: 'Trade',
+        path: 'request/trade',
+        selectedIndex: 8,
+        icon: <SwapHorizIcon color="secondary" />,
+    },
+    {
+        label: 'Time Off',
+        path: 'request/time-off',
+        selectedIndex: 9,
+        icon: <FlightIcon color="secondary" />,
+    },
+    {
+        label: 'Sick',
+        path: 'request/sick',
+        selectedIndex: 10,
+        icon: <SickIcon color="secondary" />,
     },
 ];

@@ -26,7 +26,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutForm';
 import PermissionCheck from 'components/auth/PermissionCheck';
@@ -179,9 +179,9 @@ const OvertimeCalloutsView: React.FC = () => {
     };
 
     return (
-        <Box>
+        <>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h2">Overtime Callouts</Typography>
+                <Typography variant="h1">Overtime Callouts</Typography>
                 <Box>
                     {isLoadingCycle ? (
                         <>
@@ -202,9 +202,7 @@ const OvertimeCalloutsView: React.FC = () => {
                 </Box>
             </Box>
             {isLoadingCallouts ? (
-                <>
-                    <LinearLoading />
-                </>
+                <PageLoading />
             ) : (
                 <>
                     {callouts.map((callout) => (
@@ -245,7 +243,7 @@ const OvertimeCalloutsView: React.FC = () => {
             <FormDialog open={openCalloutCreation} onClose={handleCloseCalloutCreation}>
                 <CreateOvertimeCalloutForm onFinish={handleAddCallout} />
             </FormDialog>
-        </Box>
+        </>
     );
 };
 

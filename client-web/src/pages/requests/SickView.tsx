@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -12,7 +12,7 @@ import { ISelectedAction } from 'models/TableInfo';
 import { ISickDisplay, ISickRequest } from 'models/Sick';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateSickRequestForm from 'components/forms/CreateSickRequestForm';
 import BasicConfirmation from 'components/dialogs/BasicConfirmation';
@@ -184,14 +184,14 @@ const SickView: React.FC = () => {
     }, [user]);
 
     return (
-        <Box>
+        <>
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h1">Sick Requests</Typography>
+            </Box>
             {isLoadingSickRequest ? (
-                <Box>
-                    <LinearLoading />
-                </Box>
+                <PageLoading />
             ) : (
                 <EnhancedTable
-                    title="Sick Requests"
                     headerCells={user.role === 'staff' ? staffSickHeadCells : managerSickHeadCells}
                     id="id"
                     data={sickRequests}
@@ -223,7 +223,7 @@ const SickView: React.FC = () => {
                     },
                 ]}
             />
-        </Box>
+        </>
     );
 };
 

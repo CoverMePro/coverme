@@ -18,7 +18,7 @@ import { ITeamInfo } from 'models/Team';
 import { ILastCallouts } from 'models/LastCallouts';
 import OvertimeHeadCells from 'models/HeaderCells/OvertimeListHeadCells';
 
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
@@ -173,7 +173,7 @@ const OvertimeListView: React.FC = () => {
     return (
         <>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h2">Overtime List</Typography>
+                <Typography variant="h1">Overtime List</Typography>
                 <FormControl>
                     <InputLabel id="team-lable">Teams</InputLabel>
                     <Select
@@ -194,7 +194,7 @@ const OvertimeListView: React.FC = () => {
                 </FormControl>
             </Box>
             {isLoadingStaff ? (
-                <LinearLoading />
+                <PageLoading />
             ) : (
                 <Box>
                     <EnhancedTable

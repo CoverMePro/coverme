@@ -169,6 +169,8 @@ const ScheduleView: React.FC = () => {
                 resourceId: `${values.team}-${values.user}`,
             });
 
+            console.log(event);
+
             // const newEvents = [...addedEvents, event];
             // setAddedEvents(newEvents);
         }

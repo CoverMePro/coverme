@@ -14,7 +14,7 @@ import TabPanel from 'components/tabs/TabPanel';
 import ProposedTrades from 'components/trades/ProposedTrades';
 import RequestedTrades from 'components/trades/RequestedTrades';
 import ResultTrades from 'components/trades/ResultTrades';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 
 import { formatTradeDisplay } from 'utils/formatters/display-formatter';
 import axios from 'utils/axios-intance';
@@ -121,60 +121,51 @@ const TradeView: React.FC = () => {
     }, [user.id, formatTradeRequests]);
 
     return (
-        <Box>
+        <>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h2">Trade Requests</Typography>
+                <Typography variant="h1">Trade Requests</Typography>
                 <Tooltip title="Add Trade Request">
                     <IconButton size="large" onClick={handleOpenAddTrade}>
                         <AddCircleIcon color="primary" fontSize="large" />
                     </IconButton>
                 </Tooltip>
             </Box>
-            <>
-                {isLoading ? (
-                    <Box sx={{ height: '500px' }}>
-                        <LinearLoading />
+            {isLoading ? (
+                <PageLoading />
+            ) : (
+                <>
+                    <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
+                        <Tab label="Proposed Trades" />
+                        <Tab label="Incoming Trades" />
+                        <Tab label="Trade Results" />
+                    </Tabs>
+                    <Box>
+                        <TabPanel index={0} value={tabValue}>
+                            <ProposedTrades
+                                tradeRequests={proposedTrades}
+                                onDeleteSuccess={handleRemoveProposedTradeRequest}
+                            />
+                        </TabPanel>
+                        <TabPanel index={1} value={tabValue}>
+                            <RequestedTrades
+                                tradeRequests={requestedTrades}
+                                onRequestStatusChange={handleMoveRequestToResults}
+                            />
+                        </TabPanel>
+                        <TabPanel index={2} value={tabValue}>
+                            <ResultTrades
+                                tradeRequests={resultTrades}
+                                onRemoveRequest={handleRemoveResultRequest}
+                            />
+                        </TabPanel>
                     </Box>
-                ) : (
-                    <>
-                        <Tabs
-                            value={tabValue}
-                            onChange={handleTabChange}
-                            centered
-                            variant="fullWidth"
-                        >
-                            <Tab label="Proposed Trades" />
-                            <Tab label="Incoming Trades" />
-                            <Tab label="Trade Results" />
-                        </Tabs>
-                        <Box>
-                            <TabPanel index={0} value={tabValue}>
-                                <ProposedTrades
-                                    tradeRequests={proposedTrades}
-                                    onDeleteSuccess={handleRemoveProposedTradeRequest}
-                                />
-                            </TabPanel>
-                            <TabPanel index={1} value={tabValue}>
-                                <RequestedTrades
-                                    tradeRequests={requestedTrades}
-                                    onRequestStatusChange={handleMoveRequestToResults}
-                                />
-                            </TabPanel>
-                            <TabPanel index={2} value={tabValue}>
-                                <ResultTrades
-                                    tradeRequests={resultTrades}
-                                    onRemoveRequest={handleRemoveResultRequest}
-                                />
-                            </TabPanel>
-                        </Box>
-                    </>
-                )}
-            </>
+                </>
+            )}
 
             <FormDialog open={openAddTrade} onClose={handleCloseAddTrade}>
                 <CreateTradeRequestFrom onFinish={handleTradeCreated} />
             </FormDialog>
-        </Box>
+        </>
     );
 };
 

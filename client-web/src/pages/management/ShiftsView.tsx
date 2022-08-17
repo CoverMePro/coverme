@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import ShiftHeaderCells from 'models/HeaderCells/ShiftHeadCells';
 import { IShiftTemplate } from 'models/ShiftTemplate';
@@ -12,7 +12,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateShiftForm from 'components/forms/CreateShiftForm';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 
 import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
 import axios from 'utils/axios-intance';
@@ -111,12 +111,14 @@ const ShiftsView: React.FC = () => {
 
     return (
         <>
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h1">Shfits</Typography>
+            </Box>
             {isLoadingShift ? (
-                <LinearLoading />
+                <PageLoading />
             ) : (
                 <Box>
                     <EnhancedTable
-                        title="Shifts"
                         data={shiftTemplates}
                         headerCells={ShiftHeaderCells}
                         id="id"

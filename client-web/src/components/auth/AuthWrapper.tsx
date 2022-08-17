@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
+import { useTypedSelector } from 'hooks/use-typed-selector';
+import { useActions } from 'hooks/use-actions';
+
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
-import { useTypedSelector } from 'hooks/use-typed-selector';
-import { useActions } from 'hooks/use-actions';
+import { IAuthInfo } from 'models/AuthInfo';
 
 import { hasPermission } from 'utils/validations/permissions';
 import axios from 'utils/axios-intance';
@@ -25,10 +27,10 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
     useEffect(() => {
         if (!user.id) {
             axios
-                .get(`${process.env.REACT_APP_SERVER_API}/auth`)
-                .then((userResult) => {
-                    setUser(userResult.data.userInfo);
-                    setCompany(userResult.data.companyInfo);
+                .get<IAuthInfo>(`${process.env.REACT_APP_SERVER_API}/auth`)
+                .then((authResult) => {
+                    setUser(authResult.data.userInfo);
+                    setCompany(authResult.data.companyInfo);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -50,7 +52,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                 navigate('/login');
             }
         }
-    }, [setUser, setCompany, user, enqueueSnackbar, navigate, permissionLevel]);
+    }, [user, setUser, setCompany, enqueueSnackbar, navigate, permissionLevel]);
 
     return <>{isAuthenticated && children}</>;
 };

@@ -11,7 +11,7 @@ import CreateTeamForm from 'components/forms/CreateTeamForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 import TeamRoster from 'components/teams/TeamRoster';
 
 import axios from 'utils/axios-intance';
@@ -94,9 +94,9 @@ const TeamsView: React.FC = () => {
     }, [handleGetTeams]);
 
     return (
-        <Box>
+        <>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h2">Teams</Typography>
+                <Typography variant="h1">Teams</Typography>
                 <PermissionCheck permissionLevel={2}>
                     <Tooltip title="Create Team">
                         <IconButton size="large" onClick={handleOpenAddTeam}>
@@ -107,7 +107,7 @@ const TeamsView: React.FC = () => {
             </Box>
             {isLoadingTeams ? (
                 <>
-                    <LinearLoading />
+                    <PageLoading />
                 </>
             ) : (
                 <>
@@ -130,7 +130,7 @@ const TeamsView: React.FC = () => {
                 onClose={handleCloseDeleteTeam}
                 onConfirm={handleConfirmDeleteTeam}
             />
-        </Box>
+        </>
     );
 };
 

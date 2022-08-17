@@ -9,7 +9,7 @@ import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 import { IShift } from 'models/Shift';
 import { ITimeOff } from 'models/TimeOff';
-import LinearLoading from 'components/loading/LineraLoading';
+import PageLoading from 'components/loading/PageLoading';
 
 const CalendarView: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const CalendarView: React.FC = () => {
         <>
             {isLoading ? (
                 <>
-                    <LinearLoading />
+                    <PageLoading />
                 </>
             ) : (
                 <FullCalendar
