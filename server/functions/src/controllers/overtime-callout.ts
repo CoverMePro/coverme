@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { IOvertime, mapToOvertime } from '../models/Overtime';
 import { db } from '../utils/admin';
-import { formatFirestoreData } from '../utils/db-helpers';
+import { formatFirestoreData, getCalloutList } from '../utils/db-helpers';
 import calloutCyle from '../utils/overtime';
 
 const createOvertimeCallout = (req: Request, res: Response) => {
@@ -31,10 +31,7 @@ const createOvertimeCallout = (req: Request, res: Response) => {
 };
 
 const getOvertimeCallouts = (req: Request, res: Response) => {
-    const company = req.params.company;
-
     db.collection('/overtime-callouts')
-        .where('company', '==', company)
         .orderBy('dateCreated')
         .get()
         .then((overtimeCalloutDocs) => {
@@ -68,7 +65,7 @@ const getOvertimeCalloutInfo = (req: Request, res: Response) => {
             let hasAnswered = false;
 
             overtimeCallout.callouts.forEach((callout) => {
-                if (callout.user === user) {
+                if (callout.userId === user) {
                     hasBeenReached = true;
 
                     if (callout.status !== 'Pending') {
@@ -97,7 +94,7 @@ const getOvertimeCalloutInfo = (req: Request, res: Response) => {
 
 const acceptCalloutShift = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const email = req.body.email;
+    const userId = req.body.userId;
     db.doc(`/overtime-callouts/${id}`)
         .get()
         .then(async (overtimeCalloutDoc) => {
@@ -107,7 +104,7 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
             );
             const calloutList = [...overtimeCallout.callouts!];
 
-            const userInListIdx = calloutList.findIndex((user) => user.user === email);
+            const userInListIdx = calloutList.findIndex((user) => user.userId === userId);
 
             if (userInListIdx != -1) {
                 calloutList[userInListIdx].status = 'Accepted';
@@ -134,7 +131,7 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
 
 const rejectedCalloutShift = (req: Request, res: Response) => {
     const { id } = req.params;
-    const email = req.body.email;
+    const userId = req.body.userId;
     db.doc(`/overtime-callouts/${id}`)
         .get()
         .then(async (overtimeCalloutDoc) => {
@@ -145,7 +142,7 @@ const rejectedCalloutShift = (req: Request, res: Response) => {
 
             const calloutList = [...overtimeCallout.callouts!];
 
-            const userInListIdx = calloutList.findIndex((user) => user.user === email);
+            const userInListIdx = calloutList.findIndex((user) => user.userId === userId);
 
             if (userInListIdx != -1) {
                 calloutList[userInListIdx].status = 'Rejected';
@@ -181,6 +178,17 @@ const testCycleCallout = (_: Request, res: Response) => {
         });
 };
 
+const getCompanyOvertimeCalloutList = (_: Request, res: Response) => {
+    getCalloutList()
+        .then(({ users, lastCallouts }) => {
+            return res.json({ users: users, lastCallouts: lastCallouts });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 export default {
     createOvertimeCallout,
     getOvertimeCallouts,
@@ -188,4 +196,5 @@ export default {
     acceptCalloutShift,
     rejectedCalloutShift,
     testCycleCallout,
+    getCompanyOvertimeCalloutList,
 };

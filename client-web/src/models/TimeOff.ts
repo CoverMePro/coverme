@@ -7,6 +7,7 @@ export interface ITimeOffRequest {
     requestDate: Date;
     type: TimeOffType;
     userId: string;
+    user: string;
     teams: string[];
     timeOffStart: Date;
     timeOffEnd: Date;

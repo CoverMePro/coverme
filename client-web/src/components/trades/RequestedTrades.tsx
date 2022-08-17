@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box } from '@mui/material';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -29,8 +28,6 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
     const [confirmationTitle, setConfirmationTitle] = useState<string>('');
     const [confirmationMessage, setConfirmationMessage] = useState<string>('');
     const [isAccepting, setIsAccepting] = useState<boolean>(false);
-
-    const user = useTypedSelector((state) => state.user);
 
     const handleSelectRequest = (tradeRequest: any | undefined) => {
         if (selected === tradeRequest) {
@@ -63,17 +60,13 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
     const handleAcceptTrade = () => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/trade-request/${selected}/accept`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${selected}/accept`)
             .then(() => {
                 onRequestStatusChange(selected, 'Approved');
                 setSelected(undefined);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => {
                 setIsLoading(false);
@@ -84,17 +77,13 @@ const RequestedTrades: React.FC<IRequestedTradesProps> = ({
     const handleRejectTrade = () => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/trade-request/${selected}/reject`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${selected}/reject`)
             .then(() => {
                 onRequestStatusChange(selected, 'Rejected');
                 setSelected(undefined);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => {
                 setIsLoading(false);

@@ -1,13 +1,20 @@
 import { IShift } from './Shift';
 import { StatusType } from './Types';
 
+export interface IUserTradeInfo {
+    name: string;
+    email: string;
+}
+
 export interface ITradeRequest {
     id?: string;
     proposedDate: Date;
-    proposedUser: string;
+    proposedUser: IUserTradeInfo;
+    proposedUserId: string;
     proposedShiftId: string;
     proposedShift?: IShift;
-    requestedUser: string;
+    requestedUser: IUserTradeInfo;
+    requestedUserId: string;
     requestedShiftId: string;
     requestedShift?: IShift;
     status: StatusType;
@@ -19,8 +26,10 @@ export const mapToTradeRequest = (id: string, data: any): ITradeRequest => {
         id: id,
         proposedDate: data.proposedDate.toDate(),
         proposedUser: data.proposedUser,
+        proposedUserId: data.proposedUserId,
         proposedShiftId: data.proposedShiftId,
         requestedUser: data.requestedUser,
+        requestedUserId: data.requestedUserId,
         requestedShiftId: data.requestedShiftId,
         status: data.status,
     };

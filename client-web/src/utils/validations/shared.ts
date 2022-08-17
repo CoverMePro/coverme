@@ -17,7 +17,6 @@ export const isEmail = (email: string) => {
 };
 
 export const isDate = (date: any) => {
-    console.log(new Date(date));
     return !isNaN(Date.parse(date));
 };
 

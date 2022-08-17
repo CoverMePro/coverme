@@ -1,12 +1,19 @@
 import { IShift } from './Shift';
 
+export interface IUserTradeInfo {
+    name: string;
+    email: string;
+}
+
 export interface ITradeRequest {
     id?: string;
     proposedDate: Date;
-    proposedUser: string;
+    proposedUserId: string;
+    proposedUser: IUserTradeInfo;
     proposedShiftId: string;
     proposedShift?: IShift;
-    requestedUser: string;
+    requestedUserId: string;
+    requestedUser: IUserTradeInfo;
     requestedShiftId: string;
     requestedShift?: IShift;
     status: 'Pending' | 'Approved' | 'Rejected';

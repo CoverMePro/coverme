@@ -11,12 +11,11 @@ export const updateNewUserIntoDb = (userInfo: IUser, hireDate: Date) => {
     });
 };
 
-export const getCalloutList = (company: string) => {
+export const getCalloutList = () => {
     const users: IUser[] = [];
     let lastCallouts: any;
     return db
         .collection('/users')
-        .where('company', '==', company)
         .where('role', '==', 'staff')
         .orderBy('hireDate', 'asc')
         .get()
@@ -25,7 +24,7 @@ export const getCalloutList = (company: string) => {
                 users.push(mapToUser(doc.id, doc.data()));
             });
 
-            return db.collection(`/companies/${company}/last-callouts`).get();
+            return db.collection(`/last-callouts`).get();
         })
         .then((result) => {
             if (result.empty) {

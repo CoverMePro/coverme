@@ -1,5 +1,6 @@
 export interface ICallout {
-    user: string;
+    userId: string;
+    userName: string;
     status: 'Pending' | 'Accepted' | 'Rejected';
     team: string;
 }

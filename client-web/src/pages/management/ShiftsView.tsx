@@ -101,11 +101,10 @@ const ShiftsView: React.FC = () => {
         axios
             .get<IShiftTemplate[]>(`${process.env.REACT_APP_SERVER_API}/shift-templates`)
             .then((result) => {
-                console.log(result.data);
                 setShiftTemplates(result.data);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => setIsLoadingShift(false));
     }, [user.company]);

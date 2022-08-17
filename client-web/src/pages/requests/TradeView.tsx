@@ -37,7 +37,7 @@ const TradeView: React.FC = () => {
             const fetchedRequestedTrades: ITradeDisplay[] = [];
 
             tradeRequests.forEach((tradeRequest) => {
-                const isProposed = tradeRequest.proposedUser === user.email;
+                const isProposed = tradeRequest.proposedUserId === user.id;
 
                 if (tradeRequest.status === 'Approved' || tradeRequest.status === 'Rejected') {
                     fetchedResultTrades.push(formatTradeDisplay(tradeRequest, isProposed));
@@ -52,7 +52,7 @@ const TradeView: React.FC = () => {
             setProposedTrades(fetchedProposedTrades);
             setRequestedTrades(fetchedRequestedTrades);
         },
-        [user.email]
+        [user.id]
     );
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -106,9 +106,8 @@ const TradeView: React.FC = () => {
     useEffect(() => {
         setIsLoading(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${user.email!}`)
+            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${user.id!}`)
             .then((result) => {
-                console.log(result.data);
                 const tradeRequests = result.data.tradeRequests;
 
                 formatTradeRequests(tradeRequests);
@@ -119,7 +118,7 @@ const TradeView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user.company, user.email, formatTradeRequests]);
+    }, [user.id, formatTradeRequests]);
 
     return (
         <Box>

@@ -52,7 +52,6 @@ const SickView: React.FC = () => {
 
     const handleAddSickRequestSuccessfull = (sickRequest: ISickRequest | undefined) => {
         if (sickRequest) {
-            console.log(sickRequest);
             const newSickRequests = [...sickRequests, formatSickDisplay(sickRequest)];
             setSickRequests(newSickRequests);
         }
@@ -95,11 +94,7 @@ const SickView: React.FC = () => {
     const handleApproveSickRequest = () => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/sick-request/${selected}/approve`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/sick-requests/${selected}/approve`)
             .then(() => {
                 // remove from list for now
                 removeSickRequest(selected);
@@ -116,11 +111,7 @@ const SickView: React.FC = () => {
 
     const handleRejectSickRequest = () => {
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/sick-request/${selected}/reject`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/sick-requests/${selected}/reject`)
             .then(() => {
                 // remove from list for now
                 removeSickRequest(selected);
@@ -155,11 +146,7 @@ const SickView: React.FC = () => {
 
         if (user.role === 'staff') {
             axios
-                .get(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/sick-request/${user.email!}`
-                )
+                .get(`${process.env.REACT_APP_SERVER_API}/sick-requests/${user.id!}`)
                 .then((result) => {
                     const sickRequests: ISickRequest[] = result.data.sickRequests;
                     const sickDisplay: ISickDisplay[] = [];
@@ -175,16 +162,10 @@ const SickView: React.FC = () => {
                 })
                 .finally(() => setIsLoadingSickRequest(false));
         } else {
-            console.log('MANAGER');
             axios
-                .post(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/sick-request/from-teams`,
-                    {
-                        teams: user.teams,
-                    }
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/sick-requests/from-teams`, {
+                    teams: user.teams,
+                })
                 .then((result) => {
                     const sickRequests: ISickRequest[] = result.data.sickRequests;
                     const sickDisplay: ISickDisplay[] = [];

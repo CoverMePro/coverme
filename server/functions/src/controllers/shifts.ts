@@ -28,7 +28,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                             teamStaff.push({
                                 id: `${team}-unclaimed`,
                                 team: team,
-                                email: '',
+                                userId: '',
                                 title: `Unclaimed Shifts`,
                             });
                         }
@@ -36,7 +36,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                         teamStaff.push({
                             id: `${team}-${user.id}`,
                             team: team,
-                            email: user.id,
+                            userId: user.id,
                             title: `${userData.firstName} ${userData.lastName}`,
                         });
                     }
@@ -84,7 +84,6 @@ const transactionShifts = (req: Request, res: Response) => {
 
     for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
-        console.log(transaction);
         switch (transaction.type) {
             case 'add':
                 batch.create(db.collection(`/shifts`).doc(), {
@@ -145,7 +144,6 @@ const deleteShiftTemplate = (req: Request, res: Response) => {
     db.doc(`/shift-templates/${id}`)
         .delete()
         .then((result) => {
-            console.log(result);
             return res.json({ message: 'Shift template deleted!' });
         })
         .catch((err) => {

@@ -1,6 +1,6 @@
 import { ISickDisplay, ISickRequest } from 'models/Sick';
 import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
-import { ITradeDisplay, ITradeRequest } from 'models/Trade';
+import { ITradeDisplay, ITradeRequest, IUserTradeInfo } from 'models/Trade';
 import { formatDateTimeOutputString, formatDateString } from './dateTime-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
@@ -14,6 +14,8 @@ const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     }
 };
 
+const listUser = (user: IUserTradeInfo) => `${user.name} (${user.email})`;
+
 export const formatTradeDisplay = (
     tradeRequest: ITradeRequest,
     isProposed: boolean
@@ -21,7 +23,9 @@ export const formatTradeDisplay = (
     return {
         id: tradeRequest.id!,
         date: formatDateString(tradeRequest.proposedDate!),
-        tradeWithUser: isProposed ? tradeRequest.requestedUser! : tradeRequest.proposedUser!,
+        tradeWithUser: isProposed
+            ? listUser(tradeRequest.requestedUser!)
+            : listUser(tradeRequest.proposedUser!),
         tradingShift: isProposed
             ? formatDateTimeOutputString(
                   tradeRequest.proposedShift!.startDateTime,
@@ -49,7 +53,7 @@ export const formatSickDisplay = (sickRequest: ISickRequest): ISickDisplay => {
     return {
         id: sickRequest.id!,
         date: formatDateString(sickRequest.requestDate!),
-        user: sickRequest.userId!,
+        user: sickRequest.user!,
         shift: formatDateTimeOutputString(
             sickRequest.shift!.startDateTime,
             sickRequest.shift!.endDateTime
@@ -66,6 +70,6 @@ export const formatTimeOffDisplay = (timeOffRequest: ITimeOffRequest): ITimeOffD
         startDate: formatDateString(timeOffRequest.timeOffStart!),
         endDate: formatDateString(timeOffRequest.timeOffEnd!),
         status: timeOffRequest.status!,
-        user: timeOffRequest.userId!,
+        user: timeOffRequest.user!,
     };
 };

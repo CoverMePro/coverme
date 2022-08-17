@@ -71,17 +71,15 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
             type: timeOffType,
             timeOffStart: startDateTime,
             timeOffEnd: endDateTime,
-            userId: user.email!,
+            userId: user.id,
+            user: `${user.firstName} ${user.lastName}`,
             teams: user.teams,
             status: 'Pending',
         };
 
         setIsLoading(true);
         axios
-            .post(
-                `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/time-off`,
-                timeOffRequest
-            )
+            .post(`${process.env.REACT_APP_SERVER_API}/time-off`, timeOffRequest)
             .then((result) => {
                 enqueueSnackbar('Time off submitted.', {
                     variant: 'success',
@@ -149,7 +147,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                                     value={startDateTime}
                                     onChange={(newValue) => {
                                         if (newValue) {
-                                            newValue.setUTCHours(0, 0, 0, 0);
+                                            newValue.setUTCHours(23, 59, 0, 0);
                                             setStartDateTime(newValue);
                                         }
                                     }}
@@ -163,7 +161,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
                                     value={endDateTime}
                                     onChange={(newValue) => {
                                         if (newValue) {
-                                            newValue.setUTCHours(0, 0, 0, 0);
+                                            newValue.setUTCHours(23, 59, 0, 0);
                                             setEndDateTime(newValue);
                                         }
                                     }}

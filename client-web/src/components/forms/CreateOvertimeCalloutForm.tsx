@@ -63,7 +63,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
             setIsLoading(true);
             axios
-                .post(`${process.env.REACT_APP_SERVER_API}/overtime-callout`, overtimeCallout)
+                .post(`${process.env.REACT_APP_SERVER_API}/overtime-callouts`, overtimeCallout)
                 .then((result) => {
                     enqueueSnackbar('overtime callout created and started.', {
                         variant: 'success',
@@ -99,11 +99,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
         const unclaimedUser = 'unclaimed';
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/shifts/${unclaimedUser}/today`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/shifts/${unclaimedUser}/today`)
             .then((shiftResults) => {
                 setUnassignedShifts(shiftResults.data.shifts);
             })

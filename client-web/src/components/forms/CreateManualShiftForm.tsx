@@ -49,16 +49,10 @@ const CreateManualShiftForm: React.FC<ICreateManualShiftFormProps> = ({
                 const hour = parseInt(duration.slice(0, 2));
                 const minute = parseInt(duration.slice(2));
 
-                console.log(hour);
-                console.log(minute);
-
                 const hourmiliseconds = hour * 60 * 60 * 1000;
                 const minuteMiliseconds = minute * 60 * 1000;
 
                 const endDate = new Date(startDate.getTime() + hourmiliseconds + minuteMiliseconds);
-
-                console.log(startDate);
-                console.log(endDate);
 
                 onCompleteAdd({
                     startDate: startDate.toUTCString(),

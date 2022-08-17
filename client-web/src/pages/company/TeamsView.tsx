@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
 
@@ -25,8 +24,6 @@ const TeamsView: React.FC = () => {
     const [deleteMessage, setDeleteMessage] = useState<string>('');
     const [teams, setTeams] = useState<ITeamInfo[]>([]);
     const [selectedTeam, setSelectedTeam] = useState<string>('');
-
-    const user = useTypedSelector((state) => state.user);
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -62,7 +59,7 @@ const TeamsView: React.FC = () => {
                 handleGetTeams();
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 enqueueSnackbar('An error occured, please try again!', {
                     variant: 'error',
                 });
@@ -81,16 +78,15 @@ const TeamsView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/teams`)
             .then((result) => {
-                console.log(result.data);
                 setTeams(result.data);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => {
                 setIsLoadingTeams(false);
             });
-    }, [user.company]);
+    }, []);
 
     useEffect(() => {
         setIsLoadingTeams(true);

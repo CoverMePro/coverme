@@ -5,6 +5,7 @@ export interface ISickRequest {
     id?: string;
     requestDate: Date;
     userId: string;
+    user: string;
     shiftId: string;
     shift?: IShift;
     status: StatusType;

@@ -50,7 +50,6 @@ const EditSchedule: React.FC<IEditScheduleProps> = ({
                 drag = new Draggable(containerEl, {
                     itemSelector: '.fc-event',
                     eventData: function (eventEl: any) {
-                        console.log(eventEl.dataset.duration);
                         return {
                             title: eventEl.innerText,
                             duration: eventEl.dataset.duration,

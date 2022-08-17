@@ -1,8 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 
-import { useTypedSelector } from 'hooks/use-typed-selector';
-
-import FullCalendar, { EventApi, EventInput } from '@fullcalendar/react';
+import FullCalendar, { EventInput } from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction'; // needed for dayClick
@@ -12,16 +10,12 @@ import { AxiosResponse } from 'axios';
 import { IShift } from 'models/Shift';
 import { ITimeOff } from 'models/TimeOff';
 import LinearLoading from 'components/loading/LineraLoading';
-import { Box } from '@mui/material';
 
 const CalendarView: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [events, setEvents] = useState<EventInput[]>([]);
 
-    const user = useTypedSelector((state) => state.user);
-
     const formatEvents = (shifts: IShift[], timeOff: ITimeOff[]) => {
-        console.log(timeOff);
         // TODO: do not show unclaimed
         const formattedShifts = shifts.map((shift) => {
             if (shift.userId === '') return {};
@@ -58,9 +52,8 @@ const CalendarView: React.FC = () => {
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/shifts`)
+            .get(`${process.env.REACT_APP_SERVER_API}/shifts`)
             .then((result: AxiosResponse) => {
-                console.log(result.data.teamStaff);
                 formatEvents(result.data.shifts, result.data.timeOff);
             })
             .catch((error) => {
@@ -69,7 +62,7 @@ const CalendarView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user.company]);
+    }, []);
 
     useEffect(() => {
         getShiftsFromTeams();

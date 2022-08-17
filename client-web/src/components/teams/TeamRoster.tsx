@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import { useSnackbar } from 'notistack';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
     Accordion,
@@ -52,8 +51,6 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
     const [removeUserMessage, setRemoveUserMessage] = useState<string>('');
     const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | undefined>(undefined);
 
-    const user = useTypedSelector((state) => state.user);
-
     const { enqueueSnackbar } = useSnackbar();
 
     const hasTeam = (teams: string[]) => {
@@ -80,7 +77,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
                             setHasLoaded(true);
                         })
                         .catch((err) => {
-                            console.log(err);
+                            console.error(err);
                         })
                         .finally(() => {
                             setLoadingManagers([]);
@@ -108,7 +105,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
                 setUsersToAdd(availableUsers);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
 
         setOpenAddUserToTeam(true);
@@ -147,7 +144,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
                     enqueueSnackbar('An error occured, please try again!', {
                         variant: 'error',
                     });
-                    console.log(err);
+                    console.error(err);
                 })
                 .finally(() => {
                     setIsLoading(false);

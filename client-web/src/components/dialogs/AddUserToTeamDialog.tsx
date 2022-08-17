@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import { useSnackbar } from 'notistack';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
     Dialog,
@@ -36,7 +35,6 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const { enqueueSnackbar } = useSnackbar();
-    const user = useTypedSelector((state) => state.user);
 
     const handleSelectUserToAdd = (selectUser: IUser | null) => {
         if (selectUser) {
@@ -62,7 +60,7 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
                     enqueueSnackbar('An error occured, please try again!', {
                         variant: 'error',
                     });
-                    console.log(err);
+                    console.error(err);
 
                     onDialogClose();
                 })

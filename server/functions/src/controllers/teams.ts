@@ -14,7 +14,7 @@ const getAllTeams = (_: Request, res: Response) => {
             return res.json(teams);
         })
         .catch((err) => {
-            console.log(err);
+            console.error(err);
             return res.status(500).json({ error: err.code });
         });
 };

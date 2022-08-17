@@ -96,7 +96,7 @@ const LoginView: React.FC = () => {
                 console.error(err);
                 setIsCheckingAuth(false);
             });
-    }, [navigate, setUser]);
+    }, [navigate, setUser, setCompany]);
 
     return (
         <>

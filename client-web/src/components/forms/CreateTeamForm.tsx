@@ -56,7 +56,6 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
         },
         validate: validateCreateTeam,
         onSubmit: (values: any) => {
-            console.log('test');
             setIsLoading(true);
             axios
                 .post(`${process.env.REACT_APP_SERVER_API}/teams`, {
@@ -104,7 +103,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                 setStaff(retreivedStaff);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
     }, [user.company]);
 

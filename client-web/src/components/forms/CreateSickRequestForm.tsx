@@ -36,7 +36,8 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
         if (selectedShiftId) {
             const sickRequest: ISickRequest = {
                 requestDate: new Date(),
-                userId: user.email!,
+                userId: user.id,
+                user: `${user.firstName} ${user.lastName}`,
                 shiftId: selectedShiftId,
                 status: 'Pending',
             };
@@ -44,10 +45,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
             setIsLoading(true);
             setError(undefined);
             axios
-                .post(
-                    `${process.env.REACT_APP_SERVER_API}/company/${user.company!}/sick-request`,
-                    sickRequest
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/sick-requests`, sickRequest)
                 .then((result) => {
                     enqueueSnackbar('Sick request submitted.', {
                         variant: 'success',
@@ -86,15 +84,10 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
         const dates = getTodayAndTomorrowDates();
 
         axios
-            .post(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/shifts/${user.email!}/range`,
-                {
-                    startRange: dates.today,
-                    endRange: dates.tomorrow,
-                }
-            )
+            .post(`${process.env.REACT_APP_SERVER_API}/shifts/${user.id!}/range`, {
+                startRange: dates.today,
+                endRange: dates.tomorrow,
+            })
             .then((shiftResults) => {
                 setUserShifts(shiftResults.data.shifts);
             })
@@ -104,7 +97,7 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
             .finally(() => {
                 setIsLoadingData(false);
             });
-    }, [user.company, user.email]);
+    }, [user.id]);
 
     return (
         <Box

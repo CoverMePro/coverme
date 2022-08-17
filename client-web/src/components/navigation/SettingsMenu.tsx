@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { IconButton, Menu, MenuItem } from '@mui/material';
 
-import SettingsIcon from '@mui/icons-material/Settings';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import axios from 'utils/axios-intance';
 
@@ -25,7 +25,7 @@ const SettingsMenu: React.FC = () => {
     return (
         <>
             <IconButton ref={settingsRef} color="secondary" onClick={() => setOpenSettings(true)}>
-                <SettingsIcon />
+                <MoreVertIcon />
             </IconButton>
             <Menu
                 anchorEl={settingsRef.current}

@@ -6,13 +6,11 @@ import { formatFirestoreData } from '../utils/db-helpers';
 const createTimeOffRequest = (req: Request, res: Response) => {
     const timeOffRequest: ITimeOffRequest = req.body;
 
-    console.log(req.params);
-
     timeOffRequest.requestDate = new Date(timeOffRequest.requestDate!);
     timeOffRequest.timeOffStart = new Date(timeOffRequest.timeOffStart!);
     timeOffRequest.timeOffEnd = new Date(timeOffRequest.timeOffEnd!);
 
-    db.collection(`/companies/${req.params.name}/time-off-requests`)
+    db.collection(`/time-off-requests`)
         .add(timeOffRequest)
         .then((result) => {
             timeOffRequest.id = result.id;
@@ -25,7 +23,7 @@ const createTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const getAllTimeOffRequest = (req: Request, res: Response) => {
-    db.collection(`/companies/${req.params.name}/time-off-requests`)
+    db.collection(`/time-off-requests`)
         .get()
         .then((timeoffRequestDocs) => {
             const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
@@ -43,7 +41,7 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
 
     let users: string[] = [];
 
-    db.collection(`/companies/${req.params.name}/teams`)
+    db.collection(`/teams`)
         .where('__name__', 'in', teams)
         .get()
         .then((teamResult) => {
@@ -55,10 +53,10 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
                 }
             });
 
-            console.log(users);
+            console.error(users);
 
             return db
-                .collection(`/companies/${req.params.name}/time-off-requests`)
+                .collection(`/time-off-requests`)
                 .where('userId', 'in', users)
                 .where('status', '==', 'Pending')
                 .get();
@@ -75,9 +73,9 @@ const getTimeOffFromTeams = (req: Request, res: Response) => {
 };
 
 const getUserTimeOffRequest = (req: Request, res: Response) => {
-    const { name, user } = req.params;
+    const { user } = req.params;
 
-    db.collection(`/companies/${name}/time-off-requests`)
+    db.collection(`/time-off-requests`)
         .where('userId', '==', user)
         .get()
         .then((timeoffRequestDocs) => {
@@ -92,19 +90,19 @@ const getUserTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const approveTimeOffRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const { id } = req.params;
 
-    db.doc(`/companies/${name}/time-off-requests/${id}`)
+    db.doc(`/time-off-requests/${id}`)
         .update({
             status: 'Approved',
         })
         .then(() => {
-            return db.doc(`/companies/${name}/time-off-requests/${id}`).get();
+            return db.doc(`/time-off-requests/${id}`).get();
         })
         .then((timeOffRequestResult) => {
             const timeOffData = timeOffRequestResult.data()!;
 
-            return db.collection(`/companies/${name}/time-off`).add({
+            return db.collection(`/time-off`).add({
                 name: timeOffData.type,
                 startDateTime: timeOffData.timeOffStart,
                 endDateTime: timeOffData.timeOffEnd,
@@ -122,9 +120,9 @@ const approveTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const rejectTimeOffRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const { id } = req.params;
 
-    db.doc(`/companies/${name}/time-off-requests/${id}`)
+    db.doc(`/time-off-requests/${id}`)
         .update({
             status: 'Rejected',
         })
@@ -138,9 +136,9 @@ const rejectTimeOffRequest = (req: Request, res: Response) => {
 };
 
 const deleteTimeOffRequest = (req: Request, res: Response) => {
-    const { name, id } = req.params;
+    const { id } = req.params;
 
-    db.doc(`/companies/${name}/time-off/${id}`)
+    db.doc(`/time-off/${id}`)
         .delete()
         .then(() => {
             return res.json({ message: 'Time off request deleted.' });

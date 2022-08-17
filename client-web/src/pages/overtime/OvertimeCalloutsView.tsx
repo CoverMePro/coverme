@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import {
     Box,
@@ -42,8 +41,6 @@ const OvertimeCalloutsView: React.FC = () => {
 
     const [isLoadingCycle, setIsLoadingCycle] = useState<boolean>(false);
 
-    const user = useTypedSelector((state) => state.user);
-
     const handleCalloutChange =
         (calloutId: any) => (event: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? calloutId : false);
@@ -70,7 +67,7 @@ const OvertimeCalloutsView: React.FC = () => {
     const handleCycleCallout = () => {
         setIsLoadingCycle(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/test`)
+            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callouts/test`)
             .then(() => {
                 setTimeout(() => {
                     getCalloutsForCompany();
@@ -86,7 +83,7 @@ const OvertimeCalloutsView: React.FC = () => {
 
     const handleAcceptedCallout = (calloutId: string, calloutUser: string) => {
         axios
-            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${calloutId}/accept`, {
+            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callouts/${calloutId}/accept`, {
                 email: calloutUser,
             })
             .then(() => {
@@ -104,7 +101,7 @@ const OvertimeCalloutsView: React.FC = () => {
 
     const handleRejectedCallout = (calloutId: string, calloutUser: string) => {
         axios
-            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${calloutId}/reject`, {
+            .post(`${process.env.REACT_APP_SERVER_API}/overtime-callouts/${calloutId}/reject`, {
                 email: calloutUser,
             })
             .then(() => {
@@ -122,7 +119,7 @@ const OvertimeCalloutsView: React.FC = () => {
 
     const getCalloutsForCompany = useCallback(() => {
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${user.company!}`)
+            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callouts`)
             .then((results) => {
                 setCallouts(results.data.overtimeCallouts);
             })
@@ -132,7 +129,7 @@ const OvertimeCalloutsView: React.FC = () => {
             .finally(() => {
                 setIsLoadingCallouts(false);
             });
-    }, [user.company]);
+    }, []);
 
     useEffect(() => {
         // Get pending callouts
@@ -147,13 +144,13 @@ const OvertimeCalloutsView: React.FC = () => {
 
         return filteredList?.map((user) => (
             <ListItem
-                key={user.user}
+                key={user.userId}
                 sx={{ width: '100%' }}
                 secondaryAction={
                     <PermissionCheck permissionLevel={2}>
                         <Tooltip title="Accept Callout">
                             <IconButton
-                                onClick={() => handleAcceptedCallout(callout.id!, user.user)}
+                                onClick={() => handleAcceptedCallout(callout.id!, user.userId)}
                                 edge="end"
                             >
                                 <ThumbUpIcon color="primary" />
@@ -161,7 +158,7 @@ const OvertimeCalloutsView: React.FC = () => {
                         </Tooltip>
                         <Tooltip title="Reject Callout">
                             <IconButton
-                                onClick={() => handleRejectedCallout(callout.id!, user.user)}
+                                onClick={() => handleRejectedCallout(callout.id!, user.userId)}
                                 edge="end"
                             >
                                 <ThumbDownIcon color="primary" />
@@ -175,7 +172,7 @@ const OvertimeCalloutsView: React.FC = () => {
                         <AccountCircleIcon color="secondary" />
                     </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary={`${user.user}`} />
+                <ListItemText primary={`${user.userName}`} />
                 <ListItemText sx={{ width: '50%' }} primary={user.status} />
             </ListItem>
         ));

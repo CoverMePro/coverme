@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
 

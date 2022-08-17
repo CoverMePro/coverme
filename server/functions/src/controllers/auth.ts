@@ -21,8 +21,6 @@ const registerUser = (req: Request, res: Response) => {
             try {
                 userUID = data.user.uid;
 
-                const batch = db.batch();
-
                 const userDocs = await db
                     .collection('users')
                     .where('email', '==', email)
@@ -33,12 +31,10 @@ const registerUser = (req: Request, res: Response) => {
                     return res.status(500).json({ error: 'Can not find user' });
                 }
 
-                const userInfo: IUser = mapToUser(userDocs.docs[0].id, userDocs.docs[0].data());
-
-                console.log(userInfo);
+                const batch = db.batch();
 
                 batch.set(db.doc(`/users/${userUID}`), {
-                    ...userInfo,
+                    ...userDocs.docs[0].data(),
                     phone,
                     status: 'Active',
                     statusUpdatedAt: Date.now(),

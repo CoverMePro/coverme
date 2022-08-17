@@ -4,9 +4,11 @@ import overtimeCalloutController from '../controllers/overtime-callout';
 
 const router: Router = express.Router();
 
+router.get('/', authGuard, overtimeCalloutController.getOvertimeCallouts);
+
 router.get('/test', authGuard, overtimeCalloutController.testCycleCallout);
 
-router.get('/:company', authGuard, overtimeCalloutController.getOvertimeCallouts);
+router.get('/list', authGuard, overtimeCalloutController.getCompanyOvertimeCalloutList);
 
 router.get('/:id/:user/info', overtimeCalloutController.getOvertimeCalloutInfo);
 

@@ -46,23 +46,22 @@ const ScheduleView: React.FC = () => {
         if (calendarRef.current) {
             let calendarApi = calendarRef.current.getApi();
             const resource = calendarApi.getResourceById(resourceId);
-            console.log(resource);
             team = resource.extendedProps.team;
         }
 
         return team;
     };
 
-    const getEmail = (resourceId: string) => {
-        let email = '';
+    const getUserId = (resourceId: string) => {
+        let userId = '';
         if (calendarRef.current) {
             let calendarApi = calendarRef.current.getApi();
             const resource = calendarApi.getResourceById(resourceId);
-            console.log(resource);
-            email = resource.extendedProps.email;
+            userId =
+                resource.extendedProps.userId !== '' ? resource.extendedProps.userId : 'unclaimed';
         }
 
-        return email;
+        return userId;
     };
 
     const removeTransaction = (id: string) => {
@@ -80,7 +79,7 @@ const ScheduleView: React.FC = () => {
             type: 'add',
             name: title,
             instanceId: eventInstance.instanceId,
-            userId: getEmail(resourceId),
+            userId: getUserId(resourceId),
             teamId: getTeam(resourceId),
             startDate: eventInstance.range.start,
             endDate: eventInstance.range.end,
@@ -90,7 +89,6 @@ const ScheduleView: React.FC = () => {
     };
 
     const formatEvents = (shifts: IShift[], timeOff: ITimeOff[]) => {
-        console.log(timeOff);
         const formattedShifts = shifts.map((shift) => {
             return {
                 id: shift.id,
@@ -132,7 +130,7 @@ const ScheduleView: React.FC = () => {
             const transaction: IShiftTransaction = {
                 type: 'add',
                 name: dropEvent.event._def.title,
-                userId: getEmail(dropEvent.event._def.resourceIds[0]),
+                userId: getUserId(dropEvent.event._def.resourceIds[0]),
                 teamId: getTeam(dropEvent.event._def.resourceIds[0]),
                 instanceId: dropEvent.event._instance.instanceId,
                 startDate: dropEvent.event._instance.range.start,
@@ -163,7 +161,6 @@ const ScheduleView: React.FC = () => {
         // const newShiftTransactions = [...shiftTransactions, transaction];
 
         if (calendarRef.current) {
-            console.log(values);
             let calendarApi = calendarRef.current.getApi();
             const event = calendarApi.addEvent({
                 title: values.name,
@@ -171,8 +168,6 @@ const ScheduleView: React.FC = () => {
                 end: new Date(values.endDate),
                 resourceId: `${values.team}-${values.user}`,
             });
-
-            console.log(event);
 
             // const newEvents = [...addedEvents, event];
             // setAddedEvents(newEvents);
@@ -235,7 +230,7 @@ const ScheduleView: React.FC = () => {
                 const transaction: IShiftTransaction = {
                     type: 'change',
                     id: changedEvent.event._def.publicId,
-                    userId: getEmail(changedEvent.event._def.resourceIds[0]),
+                    userId: getUserId(changedEvent.event._def.resourceIds[0]),
                     teamId: getTeam(changedEvent.event._def.resourceIds[0]),
                     instanceId: changedEvent.event._instance.instanceId,
                     startDate: changedEvent.event._instance.range.start,
@@ -322,7 +317,6 @@ const ScheduleView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/shifts`)
             .then((result: AxiosResponse) => {
-                console.log(result.data.teamStaff);
                 setTeamStaff([...result.data.teamStaff]);
                 setFilteredTeamStaff(formatStaff(result.data.teamStaff));
                 setShiftDefs(result.data.shiftDefs);
@@ -334,7 +328,7 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user.company, formatStaff]);
+    }, [formatStaff]);
 
     const getUserAndTeams = () => {
         const users: any[] = [];

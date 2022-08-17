@@ -70,8 +70,6 @@ const OvertimeListView: React.FC = () => {
                         user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
                 });
 
-                console.log(newStaff);
-
                 return newStaff;
             }
 
@@ -87,7 +85,7 @@ const OvertimeListView: React.FC = () => {
             const lastInternalCallout = lastCallouts.internal[teams];
 
             teamFilteredStaff.forEach((user) => {
-                if (user.email! === lastInternalCallout)
+                if (user.id! === lastInternalCallout)
                     user.lastCalledOut = <CheckCircleIcon color="primary" fontSize="medium" />;
             });
 
@@ -141,12 +139,10 @@ const OvertimeListView: React.FC = () => {
     useEffect(() => {
         setIsLoadingStaff(true);
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/overtime-list`)
+            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callouts/list`)
             .then((result) => {
                 const fetchedStaff = formatDates(result.data.users);
                 const fetchedLastCallouts = result.data.lastCallouts;
-
-                console.log(fetchedLastCallouts);
 
                 const formattedFetchedStaff = formatLastCalloutStaff(
                     fetchedStaff,
@@ -159,18 +155,18 @@ const OvertimeListView: React.FC = () => {
                 setLastCallouts(fetchedLastCallouts);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => setIsLoadingStaff(false));
 
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/company/${user.company!}/team`)
+            .get(`${process.env.REACT_APP_SERVER_API}/teams`)
             .then((result) => {
                 const incomingTeams: ITeamInfo[] = result.data;
                 setTeamsSelect(incomingTeams);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
     }, [user.company, formatLastCalloutStaff]);
 

@@ -7,6 +7,7 @@ export interface ITimeOffRequest {
     requestDate: Date;
     type: TimeOffType;
     userId: string;
+    user: string;
     teams: string[];
     timeOffStart: Date;
     timeOffEnd: Date;
@@ -28,6 +29,7 @@ export const mapToTimeOffRequest = (id: string, data: any): ITimeOffRequest => {
         requestDate: data.requestDate.toDate(),
         type: data.type,
         userId: data.userId,
+        user: data.user,
         teams: data.teams,
         timeOffStart: data.timeOffStart.toDate(),
         timeOffEnd: data.timeOffEnd.toDate(),

@@ -23,7 +23,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
-        if (!user.email) {
+        if (!user.id) {
             axios
                 .get(`${process.env.REACT_APP_SERVER_API}/auth`)
                 .then((userResult) => {
@@ -50,7 +50,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
                 navigate('/login');
             }
         }
-    }, [setUser, user, enqueueSnackbar, navigate, permissionLevel]);
+    }, [setUser, setCompany, user, enqueueSnackbar, navigate, permissionLevel]);
 
     return <>{isAuthenticated && children}</>;
 };

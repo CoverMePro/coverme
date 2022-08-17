@@ -57,12 +57,12 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
     try {
         const proposedTrades = db
             .collection(`/trade-requests`)
-            .where('proposedUser', '==', user)
+            .where('proposedUserId', '==', user)
             .get();
 
         const requestedTrades = db
             .collection(`/trade-requests`)
-            .where('requestedUser', '==', user)
+            .where('requestedUserId', '==', user)
             .get();
 
         const [proposedTradeSnapshot, requestedTradesSnapshot] = await Promise.all([
@@ -129,8 +129,6 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
 const deleteTradeRequest = (req: Request, res: Response) => {
     const id = req.params.id;
 
-    console.log(id);
-
     db.doc(`/trade-requests/${id}`)
         .delete()
         .then(() => {
@@ -154,11 +152,11 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
         );
 
         const shift1Update = db.doc(`/shifts/${tradeRequest.proposedShiftId}`).update({
-            userId: tradeRequest.requestedUser,
+            userId: tradeRequest.requestedUserId,
         });
 
         const shift2Update = db.doc(`/shifts/${tradeRequest.requestedShiftId}`).update({
-            userId: tradeRequest.proposedUser,
+            userId: tradeRequest.proposedUserId,
         });
 
         const tradeRequestUpdate = db.doc(`/trade-requests/${id}`).update({

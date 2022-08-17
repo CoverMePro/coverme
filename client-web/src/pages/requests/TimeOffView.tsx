@@ -57,7 +57,6 @@ const TimeOffView: React.FC = () => {
 
     const handleAddTimeOffSuccessfull = (timeOffRequest: ITimeOffRequest | undefined) => {
         if (timeOffRequest) {
-            console.log(timeOff);
             const newTimeOffs = [...timeOff, formatTimeOffDisplay(timeOffRequest)];
             setTimeOff(newTimeOffs);
         }
@@ -94,11 +93,7 @@ const TimeOffView: React.FC = () => {
     const handleApproveTimeOffRequest = () => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/time-off/${selected}/approve`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/time-off/${selected}/approve`)
             .then(() => {
                 // remove from list for now
                 removeTimeOff(selected);
@@ -115,11 +110,7 @@ const TimeOffView: React.FC = () => {
 
     const handleRejectTimeOffRequest = () => {
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/time-off/${selected}/reject`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/time-off/${selected}/reject`)
             .then(() => {
                 // remove from list for now
                 removeTimeOff(selected);
@@ -159,11 +150,7 @@ const TimeOffView: React.FC = () => {
         setIsLoadingTimeOff(true);
         if (user.role === 'staff') {
             axios
-                .get(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/time-off/${user.email!}`
-                )
+                .get(`${process.env.REACT_APP_SERVER_API}/time-off/${user.id!}`)
                 .then((result) => {
                     const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
                     const timeOffDisplays: ITimeOffDisplay[] = [];
@@ -180,12 +167,9 @@ const TimeOffView: React.FC = () => {
                 .finally(() => setIsLoadingTimeOff(false));
         } else {
             axios
-                .post(
-                    `${
-                        process.env.REACT_APP_SERVER_API
-                    }/company/${user.company!}/time-off/from-teams`,
-                    { teams: user.teams }
-                )
+                .post(`${process.env.REACT_APP_SERVER_API}/time-off/from-teams`, {
+                    teams: user.teams,
+                })
                 .then((result) => {
                     const timeOffRequests: ITimeOffRequest[] = result.data.timeOffRequests;
                     const timeOffDisplays: ITimeOffDisplay[] = [];

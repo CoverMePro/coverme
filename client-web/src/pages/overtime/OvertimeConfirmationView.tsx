@@ -24,9 +24,8 @@ const OvertimeConfirmationView: React.FC = () => {
         setIsLoading(true);
 
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callout/${overtimeId}/${user}/info`)
+            .get(`${process.env.REACT_APP_SERVER_API}/overtime-callouts/${overtimeId}/${user}/info`)
             .then((overtimeInfoResult) => {
-                console.log(overtimeInfoResult.data);
                 setOvertimeCallout(overtimeInfoResult.data.overtimeCallout);
             })
             .catch((err: AxiosError) => {
@@ -48,7 +47,7 @@ const OvertimeConfirmationView: React.FC = () => {
         if (overtimeCallout) {
             axios
                 .post(
-                    `${process.env.REACT_APP_SERVER_API}/overtime-callout/${overtimeCallout.id}/accept`,
+                    `${process.env.REACT_APP_SERVER_API}/overtime-callouts/${overtimeCallout.id}/accept`,
                     {
                         email: searchParams.get('user'),
                     }
@@ -66,7 +65,7 @@ const OvertimeConfirmationView: React.FC = () => {
         if (overtimeCallout) {
             axios
                 .post(
-                    `${process.env.REACT_APP_SERVER_API}/overtime-callout/${overtimeCallout.id}/reject`,
+                    `${process.env.REACT_APP_SERVER_API}/overtime-callouts/${overtimeCallout.id}/reject`,
                     {
                         email: searchParams.get('user'),
                     }

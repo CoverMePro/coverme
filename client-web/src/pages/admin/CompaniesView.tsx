@@ -87,7 +87,7 @@ const CompaniesView: React.FC = () => {
                 setCompanies(result.data);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             })
             .finally(() => {
                 setIsLoadingCompanies(false);

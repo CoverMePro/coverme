@@ -158,8 +158,7 @@ const deleteCompany = async (req: Request, res: Response) => {
  * Get Overtime List of Users from a company
  */
 const getCompanyOvertimeCalloutList = (req: Request, res: Response) => {
-    const company = req.params.name;
-    getCalloutList(company)
+    getCalloutList()
         .then(({ users, lastCallouts }) => {
             return res.json({ users: users, lastCallouts: lastCallouts });
         })

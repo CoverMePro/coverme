@@ -5,7 +5,6 @@ import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/au
  * for now its firebase template signIn email but will look into better options for more custom tailored emails
  */
 export const emailSignInForUser = (firebaseAuth: Auth, email: string) => {
-    console.log(process.env.LOCAL_SERVER_DOMAIN);
     const actionCodeSettings = {
         url: `${process.env.LOCAL_SERVER_DOMAIN}/auth/register-callback?email=${email}`,
 

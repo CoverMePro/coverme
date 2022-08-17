@@ -4,7 +4,7 @@ import { Outlet } from 'react-router';
 
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, Toolbar, Typography, Drawer, Divider } from '@mui/material';
+import { Box, Typography, Drawer, Divider } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { DRAWER_WIDTH } from '../../constants';
@@ -13,8 +13,6 @@ import SettingsMenu from 'components/navigation/SettingsMenu';
 import NavList from 'components/navigation/NavList';
 import RequestNavList from 'components/navigation/RequestNavList';
 
-import AppBar from './AppBar';
-import DrawerHeader from './DrawerHeader';
 import MainSection from './MainSection';
 
 import { adminNav, mainNav, managmentNav, companyNav, overtimeNav } from 'utils/react/navs';
@@ -48,26 +46,6 @@ const Dashboard: React.FC = () => {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed" open={true}>
-                <Toolbar sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            gap: 2,
-                        }}
-                    >
-                        <Typography sx={{ mr: 2 }} variant="body1">
-                            {user.firstName} {user.lastName}
-                        </Typography>
-                        {/* <IconButton color="secondary">
-                            <NotificationsIcon />
-                        </IconButton> */}
-                        <SettingsMenu />
-                    </Box>
-                </Toolbar>
-            </AppBar>
             <Drawer
                 sx={{
                     width: DRAWER_WIDTH,
@@ -83,45 +61,70 @@ const Dashboard: React.FC = () => {
                 anchor="left"
                 open={true}
             >
-                <DrawerHeader>
-                    <Typography variant="h3" component="div" sx={{ flexGrow: 1 }}>
-                        {user.role !== 'admin' ? company.name : 'Admin'}
-                    </Typography>
-                </DrawerHeader>
-                <Divider />
-                <NavList
-                    visible={user.role === 'admin'}
-                    navSelected={navSelected}
-                    navItems={adminNav}
-                />
-                <Divider />
-                <NavList
-                    visible={user.role !== 'admin'}
-                    navSelected={navSelected}
-                    navItems={mainNav}
-                />
-                <Divider />
-                <NavList
-                    visible={user.role !== 'admin'}
-                    navSelected={navSelected}
-                    navItems={companyNav}
-                />
-                <Divider />
-                <NavList
-                    visible={user.role !== 'staff' && user.role !== 'admin'}
-                    navSelected={navSelected}
-                    navItems={managmentNav}
-                />
-                <Divider />
-                {user.role !== 'admin' && (
-                    <RequestNavList visible={user.role === 'staff'} navSelected={navSelected} />
-                )}
-                <Divider />
-                <NavList
-                    visible={user.role !== 'admin'}
-                    navSelected={navSelected}
-                    navItems={overtimeNav}
-                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Box sx={{ padding: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Box>
+                                    <Typography sx={{ mr: 2 }} variant="h6">
+                                        {user.firstName} {user.lastName}
+                                    </Typography>
+                                    <Typography sx={{ mr: 2 }} variant="body1">
+                                        {company.name}
+                                    </Typography>
+                                </Box>
+
+                                {/* <IconButton color="secondary">
+                            <NotificationsIcon />
+                        </IconButton> */}
+                                <SettingsMenu />
+                            </Box>
+                        </Box>
+                        <Divider />
+                        <NavList
+                            visible={user.role === 'admin'}
+                            navSelected={navSelected}
+                            navItems={adminNav}
+                        />
+                        <Divider />
+                        <NavList
+                            visible={user.role !== 'admin'}
+                            navSelected={navSelected}
+                            navItems={mainNav}
+                        />
+                        <Divider />
+                        <NavList
+                            visible={user.role !== 'admin'}
+                            navSelected={navSelected}
+                            navItems={companyNav}
+                        />
+                        <Divider />
+                        <NavList
+                            visible={user.role !== 'staff' && user.role !== 'admin'}
+                            navSelected={navSelected}
+                            navItems={managmentNav}
+                        />
+                        <Divider />
+                        {user.role !== 'admin' && (
+                            <RequestNavList
+                                visible={user.role === 'staff'}
+                                navSelected={navSelected}
+                            />
+                        )}
+                        <Divider />
+                        <NavList
+                            visible={user.role !== 'admin'}
+                            navSelected={navSelected}
+                            navItems={overtimeNav}
+                        />
+                    </Box>
+                </Box>
             </Drawer>
             <MainSection open={true}>
                 <Outlet />

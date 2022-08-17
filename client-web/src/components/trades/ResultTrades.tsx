@@ -55,7 +55,7 @@ const ResultTrades: React.FC<IResultTradesProps> = ({ tradeRequests, onRemoveReq
             })
             .catch((err) => {
                 setIsLoading(false);
-                console.log(err);
+                console.error(err);
             })
             .finally(() => {
                 setOpenConfirmation(false);

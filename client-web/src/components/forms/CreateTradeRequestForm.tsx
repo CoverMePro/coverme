@@ -41,7 +41,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     const [userShifts, setUserShifts] = useState<IShift[]>([]);
     const [requestedShifts, setRequestedShifts] = useState<IShift[]>([]);
     const [selectedProposedShiftId, setSelectedProposedShiftId] = useState<string>('');
-    const [selectedRequestedUserId, setSelectedRequestedUserId] = useState<string>('');
+    const [selectedRequestedUser, setSelectedRequestedUserId] = useState<any>(undefined);
     const [selectedRequestedShiftId, setSelectedRequestedShiftId] = useState<string>('');
 
     const user = useTypedSelector((state) => state.user);
@@ -53,9 +53,17 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     const handleSubmit = () => {
         const tradeRequest: ITradeRequest = {
             proposedDate: new Date(),
-            proposedUser: user.id,
+            proposedUserId: user.id,
+            proposedUser: {
+                name: `${user.firstName} ${user.lastName}`,
+                email: user.email,
+            },
             proposedShiftId: selectedProposedShiftId,
-            requestedUser: selectedRequestedUserId,
+            requestedUserId: selectedRequestedUser.id,
+            requestedUser: {
+                name: selectedRequestedUser.name,
+                email: selectedRequestedUser.email,
+            },
             requestedShiftId: selectedRequestedShiftId,
             status: 'Pending',
         };
@@ -90,7 +98,11 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
         value: IUser | null
     ) => {
         if (value) {
-            setSelectedRequestedUserId(value.id);
+            setSelectedRequestedUserId({
+                id: value.id,
+                name: `${value.firstName} ${value.lastName}`,
+                email: value.email,
+            });
             // get shifts
 
             axios
@@ -99,11 +111,11 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                     setRequestedShifts(result.data.shifts);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 })
                 .finally();
         } else {
-            setSelectedRequestedUserId('');
+            setSelectedRequestedUserId(undefined);
         }
     };
 
@@ -130,8 +142,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                 ]);
 
                 const staffUsers: IUser[] = staffResults.data.users.filter(
-                    (staffUser: IUser) =>
-                        staffUser.role === 'staff' && staffUser.email !== user.email
+                    (staffUser: IUser) => staffUser.role === 'staff' && staffUser.id !== user.id
                 );
                 setStaff(staffUsers);
                 setUserShifts(shiftResults.data.shifts);
@@ -143,7 +154,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
         };
 
         loadData();
-    }, [user.company, user.email]);
+    }, [user.id]);
 
     return (
         <Box

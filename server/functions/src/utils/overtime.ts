@@ -14,7 +14,7 @@ const userContainsTeam = (user: IUser, team: string) => {
 };
 
 const isInCallouts = (callouts: ICallout[], user: IUser) => {
-    return callouts.findIndex((callout) => callout.user === user.email) !== -1;
+    return callouts.findIndex((callout) => callout.userId === user.id) !== -1;
 };
 
 const hasUserAcceptedCallout = async (
@@ -29,24 +29,22 @@ const hasUserAcceptedCallout = async (
 
         if (callout.status === 'Accepted') {
             await db.doc(`/overtime-callouts/${overtimeData.id}`).update({
-                shiftAcceptedBy: callout.user,
+                shiftAcceptedBy: callout.userName,
                 status: 'Complete',
             });
 
             // assign shift here too
-            await db
-                .doc(`/companies/${overtimeData.company}/shifts/${overtimeData.shiftId}`)
-                .update({
-                    userId: callout.user,
-                });
+            await db.doc(`/shifts/${overtimeData.shiftId}`).update({
+                userId: callout.userId,
+            });
 
             if (callout.team === 'internal') {
-                await db.doc(`/companies/${overtimeData.company}/last-callouts/internal`).update({
-                    [team]: callout.user,
+                await db.doc(`/last-callouts/internal`).update({
+                    [team]: callout.userId,
                 });
             } else {
-                await db.doc(`/companies/${overtimeData.company}/last-callouts/external`).update({
-                    email: callout.user,
+                await db.doc(`/last-callouts/external`).update({
+                    email: callout.userId,
                 });
             }
 
@@ -145,7 +143,8 @@ const handleCalloutCycle = async (
             console.log(`CONTACTING ${nextCalloutuser.email}`);
             // initiate callout
             callouts.push({
-                user: nextCalloutuser.email!,
+                userId: nextCalloutuser.id!,
+                userName: `${nextCalloutuser.firstName} ${nextCalloutuser.lastName}`,
                 phone: nextCalloutuser.phone,
                 team: phase,
                 status: 'Pending',
@@ -181,7 +180,7 @@ const callout = () => {
                     );
                     const callouts = overtimeData.callouts ? [...overtimeData.callouts] : [];
 
-                    const { company, team, shiftId } = overtimeData;
+                    const { team, shiftId } = overtimeData;
 
                     const userAcceptedCallout = await hasUserAcceptedCallout(
                         callouts,
@@ -193,7 +192,7 @@ const callout = () => {
                         return;
                     }
 
-                    const shiftdoc = await db.doc(`/companies/${company}/shifts/${shiftId}`).get();
+                    const shiftdoc = await db.doc(`/shifts/${shiftId}`).get();
 
                     if (shiftdoc && shiftdoc.data()) {
                         // check if shit start time is in reasonable time to call out
@@ -208,7 +207,7 @@ const callout = () => {
                         }
 
                         // get callout list information
-                        const { users, lastCallouts } = await getCalloutList(company);
+                        const { users, lastCallouts } = await getCalloutList();
 
                         // check if all users are notified, if so then dont go through all this
                         if (hasAllUsersBeenNotifiedOrDeclined(users, callouts)) {

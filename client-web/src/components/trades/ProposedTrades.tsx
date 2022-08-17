@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,8 +22,6 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDelet
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [openDelete, setOpenDelete] = useState<boolean>(false);
 
-    const user = useTypedSelector((state) => state.user);
-
     const handleSelectRequest = (tradeRequestId: any | undefined) => {
         if (selected === tradeRequestId) {
             setSelected(undefined);
@@ -36,11 +33,7 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDelet
     const handleDeleteTradeRequest = () => {
         setIsLoading(true);
         axios
-            .get(
-                `${
-                    process.env.REACT_APP_SERVER_API
-                }/company/${user.company!}/trade-request/${selected}/delete`
-            )
+            .get(`${process.env.REACT_APP_SERVER_API}/trade-request/${selected}/delete`)
             .then(() => {
                 setIsLoading(false);
                 onDeleteSuccess(selected);

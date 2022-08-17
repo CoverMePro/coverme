@@ -30,9 +30,6 @@ export const sendSms = (req: Request, res: Response) => {
                     body: `Hello ${user.firstName} ${user.lastName}! Test send sms from twilio!`,
                 });
 
-                console.log(message.sid);
-                console.log(message);
-
                 return res.json({ message: 'sms successfully sent' });
             } catch (err) {
                 console.error(err);
@@ -44,7 +41,7 @@ export const sendSms = (req: Request, res: Response) => {
 export const sendOvertimeSms = (user: IUser, overtimeInfo: IOvertime, overtimeId: string) => {
     const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-    const link = `${process.env.WEB_CLIENT_DOMAIN}/overtime-confirmation?user=${user.email}&overtimeId=${overtimeId}`;
+    const link = `${process.env.WEB_CLIENT_DOMAIN}/overtime-confirmation?user=${user.id}&overtimeId=${overtimeId}`;
 
     const bodyTemplate = `Hello,\n\n There is a shift available: \n ${overtimeInfo.shiftInfo} \n\n from the following team: \n ${overtimeInfo.team} \n\n Please go to the link below if you wish to accept this shift \n\n ${link}`;
 
