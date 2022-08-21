@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
                                 }}
                             >
                                 <Box>
-                                    <Avatar sx={{ bgcolor: '#83c5be', padding: 1 }}>
+                                    <Avatar sx={{ bgcolor: '#83c5be', color: '#006d77' }}>
                                         {user.firstName[0].toUpperCase() +
                                             user.lastName[0].toUpperCase()}
                                     </Avatar>

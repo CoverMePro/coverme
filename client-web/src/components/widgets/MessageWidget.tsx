@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
+
 import PageLoading from 'components/loading/PageLoading';
+import { Box, Typography } from '@mui/material';
 import BoardMessage from 'components/message-board/BoardMessage';
 
-const BlogView: React.FC = () => {
+const MessageWidget: React.FC = () => {
     const [isLoadingMessages, seIsLoadingMessages] = useState<boolean>(false);
 
     useEffect(() => {
@@ -14,24 +15,23 @@ const BlogView: React.FC = () => {
     }, []);
 
     return (
-        <>
-            <Box sx={{ mb: 2 }}>
-                <Typography variant="h1">Message Board</Typography>
-            </Box>
-            <>
-                {isLoadingMessages ? (
-                    <PageLoading />
-                ) : (
-                    <>
+        <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+            {isLoadingMessages ? (
+                <PageLoading />
+            ) : (
+                <>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="h1">Lastest Messages</Typography>
+                    </Box>
+                    <Box>
                         <BoardMessage />
                         <BoardMessage />
                         <BoardMessage />
-                        <BoardMessage />
-                    </>
-                )}
-            </>
-        </>
+                    </Box>
+                </>
+            )}
+        </Box>
     );
 };
 
-export default BlogView;
+export default MessageWidget;
