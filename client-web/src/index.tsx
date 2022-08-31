@@ -149,7 +149,7 @@ ReactDOM.render(
                                 />
 
                                 <Route
-                                    path="request/time-off"
+                                    path="request/leave"
                                     element={
                                         <AuthWrapper>
                                             <TimeOffView />

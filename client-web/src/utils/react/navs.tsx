@@ -86,8 +86,8 @@ export const requestNav: INav[] = [
         icon: <SwapHorizIcon color="secondary" />,
     },
     {
-        label: 'Time Off',
-        path: 'request/time-off',
+        label: 'Leave',
+        path: 'request/leave',
         selectedIndex: 9,
         icon: <FlightIcon color="secondary" />,
     },

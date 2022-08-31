@@ -12,6 +12,7 @@ import tradeRequestRoutes from './routes/requests/trade-requests';
 import timeOffRoutes from './routes/requests/time-off-requests';
 import sickRequestRoutes from './routes/requests/sick-requests';
 import overtimeRoutes from './routes/overtime-callout';
+import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
 // import { callout } from './utils/overtime';
@@ -46,6 +47,7 @@ app.use('/shift-transactions', shiftTransactionRoutes);
 app.use('/trade-request', tradeRequestRoutes);
 app.use('/time-off', timeOffRoutes);
 app.use('/sick-requests', sickRequestRoutes);
+app.use('/messages', messageRoutes);
 
 app.post('/send-sms', sendSms);
 

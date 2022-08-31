@@ -63,6 +63,37 @@ const registerUser = (req: Request, res: Response) => {
         });
 };
 
+const completeRegisterUser = (req: Request, res: Response) => {
+    const { email, password, firstName, lastName, position, role, hireDate, phone } = req.body;
+
+    const newHiredate = new Date(new Date(hireDate as Date).setHours(24, 0, 0, 0));
+
+    createUserWithEmailAndPassword(fbAuth, email, password)
+        .then((data) => {
+            const userId = data.user.uid;
+
+            return db.doc(`/users/${userId}`).set({
+                email,
+                firstName,
+                lastName,
+                position,
+                role,
+                hireDate: newHiredate,
+                phone,
+                status: 'Active',
+            });
+        })
+        .then(() => {
+            return res.json({
+                message: 'User created successfully!',
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error });
+        });
+};
+
 /**
  * Sends a sign in link email to a user who is being registered with the firebase sign in link template
  * At this time the user is not created in the firebase authentication
@@ -250,6 +281,7 @@ const passwordReset = (req: Request, res: Response) => {
 
 export default {
     checkAuth,
+    completeRegisterUser,
     sendRegisterLink,
     registerUser,
     signIn,

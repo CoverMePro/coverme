@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
+import { Box, Paper, Typography } from '@mui/material';
+
+import { IMessage } from 'models/Message';
+
 import PageLoading from 'components/loading/PageLoading';
-import { Box, Typography } from '@mui/material';
 import BoardMessage from 'components/message-board/BoardMessage';
 
+import axios from 'utils/axios-intance';
+import { AxiosError } from 'axios';
+
 const MessageWidget: React.FC = () => {
-    const [isLoadingMessages, seIsLoadingMessages] = useState<boolean>(false);
+    const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
+    const [messages, setMessages] = useState<IMessage[]>([]);
 
     useEffect(() => {
-        seIsLoadingMessages(true);
-        setTimeout(() => {
-            seIsLoadingMessages(false);
-        }, 1000);
+        setIsLoadingMessages(true);
+        axios
+            .get<IMessage[]>(`${process.env.REACT_APP_SERVER_API}/messages`)
+            .then((messageResults) => {
+                setMessages(messageResults.data);
+            })
+            .catch((err: AxiosError) => {
+                console.error(err);
+            })
+            .finally(() => setIsLoadingMessages(false));
     }, []);
 
     return (
-        <Box sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+        <Paper sx={{ width: '100%', height: '100%', overflowY: 'auto', p: 2 }}>
             {isLoadingMessages ? (
                 <PageLoading />
             ) : (
@@ -24,13 +37,13 @@ const MessageWidget: React.FC = () => {
                         <Typography variant="h1">Lastest Messages</Typography>
                     </Box>
                     <Box>
-                        <BoardMessage />
-                        <BoardMessage />
-                        <BoardMessage />
+                        {messages.map((message) => (
+                            <BoardMessage key={message.id} message={message} />
+                        ))}
                     </Box>
                 </>
             )}
-        </Box>
+        </Paper>
     );
 };
 

@@ -13,11 +13,12 @@ import {
     RadioGroup,
     CircularProgress,
     Typography,
+    Checkbox,
 } from '@mui/material';
-
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import MuiPhoneNumber from 'material-ui-phone-number';
 
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
@@ -32,6 +33,7 @@ interface IRegisterUserFormProps {
 const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [role, setRole] = useState<string>('staff');
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isTestUser, setIsTestUser] = useState<boolean>(false);
     const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 
     const { enqueueSnackbar } = useSnackbar();
@@ -48,41 +50,76 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                 email: '',
                 position: '',
                 hireDate: '',
+                phone: '',
+                password: '',
             },
             validate: validateUserCreate,
             onSubmit: (userValues: any) => {
-                const { email, firstName, lastName, position } = userValues;
+                const { email, firstName, lastName, position, password, phone } = userValues;
 
                 setIsLoading(true);
-                axios
-                    .post(`${process.env.REACT_APP_SERVER_API}/auth/register-link`, {
-                        email,
-                        firstName,
-                        lastName,
-                        role: role,
-                        position,
-                        hireDate: savedHireDate,
-                    })
-                    .then((result) => {
-                        setIsLoading(false);
-                        enqueueSnackbar(
-                            'Success! an email has been sent out to this user to complete registration.',
-                            {
+                if (isTestUser) {
+                    axios
+                        .post(`${process.env.REACT_APP_SERVER_API}/auth/complete-register`, {
+                            email,
+                            firstName,
+                            lastName,
+                            role: role,
+                            position,
+                            hireDate: savedHireDate,
+                            password: password,
+                            phone: phone,
+                        })
+                        .then((result) => {
+                            setIsLoading(false);
+                            enqueueSnackbar('Success! User has been created', {
                                 variant: 'success',
-                            }
-                        );
-                        onFinish();
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        setIsLoading(false);
-                        enqueueSnackbar('An error has occured, please try again', {
-                            variant: 'error',
+                            });
+                            onFinish();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            setIsLoading(false);
+                            enqueueSnackbar('An error has occured, please try again', {
+                                variant: 'error',
+                            });
+                            onFinish();
                         });
-                        onFinish();
-                    });
+                } else {
+                    axios
+                        .post(`${process.env.REACT_APP_SERVER_API}/auth/register-link`, {
+                            email,
+                            firstName,
+                            lastName,
+                            role: role,
+                            position,
+                            hireDate: savedHireDate,
+                        })
+                        .then((result) => {
+                            setIsLoading(false);
+                            enqueueSnackbar(
+                                'Success! an email has been sent out to this user to complete registration.',
+                                {
+                                    variant: 'success',
+                                }
+                            );
+                            onFinish();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            setIsLoading(false);
+                            enqueueSnackbar('An error has occured, please try again', {
+                                variant: 'error',
+                            });
+                            onFinish();
+                        });
+                }
             },
         });
+
+    const handleChangeTestUser = (_: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+        setIsTestUser(checked);
+    };
 
     return (
         <Box
@@ -105,6 +142,11 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                 <Typography sx={{ mb: 2 }} variant="h2">
                     Register a User!
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Typography variant="body1">Test User</Typography>
+                    <Checkbox value={isTestUser} onChange={handleChangeTestUser} />
+                </Box>
+
                 <form onSubmit={handleSubmit}>
                     <Box>
                         <TextField
@@ -227,6 +269,53 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                                 }}
                             />
                         </Box>
+                        <>
+                            {isTestUser && (
+                                <>
+                                    <Box sx={{ mt: 2 }}>
+                                        <TextField
+                                            sx={{ mb: 2, width: '100%' }}
+                                            variant="outlined"
+                                            label="Password"
+                                            type="text"
+                                            name="password"
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            error={
+                                                touched.password &&
+                                                errors.password !== undefined &&
+                                                errors.password !== ''
+                                            }
+                                            helperText={touched.password ? errors.password : ''}
+                                        />
+                                    </Box>
+                                    <Box sx={{ mt: 2 }}>
+                                        <MuiPhoneNumber
+                                            defaultCountry={'ca'}
+                                            disableDropdown
+                                            sx={{ mb: 2, width: '40%' }}
+                                            variant="outlined"
+                                            label="Phone Number"
+                                            type="tel"
+                                            name="phone"
+                                            onChange={(e) => {
+                                                setValues({
+                                                    ...values,
+                                                    phone: e as string,
+                                                });
+                                            }}
+                                            onBlur={handleBlur}
+                                            error={
+                                                touched.phone &&
+                                                errors.phone !== undefined &&
+                                                errors.phone !== ''
+                                            }
+                                            helperText={touched.phone ? errors.phone : ''}
+                                        />
+                                    </Box>
+                                </>
+                            )}
+                        </>
                     </LocalizationProvider>
 
                     <Box sx={{ mt: 3 }}>

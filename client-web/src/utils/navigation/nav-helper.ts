@@ -8,7 +8,7 @@ const selectedNav: any = {
     '/dashboard/shifts': 6,
     '/dashboard/companies': 7,
     '/dashboard/request/trade': 8,
-    '/dashboard/request/time-off': 9,
+    '/dashboard/request/leave': 9,
     '/dashboard/request/sick': 10,
     '/dashboard/overtime': 11,
 };

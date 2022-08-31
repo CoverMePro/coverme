@@ -112,7 +112,7 @@ const ShiftsView: React.FC = () => {
     return (
         <>
             <Box sx={{ mb: 2 }}>
-                <Typography variant="h1">Shfits</Typography>
+                <Typography variant="h1">Shifts</Typography>
             </Box>
             {isLoadingShift ? (
                 <PageLoading />

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography } from '@mui/material';
-
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
@@ -190,7 +188,7 @@ const TimeOffView: React.FC = () => {
     return (
         <>
             <Box sx={{ mb: 2 }}>
-                <Typography variant="h1">Time Off Requests</Typography>
+                <Typography variant="h1">Leave Requests</Typography>
             </Box>
             {isLoadingTimeOff ? (
                 <PageLoading />

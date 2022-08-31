@@ -2,13 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import FullCalendar, { EventInput } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+
+import { Paper } from '@mui/material';
+
 import { IShift } from 'models/Shift';
 import { ITimeOff } from 'models/TimeOff';
 
+import PageLoading from 'components/loading/PageLoading';
+
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
-import PageLoading from 'components/loading/PageLoading';
-import { Box } from '@mui/material';
 
 const CalendarWidget: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -68,7 +71,7 @@ const CalendarWidget: React.FC = () => {
     }, [getShiftsFromTeams]);
 
     return (
-        <Box sx={{ height: '100%' }}>
+        <Paper sx={{ height: '100%', p: 2 }}>
             {isLoading ? (
                 <>
                     <PageLoading />
@@ -86,7 +89,7 @@ const CalendarWidget: React.FC = () => {
                     dayMaxEvents={true}
                 />
             )}
-        </Box>
+        </Paper>
     );
 };
 
