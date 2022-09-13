@@ -30,3 +30,13 @@ export interface ITradeDisplay {
     archiveUsers?: string[];
     status: string;
 }
+
+export interface IFullTradeDisplay {
+    id: string;
+    date: string;
+    proposedUser: string;
+    proposedUserShiftTrading: string;
+    receivingUser: string;
+    recivingUserShiftTrading: string;
+    archiveUsers?: string[];
+}

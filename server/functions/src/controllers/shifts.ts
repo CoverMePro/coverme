@@ -29,6 +29,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                                 id: `${team}-unclaimed`,
                                 team: team,
                                 userId: '',
+                                userName: `unclaimed`,
                                 title: `Unclaimed Shifts`,
                             });
                         }
@@ -37,6 +38,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                             id: `${team}-${user.id}`,
                             team: team,
                             userId: user.id,
+                            userName: `${userData.firstName} ${userData.lastName}`,
                             title: `${userData.firstName} ${userData.lastName}`,
                         });
                     }
@@ -89,6 +91,7 @@ const transactionShifts = (req: Request, res: Response) => {
                 batch.create(db.collection(`/shifts`).doc(), {
                     name: transaction.name,
                     userId: transaction.userId === '' ? 'unclaimed' : transaction.userId,
+                    userName: transaction.userName === '' ? 'unclaimed' : transaction.userName,
                     teamId: transaction.teamId,
                     startDateTime: new Date(transaction.startDate),
                     endDateTime: new Date(transaction.endDate),
@@ -101,6 +104,7 @@ const transactionShifts = (req: Request, res: Response) => {
                 batch.update(db.doc(`/shifts/${transaction.id}`), {
                     userId: transaction.userId,
                     teamId: transaction.teamId,
+                    userName: transaction.userName,
                     startDateTime: new Date(transaction.startDate),
                     endDateTime: new Date(transaction.endDate),
                 });

@@ -126,6 +126,102 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
     }
 };
 
+const getTradeRequestsFromTeam = (req: Request, res: Response) => {
+    const teams = req.body.teams;
+
+    let users: string[] = [];
+
+    let tradeRequests: ITradeRequest[] = [];
+    const shiftIds: string[] = [];
+
+    db.collection(`/teams`)
+        .where('__name__', 'in', teams)
+        .get()
+        .then(async (teamResult) => {
+            teamResult.forEach((team) => {
+                const teamData = team.data();
+
+                if (teamData.staff) {
+                    users = [...users, ...teamData.staff];
+                }
+            });
+
+            try {
+                const tradeRequestDocs = await db
+                    .collection(`/trade-requests`)
+                    .where('proposedUserId', 'in', users)
+                    .get();
+
+                tradeRequestDocs.forEach((tradeRequestDoc) => {
+                    const tradeRequest: ITradeRequest = mapToTradeRequest(
+                        tradeRequestDoc.id,
+                        tradeRequestDoc.data()
+                    );
+
+                    if (
+                        shiftIds.findIndex(
+                            (shift: string) => shift === tradeRequest.proposedShiftId
+                        ) === -1
+                    ) {
+                        shiftIds.push(tradeRequest.proposedShiftId!);
+                    }
+
+                    if (
+                        shiftIds.findIndex(
+                            (shift: string) => shift === tradeRequest.requestedShiftId
+                        ) === -1
+                    ) {
+                        shiftIds.push(tradeRequest.requestedShiftId!);
+                    }
+
+                    tradeRequests.push(tradeRequest);
+                });
+
+                if (shiftIds.length > 0) {
+                    const shiftSnapshot = await db
+                        .collection(`/shifts`)
+                        .where('__name__', 'in', shiftIds)
+                        .get();
+
+                    shiftSnapshot.docs.forEach((shiftDoc) => {
+                        for (let i = 0, len = tradeRequests.length; i < len; ++i) {
+                            const tradeRequest = tradeRequests[i];
+
+                            if (tradeRequest.proposedShiftId === shiftDoc.id) {
+                                tradeRequest.proposedShift = mapToShift(
+                                    shiftDoc.id,
+                                    shiftDoc.data()
+                                );
+                            }
+
+                            if (tradeRequest.requestedShiftId === shiftDoc.id) {
+                                tradeRequest.requestedShift = mapToShift(
+                                    shiftDoc.id,
+                                    shiftDoc.data()
+                                );
+                            }
+                        }
+                    });
+                }
+
+                tradeRequests = tradeRequests.sort((a, b) => {
+                    return (
+                        new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime()
+                    );
+                });
+
+                return res.json({ tradeRequests: tradeRequests });
+            } catch (err) {
+                console.error(err);
+                return res.status(500).json({ error: err });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
 const deleteTradeRequest = (req: Request, res: Response) => {
     const id = req.params.id;
 
@@ -222,4 +318,5 @@ export default {
     acceptTradeRequest,
     rejectTradeRequest,
     archiveTradeRequest,
+    getTradeRequestsFromTeam,
 };

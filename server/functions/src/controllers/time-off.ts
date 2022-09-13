@@ -107,6 +107,7 @@ const approveTimeOffRequest = (req: Request, res: Response) => {
                 startDateTime: timeOffData.timeOffStart,
                 endDateTime: timeOffData.timeOffEnd,
                 userId: timeOffData.userId,
+                userName: timeOffData.userName,
                 teams: timeOffData.teams,
             });
         })

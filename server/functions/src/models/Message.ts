@@ -5,6 +5,7 @@ export interface IMessage {
     date: Date;
     userId: string;
     userName: string;
+    for: string;
 }
 
 export const mapToMessage = (id: string, data: any): IMessage => {
@@ -15,5 +16,6 @@ export const mapToMessage = (id: string, data: any): IMessage => {
         date: data.date.toDate(),
         userId: data.userId,
         userName: data.userName,
+        for: data.for,
     };
 };

@@ -5,6 +5,7 @@ import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography, Drawer, Divider, Avatar } from '@mui/material';
+
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { DRAWER_WIDTH } from '../../constants';

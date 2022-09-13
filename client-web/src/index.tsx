@@ -27,9 +27,10 @@ import CalendarView from 'pages/main/CalendarView';
 import OvertimeListView from 'pages/overtime/OvertimeListView';
 import OvertimeCalloutsView from 'pages/overtime/OvertimeCalloutsView';
 import MessageBoardView from 'pages/main/MessageBoardView';
+import OvertimeConfirmationView from 'pages/overtime/OvertimeConfirmationView';
+import ManagerRequestView from 'pages/requests/ManagerRequestView';
 
 import { theme } from './theme';
-import OvertimeConfirmationView from 'pages/overtime/OvertimeConfirmationView';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -135,6 +136,15 @@ ReactDOM.render(
                                     element={
                                         <AuthWrapper>
                                             <OvertimeCalloutsView />
+                                        </AuthWrapper>
+                                    }
+                                />
+
+                                <Route
+                                    path="requests"
+                                    element={
+                                        <AuthWrapper>
+                                            <ManagerRequestView />
                                         </AuthWrapper>
                                     }
                                 />

@@ -10,7 +10,9 @@ const selectedNav: any = {
     '/dashboard/request/trade': 8,
     '/dashboard/request/leave': 9,
     '/dashboard/request/sick': 10,
-    '/dashboard/overtime': 11,
+    '/dashboard/overtime/list': 11,
+    '/dashboard/overtime/callouts': 12,
+    '/dashboard/requests': 13,
 };
 
 export const getSelectedNavTab = (pageName: string) => selectedNav[pageName];

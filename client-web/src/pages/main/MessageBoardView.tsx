@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -13,12 +14,18 @@ import CreateMessageForm from 'components/forms/CreateMessageForm';
 
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
+import DataFilter from 'components/shared/DataFilter';
 
 const BlogView: React.FC = () => {
     const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
     const [openAddMessage, setOpenAddMessage] = useState<boolean>(false);
 
     const [messages, setMessages] = useState<IMessage[]>([]);
+    const [filteredMessages, setFilteredMessages] = useState<IMessage[]>([]);
+
+    const [filter, setFilter] = useState<string>('all');
+
+    const user = useTypedSelector((state) => state.user);
 
     const handleOpenAddMessage = () => {
         setOpenAddMessage(true);
@@ -38,23 +45,62 @@ const BlogView: React.FC = () => {
         handleCloseAddMessage();
     };
 
+    const filterMessages = useCallback(
+        (incomingMessages: IMessage[], filterValue: string) => {
+            const newMessages: IMessage[] = [];
+
+            incomingMessages.forEach((message) => {
+                if (filterValue === 'teams' || filterValue === 'all') {
+                    if (user.teams.findIndex((team) => team === message.for) !== -1) {
+                        newMessages.push(message);
+                    }
+                }
+
+                if (filterValue === 'company' || filterValue === 'all') {
+                    if (message.for === 'company') {
+                        newMessages.push(message);
+                    }
+                }
+            });
+
+            return newMessages;
+        },
+        [user.teams]
+    );
+
+    const handleFilterChange = (filterValue: string) => {
+        console.log(filterValue);
+        setFilter(filterValue);
+        setFilteredMessages(filterMessages(messages, filterValue));
+    };
+
     useEffect(() => {
         setIsLoadingMessages(true);
         axios
             .get<IMessage[]>(`${process.env.REACT_APP_SERVER_API}/messages`)
             .then((messageResults) => {
+                console.log(messageResults.data);
                 setMessages(messageResults.data);
+                setFilteredMessages(filterMessages(messageResults.data, 'all'));
             })
             .catch((err: AxiosError) => {
                 console.error(err);
             })
             .finally(() => setIsLoadingMessages(false));
-    }, []);
+    }, [filterMessages]);
 
     return (
         <>
             <Box sx={{ width: '100%', mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h1">Message Board</Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Typography variant="h1">Message Board</Typography>
+                    <DataFilter
+                        filterValue={filter}
+                        onFilterChange={handleFilterChange}
+                        extraOptions={[{ value: 'all', label: 'All', show: true }]}
+                    />
+                </Box>
+
                 <PermissionCheck permissionLevel={1}>
                     <Tooltip title="Create Message">
                         <IconButton size="large" onClick={handleOpenAddMessage}>
@@ -68,7 +114,7 @@ const BlogView: React.FC = () => {
                     <PageLoading />
                 ) : (
                     <>
-                        {messages.map((message) => (
+                        {filteredMessages.map((message) => (
                             <BoardMessage key={message.id} message={message} />
                         ))}
                     </>

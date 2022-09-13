@@ -27,6 +27,7 @@ export interface ITimeOffDisplay {
 export interface ITimeOff {
     id: string;
     userId: string;
+    userName: string;
     teams: string[];
     name: string;
     startDateTime: string;

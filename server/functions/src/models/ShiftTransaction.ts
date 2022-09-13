@@ -6,6 +6,7 @@ export interface IShiftTransaction {
     instanceId?: string;
     name: string;
     userId: string;
+    userName: string;
     companyId: string;
     teamId: string;
     startDate: Date;

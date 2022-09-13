@@ -27,13 +27,12 @@ const Navigation: React.FC = () => {
             <NavList visible={user.role !== 'admin'} navSelected={navSelected} navItems={mainNav} />
             <Divider />
             <NavList
-                visible={user.role !== 'staff' && user.role !== 'admin'}
+                visible={user.role !== 'staff'}
                 navSelected={navSelected}
                 navItems={managmentNav}
             />
-            <Divider />
             <NavList
-                visible={user.role !== 'admin'}
+                visible={user.role === 'staff'}
                 navSelected={navSelected}
                 navItems={requestNav}
             />

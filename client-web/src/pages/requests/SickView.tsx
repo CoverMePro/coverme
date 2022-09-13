@@ -4,18 +4,13 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography } from '@mui/material';
 
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-
-import { staffSickHeadCells, managerSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
-import { ISelectedAction } from 'models/TableInfo';
+import { staffSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
 import { ISickDisplay, ISickRequest } from 'models/Sick';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateSickRequestForm from 'components/forms/CreateSickRequestForm';
-import BasicConfirmation from 'components/dialogs/BasicConfirmation';
 
 import { getAddAction } from 'utils/react/table-actions-helper';
 import { formatSickDisplay } from 'utils/formatters/display-formatter';
@@ -26,11 +21,6 @@ const SickView: React.FC = () => {
     const [isLoadingSickRequest, setIsLoadingSickRequest] = useState<boolean>(false);
     const [selected, setSelected] = useState<any | undefined>(undefined);
     const [sickRequests, setSickRequests] = useState<ISickDisplay[]>([]);
-    const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [confirmationTitle, setConfirmationTitle] = useState<string>('');
-    const [confirmationMessage, setConfirmationMessage] = useState<string>('');
-    const [isApproving, setIsApproving] = useState<boolean>(false);
 
     const user = useTypedSelector((state) => state.user);
 
@@ -58,88 +48,6 @@ const SickView: React.FC = () => {
 
         handleCloseAddSickRequest();
     };
-
-    const removeSickRequest = (id: string) => {
-        const newSickRequests = sickRequests.filter((sick) => sick.id !== id);
-
-        setSickRequests([...newSickRequests]);
-    };
-
-    const handleConfirmation = () => {
-        if (isApproving) {
-            handleApproveSickRequest();
-        } else {
-            handleRejectSickRequest();
-        }
-    };
-
-    const handleCloseConfirmation = () => {
-        setOpenConfirmation(false);
-    };
-
-    const handleOpenApproveTimeOffRequest = () => {
-        setConfirmationTitle('Approve Sick Request');
-        setConfirmationMessage('Are you sure you want to approve this sick request?');
-        setIsApproving(true);
-        setOpenConfirmation(true);
-    };
-
-    const handleOpenRejectTimeOffRequest = () => {
-        setConfirmationTitle('Reject Sick Request');
-        setConfirmationMessage('Are you sure you want to reject this sick request?');
-        setIsApproving(false);
-        setOpenConfirmation(true);
-    };
-
-    const handleApproveSickRequest = () => {
-        setIsLoading(true);
-        axios
-            .get(`${process.env.REACT_APP_SERVER_API}/sick-requests/${selected}/approve`)
-            .then(() => {
-                // remove from list for now
-                removeSickRequest(selected);
-                setSelected(undefined);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-                handleCloseConfirmation();
-            });
-    };
-
-    const handleRejectSickRequest = () => {
-        axios
-            .get(`${process.env.REACT_APP_SERVER_API}/sick-requests/${selected}/reject`)
-            .then(() => {
-                // remove from list for now
-                removeSickRequest(selected);
-                setSelected(undefined);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-                setOpenConfirmation(false);
-            });
-    };
-
-    const selectedActions: ISelectedAction[] = [
-        {
-            tooltipTitle: 'Approve',
-            permissionLevel: 0,
-            icon: <ThumbUpIcon color="primary" fontSize="large" />,
-            onClick: handleOpenApproveTimeOffRequest,
-        },
-        {
-            tooltipTitle: 'Reject',
-            permissionLevel: 0,
-            icon: <ThumbDownIcon color="primary" fontSize="large" />,
-            onClick: handleOpenRejectTimeOffRequest,
-        },
-    ];
 
     useEffect(() => {
         setIsLoadingSickRequest(true);
@@ -192,37 +100,18 @@ const SickView: React.FC = () => {
                 <PageLoading />
             ) : (
                 <EnhancedTable
-                    headerCells={user.role === 'staff' ? staffSickHeadCells : managerSickHeadCells}
+                    headerCells={staffSickHeadCells}
                     id="id"
                     data={sickRequests}
                     onSelect={handleSelectSickRequest}
                     selected={selected}
-                    unSelectedActions={
-                        user.role === 'staff'
-                            ? getAddAction('Request', handleAddSickRequest, 0)
-                            : []
-                    }
-                    selectedActions={user.role === 'staff' ? [] : selectedActions}
+                    unSelectedActions={getAddAction('Request', handleAddSickRequest, 0)}
+                    selectedActions={[]}
                 />
             )}
             <FormDialog open={openAddSickRequest} onClose={handleCloseAddSickRequest}>
                 <CreateSickRequestForm onFinish={handleAddSickRequestSuccessfull} />
             </FormDialog>
-            <BasicConfirmation
-                open={openConfirmation}
-                isLoading={isLoading}
-                onClose={handleCloseConfirmation}
-                title={confirmationTitle}
-                message={confirmationMessage}
-                buttons={[
-                    { text: 'Cancel', color: 'error', onClick: handleCloseConfirmation },
-                    {
-                        text: isApproving ? 'Approve' : 'Reject',
-                        color: 'primary',
-                        onClick: handleConfirmation,
-                    },
-                ]}
-            />
         </>
     );
 };

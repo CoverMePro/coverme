@@ -2,6 +2,7 @@ export interface IShift {
     id: string;
     userId: string;
     teamId: string;
+    userName: string;
     name: string;
     startDateTime: string;
     endDateTime: string;
@@ -15,6 +16,7 @@ export interface IShiftTransaction {
     instanceId?: string;
     name?: string;
     userId?: string;
+    userName?: string;
     teamId?: string;
     startDate?: Date;
     endDate?: Date;

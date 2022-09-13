@@ -42,6 +42,9 @@ const BoardMessage: React.FC<IBoardMessageProps> = ({ message }) => {
                     </Box>
                     <Box sx={{ mr: 5 }}>
                         <Typography variant="h4">{message.userName}</Typography>
+                        <Typography sx={{ fontWeight: 'bold' }} color="primary" variant="body1">
+                            {message.for === 'company' ? 'Company Message' : `For ${message.for}`}
+                        </Typography>
                         <Typography variant="h4">
                             {new Date(message.date).toDateString()}
                         </Typography>

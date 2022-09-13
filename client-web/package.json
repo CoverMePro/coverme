@@ -34,6 +34,7 @@
         "material-ui-phone-number": "^3.0.0",
         "notistack": "^2.0.3",
         "react": "^17.0.2",
+        "react-date-range": "^1.4.0",
         "react-dom": "^17.0.2",
         "react-number-format": "^4.9.1",
         "react-redux": "^7.2.6",
@@ -69,6 +70,7 @@
         ]
     },
     "devDependencies": {
+        "@types/react-date-range": "^1.4.4",
         "env-cmd": "^10.1.0"
     }
 }

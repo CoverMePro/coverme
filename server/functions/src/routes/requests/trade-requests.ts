@@ -6,6 +6,7 @@ const router: Router = express.Router({ mergeParams: true });
 
 router.post('/', authGuard, tradeController.createTradeRequest);
 router.post('/:id/archive', authGuard, tradeController.archiveTradeRequest);
+router.post('/from-teams', authGuard, tradeController.getTradeRequestsFromTeam);
 
 router.get('/:user', authGuard, tradeController.getUserTradeRequest);
 router.get('/:id/delete', authGuard, tradeController.deleteTradeRequest);

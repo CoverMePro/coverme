@@ -5,4 +5,5 @@ export interface IMessage {
     date: Date;
     userId: string;
     userName: string;
+    for: string;
 }

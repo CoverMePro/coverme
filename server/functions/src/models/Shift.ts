@@ -2,6 +2,7 @@ export interface IShift {
     id?: string;
     name: string;
     userId: string;
+    userName: string;
     companyId: string;
     teamId: string;
     startDateTime: Date;
@@ -19,6 +20,7 @@ export const mapToShift = (id: string, data: any): IShift => {
         id: id,
         name: data.name,
         userId: data.userId,
+        userName: data.userName,
         companyId: data.companyId,
         teamId: data.teamId,
         startDateTime: data.startDateTime.toDate(),

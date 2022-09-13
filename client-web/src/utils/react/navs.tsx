@@ -13,6 +13,7 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import FlightIcon from '@mui/icons-material/Flight';
 import SickIcon from '@mui/icons-material/Sick';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
 export const mainNav: INav[] = [
     { label: 'Home', path: 'home', selectedIndex: 0, icon: <HomeIcon color="secondary" /> },
@@ -50,6 +51,12 @@ export const managmentNav: INav[] = [
         path: 'schedule',
         selectedIndex: 2,
         icon: <CalendarViewMonthIcon color="secondary" />,
+    },
+    {
+        label: 'Requests',
+        path: 'requests',
+        selectedIndex: 13,
+        icon: <QuestionAnswerIcon color="secondary" />,
     },
 ];
 

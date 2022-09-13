@@ -17,6 +17,7 @@ export interface ITimeOffRequest {
 export interface ITimeOff {
     id?: string;
     userId: string;
+    userName: string;
     teams: string[];
     name: string;
     startDateTime: string;
@@ -41,6 +42,7 @@ export const mapToTimeOff = (id: string, data: any): ITimeOff => {
     return {
         id: id,
         userId: data.userId,
+        userName: data.userName,
         teams: data.teams,
         name: data.name,
         startDateTime: data.startDateTime.toDate(),

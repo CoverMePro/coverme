@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 
-import { Box, CircularProgress, Fab, TextField, Typography } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    Fab,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    TextField,
+    Typography,
+} from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
 
@@ -20,6 +31,7 @@ interface ICreateMessageFormProps {
 
 const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [messageFor, setMessageFor] = useState<string>('company');
 
     const user = useTypedSelector((state) => state.user);
 
@@ -39,6 +51,7 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                 date: new Date(),
                 userId: user.id,
                 userName: `${user.firstName} ${user.lastName}`,
+                for: messageFor,
             };
 
             axios
@@ -63,6 +76,10 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
         },
     });
 
+    const handleMessageForChange = (event: SelectChangeEvent) => {
+        setMessageFor(event.target.value as string);
+    };
+
     return (
         <Box
             sx={{
@@ -86,6 +103,25 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <Box>
+                        <FormControl fullWidth>
+                            <InputLabel id="message-type-label">Message For</InputLabel>
+                            <Select
+                                labelId="message-type-label"
+                                id="demo-simple-select"
+                                value={messageFor}
+                                label="Message For"
+                                onChange={handleMessageForChange}
+                            >
+                                <MenuItem value={'company'}>Company</MenuItem>
+                                {user.teams.map((team) => (
+                                    <MenuItem key={team} value={team}>
+                                        {team}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box sx={{ mt: 2 }}>
                         <TextField
                             sx={{ width: '100%' }}
                             variant="outlined"

@@ -18,12 +18,11 @@ const CalendarWidget: React.FC = () => {
     const [events, setEvents] = useState<EventInput[]>([]);
 
     const formatEvents = (shifts: IShift[], timeOff: ITimeOff[]) => {
-        // TODO: do not show unclaimed
         const formattedShifts = shifts.map((shift) => {
             if (shift.userId === '') return {};
             return {
                 id: shift.id,
-                title: `${shift.name} (${shift.userId !== '' ? shift.userId : 'unclaimed'})`,
+                title: `${shift.name} (${shift.userName !== '' ? shift.userName : 'unclaimed'})`,
                 start: shift.startDateTime,
                 end: shift.endDateTime,
                 resourceId: `${shift.teamId}-${shift.userId}`,
