@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
 import { useSnackbar } from 'notistack';
-
 import {
     Button,
     TextField,
@@ -14,7 +12,6 @@ import {
     CircularProgress,
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
-
 import { isEmail } from 'utils/validations/shared';
 import axios from 'utils/axios-intance';
 

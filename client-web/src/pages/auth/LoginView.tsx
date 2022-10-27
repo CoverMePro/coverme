@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFormik } from 'formik';
 import { useActions } from 'hooks/use-actions';
-
 import {
     Box,
     Button,
@@ -14,22 +13,16 @@ import {
     Paper,
     CircularProgress,
 } from '@mui/material';
-
-import { IUser } from 'models/User';
-import { ICompany } from 'models/Company';
-
-import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
-
 import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoginIcon from '@mui/icons-material/Login';
-
+import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
+import { IUser } from 'models/User';
+import { ICompany } from 'models/Company';
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
-
 import { validateLogin } from 'utils/validations/auth';
-
 import { AxiosError } from 'axios';
 import axios from 'axios';
 

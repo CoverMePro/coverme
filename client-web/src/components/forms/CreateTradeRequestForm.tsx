@@ -1,33 +1,25 @@
 import React, { useState, useEffect } from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { useSnackbar } from 'notistack';
-
 import {
     Box,
     TextField,
     Fab,
     Autocomplete,
     CircularProgress,
-    Typography,
     FormControl,
     InputLabel,
     Select,
     MenuItem,
     SelectChangeEvent,
 } from '@mui/material';
-
 import HowToRegIcon from '@mui/icons-material/Add';
-import logo from 'images/cover-me-logo.png';
-
+import FormCard from './FormCard';
 import { ITradeRequest } from 'models/Trade';
 import { IUser } from 'models/User';
 import { IShift } from 'models/Shift';
-
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
-
 import { AxiosError } from 'axios';
 
 interface ICreateTradeRequestFromProps {
@@ -157,119 +149,97 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
     }, [user.id]);
 
     return (
-        <Box
-            sx={{
-                width: { xs: '80%', s: 300, md: 500 },
-                borderRadius: 5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingY: 5,
-                    width: '80%',
-                }}
-            >
-                <img src={logo} width={100} alt="Cover Me Logo" />
-                <Typography sx={{ mb: 2 }} variant="h2">
-                    Trade Request
-                </Typography>
-                <>
-                    {isLoadingData ? (
+        <FormCard title="Trade Request">
+            <>
+                {isLoadingData ? (
+                    <Box>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <>
                         <Box>
-                            <CircularProgress />
+                            <FormControl fullWidth>
+                                <InputLabel id="proposed-shift-label">
+                                    Your Shift To Trade
+                                </InputLabel>
+                                <Select
+                                    labelId="proposed-shift-label"
+                                    id="proposed-shift-select"
+                                    value={selectedProposedShiftId}
+                                    label="Your Shift To Trade"
+                                    onChange={handlePropsedShiftChange}
+                                >
+                                    {userShifts.map((shift) => {
+                                        return (
+                                            <MenuItem key={shift.id} value={shift.id}>
+                                                {formatDateTimeOutputString(
+                                                    shift.startDateTime,
+                                                    shift.endDateTime
+                                                )}
+                                            </MenuItem>
+                                        );
+                                    })}
+                                </Select>
+                            </FormControl>
                         </Box>
-                    ) : (
-                        <>
-                            <Box>
-                                <FormControl fullWidth>
-                                    <InputLabel id="proposed-shift-label">
-                                        Your Shift To Trade
-                                    </InputLabel>
-                                    <Select
-                                        labelId="proposed-shift-label"
-                                        id="proposed-shift-select"
-                                        value={selectedProposedShiftId}
-                                        label="Your Shift To Trade"
-                                        onChange={handlePropsedShiftChange}
-                                    >
-                                        {userShifts.map((shift) => {
-                                            return (
-                                                <MenuItem key={shift.id} value={shift.id}>
-                                                    {formatDateTimeOutputString(
-                                                        shift.startDateTime,
-                                                        shift.endDateTime
-                                                    )}
-                                                </MenuItem>
-                                            );
-                                        })}
-                                    </Select>
-                                </FormControl>
-                            </Box>
-                            <Box sx={{ mt: 2 }}>
-                                <Autocomplete
-                                    options={staff}
-                                    getOptionLabel={(option) =>
-                                        `${option.firstName} ${option.lastName} - ${option.email}`
-                                    }
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            {option.firstName} {option.lastName} - {option.email}
-                                        </li>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Staff to Trade With" />
-                                    )}
-                                    onChange={handleRequestedUserChange}
-                                />
-                            </Box>
-                            <Box sx={{ mt: 2 }}>
-                                <FormControl fullWidth>
-                                    <InputLabel id="requested-shift-label">
-                                        Requested Shift
-                                    </InputLabel>
-                                    <Select
-                                        labelId="requested-shift-label"
-                                        id="requested-shift-select"
-                                        value={selectedRequestedShiftId}
-                                        label="Requested Shift"
-                                        onChange={handleRequestedShiftChange}
-                                    >
-                                        {requestedShifts.map((shift) => {
-                                            return (
-                                                <MenuItem key={shift.id} value={shift.id}>
-                                                    {formatDateTimeOutputString(
-                                                        shift.startDateTime,
-                                                        shift.endDateTime
-                                                    )}
-                                                </MenuItem>
-                                            );
-                                        })}
-                                    </Select>
-                                </FormControl>
-                            </Box>
-
-                            <Box sx={{ mt: 3 }}>
-                                {isLoading ? (
-                                    <CircularProgress />
-                                ) : (
-                                    <Fab
-                                        color="primary"
-                                        aria-label="Register User"
-                                        onClick={handleSubmit}
-                                    >
-                                        <HowToRegIcon fontSize="large" />
-                                    </Fab>
+                        <Box sx={{ mt: 2 }}>
+                            <Autocomplete
+                                options={staff}
+                                getOptionLabel={(option) =>
+                                    `${option.firstName} ${option.lastName} - ${option.email}`
+                                }
+                                renderOption={(props, option, { selected }) => (
+                                    <li {...props}>
+                                        {option.firstName} {option.lastName} - {option.email}
+                                    </li>
                                 )}
-                            </Box>
-                        </>
-                    )}
-                </>
-            </Box>
-        </Box>
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Staff to Trade With" />
+                                )}
+                                onChange={handleRequestedUserChange}
+                            />
+                        </Box>
+                        <Box sx={{ mt: 2 }}>
+                            <FormControl fullWidth>
+                                <InputLabel id="requested-shift-label">Requested Shift</InputLabel>
+                                <Select
+                                    labelId="requested-shift-label"
+                                    id="requested-shift-select"
+                                    value={selectedRequestedShiftId}
+                                    label="Requested Shift"
+                                    onChange={handleRequestedShiftChange}
+                                >
+                                    {requestedShifts.map((shift) => {
+                                        return (
+                                            <MenuItem key={shift.id} value={shift.id}>
+                                                {formatDateTimeOutputString(
+                                                    shift.startDateTime,
+                                                    shift.endDateTime
+                                                )}
+                                            </MenuItem>
+                                        );
+                                    })}
+                                </Select>
+                            </FormControl>
+                        </Box>
+
+                        <Box sx={{ mt: 3 }}>
+                            {isLoading ? (
+                                <CircularProgress />
+                            ) : (
+                                <Fab
+                                    color="primary"
+                                    aria-label="Register User"
+                                    onClick={handleSubmit}
+                                >
+                                    <HowToRegIcon fontSize="large" />
+                                </Fab>
+                            )}
+                        </Box>
+                    </>
+                )}
+            </>
+        </FormCard>
     );
 };
 

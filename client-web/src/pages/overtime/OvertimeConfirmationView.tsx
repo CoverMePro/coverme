@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-
 import { Box, Typography, Paper, Button, CircularProgress } from '@mui/material';
-
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 import { AxiosError } from 'axios';

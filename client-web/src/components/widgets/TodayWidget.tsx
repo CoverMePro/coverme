@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
 import FullCalendar, { EventInput } from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
-
 import { Paper } from '@mui/material';
-
+import PageLoading from 'components/loading/PageLoading';
 import { IShift } from 'models/Shift';
 import { ITimeOff } from 'models/TimeOff';
-
-import PageLoading from 'components/loading/PageLoading';
-
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 

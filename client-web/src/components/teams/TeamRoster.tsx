@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
 import { useSnackbar } from 'notistack';
-
 import {
     Accordion,
     AccordionSummary,
@@ -13,20 +11,16 @@ import {
     Tooltip,
     IconButton,
 } from '@mui/material';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-
-import { ITeamInfo } from 'models/Team';
-import { IUser } from 'models/User';
-
 import SkeletonTeamList from './SkeletonTeamList';
 import TeamList from './TeamList';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import AddUserToTeamDialog from 'components/dialogs/AddUserToTeamDialog';
-
+import { ITeamInfo } from 'models/Team';
+import { IUser } from 'models/User';
 import axios from 'utils/axios-intance';
 
 interface ITeamRosterProps {
@@ -176,6 +170,14 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
             <Accordion expanded={expanded} onChange={handleOpenRoster(team)}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant="h3">{team.name}</Typography>
+                    <Box
+                        sx={{
+                            width: '50px',
+                            ml: 2,
+                            backgroundColor: `${team.color}`,
+                            borderRadius: '10%',
+                        }}
+                    ></Box>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Box sx={{ mb: 2 }}>

@@ -30,7 +30,12 @@ const createTeam = (req: Request, res: Response) => {
             } else {
                 return db
                     .doc(`/teams/${team.name}`)
-                    .set({ managers: team.managers, staff: team.staff, owner: team.owner });
+                    .set({
+                        managers: team.managers,
+                        staff: team.staff,
+                        owner: team.owner,
+                        color: team.color,
+                    });
             }
         })
         .then(async () => {

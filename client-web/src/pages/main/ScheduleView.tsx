@@ -2,38 +2,36 @@ import 'styles/calendar.css';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
-import FullCalendar, { EventApi, EventInput } from '@fullcalendar/react'; // must go before plugins
+import FullCalendar, { EventInput } from '@fullcalendar/react'; // must go before plugins
 import { EventChangeArg, EventInstance } from '@fullcalendar/common';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimegridPlugin from '@fullcalendar/resource-timegrid'; // a plugin
-import interactionPlugin, { EventReceiveArg, EventDragStopArg } from '@fullcalendar/interaction';
-
+import interactionPlugin, { EventDragStopArg } from '@fullcalendar/interaction';
 import { Box, Typography } from '@mui/material';
-
+import PageLoading from 'components/loading/PageLoading';
+import DataFilter from 'components/shared/DataFilter';
+import EditSchedule from 'components/scheduler/EditSchedule';
 import { ITimeOff } from 'models/TimeOff';
 import { IShift, IShiftTransaction } from 'models/Shift';
 import { IShiftTemplate } from 'models/ShiftTemplate';
-
-import EditSchedule from 'components/scheduler/EditSchedule';
-
+import { IShiftRotation } from 'models/ShiftRotation';
+import { ITeamInfo } from 'models/Team';
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
-import PageLoading from 'components/loading/PageLoading';
-import DataFilter from 'components/shared/DataFilter';
 
 // TODO: Refactor and split up code to other files/functions
 const ScheduleView: React.FC = () => {
-    const [teamStaff, setTeamStaff] = useState<any[]>([]);
-    const [filteredTeamStaff, setFilteredTeamStaff] = useState<any[]>([]);
+    const [allStaff, setAllStaff] = useState<any[]>([]);
+    const [teams, setTeams] = useState<ITeamInfo[]>([]);
+    const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
     const [shiftDefs, setShiftDefs] = useState<IShiftTemplate[]>([]);
+    const [shiftRotations, setShiftRotations] = useState<IShiftRotation[]>([]);
     const [events, setEvents] = useState<EventInput[]>([]);
-    const [cachedEvents, setCachedEvents] = useState<EventInput[]>([]);
-    const [addedEvents, setAddedEvents] = useState<EventApi[]>([]);
     const [shiftTransactions, setShiftTransactions] = useState<IShiftTransaction[]>([]);
-    const [isShiftEdit, setIsShiftEdit] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoadingConfirm, setIsLoadingConfirm] = useState<boolean>(false);
+
+    const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const [filter, setFilter] = useState<string>('teams');
 
@@ -106,95 +104,51 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions([...filtedTransactions, changedtransaction]);
     };
 
-    const formatEvents = (shifts: IShift[], timeOff: ITimeOff[]) => {
-        const formattedShifts = shifts.map((shift) => {
-            return {
-                id: shift.id,
-                title: shift.name,
-                start: shift.startDateTime,
-                end: shift.endDateTime,
-                resourceId: `${shift.teamId}-${shift.userId}`,
-            };
-        });
+    const getTeamColor = (teamId: string, teams: ITeamInfo[]) => {
+        const selectedTeam = teams.find((team) => team.name === teamId);
 
-        const formattedTimeOff: any[] = [];
+        if (selectedTeam) {
+            return selectedTeam.color;
+        }
 
-        timeOff.forEach((to) => {
-            to.teams.forEach((team) => {
+        return '#006d77';
+    };
+
+    const formatEvents = useCallback(
+        (shifts: IShift[], timeOff: ITimeOff[], teams: ITeamInfo[]) => {
+            const formattedShifts = shifts.map((shift) => {
+                return {
+                    id: shift.id,
+                    title: shift.name,
+                    start: shift.startDateTime,
+                    end: shift.endDateTime,
+                    resourceId: shift.userId,
+                    color: getTeamColor(shift.teamId, teams),
+                };
+            });
+
+            const formattedTimeOff: any[] = [];
+
+            timeOff.forEach((to) => {
                 formattedTimeOff.push({
                     id: to.id,
                     title: to.name,
                     start: to.startDateTime,
                     end: to.endDateTime,
-                    resourceId: `${team}-${to.userId}`,
+                    resourceId: to.userId,
                     color: 'red',
                 });
             });
-        });
 
-        const formattedEvents = [...formattedShifts, ...formattedTimeOff];
+            const formattedEvents = [...formattedShifts, ...formattedTimeOff];
 
-        setEvents(formattedEvents);
-        setCachedEvents(formattedEvents);
-    };
+            setEvents(formattedEvents);
+        },
+        []
+    );
 
-    /**
-     * Handler for when an event is drop into the calendar. This means an event was ADDED
-     * Transaction should be recorded that event was ADDED
-     * @param dropEvent - Information on the event that was drop in calendar
-     */
-    const handleEventReceived = (dropEvent: EventReceiveArg) => {
-        if (dropEvent.event._instance && dropEvent.event._def.resourceIds) {
-            const transaction: IShiftTransaction = {
-                type: 'add',
-                name: dropEvent.event._def.title,
-                userId: getUserId(dropEvent.event._def.resourceIds[0]),
-                teamId: getTeam(dropEvent.event._def.resourceIds[0]),
-                userName: getUserName(dropEvent.event._def.resourceIds[0]),
-                instanceId: dropEvent.event._instance.instanceId,
-                startDate: dropEvent.event._instance.range.start,
-                endDate: dropEvent.event._instance.range.end,
-            };
-
-            const newShiftTransactions = [...shiftTransactions, transaction];
-
-            const newEvents = [...addedEvents, dropEvent.event];
-            setAddedEvents(newEvents);
-
-            setShiftTransactions(newShiftTransactions);
-        } else {
-            console.error('ERROR: unable to find event instance and/or resource ids');
-        }
-    };
-
-    const handleCreateShift = (values: any) => {
-        // const transaction: IShiftTransaction = {
-        //     type: 'add',
-        //     name: values.name,
-        //     userId: values.user,
-        //     teamId: values.team,
-        //     startDate: values.startDate,
-        //     endDate: values.endDate,
-        // };
-
-        // const newShiftTransactions = [...shiftTransactions, transaction];
-
-        if (calendarRef.current) {
-            let calendarApi = calendarRef.current.getApi();
-            const event = calendarApi.addEvent({
-                title: values.name,
-                start: new Date(values.startDate),
-                end: new Date(values.endDate),
-                resourceId: `${values.team}-${values.user}`,
-            });
-
-            console.log(event);
-
-            // const newEvents = [...addedEvents, event];
-            // setAddedEvents(newEvents);
-        }
-
-        //setShiftTransactions(newShiftTransactions);
+    const handleDragStart = (arg: any) => {
+        setIsDragging(true);
     };
 
     /**
@@ -203,6 +157,8 @@ const ScheduleView: React.FC = () => {
      * @param draggedEvent - Information on the event that is being dragged
      */
     const handleDragStop = (draggedEvent: EventDragStopArg) => {
+        console.log(draggedEvent);
+
         let trashEl = document.getElementById('fc-trash')!; //as HTMLElement;
 
         let x1 = trashEl.offsetLeft;
@@ -233,6 +189,8 @@ const ScheduleView: React.FC = () => {
 
             draggedEvent.event.remove();
         }
+
+        setIsDragging(false);
     };
 
     /**
@@ -270,11 +228,56 @@ const ScheduleView: React.FC = () => {
         }
     };
 
+    const isInTeam = (teams: string[], userTeams: string[]) => {
+        console.log(teams);
+        let result = false;
+        userTeams.forEach((userTeam) => {
+            const foundTeam = teams.findIndex((t) => t === userTeam) !== -1;
+
+            if (foundTeam) {
+                result = true;
+            }
+        });
+        return result;
+    };
+
+    const formatStaff = useCallback(
+        (staff: any[], filterValue: string) => {
+            console.log(staff);
+            console.log(user.role);
+            console.log(filterValue);
+
+            if (user.role === 'owner') {
+                return [...allStaff];
+            }
+
+            if (filterValue === 'teams' && user.teams) {
+                const filteredStaff = staff.filter((s) => {
+                    return isInTeam(s.teams, user.teams!);
+                });
+                return [...filteredStaff];
+            } else {
+                console.log(allStaff);
+                return [...allStaff];
+            }
+        },
+        [user, allStaff]
+    );
+
+    const handleFilterChange = (filterValue: string) => {
+        setFilter(filterValue);
+
+        console.log(allStaff);
+
+        setFilteredStaff(formatStaff(allStaff, filterValue));
+    };
+
     const handleConfirmTransactions = () => {
         setIsLoadingConfirm(true);
         axios
             .post(`${process.env.REACT_APP_SERVER_API}/shift-transactions`, {
                 transactions: shiftTransactions,
+                rotationTransactions: [],
             })
             .then(() => {
                 enqueueSnackbar('Edits to the schedule have been recorded.', {
@@ -292,59 +295,17 @@ const ScheduleView: React.FC = () => {
             });
     };
 
-    const handleCancelEdits = () => {
-        if (shiftTransactions.length > 0) {
-            setShiftTransactions([]);
-            setEvents([...cachedEvents]);
-
-            for (let i = 0, len = addedEvents.length; i < len; i++) {
-                addedEvents[i].remove();
-            }
-
-            setAddedEvents([]);
-        }
-        setIsShiftEdit(false);
-    };
-
-    const isInTeam = (team: string, userTeams: string[]) => {
-        let result = false;
-        userTeams.forEach((userTeam) => {
-            if (userTeam === team) {
-                result = true;
-            }
-        });
-        return result;
-    };
-
-    const formatStaff = useCallback(
-        (staff: any[], filterValue: string) => {
-            if (filterValue === 'teams' && user.teams) {
-                const filteredStaff = staff.filter((s) => {
-                    return isInTeam(s.team, user.teams!);
-                });
-                return [...filteredStaff];
-            } else {
-                return [...staff];
-            }
-        },
-        [user.teams]
-    );
-
-    const handleFilterChange = (filterValue: string) => {
-        setFilter(filterValue);
-
-        setFilteredTeamStaff(formatStaff(teamStaff, filterValue));
-    };
-
     const getShiftsFromTeams = useCallback(() => {
         setIsLoading(true);
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/shifts`)
             .then((result: AxiosResponse) => {
-                setTeamStaff([...result.data.teamStaff]);
-                setFilteredTeamStaff(formatStaff(result.data.teamStaff, 'teams'));
+                setAllStaff([...result.data.staff]);
+                setFilteredStaff(formatStaff(result.data.staff, 'teams'));
                 setShiftDefs(result.data.shiftDefs);
-                formatEvents(result.data.shifts, result.data.timeOff);
+                setShiftRotations(result.data.rotations);
+                setTeams(result.data.teams);
+                formatEvents(result.data.shifts, result.data.timeOff, result.data.teams);
             })
             .catch((error) => {
                 console.error(error);
@@ -352,25 +313,7 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [formatStaff]);
-
-    const getUserAndTeams = () => {
-        const users: any[] = [];
-        const teams: any[] = [];
-        teamStaff.forEach((staff: any) => {
-            const staffEmail = staff.email;
-            const staffTeam = staff.team;
-            users.push({
-                email: staffEmail,
-                team: staffTeam,
-            });
-            if (staffTeam !== '' && teams.findIndex((team) => team === staffTeam) === -1) {
-                teams.push(staffTeam);
-            }
-        });
-
-        return { users, teams };
-    };
+    }, [formatStaff, formatEvents]);
 
     useEffect(() => {
         getShiftsFromTeams();
@@ -391,23 +334,65 @@ const ScheduleView: React.FC = () => {
                     >
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <Typography variant="h1">Schedule</Typography>
-                            <DataFilter
-                                filterValue={filter}
-                                onFilterChange={handleFilterChange}
-                                extraOptions={[]}
-                            />
+                            {user.role !== 'owner' && (
+                                <DataFilter
+                                    filterValue={filter}
+                                    onFilterChange={handleFilterChange}
+                                    extraOptions={[]}
+                                />
+                            )}
+                        </Box>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                flexGrow: 2,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            {isDragging ? (
+                                <Box
+                                    sx={{
+                                        border: '2px dashed #006d77',
+                                        width: '100%',
+                                        height: '75px',
+                                        marginLeft: '2rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                    id="fc-trash"
+                                >
+                                    <Typography variant="h2" color="primary">
+                                        Remove
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <>
+                                    {teams.map((team) => (
+                                        <Box key={team.name} sx={{ display: 'flex', gap: 1 }}>
+                                            <Typography variant="h5">{team.name}</Typography>
+                                            <Box
+                                                sx={{
+                                                    width: '50px',
+                                                    backgroundColor: `${team.color}`,
+                                                    borderRadius: '10%',
+                                                }}
+                                            ></Box>
+                                        </Box>
+                                    ))}
+                                </>
+                            )}
                         </Box>
                         {user.role !== 'staff' && (
                             <EditSchedule
-                                shiftTransactions={shiftTransactions}
+                                staff={allStaff}
                                 shiftDefs={shiftDefs}
+                                rotations={shiftRotations}
                                 isLoadingConfirm={isLoadingConfirm}
-                                isShiftEdit={isShiftEdit}
-                                onOpenShiftEdit={() => setIsShiftEdit(true)}
-                                onConfirmTransactions={handleConfirmTransactions}
-                                onCancelEdits={handleCancelEdits}
-                                teamsAndUsers={getUserAndTeams()}
-                                onCreateShift={handleCreateShift}
+                                hasUpdateTransactions={shiftTransactions.length > 0}
+                                onConfirmUpdateTransactions={handleConfirmTransactions}
                             />
                         )}
                     </Box>
@@ -415,7 +400,7 @@ const ScheduleView: React.FC = () => {
                     <div>
                         <FullCalendar
                             ref={calendarRef}
-                            timeZone="UTC"
+                            timeZone="utc"
                             plugins={[
                                 resourceTimelinePlugin,
                                 resourceTimegridPlugin,
@@ -429,19 +414,18 @@ const ScheduleView: React.FC = () => {
                                 right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth',
                             }}
                             resourceAreaHeaderContent="Staff"
-                            resourceGroupField="team"
-                            resources={filteredTeamStaff}
-                            editable={isShiftEdit}
-                            eventStartEditable={isShiftEdit}
+                            //resourceGroupField="team"
+                            resources={filteredStaff}
+                            editable
+                            eventStartEditable
                             eventColor="#006d77"
-                            eventResizableFromStart={isShiftEdit}
-                            eventDurationEditable={isShiftEdit}
-                            eventResourceEditable={isShiftEdit}
+                            eventResizableFromStart
+                            eventDurationEditable
+                            eventResourceEditable
                             dragRevertDuration={0}
+                            eventDragStart={handleDragStart}
                             eventDragStop={handleDragStop}
-                            eventReceive={handleEventReceived}
                             eventChange={handleEventChange}
-                            droppable={isShiftEdit}
                             events={events}
                             eventDrop={(e) => console.log(e)}
                             height={'auto'}

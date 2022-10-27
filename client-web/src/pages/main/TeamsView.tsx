@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
-
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
-
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
-import { ITeamInfo } from 'models/Team';
-
 import CreateTeamForm from 'components/forms/CreateTeamForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import PageLoading from 'components/loading/PageLoading';
 import TeamRoster from 'components/teams/TeamRoster';
-
+import { ITeamInfo } from 'models/Team';
 import axios from 'utils/axios-intance';
 
 const TeamsView: React.FC = () => {

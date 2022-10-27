@@ -5,7 +5,7 @@ import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 export const getAddAction = (
     object: string,
     onAdd: () => void,
-    permissionLevel: number = 2
+    permissionLevel: number = 1
 ): IUnselectedAction[] => {
     return [
         {
@@ -20,7 +20,7 @@ export const getAddAction = (
 export const getDeleteAction = (
     object: string,
     onDelete: (selected: any) => void,
-    permissionLevel: number = 2
+    permissionLevel: number = 1
 ): ISelectedAction[] => {
     return [
         {

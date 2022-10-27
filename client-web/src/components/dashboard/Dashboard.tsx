@@ -1,19 +1,12 @@
 import React from 'react';
-
 import { Outlet } from 'react-router';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { Box, Typography, Drawer, Divider, Avatar } from '@mui/material';
-
 import CssBaseline from '@mui/material/CssBaseline';
-
 import { DRAWER_WIDTH } from '../../constants';
-
 import SettingsMenu from 'components/navigation/SettingsMenu';
-
-import MainSection from './MainSection';
 import Navigation from 'components/navigation/Navigation';
+import MainSection from './MainSection';
 
 const Dashboard: React.FC = () => {
     const user = useTypedSelector((state) => state.user);

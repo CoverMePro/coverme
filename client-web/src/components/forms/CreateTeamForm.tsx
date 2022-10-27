@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
+import { ChromePicker } from 'react-color';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
-
 import {
     Box,
     TextField,
@@ -14,17 +12,13 @@ import {
     CircularProgress,
     Typography,
 } from '@mui/material';
-
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
-
 import { IUser } from 'models/User';
-
 import { validateCreateTeam } from 'utils/validations/team';
 import axios from 'utils/axios-intance';
-
 import { AxiosError } from 'axios';
 
 interface ICreateFormProps {
@@ -34,6 +28,9 @@ interface ICreateFormProps {
 const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [managers, setManagers] = useState<IUser[]>([]);
+    const [teamColor, setTeamColor] = useState<string>(
+        Math.floor(Math.random() * 16777215).toString(16)
+    );
     const [staff, setStaff] = useState<IUser[]>([]);
     const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
     const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
@@ -50,6 +47,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
         isStaff ? setSelectedStaff(userIds) : setSelectedManagers(userIds);
     };
 
+    // TODO: Make validation better
     const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
         initialValues: {
             teamName: '',
@@ -64,6 +62,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                         owner: user.id!,
                         managers: selectedManagers,
                         staff: selectedStaff,
+                        color: teamColor,
                     },
                 })
                 .then(() => {
@@ -90,6 +89,10 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                 });
         },
     });
+
+    const handleColorChange = (color: any, event: any) => {
+        setTeamColor(color.hex);
+    };
 
     useEffect(() => {
         axios
@@ -145,6 +148,9 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
                             }
                             helperText={touched.teamName ? errors.teamName : ''}
                         />
+                    </Box>
+                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+                        <ChromePicker color={teamColor} onChange={handleColorChange} disableAlpha />
                     </Box>
                     <Box sx={{ mt: 2 }}>
                         <Autocomplete

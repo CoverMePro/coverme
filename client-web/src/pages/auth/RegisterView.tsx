@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
-
 import {
     Box,
     Paper,
@@ -14,17 +12,13 @@ import {
     InputAdornment,
     Typography,
 } from '@mui/material';
-
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DoneIcon from '@mui/icons-material/Done';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
 import MuiPhoneNumber from 'material-ui-phone-number';
-
 import onboardBackground from '../../images/onboard-background.jpg';
 import logo from '../../images/cover-me-logo.png';
-
 import { validateRegister } from 'utils/validations/auth';
 import axios from 'utils/axios-intance';
 

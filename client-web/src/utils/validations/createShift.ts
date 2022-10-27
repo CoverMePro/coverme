@@ -1,11 +1,7 @@
-import { isDate, isEmpty } from './shared';
+import { isEmpty } from './shared';
 
-export const validateCreateShift = (values: any) => {
+export const validateCreateScheduleShift = (values: any) => {
     let errors: any = {};
-
-    if (isEmpty(values.shiftName as string)) {
-        errors.shiftName = 'Required';
-    }
 
     if (isEmpty(values.selectedTeam as string)) {
         errors.selectedTeam = 'Required';
@@ -15,17 +11,14 @@ export const validateCreateShift = (values: any) => {
         errors.selectedUser = 'Required';
     }
 
-    if (isEmpty(values.startDate)) {
-        errors.startDate = 'Required';
-    } else if (!isDate(values.startDate)) {
-        errors.startDate = 'Must be a valid date';
-    }
+    return errors;
+};
 
-    if (isEmpty(values.shiftDuration as string)) {
-        errors.shiftDuration = 'Required';
-    } else if (values.shiftDuration.length !== 4) {
-        errors.shiftDuration = 'Must be in format of HH:MM';
-    }
+export const validateCreateRotation = (values: any) => {
+    let errors: any = {};
 
+    if (isEmpty(values.shiftName as string)) {
+        errors.shiftName = 'Required';
+    }
     return errors;
 };

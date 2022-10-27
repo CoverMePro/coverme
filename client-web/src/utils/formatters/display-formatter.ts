@@ -1,7 +1,13 @@
+import { IShiftTemplate, IShiftTemplateDisplay } from 'models/ShiftTemplate';
 import { ISickDisplay, ISickRequest } from 'models/Sick';
 import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
 import { IFullTradeDisplay, ITradeDisplay, ITradeRequest, IUserTradeInfo } from 'models/Trade';
-import { formatDateTimeOutputString, formatDateString } from './dateTime-formatter';
+import {
+    formatDateTimeOutputString,
+    formatDateString,
+    formatAMPM,
+    formatDurationClean,
+} from './dateTime-formatter';
 
 const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
     switch (status) {
@@ -89,5 +95,16 @@ export const formatTimeOffDisplay = (timeOffRequest: ITimeOffRequest): ITimeOffD
         endDate: formatDateString(timeOffRequest.timeOffEnd!),
         status: timeOffRequest.status!,
         user: timeOffRequest.user!,
+    };
+};
+
+export const formatShiftTemplateDisplay = (
+    shiftTemplate: IShiftTemplate
+): IShiftTemplateDisplay => {
+    return {
+        id: shiftTemplate.id,
+        name: shiftTemplate.name,
+        duration: formatDurationClean(shiftTemplate.duration),
+        startTime: formatAMPM(shiftTemplate.startTimeHours, shiftTemplate.startTimeMinutes),
     };
 };

@@ -12,6 +12,8 @@ export interface IShift {
 export interface IShiftTemplate {
     id?: string;
     name: string;
+    startTimeHours: number;
+    startTimeMinutes: number;
     duration: string;
 }
 
@@ -32,6 +34,8 @@ export const mapToShiftDefinition = (id: string, data: any): IShiftTemplate => {
     return {
         id: id,
         name: data.name,
+        startTimeHours: data.startTimeHours,
+        startTimeMinutes: data.startTimeMinutes,
         duration: data.duration,
     };
 };

@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { hasPermission } from 'utils/validations/permissions';
 
 interface IPermissionCheckProps {

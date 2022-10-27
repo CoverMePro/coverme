@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
 import { Box, Paper, Typography } from '@mui/material';
-
-import { IMessage } from 'models/Message';
-
 import PageLoading from 'components/loading/PageLoading';
 import BoardMessage from 'components/message-board/BoardMessage';
-
+import { IMessage } from 'models/Message';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
 

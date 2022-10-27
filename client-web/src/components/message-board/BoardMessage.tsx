@@ -1,19 +1,6 @@
 import React, { useState } from 'react';
-import {
-    Box,
-    Typography,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    AccordionActions,
-    IconButton,
-    Tooltip,
-} from '@mui/material';
-
+import { Box, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ReplyIcon from '@mui/icons-material/Reply';
-
 import { IMessage } from 'models/Message';
 
 interface IBoardMessageProps {
@@ -54,7 +41,7 @@ const BoardMessage: React.FC<IBoardMessageProps> = ({ message }) => {
             <AccordionDetails>
                 <Typography variant="body1">{message.content}</Typography>
             </AccordionDetails>
-            <AccordionActions>
+            {/* <AccordionActions>
                 <Tooltip title="Reply To Message">
                     <IconButton color="primary">
                         <ReplyIcon />
@@ -65,7 +52,7 @@ const BoardMessage: React.FC<IBoardMessageProps> = ({ message }) => {
                         <ThumbUpIcon />
                     </IconButton>
                 </Tooltip>
-            </AccordionActions>
+            </AccordionActions> */}
         </Accordion>
     );
 };

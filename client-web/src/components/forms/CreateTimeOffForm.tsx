@@ -3,15 +3,8 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 import React, { useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
-
-import HowToRegIcon from '@mui/icons-material/Add';
-import logo from 'images/cover-me-logo.png';
-
-import axios from 'utils/axios-intance';
-import { AxiosError } from 'axios';
 import {
     Box,
-    Typography,
     CircularProgress,
     Fab,
     TextField,
@@ -24,16 +17,16 @@ import {
     FormControlLabel,
     Radio,
 } from '@mui/material';
-
-import { ITimeOffRequest, TimeOffType } from 'models/TimeOff';
-
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
 import { DateRange, Range } from 'react-date-range';
 import { TimePicker } from '@mui/x-date-pickers';
+import HowToRegIcon from '@mui/icons-material/Add';
+import FormCard from './FormCard';
+import { ITimeOffRequest, TimeOffType } from 'models/TimeOff';
+import axios from 'utils/axios-intance';
+import { AxiosError } from 'axios';
 
 interface ICreateTimeOffFormProps {
     onFinish: (tradeRequest: ITimeOffRequest | undefined) => void;
@@ -98,10 +91,7 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
 
     // TO DO: better form validation using what we have! do more research and figure out how to utilize here
     // TO DO: better date picker for here?
-
     const handleSubmit = () => {
-        // TO DO sp
-
         const timeOffRequest: ITimeOffRequest = {
             requestDate: new Date(),
             type: timeOffType,
@@ -141,130 +131,99 @@ const CreateTimeOffForm: React.FC<ICreateTimeOffFormProps> = ({ onFinish }) => {
     };
 
     return (
-        <Box
-            sx={{
-                width: { xs: '80%', s: 300, md: 500 },
-                borderRadius: 5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingY: 5,
-                    width: '80%',
-                }}
-            >
-                <img src={logo} width={100} alt="Cover Me Logo" />
-                <Typography sx={{ mb: 2 }} variant="h2">
-                    Time Off
-                </Typography>
+        <FormCard title="Request Time Off">
+            <FormControl>
+                <RadioGroup row value={dayType} onChange={handleDayTypeChange}>
+                    <FormControlLabel value="partial" control={<Radio />} label="Partial Day" />
+                    <FormControlLabel value="full" control={<Radio />} label="Full Day" />
+                </RadioGroup>
+            </FormControl>
+            <Box sx={{ mt: 2 }}>
                 <FormControl>
-                    <RadioGroup row value={dayType} onChange={handleDayTypeChange}>
-                        <FormControlLabel value="partial" control={<Radio />} label="Partial Day" />
-                        <FormControlLabel value="full" control={<Radio />} label="Full Day" />
-                    </RadioGroup>
+                    <InputLabel>Type</InputLabel>
+                    <Select value={timeOffType} label="Type" onChange={handleTypeChange}>
+                        <MenuItem value={'Vacation'}>Vacation</MenuItem>
+                        <MenuItem value={'Lieu'}>Lieu</MenuItem>
+                        <MenuItem value={'Floater'}>Floater</MenuItem>
+                        <MenuItem value={'Other'}>Other</MenuItem>
+                    </Select>
                 </FormControl>
-                <Box sx={{ mt: 2 }}>
-                    <FormControl>
-                        <InputLabel>Type</InputLabel>
-                        <Select value={timeOffType} label="Type" onChange={handleTypeChange}>
-                            <MenuItem value={'Vacation'}>Vacation</MenuItem>
-                            <MenuItem value={'Lieu'}>Lieu</MenuItem>
-                            <MenuItem value={'Floater'}>Floater</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Box>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    {dayType === 'full' && (
-                        <>
-                            <Box sx={{ mt: 2 }}>
-                                <DateRange
-                                    editableDateInputs={true}
-                                    onChange={(item) => setDateRange([item.selection])}
-                                    moveRangeOnFirstSelection={false}
-                                    ranges={dateRange}
-                                    rangeColors={['#006d77']}
-                                />
-                            </Box>
-                        </>
-                    )}
-                    {dayType === 'partial' && (
-                        <>
-                            <Box sx={{ mt: 2 }}>
-                                <DatePicker
-                                    disablePast
-                                    renderInput={(props) => <TextField {...props} fullWidth />}
-                                    label="Time Off Start"
-                                    value={startDateTime}
-                                    onChange={(newValue) => {
-                                        if (newValue) {
-                                            setPartialDate(newValue);
-                                        }
-                                    }}
-                                />
-                            </Box>
-                            <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-                                {/* <DateTimePicker
-                                    disablePast
-                                    renderInput={(props) => <TextField {...props} fullWidth />}
-                                    label="Time Off End"
-                                    value={endDateTime}
-                                    onChange={(newValue) => {
-                                        if (newValue) {
-                                            setEndDateTime(newValue);
-                                        }
-                                    }}
-                                /> */}
-                                <TimePicker
-                                    label="Start Time"
-                                    value={startDateTime}
-                                    onChange={(newValue) => {
-                                        if (newValue) {
-                                            setStartDateTime(newValue);
-                                        }
-                                    }}
-                                    renderInput={(params) => <TextField {...params} />}
-                                />
-                                <TimePicker
-                                    label="End Time"
-                                    value={endDateTime}
-                                    onChange={(newValue) => {
-                                        if (newValue) {
-                                            setEndDateTime(newValue);
-                                        }
-                                    }}
-                                    renderInput={(params) => <TextField {...params} />}
-                                />
-                            </Box>
-                        </>
-                    )}
-                </LocalizationProvider>
-
-                <Box sx={{ mt: 2 }}>
-                    <TextField
-                        fullWidth
-                        label="Description"
-                        multiline
-                        maxRows={4}
-                        value={description}
-                        onChange={handleDescriptionChange}
-                    />
-                </Box>
-                <Box sx={{ mt: 3 }}>
-                    {isLoading ? (
-                        <CircularProgress />
-                    ) : (
-                        <Fab color="primary" aria-label="Register User" onClick={handleSubmit}>
-                            <HowToRegIcon fontSize="large" />
-                        </Fab>
-                    )}
-                </Box>
             </Box>
-        </Box>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                {dayType === 'full' && (
+                    <>
+                        <Box sx={{ mt: 2 }}>
+                            <DateRange
+                                editableDateInputs={true}
+                                onChange={(item) => setDateRange([item.selection])}
+                                moveRangeOnFirstSelection={false}
+                                ranges={dateRange}
+                                rangeColors={['#006d77']}
+                            />
+                        </Box>
+                    </>
+                )}
+                {dayType === 'partial' && (
+                    <>
+                        <Box sx={{ mt: 2 }}>
+                            <DatePicker
+                                disablePast
+                                renderInput={(props) => <TextField {...props} fullWidth />}
+                                label="Time Off Start"
+                                value={startDateTime}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setPartialDate(newValue);
+                                    }
+                                }}
+                            />
+                        </Box>
+                        <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                            <TimePicker
+                                label="Start Time"
+                                value={startDateTime}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setStartDateTime(newValue);
+                                    }
+                                }}
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                            <TimePicker
+                                label="End Time"
+                                value={endDateTime}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setEndDateTime(newValue);
+                                    }
+                                }}
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                        </Box>
+                    </>
+                )}
+            </LocalizationProvider>
+
+            <Box sx={{ mt: 2 }}>
+                <TextField
+                    fullWidth
+                    label="Description"
+                    multiline
+                    maxRows={4}
+                    value={description}
+                    onChange={handleDescriptionChange}
+                />
+            </Box>
+            <Box sx={{ mt: 3 }}>
+                {isLoading ? (
+                    <CircularProgress />
+                ) : (
+                    <Fab color="primary" aria-label="Register User" onClick={handleSubmit}>
+                        <HowToRegIcon fontSize="large" />
+                    </Fab>
+                )}
+            </Box>
+        </FormCard>
     );
 };
 

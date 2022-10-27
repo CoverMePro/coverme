@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { Box, Grid, Typography } from '@mui/material';
 import TodayWidget from 'components/widgets/TodayWidget';
 import MessageWidget from 'components/widgets/MessageWidget';

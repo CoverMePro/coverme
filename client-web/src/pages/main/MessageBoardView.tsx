@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
-import { IMessage } from 'models/Message';
-
 import PageLoading from 'components/loading/PageLoading';
 import BoardMessage from 'components/message-board/BoardMessage';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateMessageForm from 'components/forms/CreateMessageForm';
-
+import DataFilter from 'components/shared/DataFilter';
+import { IMessage } from 'models/Message';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
-import DataFilter from 'components/shared/DataFilter';
 
 const BlogView: React.FC = () => {
     const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);

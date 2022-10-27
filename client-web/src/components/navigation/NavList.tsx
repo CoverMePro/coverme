@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-
 import { INav } from 'models/Nav';
 
 interface INavListProps {

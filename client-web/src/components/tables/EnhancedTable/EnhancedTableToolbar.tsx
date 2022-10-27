@@ -1,11 +1,8 @@
 import React from 'react';
-
 import { Toolbar, Typography, Tooltip, IconButton } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-
-import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
-
 import PermissionCheck from 'components/auth/PermissionCheck';
+import { ISelectedAction, IUnselectedAction } from 'models/TableInfo';
 
 interface IEnhancedTableToolbarProps {
     selected: any;

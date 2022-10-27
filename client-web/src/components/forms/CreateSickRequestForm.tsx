@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
-import { ISickRequest } from 'models/Sick';
-
 import { Box, Typography, CircularProgress, Fab, Autocomplete, TextField } from '@mui/material';
-
 import HowToRegIcon from '@mui/icons-material/Add';
-import logo from 'images/cover-me-logo.png';
-
+import FormCard from './FormCard';
 import { IShift } from 'models/Shift';
-
+import { ISickRequest } from 'models/Sick';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import { getTodayAndTomorrowDates } from 'utils/helpers/dateTime-helpers';
 import axios from 'utils/axios-intance';
@@ -100,92 +95,72 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
     }, [user.id]);
 
     return (
-        <Box
-            sx={{
-                width: { xs: '80%', s: 300, md: 500 },
-                borderRadius: 5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingY: 5,
-                    width: '80%',
-                }}
-            >
-                <img src={logo} width={100} alt="Cover Me Logo" />
-                <Typography sx={{ mb: 2 }} variant="h2">
-                    Sick Request
-                </Typography>
-                <>
-                    {isLoadingData ? (
-                        <Box>
-                            <CircularProgress />
-                        </Box>
-                    ) : (
-                        <>
-                            {userShifts.length > 0 ? (
-                                <>
-                                    <Box sx={{ mt: 2 }}>
-                                        {error && (
-                                            <Box sx={{ my: 1 }}>
-                                                <Typography sx={{ color: 'red' }} variant="body1">
-                                                    {error}
-                                                </Typography>
-                                            </Box>
-                                        )}
+        <FormCard title="Request Sick Leave">
+            <>
+                {isLoadingData ? (
+                    <Box>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <>
+                        {userShifts.length > 0 ? (
+                            <>
+                                <Box sx={{ mt: 2 }}>
+                                    {error && (
+                                        <Box sx={{ my: 1 }}>
+                                            <Typography sx={{ color: 'red' }} variant="body1">
+                                                {error}
+                                            </Typography>
+                                        </Box>
+                                    )}
 
-                                        <Autocomplete
-                                            options={userShifts}
-                                            getOptionLabel={(option) =>
-                                                `${formatDateTimeOutputString(
+                                    <Autocomplete
+                                        options={userShifts}
+                                        getOptionLabel={(option) =>
+                                            `${formatDateTimeOutputString(
+                                                option.startDateTime,
+                                                option.endDateTime
+                                            )}`
+                                        }
+                                        renderOption={(props, option, { selected }) => (
+                                            <li {...props}>
+                                                {formatDateTimeOutputString(
                                                     option.startDateTime,
                                                     option.endDateTime
-                                                )}`
-                                            }
-                                            renderOption={(props, option, { selected }) => (
-                                                <li {...props}>
-                                                    {formatDateTimeOutputString(
-                                                        option.startDateTime,
-                                                        option.endDateTime
-                                                    )}
-                                                </li>
-                                            )}
-                                            renderInput={(params) => (
-                                                <TextField {...params} label="Shift to take off" />
-                                            )}
-                                            onChange={handleShiftChange}
-                                        />
-                                    </Box>
-                                    <Box sx={{ mt: 3 }}>
-                                        {isLoading ? (
-                                            <CircularProgress />
-                                        ) : (
-                                            <Fab
-                                                color="primary"
-                                                aria-label="Register User"
-                                                onClick={handleSubmit}
-                                            >
-                                                <HowToRegIcon fontSize="large" />
-                                            </Fab>
+                                                )}
+                                            </li>
                                         )}
-                                    </Box>
-                                </>
-                            ) : (
-                                <Box sx={{ mt: 2 }}>
-                                    <Typography variant="h4">
-                                        There are no shifts available for a sick request
-                                    </Typography>
+                                        renderInput={(params) => (
+                                            <TextField {...params} label="Shift to take off" />
+                                        )}
+                                        onChange={handleShiftChange}
+                                    />
                                 </Box>
-                            )}
-                        </>
-                    )}
-                </>
-            </Box>
-        </Box>
+                                <Box sx={{ mt: 3 }}>
+                                    {isLoading ? (
+                                        <CircularProgress />
+                                    ) : (
+                                        <Fab
+                                            color="primary"
+                                            aria-label="Register User"
+                                            onClick={handleSubmit}
+                                        >
+                                            <HowToRegIcon fontSize="large" />
+                                        </Fab>
+                                    )}
+                                </Box>
+                            </>
+                        ) : (
+                            <Box sx={{ mt: 2 }}>
+                                <Typography variant="h4">
+                                    There are no shifts available for a sick request
+                                </Typography>
+                            </Box>
+                        )}
+                    </>
+                )}
+            </>
+        </FormCard>
     );
 };
 

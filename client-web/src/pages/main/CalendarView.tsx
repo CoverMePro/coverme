@@ -1,22 +1,18 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-
 import FullCalendar, { EventInput } from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction'; // needed for dayClick
-
-import { IShift } from 'models/Shift';
-import { ITimeOff } from 'models/TimeOff';
-
-import PageLoading from 'components/loading/PageLoading';
-
-import axios from 'utils/axios-intance';
-import { AxiosResponse } from 'axios';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PageLoading from 'components/loading/PageLoading';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import DataFilter from 'components/shared/DataFilter';
+import { IShift } from 'models/Shift';
+import { ITimeOff } from 'models/TimeOff';
+import axios from 'utils/axios-intance';
+import { AxiosResponse } from 'axios';
 
 const CalendarView: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);

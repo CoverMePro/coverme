@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import teamRoutes from './routes/teams';
 import shiftRoutes from './routes/shifts/shifts';
 import shiftTemplateRoutes from './routes/shifts/shift-templates';
+import shiftRotationRoutes from './routes/shifts/shift-rotations';
 import shiftTransactionRoutes from './routes/shifts/shift-transaction';
 import tradeRequestRoutes from './routes/requests/trade-requests';
 import timeOffRoutes from './routes/requests/time-off-requests';
@@ -15,6 +16,7 @@ import overtimeRoutes from './routes/overtime-callout';
 import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
+import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
 
 const app = express();
@@ -43,6 +45,7 @@ app.use('/users', userRoutes);
 app.use('/teams', teamRoutes);
 app.use('/shifts', shiftRoutes);
 app.use('/shift-templates', shiftTemplateRoutes);
+app.use('/shift-rotations', shiftRotationRoutes);
 app.use('/shift-transactions', shiftTransactionRoutes);
 app.use('/trade-request', tradeRequestRoutes);
 app.use('/time-off', timeOffRoutes);
@@ -50,6 +53,7 @@ app.use('/sick-requests', sickRequestRoutes);
 app.use('/messages', messageRoutes);
 
 app.post('/send-sms', sendSms);
+app.get('/test-not', testNot);
 
 exports.api = functions.https.onRequest(app);
 

@@ -1,10 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { IconButton, Menu, MenuItem } from '@mui/material';
-
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-
 import axios from 'utils/axios-intance';
 
 const SettingsMenu: React.FC = () => {

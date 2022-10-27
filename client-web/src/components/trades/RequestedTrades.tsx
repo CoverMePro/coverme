@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-
 import { Box } from '@mui/material';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-
+import BasicConfirmation from 'components/dialogs/BasicConfirmation';
+import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import { ITradeDisplay } from 'models/Trade';
 import { ISelectedAction } from 'models/TableInfo';
 import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
-
-import BasicConfirmation from 'components/dialogs/BasicConfirmation';
-import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-
 import axios from 'utils/axios-intance';
 
 interface IRequestedTradesProps {

@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useActions } from 'hooks/use-actions';
-
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
-
 import { IAuthInfo } from 'models/AuthInfo';
-
 import { hasPermission } from 'utils/validations/permissions';
 import axios from 'utils/axios-intance';
 

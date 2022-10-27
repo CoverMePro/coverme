@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 interface IFilterOptions {
@@ -31,10 +30,6 @@ const DataFilter: React.FC<IDataFilterProps> = ({ onFilterChange, filterValue, e
                 <MenuItem value={'company'}>Company Wide</MenuItem>
                 <MenuItem value={'teams'}>My Teams</MenuItem>
                 {extraOptions.map((option) => {
-                    if (!option.show) {
-                        return {};
-                    }
-
                     return (
                         <MenuItem key={option.value} value={option.value}>
                             {option.label}

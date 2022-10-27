@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
-
 import {
     Box,
     TextField,
@@ -19,10 +17,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import MuiPhoneNumber from 'material-ui-phone-number';
-
 import HowToRegIcon from '@mui/icons-material/Add';
-import logo from 'images/cover-me-logo.png';
-
+import FormCard from './FormCard';
 import { validateUserCreate } from 'utils/validations/user';
 import axios from 'utils/axios-intance';
 
@@ -122,214 +118,188 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     };
 
     return (
-        <Box
-            sx={{
-                width: { xs: '80%', s: 300, md: 500 },
-                borderRadius: 5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingY: 5,
-                    width: '80%',
-                }}
-            >
-                <img src={logo} width={100} alt="Cover Me Logo" />
-                <Typography sx={{ mb: 2 }} variant="h2">
-                    Register a User!
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Typography variant="body1">Test User</Typography>
-                    <Checkbox value={isTestUser} onChange={handleChangeTestUser} />
-                </Box>
+        <FormCard title=" Register a User">
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Typography variant="body1">Test User</Typography>
+                <Checkbox value={isTestUser} onChange={handleChangeTestUser} />
+            </Box>
 
-                <form onSubmit={handleSubmit}>
-                    <Box>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            variant="outlined"
-                            type="text"
-                            name="firstName"
-                            label="Fist Name"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.firstName &&
-                                errors.firstName !== undefined &&
-                                errors.firstName !== ''
-                            }
-                            helperText={touched.firstName ? errors.firstName : ''}
-                        />
-                    </Box>
+            <form onSubmit={handleSubmit}>
+                <Box>
+                    <TextField
+                        sx={{ width: '100%' }}
+                        variant="outlined"
+                        type="text"
+                        name="firstName"
+                        label="Fist Name"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={
+                            touched.firstName &&
+                            errors.firstName !== undefined &&
+                            errors.firstName !== ''
+                        }
+                        helperText={touched.firstName ? errors.firstName : ''}
+                    />
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                    <TextField
+                        sx={{ width: '100%' }}
+                        variant="outlined"
+                        type="text"
+                        name="lastName"
+                        label="Last Name"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={
+                            touched.lastName &&
+                            errors.lastName !== undefined &&
+                            errors.lastName !== ''
+                        }
+                        helperText={touched.lastName ? errors.lastName : ''}
+                    />
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                    <TextField
+                        sx={{ width: '100%' }}
+                        variant="outlined"
+                        type="email"
+                        name="email"
+                        label="Email"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.email && errors.email !== undefined && errors.email !== ''}
+                        helperText={touched.email ? errors.email : ''}
+                    />
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                    <FormControl component="fieldset">
+                        <RadioGroup
+                            row
+                            name="row-radio-buttons-group"
+                            onChange={handleChangeRole}
+                            defaultValue="staff"
+                        >
+                            <FormControlLabel value="manager" control={<Radio />} label="Manager" />
+                            <FormControlLabel value="staff" control={<Radio />} label="Staff" />
+                        </RadioGroup>
+                    </FormControl>
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                    <TextField
+                        sx={{ width: '100%' }}
+                        variant="outlined"
+                        type="text"
+                        name="position"
+                        label="Position"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={
+                            touched.position &&
+                            errors.position !== undefined &&
+                            errors.position !== ''
+                        }
+                        helperText={touched.position ? errors.position : ''}
+                    />
+                </Box>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box sx={{ mt: 2 }}>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            variant="outlined"
-                            type="text"
-                            name="lastName"
-                            label="Last Name"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.lastName &&
-                                errors.lastName !== undefined &&
-                                errors.lastName !== ''
-                            }
-                            helperText={touched.lastName ? errors.lastName : ''}
-                        />
-                    </Box>
-                    <Box sx={{ mt: 2 }}>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            variant="outlined"
-                            type="email"
-                            name="email"
-                            label="Email"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.email && errors.email !== undefined && errors.email !== ''
-                            }
-                            helperText={touched.email ? errors.email : ''}
-                        />
-                    </Box>
-                    <Box sx={{ mt: 2 }}>
-                        <FormControl component="fieldset">
-                            <RadioGroup
-                                row
-                                name="row-radio-buttons-group"
-                                onChange={handleChangeRole}
-                                defaultValue="staff"
-                            >
-                                <FormControlLabel
-                                    value="manager"
-                                    control={<Radio />}
-                                    label="Manager"
+                        <DatePicker
+                            renderInput={(props) => (
+                                <TextField
+                                    {...props}
+                                    fullWidth
+                                    name="hireDate"
+                                    value={values.hireDate}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    error={
+                                        touched.hireDate &&
+                                        errors.hireDate !== undefined &&
+                                        errors.hireDate !== ''
+                                    }
+                                    helperText={touched.hireDate ? errors.hireDate : ''}
                                 />
-                                <FormControlLabel value="staff" control={<Radio />} label="Staff" />
-                            </RadioGroup>
-                        </FormControl>
-                    </Box>
-                    <Box sx={{ mt: 2 }}>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            variant="outlined"
-                            type="text"
-                            name="position"
-                            label="Position"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.position &&
-                                errors.position !== undefined &&
-                                errors.position !== ''
-                            }
-                            helperText={touched.position ? errors.position : ''}
+                            )}
+                            InputProps={{ readOnly: true }}
+                            label="Hire Date"
+                            value={savedHireDate}
+                            onChange={(newValue, keyboardValue) => {
+                                if (newValue && keyboardValue === undefined) {
+                                    setSavedHireDate(newValue);
+                                    setValues({
+                                        ...values,
+                                        hireDate: newValue.toString(),
+                                    });
+                                } else if (keyboardValue !== undefined) {
+                                    setValues({
+                                        ...values,
+                                        hireDate: savedHireDate.toString(),
+                                    });
+                                }
+                            }}
                         />
                     </Box>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <Box sx={{ mt: 2 }}>
-                            <DatePicker
-                                renderInput={(props) => (
+                    <>
+                        {isTestUser && (
+                            <>
+                                <Box sx={{ mt: 2 }}>
                                     <TextField
-                                        {...props}
-                                        fullWidth
-                                        name="hireDate"
-                                        value={values.hireDate}
+                                        sx={{ mb: 2, width: '100%' }}
+                                        variant="outlined"
+                                        label="Password"
+                                        type="text"
+                                        name="password"
                                         onChange={handleChange}
                                         onBlur={handleBlur}
                                         error={
-                                            touched.hireDate &&
-                                            errors.hireDate !== undefined &&
-                                            errors.hireDate !== ''
+                                            touched.password &&
+                                            errors.password !== undefined &&
+                                            errors.password !== ''
                                         }
-                                        helperText={touched.hireDate ? errors.hireDate : ''}
+                                        helperText={touched.password ? errors.password : ''}
                                     />
-                                )}
-                                InputProps={{ readOnly: true }}
-                                label="Hire Date"
-                                value={savedHireDate}
-                                onChange={(newValue, keyboardValue) => {
-                                    if (newValue && keyboardValue === undefined) {
-                                        setSavedHireDate(newValue);
-                                        setValues({
-                                            ...values,
-                                            hireDate: newValue.toString(),
-                                        });
-                                    } else if (keyboardValue !== undefined) {
-                                        setValues({
-                                            ...values,
-                                            hireDate: savedHireDate.toString(),
-                                        });
-                                    }
-                                }}
-                            />
-                        </Box>
-                        <>
-                            {isTestUser && (
-                                <>
-                                    <Box sx={{ mt: 2 }}>
-                                        <TextField
-                                            sx={{ mb: 2, width: '100%' }}
-                                            variant="outlined"
-                                            label="Password"
-                                            type="text"
-                                            name="password"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            error={
-                                                touched.password &&
-                                                errors.password !== undefined &&
-                                                errors.password !== ''
-                                            }
-                                            helperText={touched.password ? errors.password : ''}
-                                        />
-                                    </Box>
-                                    <Box sx={{ mt: 2 }}>
-                                        <MuiPhoneNumber
-                                            defaultCountry={'ca'}
-                                            disableDropdown
-                                            sx={{ mb: 2, width: '40%' }}
-                                            variant="outlined"
-                                            label="Phone Number"
-                                            type="tel"
-                                            name="phone"
-                                            onChange={(e) => {
-                                                setValues({
-                                                    ...values,
-                                                    phone: e as string,
-                                                });
-                                            }}
-                                            onBlur={handleBlur}
-                                            error={
-                                                touched.phone &&
-                                                errors.phone !== undefined &&
-                                                errors.phone !== ''
-                                            }
-                                            helperText={touched.phone ? errors.phone : ''}
-                                        />
-                                    </Box>
-                                </>
-                            )}
-                        </>
-                    </LocalizationProvider>
-
-                    <Box sx={{ mt: 3 }}>
-                        {isLoading ? (
-                            <CircularProgress />
-                        ) : (
-                            <Fab color="primary" aria-label="Register User" type="submit">
-                                <HowToRegIcon fontSize="large" />
-                            </Fab>
+                                </Box>
+                                <Box sx={{ mt: 2 }}>
+                                    <MuiPhoneNumber
+                                        defaultCountry={'ca'}
+                                        disableDropdown
+                                        sx={{ mb: 2, width: '40%' }}
+                                        variant="outlined"
+                                        label="Phone Number"
+                                        type="tel"
+                                        name="phone"
+                                        onChange={(e) => {
+                                            setValues({
+                                                ...values,
+                                                phone: e as string,
+                                            });
+                                        }}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.phone &&
+                                            errors.phone !== undefined &&
+                                            errors.phone !== ''
+                                        }
+                                        helperText={touched.phone ? errors.phone : ''}
+                                    />
+                                </Box>
+                            </>
                         )}
-                    </Box>
-                </form>
-            </Box>
-        </Box>
+                    </>
+                </LocalizationProvider>
+
+                <Box sx={{ mt: 3 }}>
+                    {isLoading ? (
+                        <CircularProgress />
+                    ) : (
+                        <Fab color="primary" aria-label="Register User" type="submit">
+                            <HowToRegIcon fontSize="large" />
+                        </Fab>
+                    )}
+                </Box>
+            </form>
+        </FormCard>
     );
 };
 

@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
-
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
-
-import { Box, Typography, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
-
+import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
-
-import logo from 'images/cover-me-logo.png';
-
+import FormCard from './FormCard';
 import { IShift } from 'models/Shift';
 import { IOvertime } from 'models/Overtime';
-
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
-
 import { AxiosError } from 'axios';
 
 interface ICreateOvertimeCalloutFormProps {
@@ -112,74 +105,54 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
     }, [user.company]);
 
     return (
-        <Box
-            sx={{
-                width: { xs: '80%', s: 300, md: 500 },
-                borderRadius: 5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingY: 5,
-                    width: '80%',
-                }}
-            >
-                <img src={logo} width={100} alt="Cover Me Logo" />
-                <Typography sx={{ mb: 2 }} variant="h2">
-                    Overtime Callout
-                </Typography>
-                <>
-                    {isLoadingData ? (
-                        <Box>
-                            <CircularProgress />
-                        </Box>
-                    ) : (
-                        <>
-                            <Box sx={{ mt: 2 }}>
-                                <Autocomplete
-                                    options={unassignedShifts}
-                                    getOptionLabel={(option) =>
-                                        `${formatDateTimeOutputString(
+        <FormCard title="Overtime Callout">
+            <>
+                {isLoadingData ? (
+                    <Box>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <>
+                        <Box sx={{ mt: 2 }}>
+                            <Autocomplete
+                                options={unassignedShifts}
+                                getOptionLabel={(option) =>
+                                    `${formatDateTimeOutputString(
+                                        option.startDateTime,
+                                        option.endDateTime
+                                    )}`
+                                }
+                                renderOption={(props, option, { selected }) => (
+                                    <li {...props}>
+                                        {formatDateTimeOutputString(
                                             option.startDateTime,
                                             option.endDateTime
-                                        )}`
-                                    }
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            {formatDateTimeOutputString(
-                                                option.startDateTime,
-                                                option.endDateTime
-                                            )}
-                                        </li>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Select Unclaimed Shift" />
-                                    )}
-                                    onChange={handleShiftChange}
-                                />
-                            </Box>
-                            <Box sx={{ mt: 3 }}>
-                                {isLoading ? (
-                                    <CircularProgress />
-                                ) : (
-                                    <Fab
-                                        color="primary"
-                                        aria-label="Register User"
-                                        onClick={handleSubmit}
-                                    >
-                                        <HowToRegIcon fontSize="large" />
-                                    </Fab>
+                                        )}
+                                    </li>
                                 )}
-                            </Box>
-                        </>
-                    )}
-                </>
-            </Box>
-        </Box>
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Select Unclaimed Shift" />
+                                )}
+                                onChange={handleShiftChange}
+                            />
+                        </Box>
+                        <Box sx={{ mt: 3 }}>
+                            {isLoading ? (
+                                <CircularProgress />
+                            ) : (
+                                <Fab
+                                    color="primary"
+                                    aria-label="Register User"
+                                    onClick={handleSubmit}
+                                >
+                                    <HowToRegIcon fontSize="large" />
+                                </Fab>
+                            )}
+                        </Box>
+                    </>
+                )}
+            </>
+        </FormCard>
     );
 };
 

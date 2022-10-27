@@ -1,7 +1,7 @@
-import { IShiftTemplate } from 'models/ShiftTemplate';
+import { IShiftTemplateDisplay } from 'models/ShiftTemplate';
 import { IHeaderCells } from './HeaderCells';
 
-const headCells: IHeaderCells<IShiftTemplate>[] = [
+const headCells: IHeaderCells<IShiftTemplateDisplay>[] = [
     {
         id: 'name',
         numeric: false,
@@ -9,6 +9,14 @@ const headCells: IHeaderCells<IShiftTemplate>[] = [
         capitalize: true,
         sortable: true,
         label: 'Shift Name',
+    },
+    {
+        id: 'startTime',
+        numeric: false,
+        disablePadding: false,
+        label: 'Start Time',
+        sortable: true,
+        capitalize: true,
     },
     {
         id: 'duration',

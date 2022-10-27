@@ -21,3 +21,7 @@ export interface IShiftTransaction {
     startDate?: Date;
     endDate?: Date;
 }
+
+export interface IScheduleShiftCell {
+    id: number;
+}

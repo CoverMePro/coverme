@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
     Box,
     Table,
@@ -11,10 +10,8 @@ import {
     Paper,
     Checkbox,
 } from '@mui/material';
-
 import EnhancedTableToolbar from './EnhancedTableToolbar';
 import EnhancedTableHead from './EnhancedTableHead';
-
 import { IHeadCell, ISelectedAction, IUnselectedAction, Order } from 'models/TableInfo';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {

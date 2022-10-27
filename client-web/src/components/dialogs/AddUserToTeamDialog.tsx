@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
 import { useSnackbar } from 'notistack';
-
 import {
     Dialog,
     DialogTitle,
@@ -13,7 +11,6 @@ import {
     Button,
 } from '@mui/material';
 import { IUser } from 'models/User';
-
 import axios from 'utils/axios-intance';
 
 interface IAddUserDialogProps {

@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
-
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-
 import { ISelectedAction } from 'models/TableInfo';
 import { managerTimeOffHeadCells } from 'models/HeaderCells/TimeOffHeadCells';
 import { ITimeOffDisplay } from 'models/TimeOff';
-
 import BasicConfirmation from 'components/dialogs/BasicConfirmation';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-
 import axios from 'utils/axios-intance';
 
 interface IManagerLeaveRequestsProps {

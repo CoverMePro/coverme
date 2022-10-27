@@ -29,11 +29,13 @@
         "@types/react-redux": "^7.1.20",
         "axios": "^0.24.0",
         "date-fns": "^2.28.0",
+        "firebase": "^9.9.4",
         "formik": "^2.2.9",
         "history": "^5.1.0",
         "material-ui-phone-number": "^3.0.0",
         "notistack": "^2.0.3",
         "react": "^17.0.2",
+        "react-color": "^2.19.3",
         "react-date-range": "^1.4.0",
         "react-dom": "^17.0.2",
         "react-number-format": "^4.9.1",
@@ -44,8 +46,8 @@
         "web-vitals": "^1.1.2"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
+        "start": "react-scripts start && node envBuilder.js",
+        "build": "react-scripts build && node envBuilder.js",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "build:dev": "env-cmd -f .env.dev npm run build && firebase deploy -P dev",
@@ -70,6 +72,7 @@
         ]
     },
     "devDependencies": {
+        "@types/react-color": "^3.0.6",
         "@types/react-date-range": "^1.4.4",
         "env-cmd": "^10.1.0"
     }

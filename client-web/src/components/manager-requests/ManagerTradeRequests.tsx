@@ -1,9 +1,7 @@
 import React from 'react';
 import { Box, IconButton, Paper, Tooltip, Typography } from '@mui/material';
-
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import UndoIcon from '@mui/icons-material/Undo';
-
 import { IFullTradeDisplay } from 'models/Trade';
 
 interface IManagerTradeRequestsProps {

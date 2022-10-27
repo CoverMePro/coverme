@@ -1,49 +1,47 @@
 import { Request, Response } from 'express';
 import { IScheduleStaff } from '../models/ScheduleInfo';
 import { IShift, IShiftTemplate, mapToShift, mapToShiftDefinition } from '../models/Shift';
+import {
+    IShiftRotation,
+    IShiftRotationTransaction,
+    mapToShiftRotation,
+} from '../models/ShiftRotation';
 import { IShiftTransaction } from '../models/ShiftTransaction';
+import { ITeam, mapToTeams } from '../models/Team';
 import { ITimeOff, mapToTimeOff } from '../models/TimeOff';
 import { db } from '../utils/admin';
 import { formatFirestoreData } from '../utils/db-helpers';
 
 const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
-    const teamStaff: IScheduleStaff[] = [];
+    const staff: IScheduleStaff[] = [];
     let shifts: IShift[] = [];
-    const timeOff: ITimeOff[] = [];
-    const shiftDefs: IShiftTemplate[] = [];
+    let teams: ITeam[] = [];
+    let timeOff: ITimeOff[] = [];
+    let shiftDefs: IShiftTemplate[] = [];
+    let shiftRotations: IShiftRotation[] = [];
 
-    const teams: string[] = [];
+    //const teams: string[] = [];
 
     db.collection('users')
         .get()
         .then((staffData) => {
             staffData.forEach((user) => {
                 const userData = user.data();
-                if (userData.teams && userData.role !== 'owner' && userData.role !== 'manager') {
-                    for (let i = 0, len = userData.teams.length; i < len; i++) {
-                        const team = userData.teams[i];
-
-                        if (teams.findIndex((t) => t === team) === -1) {
-                            teams.push(team);
-                            teamStaff.push({
-                                id: `${team}-unclaimed`,
-                                team: team,
-                                userId: '',
-                                userName: `unclaimed`,
-                                title: `Unclaimed Shifts`,
-                            });
-                        }
-
-                        teamStaff.push({
-                            id: `${team}-${user.id}`,
-                            team: team,
-                            userId: user.id,
-                            userName: `${userData.firstName} ${userData.lastName}`,
-                            title: `${userData.firstName} ${userData.lastName}`,
-                        });
-                    }
+                if (userData.role === 'staff') {
+                    staff.push({
+                        id: user.id,
+                        teams: userData.teams ? userData.teams : [],
+                        userId: user.id,
+                        userName: `${userData.firstName} ${userData.lastName}`,
+                        title: `${userData.firstName} ${userData.lastName}`,
+                    });
                 }
             });
+
+            return db.collection(`/teams`).get();
+        })
+        .then((teamsDoc) => {
+            teams = formatFirestoreData(teamsDoc, mapToTeams);
 
             return db.collection(`/shifts`).get();
         })
@@ -53,27 +51,45 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
             return db.collection(`/time-off`).get();
         })
         .then((timeOffDocs) => {
-            timeOffDocs.forEach((doc) => {
-                timeOff.push(mapToTimeOff(doc.id, doc.data()));
-            });
+            timeOff = formatFirestoreData(timeOffDocs, mapToTimeOff);
 
             return db.collection(`/shift-templates`).get();
         })
         .then((shiftDefinitionDocs) => {
-            shiftDefinitionDocs.forEach((doc) => {
-                shiftDefs.push(mapToShiftDefinition(doc.id, doc.data()));
-            });
+            shiftDefs = formatFirestoreData(shiftDefinitionDocs, mapToShiftDefinition);
+
+            return db.collection('/shift-rotations').get();
+        })
+        .then((shiftRotationDocs) => {
+            shiftRotations = formatFirestoreData(shiftRotationDocs, mapToShiftRotation);
+
             return res.json({
-                teamStaff: teamStaff,
+                staff: staff,
                 shifts: shifts,
+                teams: teams,
                 timeOff: timeOff,
                 shiftDefs: shiftDefs,
+                rotations: shiftRotations,
             });
         })
         .catch((err) => {
             console.error(err);
             return res.status(500).json({ error: err.code });
         });
+};
+
+const getEndDate = (startDate: Date, duration: string) => {
+    const durHrs = duration?.substring(0, 2);
+    const durMin = duration?.substring(3);
+
+    const hours = parseInt(durHrs!, 10);
+    const mins = parseInt(durMin!, 10);
+
+    const endDate = new Date(startDate);
+
+    endDate.setTime(endDate.getTime() + hours * 60 * 60 * 1000 + mins * 60 * 1000);
+
+    return endDate;
 };
 
 /**
@@ -83,6 +99,7 @@ const transactionShifts = (req: Request, res: Response) => {
     const batch = db.batch();
 
     const transactions: IShiftTransaction[] = req.body.transactions;
+    const rotationTransactions: IShiftRotationTransaction[] = req.body.rotationTransactions;
 
     for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
@@ -112,6 +129,136 @@ const transactionShifts = (req: Request, res: Response) => {
         }
     }
 
+    for (let i = 0; i < rotationTransactions.length; i++) {
+        const rotTransaction = rotationTransactions[i];
+
+        const end = new Date(rotTransaction.endDate);
+        const rotation = rotTransaction.rotation;
+
+        for (let d = new Date(rotTransaction.startDate); d <= end; d.setDate(d.getDate() + 1)) {
+            let shiftStartDate: Date = new Date(d);
+            let shiftEndDate: Date = new Date(d);
+
+            let shiftName: String = 'test';
+
+            let foundShift = false;
+
+            switch (d.getDay()) {
+                case 0:
+                    if (rotation.shifts.sunday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.sunday.timeHour,
+                            rotation.shifts.sunday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(shiftStartDate, rotation.shifts.sunday.duration);
+                        shiftName = rotation.shifts.sunday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 1:
+                    if (rotation.shifts.monday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.monday.timeHour,
+                            rotation.shifts.monday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(shiftStartDate, rotation.shifts.monday.duration);
+                        shiftName = rotation.shifts.monday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 2:
+                    if (rotation.shifts.tuesday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.tuesday.timeHour,
+                            rotation.shifts.tuesday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(shiftStartDate, rotation.shifts.tuesday.duration);
+                        shiftName = rotation.shifts.tuesday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 3:
+                    if (rotation.shifts.wednesday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.wednesday.timeHour,
+                            rotation.shifts.wednesday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(
+                            shiftStartDate,
+                            rotation.shifts.wednesday.duration
+                        );
+                        shiftName = rotation.shifts.wednesday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 4:
+                    if (rotation.shifts.thursday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.thursday.timeHour,
+                            rotation.shifts.thursday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(
+                            shiftStartDate,
+                            rotation.shifts.thursday.duration
+                        );
+                        shiftName = rotation.shifts.thursday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 5:
+                    if (rotation.shifts.friday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.friday.timeHour,
+                            rotation.shifts.friday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(shiftStartDate, rotation.shifts.friday.duration);
+                        shiftName = rotation.shifts.friday.name;
+                        foundShift = true;
+                    }
+                    break;
+                case 6:
+                    if (rotation.shifts.saturday) {
+                        shiftStartDate = new Date(d);
+                        shiftStartDate.setHours(
+                            rotation.shifts.saturday.timeHour,
+                            rotation.shifts.saturday.timeMinute
+                        );
+
+                        shiftEndDate = getEndDate(
+                            shiftStartDate,
+                            rotation.shifts.saturday.duration
+                        );
+                        shiftName = rotation.shifts.saturday.name;
+                        foundShift = true;
+                    }
+                    break;
+            }
+
+            if (foundShift) {
+                batch.create(db.collection(`/shifts`).doc(), {
+                    name: shiftName,
+                    userId: rotTransaction.userId,
+                    userName: rotTransaction.userName,
+                    teamId: rotTransaction.teamId,
+                    startDateTime: shiftStartDate,
+                    endDateTime: shiftEndDate,
+                });
+            }
+        }
+    }
+
     batch
         .commit()
         .then(() => {
@@ -130,11 +277,7 @@ const createShiftTemplate = (req: Request, res: Response) => {
             return result.get();
         })
         .then((resultdata) => {
-            const shiftTemplate: IShiftTemplate = {
-                id: resultdata.id,
-                name: resultdata.data()!.name,
-                duration: resultdata.data()!.duration,
-            };
+            const shiftTemplate = mapToShiftDefinition(resultdata.id, resultdata.data);
             return res.json({ message: 'Shift definition created!', shiftTemplate: shiftTemplate });
         })
         .catch((err) => {
@@ -160,16 +303,53 @@ const getShiftTemplates = (_: Request, res: Response) => {
     db.collection(`/shift-templates`)
         .get()
         .then((shiftTemplateDocs) => {
-            const shiftTemplates: IShiftTemplate[] = [];
-            shiftTemplateDocs.forEach((shiftTemplateDoc) => {
-                shiftTemplates.push({
-                    id: shiftTemplateDoc.id,
-                    name: shiftTemplateDoc.data().name,
-                    duration: shiftTemplateDoc.data().duration,
-                });
-            });
+            const shiftTemplates = formatFirestoreData(shiftTemplateDocs, mapToShiftDefinition);
 
             return res.json(shiftTemplates);
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const createShiftRotation = (req: Request, res: Response) => {
+    const shiftRotationToAdd: IShiftRotation = req.body;
+    db.collection(`/shift-rotations`)
+        .add(shiftRotationToAdd)
+        .then((result) => {
+            return result.get();
+        })
+        .then((resultdata) => {
+            const shiftRotation = mapToShiftRotation(resultdata.id, resultdata.data());
+            return res.json({ message: 'Shift Rotation created!', shiftRotation: shiftRotation });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const deleteShiftRotation = (req: Request, res: Response) => {
+    const id = req.params.id;
+    db.doc(`/shift-rotations/${id}`)
+        .delete()
+        .then((result) => {
+            return res.json({ message: 'Shift template deleted!' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+const getShiftRotations = (req: Request, res: Response) => {
+    db.collection(`/shift-rotations`)
+        .get()
+        .then((shiftRotationDocs) => {
+            const shiftRotations = formatFirestoreData(shiftRotationDocs, mapToShiftRotation);
+
+            return res.json(shiftRotations);
         })
         .catch((err) => {
             console.error(err);
@@ -238,6 +418,9 @@ export default {
     createShiftTemplate,
     deleteShiftTemplate,
     getShiftTemplates,
+    createShiftRotation,
+    deleteShiftRotation,
+    getShiftRotations,
     getShiftFromUser,
     getShiftsFromTodayOnward,
     getShiftsFromDateRange,
