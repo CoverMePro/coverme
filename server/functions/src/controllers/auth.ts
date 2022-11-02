@@ -64,7 +64,7 @@ const registerUser = (req: Request, res: Response) => {
 };
 
 const completeRegisterUser = (req: Request, res: Response) => {
-    const { email, password, firstName, lastName, position, role, hireDate, phone } = req.body;
+    const { email, password, firstName, lastName, employeeType, role, hireDate, phone } = req.body;
 
     const newHiredate = new Date(new Date(hireDate as Date).setHours(24, 0, 0, 0));
 
@@ -76,7 +76,7 @@ const completeRegisterUser = (req: Request, res: Response) => {
                 email,
                 firstName,
                 lastName,
-                position,
+                employeeType,
                 role,
                 hireDate: newHiredate,
                 phone,

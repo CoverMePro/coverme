@@ -17,10 +17,6 @@ export const validateUserCreate = (values: any) => {
         errors.email = 'Must be an email address';
     }
 
-    if (isEmpty(values.position as string)) {
-        errors.position = 'Required';
-    }
-
     if (isEmpty(values.hireDate)) {
         errors.hireDate = 'Required';
     } else if (!isDate(values.hireDate)) {

@@ -10,6 +10,7 @@ const initialState: IUser = {
     phone: '',
     role: '',
     company: '',
+    employeeType: 'Full-Time',
     teams: [],
 };
 

@@ -244,11 +244,8 @@ const ScheduleView: React.FC = () => {
     const formatStaff = useCallback(
         (staff: any[], filterValue: string) => {
             console.log(staff);
-            console.log(user.role);
-            console.log(filterValue);
-
             if (user.role === 'owner') {
-                return [...allStaff];
+                return [...staff];
             }
 
             if (filterValue === 'teams' && user.teams) {
@@ -257,17 +254,14 @@ const ScheduleView: React.FC = () => {
                 });
                 return [...filteredStaff];
             } else {
-                console.log(allStaff);
-                return [...allStaff];
+                return [...staff];
             }
         },
-        [user, allStaff]
+        [user]
     );
 
     const handleFilterChange = (filterValue: string) => {
         setFilter(filterValue);
-
-        console.log(allStaff);
 
         setFilteredStaff(formatStaff(allStaff, filterValue));
     };
@@ -301,7 +295,6 @@ const ScheduleView: React.FC = () => {
             .get(`${process.env.REACT_APP_SERVER_API}/shifts`)
             .then((result: AxiosResponse) => {
                 setAllStaff([...result.data.staff]);
-                setFilteredStaff(formatStaff(result.data.staff, 'teams'));
                 setShiftDefs(result.data.shiftDefs);
                 setShiftRotations(result.data.rotations);
                 setTeams(result.data.teams);
@@ -313,7 +306,11 @@ const ScheduleView: React.FC = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [formatStaff, formatEvents]);
+    }, [formatEvents]);
+
+    useEffect(() => {
+        setFilteredStaff(formatStaff(allStaff, 'teams'));
+    }, [allStaff, formatStaff]);
 
     useEffect(() => {
         getShiftsFromTeams();
@@ -414,7 +411,7 @@ const ScheduleView: React.FC = () => {
                                 right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth',
                             }}
                             resourceAreaHeaderContent="Staff"
-                            //resourceGroupField="team"
+                            resourceGroupField="employeeType"
                             resources={filteredStaff}
                             editable
                             eventStartEditable

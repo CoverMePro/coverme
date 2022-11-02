@@ -34,6 +34,7 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
                         userId: user.id,
                         userName: `${userData.firstName} ${userData.lastName}`,
                         title: `${userData.firstName} ${userData.lastName}`,
+                        employeeType: userData.employeeType,
                     });
                 }
             });

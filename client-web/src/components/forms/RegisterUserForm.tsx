@@ -12,6 +12,10 @@ import {
     CircularProgress,
     Typography,
     Checkbox,
+    InputLabel,
+    Select,
+    MenuItem,
+    SelectChangeEvent,
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -31,11 +35,16 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isTestUser, setIsTestUser] = useState<boolean>(false);
     const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
+    const [employeeType, setEmployeeType] = useState<string>('Full-Time');
 
     const { enqueueSnackbar } = useSnackbar();
 
     const handleChangeRole = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRole((event.target as HTMLInputElement).value);
+    };
+
+    const handleEmployeeTypeChange = (event: SelectChangeEvent) => {
+        setEmployeeType(event.target.value as string);
     };
 
     const { handleSubmit, handleChange, handleBlur, setValues, values, touched, errors } =
@@ -51,8 +60,8 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
             },
             validate: validateUserCreate,
             onSubmit: (userValues: any) => {
-                const { email, firstName, lastName, position, password, phone } = userValues;
-
+                const { email, firstName, lastName, password, phone } = userValues;
+                console.log('TEST');
                 setIsLoading(true);
                 if (isTestUser) {
                     axios
@@ -61,7 +70,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                             firstName,
                             lastName,
                             role: role,
-                            position,
+                            employeeType: employeeType,
                             hireDate: savedHireDate,
                             password: password,
                             phone: phone,
@@ -88,7 +97,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                             firstName,
                             lastName,
                             role: role,
-                            position,
+                            employeeType: employeeType,
                             hireDate: savedHireDate,
                         })
                         .then((result) => {
@@ -186,21 +195,20 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
                     </FormControl>
                 </Box>
                 <Box sx={{ mt: 2 }}>
-                    <TextField
-                        sx={{ width: '100%' }}
-                        variant="outlined"
-                        type="text"
-                        name="position"
-                        label="Position"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.position &&
-                            errors.position !== undefined &&
-                            errors.position !== ''
-                        }
-                        helperText={touched.position ? errors.position : ''}
-                    />
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Employee Type</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={employeeType}
+                            label="Employee Type"
+                            onChange={handleEmployeeTypeChange}
+                        >
+                            <MenuItem value="Full-Time">Full-Time</MenuItem>
+                            <MenuItem value="Part-Time">Part-Time</MenuItem>
+                            <MenuItem value="Temp">Temp</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Box>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box sx={{ mt: 2 }}>

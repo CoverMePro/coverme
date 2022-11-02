@@ -1,3 +1,5 @@
+type EmployeeType = 'Full-Time' | 'Part-Time' | 'Temp';
+
 export interface IUser {
     id: string;
     email: string;
@@ -5,11 +7,11 @@ export interface IUser {
     lastName: string;
     phone: string;
     role: string;
+    employeeType: EmployeeType;
     company: string;
     teams: string[];
     hireDate?: Date | string;
     lastCalledOut?: any;
     location?: string;
     status?: string;
-    position?: string;
 }

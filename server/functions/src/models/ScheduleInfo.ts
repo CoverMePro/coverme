@@ -5,4 +5,5 @@ export interface IScheduleStaff {
     userId: string;
     userName: string;
     title: string;
+    employeeType: string;
 }

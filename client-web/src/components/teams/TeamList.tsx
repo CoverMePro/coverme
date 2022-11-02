@@ -40,7 +40,7 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
                     </ListItemAvatar>
                     <ListItemText
                         primary={`${user.firstName} ${user.lastName}`}
-                        secondary={user.position}
+                        secondary={user.employeeType}
                     />
                     <ListItemText
                         sx={{ width: '50%' }}
