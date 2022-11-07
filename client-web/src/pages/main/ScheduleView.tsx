@@ -410,6 +410,12 @@ const ScheduleView: React.FC = () => {
                                 center: 'title',
                                 right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth',
                             }}
+                            titleFormat={{
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                weekday: 'long',
+                            }}
                             resourceAreaHeaderContent="Staff"
                             resourceGroupField="employeeType"
                             resources={filteredStaff}

@@ -76,7 +76,7 @@ const EnhancedTable: React.FC<IEnhancedTableProps> = ({
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<string>('');
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: any) => {
         const isAsc = orderBy === property && order === 'asc';

@@ -27,6 +27,14 @@ const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
         .then((staffData) => {
             staffData.forEach((user) => {
                 const userData = user.data();
+                staff.push({
+                    id: 'unclaimed',
+                    teams: [],
+                    userId: 'unclaimed',
+                    userName: 'unassigned',
+                    title: 'unassigned',
+                    employeeType: 'unassigned',
+                });
                 if (userData.role === 'staff') {
                     staff.push({
                         id: user.id,

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSnackbar } from 'notistack';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { Box, Typography, Drawer, Divider, Avatar } from '@mui/material';
@@ -8,9 +9,21 @@ import SettingsMenu from 'components/navigation/SettingsMenu';
 import Navigation from 'components/navigation/Navigation';
 import MainSection from './MainSection';
 
+import { onMessageListener } from '../../messaging_init_in_sw';
+
 const Dashboard: React.FC = () => {
     const user = useTypedSelector((state) => state.user);
     const company = useTypedSelector((state) => state.company);
+
+    const { enqueueSnackbar } = useSnackbar();
+
+    onMessageListener()
+        .then((payload) => {
+            console.log('messageReceived');
+            console.log(payload);
+            enqueueSnackbar(`Message Received: ${payload.notification.body}`, { variant: 'info' });
+        })
+        .catch((err) => console.log('failed: ', err));
 
     return (
         <Box sx={{ display: 'flex' }}>
