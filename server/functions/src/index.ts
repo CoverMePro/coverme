@@ -14,9 +14,11 @@ import timeOffRoutes from './routes/requests/time-off-requests';
 import sickRequestRoutes from './routes/requests/sick-requests';
 import overtimeRoutes from './routes/overtime-callout';
 import messageRoutes from './routes/messages';
+import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
-import { testNot } from './utils/notifications';
+import { sendPushNotification, testNot } from './utils/notifications';
+import { INotification, mapToNotification } from './models/Notification';
 // import { callout } from './utils/overtime';
 
 const app = express();
@@ -51,11 +53,23 @@ app.use('/trade-request', tradeRequestRoutes);
 app.use('/time-off', timeOffRoutes);
 app.use('/sick-requests', sickRequestRoutes);
 app.use('/messages', messageRoutes);
+app.use('/notifications', notificationRoutes);
 
 app.post('/send-sms', sendSms);
-app.get('/test-not', testNot);
+app.post('/test-not', testNot);
 
 exports.api = functions.https.onRequest(app);
+
+exports.createNot = functions.firestore
+    .document('notifications/{notId}')
+    .onCreate((snap, context) => {
+        console.log('NOTIFICATION');
+        const notification: INotification = mapToNotification(snap.id, snap.data());
+
+        sendPushNotification(notification);
+
+        return true;
+    });
 
 // exports.scheduledFunctions = functions
 //     .runWith({ memory: '2GB' })

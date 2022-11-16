@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { INotification } from '../models/Notification';
 import { IScheduleStaff } from '../models/ScheduleInfo';
 import { IShift, IShiftTemplate, mapToShift, mapToShiftDefinition } from '../models/Shift';
 import {
@@ -110,8 +111,15 @@ const transactionShifts = (req: Request, res: Response) => {
     const transactions: IShiftTransaction[] = req.body.transactions;
     const rotationTransactions: IShiftRotationTransaction[] = req.body.rotationTransactions;
 
+    const usersNotified: string[] = [];
+
     for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
+
+        if (usersNotified.findIndex((id) => id === transaction.userId) === -1) {
+            usersNotified.push(transaction.userId);
+        }
+
         switch (transaction.type) {
             case 'add':
                 batch.create(db.collection(`/shifts`).doc(), {
@@ -140,6 +148,10 @@ const transactionShifts = (req: Request, res: Response) => {
 
     for (let i = 0; i < rotationTransactions.length; i++) {
         const rotTransaction = rotationTransactions[i];
+
+        if (usersNotified.findIndex((id) => id === rotTransaction.userId) === -1) {
+            usersNotified.push(rotTransaction.userId);
+        }
 
         const end = new Date(rotTransaction.endDate);
         const rotation = rotTransaction.rotation;
@@ -271,7 +283,21 @@ const transactionShifts = (req: Request, res: Response) => {
     batch
         .commit()
         .then(() => {
-            return res.json({ message: 'transactions completed!' });
+            const notification: INotification = {
+                messageTitle: 'Schedule updated!',
+                messageBody: 'Your schedule has changed, please view the calendar.',
+                usersNotified: usersNotified,
+            };
+
+            db.collection('/notifications')
+                .add(notification)
+                .then(() => {
+                    return res.json({ message: 'transactions completed!' });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    return res.status(500).json({ error: err.code });
+                });
         })
         .catch((err) => {
             return res.status(500).json({ error: err.code });

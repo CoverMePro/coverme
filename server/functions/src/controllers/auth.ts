@@ -279,6 +279,22 @@ const passwordReset = (req: Request, res: Response) => {
         });
 };
 
+const updateMessageToken = (req: Request, res: Response) => {
+    const { userId, token } = req.body;
+
+    db.doc(`message-tokens/${userId}`)
+        .set({
+            token: token,
+        })
+        .then(() => {
+            return res.json({ message: 'Token Set' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err });
+        });
+};
+
 export default {
     checkAuth,
     completeRegisterUser,
@@ -289,4 +305,5 @@ export default {
     logOut,
     registerCallback,
     passwordReset,
+    updateMessageToken,
 };

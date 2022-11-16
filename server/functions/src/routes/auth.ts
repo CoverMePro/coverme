@@ -13,5 +13,6 @@ router.post('/complete-register', authController.completeRegisterUser);
 router.post('/register', authController.registerUser);
 router.post('/signin', authController.signIn);
 router.post('/reset-password', authController.passwordReset);
+router.post('/update-message-token', authController.updateMessageToken);
 
 export default router;

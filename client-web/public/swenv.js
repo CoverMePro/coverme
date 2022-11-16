@@ -1,12 +1,12 @@
 
 const process = {
   env: {
-    APP_KEY: 'AIzaSyAWKeAFzmKcmcRz1si1NmmoSQCIxkO_90M',
-    AUTH_DOMAIN: 'coverme-47dc7.firebaseapp.com',
-    PROJECT_ID: 'coverme-47dc7',
-    STORAGE_BUCKET: 'coverme-47dc7.appspot.com',
-    SENDER_ID: '15415320328',
-    APP_ID: '1:15415320328:web:e39295f287accb8285d6bd',
-    MEASUREMENT_ID: 'G-7GEF1CWRVX'
+    APP_KEY: 'AIzaSyAqAw5iysh_Sr0WwzJmWJrHdharGNIrlQY',
+    AUTH_DOMAIN: 'covermeoakville.firebaseapp.com',
+    PROJECT_ID: 'covermeoakville',
+    STORAGE_BUCKET: 'covermeoakville.appspot.com',
+    SENDER_ID: '998439917940',
+    APP_ID: '1:998439917940:web:958d24d8b0ae4af028b421',
+    MEASUREMENT_ID: 'G-JYEH11B74S'
   }
 }

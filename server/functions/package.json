@@ -8,7 +8,8 @@
         "deploy": "firebase deploy --only functions",
         "logs": "firebase functions:log",
         "deploy:dev": "firebase deploy --only functions -P dev",
-        "deploy:demo": "firebase deploy --only functions -P demo"
+        "deploy:demo": "firebase deploy --only functions -P demo",
+        "deploy:oakville": "firebase deploy --only functions -P oakville"
     },
     "engines": {
         "node": "14"
