@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
+import { INotification, NotificationType } from '../models/Notification';
 import { mapToShift } from '../models/Shift';
 import { ISickRequest, mapToSickRequest } from '../models/Sick';
+import { ITeam, mapToTeams } from '../models/Team';
 import { db } from '../utils/admin';
 
 const createSickRequest = (req: Request, res: Response) => {
@@ -25,6 +27,21 @@ const createSickRequest = (req: Request, res: Response) => {
                 const shiftDoc = await db.doc(`/shifts/${sickRequest.shiftId}`).get();
 
                 sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
+
+                const teamDoc = await db.doc(`/teams/${sickRequest.teamId}`).get();
+
+                const team: ITeam = mapToTeams(teamDoc.id, teamDoc.data());
+
+                const managers = team.managers;
+
+                const notification: INotification = {
+                    messageTitle: 'Sick Request Pending',
+                    messageType: NotificationType.SICK,
+                    messageBody: 'There has been a sick request made.',
+                    usersNotified: managers,
+                };
+
+                await db.collection('/notifications').add(notification);
 
                 return res.json({ sickRequest: sickRequest });
             } catch (err) {
@@ -144,21 +161,33 @@ const getSickRequestsFromTeams = (req: Request, res: Response) => {
 const approveSickRequest = (req: Request, res: Response) => {
     const { id } = req.params;
 
+    let userId: string;
+
     db.doc(`/sick-requests/${id}`)
         .update({
             status: 'Approved',
         })
         .then(() => {
-            // Call out time, either here or front end
-            // remove shift from user
-            // TO DO: Create callout from here
             return db.doc(`/sick-requests/${id}`).get();
         })
         .then((sickRequestDoc) => {
-            const shiftId = sickRequestDoc.data()!.shiftId;
-            return db.doc(`/shifts/${shiftId}`).update({
+            const sickRequest = mapToSickRequest(sickRequestDoc.id, sickRequestDoc.data());
+
+            userId = sickRequest.userId;
+
+            return db.doc(`/shifts/${sickRequest.shiftId}`).update({
                 userId: 'unclaimed',
             });
+        })
+        .then(() => {
+            const notification: INotification = {
+                messageTitle: 'Sick Request Approved',
+                messageType: NotificationType.SICK,
+                messageBody: 'Your sick request has been approved.',
+                usersNotified: [userId],
+            };
+
+            return db.collection('/notifications').add(notification);
         })
         .then(() => {
             return res.json({ message: 'Sick request approved.' });
@@ -170,11 +199,21 @@ const approveSickRequest = (req: Request, res: Response) => {
 };
 
 const rejectSickRequest = (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { id, userId } = req.params;
 
     db.doc(`/sick-requests/${id}`)
         .update({
             status: 'Rejected',
+        })
+        .then(() => {
+            const notification: INotification = {
+                messageTitle: 'Sick Request Approved',
+                messageType: NotificationType.SICK,
+                messageBody: 'Your sick request has been approved.',
+                usersNotified: [userId],
+            };
+
+            return db.collection('/notifications').add(notification);
         })
         .then(() => {
             return res.json({ message: 'Sick request rejected.' });

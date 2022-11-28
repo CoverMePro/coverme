@@ -14,6 +14,7 @@ const createTimeOffRequest = (req: Request, res: Response) => {
         .add(timeOffRequest)
         .then((result) => {
             timeOffRequest.id = result.id;
+
             return res.json({ timeOffRequest: timeOffRequest });
         })
         .catch((err) => {

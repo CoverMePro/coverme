@@ -14,4 +14,5 @@ export interface IUser {
     lastCalledOut?: any;
     location?: string;
     status?: string;
+    reportTo?: string[];
 }

@@ -53,12 +53,13 @@ const Dashboard: React.FC = () => {
                 variant: 'info',
             });
 
-            const newNotifications = [
+            const newNotifications: INotification[] = [
                 ...notifications,
                 {
                     id: payload.data.id,
                     messageTitle: payload.notification.title,
                     messageBody: payload.notification.body,
+                    messageType: payload.notification.type,
                 },
             ];
 

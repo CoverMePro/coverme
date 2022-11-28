@@ -18,6 +18,7 @@ export interface IUser {
     status: string;
     teams: string[];
     location?: string;
+    reportTo?: string[];
 }
 
 export const mapToUser = (id: string, data: any): IUser => {

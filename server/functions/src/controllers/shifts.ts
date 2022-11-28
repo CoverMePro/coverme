@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { INotification } from '../models/Notification';
+import { INotification, NotificationType } from '../models/Notification';
 import { IScheduleStaff } from '../models/ScheduleInfo';
 import { IShift, IShiftTemplate, mapToShift, mapToShiftDefinition } from '../models/Shift';
 import {
@@ -285,6 +285,7 @@ const transactionShifts = (req: Request, res: Response) => {
         .then(() => {
             const notification: INotification = {
                 messageTitle: 'Schedule updated!',
+                messageType: NotificationType.SHIFT,
                 messageBody: 'Your schedule has changed, please view the calendar.',
                 usersNotified: usersNotified,
             };
