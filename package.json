@@ -1,0 +1,13 @@
+{
+    "name": "root",
+    "private": true,
+    "workspaces": [
+        "packages/client-web",
+        "packages/coverme-shared",
+        "packages/server/functions"
+    ],
+    "devDependencies": {
+        "lerna": "^6.0.3",
+        "nx": "^15.2.1"
+    }
+}

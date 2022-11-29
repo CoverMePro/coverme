@@ -1,0 +1,5 @@
+{
+    "packages": ["packages/client-web", "packages/coverme-shared", "packages/server/functions"],
+    "useNx": true,
+    "version": "0.0.0"
+}

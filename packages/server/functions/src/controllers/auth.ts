@@ -9,7 +9,8 @@ import { db, fbAuth, fbAdmin } from '../utils/admin';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
 import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
 import { updateNewUserIntoDb } from '../utils/db-helpers';
-import { ICompany, mapToCompany } from '../models/Company';
+
+import { ICompany, MapFireStoreData } from 'coverme-models/lib';
 
 const registerUser = (req: Request, res: Response) => {
     const { email, password, phone } = req.body;
@@ -150,7 +151,7 @@ const signIn = (req: Request, res: Response) => {
             return db.doc('/company/info').get();
         })
         .then((companyDoc) => {
-            companyInfo = mapToCompany(companyDoc.data());
+            companyInfo = MapFireStoreData(companyDoc.id, companyDoc.data(), false);
 
             const cookieOptions = {
                 maxAge: expiresIn,
@@ -252,7 +253,11 @@ const checkAuth = async (req: Request, res: Response) => {
                 const companyData = await db.doc('/company/info').get();
 
                 const userInfo: IUser = mapToUser(userData.id, userData.data());
-                const companyInfo: ICompany = mapToCompany(companyData.data());
+                const companyInfo: ICompany = MapFireStoreData(
+                    companyData.id,
+                    companyData.data(),
+                    false
+                );
 
                 return res.json({ userInfo: userInfo, companyInfo: companyInfo });
             } else {

@@ -19,7 +19,9 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoginIcon from '@mui/icons-material/Login';
 import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
 import { IUser } from 'models/User';
-import { ICompany } from 'models/Company';
+
+import { ICompany } from 'coverme-models/lib/index';
+
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 import { validateLogin } from 'utils/validations/auth';
@@ -59,6 +61,9 @@ const LoginView: React.FC = () => {
                 .then((result) => {
                     const userData: IUser = result.data.user;
                     const companyData: ICompany = result.data.companyInfo;
+
+                    console.log(companyData);
+
                     setUser(userData);
                     setCompany(companyData);
                     setIsLoggingIn(false);
