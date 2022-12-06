@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { managerSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
-import { ISickDisplay } from 'models/Sick';
-import { ISelectedAction } from 'models/TableInfo';
+import { managerSickHeadCells, ISickDisplay, ISelectedAction } from 'coverme-shared';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import BasicConfirmation from 'components/dialogs/BasicConfirmation';
 import axios from 'utils/axios-intance';

@@ -1,7 +1,15 @@
-import { IShiftTemplate, IShiftTemplateDisplay } from 'models/ShiftTemplate';
-import { ISickDisplay, ISickRequest } from 'models/Sick';
-import { ITimeOffDisplay, ITimeOffRequest } from 'models/TimeOff';
-import { IFullTradeDisplay, ITradeDisplay, ITradeRequest, IUserTradeInfo } from 'models/Trade';
+import {
+    IShiftTemplate,
+    IShiftTemplateDisplay,
+    IFullTradeDisplay,
+    ITradeDisplay,
+    ITradeRequest,
+    IUserTradeInfo,
+    ISickDisplay,
+    ISickRequest,
+    ITimeOffDisplay,
+    ITimeOffRequest,
+} from 'coverme-shared';
 import {
     formatDateTimeOutputString,
     formatDateString,
@@ -9,11 +17,11 @@ import {
     formatDurationClean,
 } from './dateTime-formatter';
 
-const getStatus = (status: 'Pending' | 'Approved' | 'Rejected') => {
+const getStatus = (status: 'Pending' | 'Accepted' | 'Rejected') => {
     switch (status) {
         case 'Pending':
             return "Waiting for staff member's response";
-        case 'Approved':
+        case 'Accepted':
             return 'Approved';
         case 'Rejected':
             return 'Rejected';
@@ -35,21 +43,21 @@ export const formatTradeDisplay = (
             : listUser(tradeRequest.proposedUser!),
         tradingShift: isProposed
             ? formatDateTimeOutputString(
-                  tradeRequest.proposedShift!.startDateTime,
-                  tradeRequest.proposedShift!.endDateTime
+                  tradeRequest.proposedShift!.startDateTime as string,
+                  tradeRequest.proposedShift!.endDateTime as string
               )
             : formatDateTimeOutputString(
-                  tradeRequest.requestedShift!.startDateTime,
-                  tradeRequest.requestedShift!.endDateTime
+                  tradeRequest.requestedShift!.startDateTime as string,
+                  tradeRequest.requestedShift!.endDateTime as string
               ),
         receiveShift: isProposed
             ? formatDateTimeOutputString(
-                  tradeRequest.requestedShift!.startDateTime,
-                  tradeRequest.requestedShift!.endDateTime
+                  tradeRequest.requestedShift!.startDateTime as string,
+                  tradeRequest.requestedShift!.endDateTime as string
               )
             : formatDateTimeOutputString(
-                  tradeRequest.proposedShift!.startDateTime,
-                  tradeRequest.proposedShift!.endDateTime
+                  tradeRequest.proposedShift!.startDateTime as string,
+                  tradeRequest.proposedShift!.endDateTime as string
               ),
         archiveUsers: tradeRequest.archiveUsers,
         status: getStatus(tradeRequest.status),
@@ -63,12 +71,12 @@ export const formatFullTradeDisplay = (tradeRequest: ITradeRequest): IFullTradeD
         proposedUser: listName(tradeRequest.proposedUser),
         receivingUser: listName(tradeRequest.requestedUser),
         proposedUserShiftTrading: formatDateTimeOutputString(
-            tradeRequest.proposedShift!.startDateTime,
-            tradeRequest.proposedShift!.endDateTime
+            tradeRequest.proposedShift!.startDateTime as string,
+            tradeRequest.proposedShift!.endDateTime as string
         ),
         recivingUserShiftTrading: formatDateTimeOutputString(
-            tradeRequest.requestedShift!.startDateTime,
-            tradeRequest.requestedShift!.endDateTime
+            tradeRequest.requestedShift!.startDateTime as string,
+            tradeRequest.requestedShift!.endDateTime as string
         ),
     };
 };
@@ -79,8 +87,8 @@ export const formatSickDisplay = (sickRequest: ISickRequest): ISickDisplay => {
         date: formatDateString(sickRequest.requestDate!),
         user: sickRequest.user!,
         shift: formatDateTimeOutputString(
-            sickRequest.shift!.startDateTime,
-            sickRequest.shift!.endDateTime
+            sickRequest.shift!.startDateTime as string,
+            sickRequest.shift!.endDateTime as string
         ),
         status: sickRequest.status!,
     };

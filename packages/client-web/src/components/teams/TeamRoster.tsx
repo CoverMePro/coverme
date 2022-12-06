@@ -19,12 +19,11 @@ import TeamList from './TeamList';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import AddUserToTeamDialog from 'components/dialogs/AddUserToTeamDialog';
-import { ITeamInfo } from 'models/Team';
-import { IUser } from 'models/User';
+import { ITeam, IUser } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 
 interface ITeamRosterProps {
-    team: ITeamInfo;
+    team: ITeam;
     onOpenDeleteTeam: (teamName: string) => void;
 }
 
@@ -51,35 +50,34 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
         return teams.findIndex((teamName) => teamName === team.name) > -1;
     };
 
-    const handleOpenRoster =
-        (team: ITeamInfo) => (_: React.SyntheticEvent, isExpanded: boolean) => {
-            setExpanded(isExpanded);
+    const handleOpenRoster = (team: ITeam) => (_: React.SyntheticEvent, isExpanded: boolean) => {
+        setExpanded(isExpanded);
 
-            if (isExpanded && !hasLoaded) {
-                setLoadingManagers([...team.managers]);
-                setLoadingStaff([...team.staff]);
-                const emails = [...team.managers, ...team.staff];
-                if (emails.length > 0) {
-                    axios
-                        .post(`${process.env.REACT_APP_SERVER_API}/users`, {
-                            emails,
-                        })
-                        .then((result) => {
-                            const { managers, staff } = result.data;
-                            setManagers(managers);
-                            setStaff(staff);
-                            setHasLoaded(true);
-                        })
-                        .catch((err) => {
-                            console.error(err);
-                        })
-                        .finally(() => {
-                            setLoadingManagers([]);
-                            setLoadingStaff([]);
-                        });
-                }
+        if (isExpanded && !hasLoaded) {
+            setLoadingManagers([...team.managers]);
+            setLoadingStaff([...team.staff]);
+            const emails = [...team.managers, ...team.staff];
+            if (emails.length > 0) {
+                axios
+                    .post(`${process.env.REACT_APP_SERVER_API}/users`, {
+                        emails,
+                    })
+                    .then((result) => {
+                        const { managers, staff } = result.data;
+                        setManagers(managers);
+                        setStaff(staff);
+                        setHasLoaded(true);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    })
+                    .finally(() => {
+                        setLoadingManagers([]);
+                        setLoadingStaff([]);
+                    });
             }
-        };
+        }
+    };
 
     const handleDeleteTeam = () => {
         onOpenDeleteTeam(team.name);

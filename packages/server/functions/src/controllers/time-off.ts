@@ -1,154 +1,170 @@
 import { Request, Response } from 'express';
-import { ITimeOffRequest, mapToTimeOffRequest } from '../models/TimeOff';
-import { db } from '../utils/admin';
-import { formatFirestoreData } from '../utils/db-helpers';
+import { ITeam, ITimeOff, ITimeOffRequest } from 'coverme-shared';
+import {
+    addDocument,
+    deleteDocument,
+    getCollection,
+    getCollectionChainedConditions,
+    getCollectionWithCondition,
+    getData,
+    getDocumentById,
+    updateDocument,
+} from '../db/db-handler';
 
-const createTimeOffRequest = (req: Request, res: Response) => {
+const createTimeOffRequest = async (req: Request, res: Response) => {
     const timeOffRequest: ITimeOffRequest = req.body;
 
     timeOffRequest.requestDate = new Date(timeOffRequest.requestDate!);
     timeOffRequest.timeOffStart = new Date(timeOffRequest.timeOffStart!);
     timeOffRequest.timeOffEnd = new Date(timeOffRequest.timeOffEnd!);
 
-    db.collection(`/time-off-requests`)
-        .add(timeOffRequest)
-        .then((result) => {
-            timeOffRequest.id = result.id;
+    try {
+        const timeOffAdded = await addDocument('time-off-requests', timeOffRequest);
 
-            return res.json({ timeOffRequest: timeOffRequest });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(timeOffAdded);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getAllTimeOffRequest = (req: Request, res: Response) => {
-    db.collection(`/time-off-requests`)
-        .get()
-        .then((timeoffRequestDocs) => {
-            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
+const getAllTimeOffRequest = async (req: Request, res: Response) => {
+    try {
+        const timeOffRequests = await getCollection<ITimeOffRequest>('time-off-requests');
 
-            return res.json({ timeOffRequests: timeOffRequests });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(timeOffRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getTimeOffFromTeams = (req: Request, res: Response) => {
+const getTimeOffFromTeams = async (req: Request, res: Response) => {
     const teams = req.body.teams;
 
     let users: string[] = [];
 
-    db.collection(`/teams`)
-        .where('__name__', 'in', teams)
-        .get()
-        .then((teamResult) => {
-            teamResult.forEach((team) => {
-                const teamData = team.data();
+    try {
+        const retreivedTeams = await getCollectionWithCondition<ITeam>(
+            'teams',
+            '__name__',
+            'in',
+            teams
+        );
 
-                if (teamData.staff) {
-                    users = [...users, ...teamData.staff];
-                }
-            });
-
-            console.error(users);
-
-            return db
-                .collection(`/time-off-requests`)
-                .where('userId', 'in', users)
-                .where('status', '==', 'Pending')
-                .get();
-        })
-        .then((timeoffRequestDocs) => {
-            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
-
-            return res.json({ timeOffRequests: timeOffRequests });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+        retreivedTeams.forEach((team) => {
+            if (team.staff) {
+                users = [...users, ...team.staff];
+            }
         });
+
+        const timeOffRequests = await getCollectionChainedConditions<ITimeOffRequest>(
+            'time-off-requests',
+            [
+                {
+                    property: 'userId',
+                    operator: 'in',
+                    value: users,
+                },
+                {
+                    property: 'status',
+                    operator: '==',
+                    value: 'Pending',
+                },
+            ]
+        );
+
+        return res.json(timeOffRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getUserTimeOffRequest = (req: Request, res: Response) => {
+const getUserTimeOffRequest = async (req: Request, res: Response) => {
     const { user } = req.params;
 
-    db.collection(`/time-off-requests`)
-        .where('userId', '==', user)
-        .get()
-        .then((timeoffRequestDocs) => {
-            const timeOffRequests = formatFirestoreData(timeoffRequestDocs, mapToTimeOffRequest);
+    try {
+        const timeOffRequests = await getCollectionWithCondition<ITimeOffRequest>(
+            'time-off-requests',
+            'userId',
+            '==',
+            user
+        );
 
-            return res.json({ timeOffRequests: timeOffRequests });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(timeOffRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const approveTimeOffRequest = (req: Request, res: Response) => {
+const approveTimeOffRequest = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    db.doc(`/time-off-requests/${id}`)
-        .update({
+    try {
+        await updateDocument<ITimeOffRequest>('time-off-requests', id, {
             status: 'Approved',
-        })
-        .then(() => {
-            return db.doc(`/time-off-requests/${id}`).get();
-        })
-        .then((timeOffRequestResult) => {
-            const timeOffData = timeOffRequestResult.data()!;
-
-            return db.collection(`/time-off`).add({
-                name: timeOffData.type,
-                startDateTime: timeOffData.timeOffStart,
-                endDateTime: timeOffData.timeOffEnd,
-                userId: timeOffData.userId,
-                userName: timeOffData.userName,
-                teams: timeOffData.teams,
-            });
-        })
-        .then(() => {
-            return res.json({ message: 'time off request approved.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
         });
+
+        const timeOffRequest = await getDocumentById<ITimeOffRequest>('time-off-requests', id);
+
+        const timeOffData = getData(timeOffRequest);
+
+        await addDocument<ITimeOff>('time-off', {
+            name: timeOffData.type,
+            startDateTime: timeOffData.timeOffStart,
+            endDateTime: timeOffData.timeOffEnd,
+            userId: timeOffData.userId,
+            userName: timeOffData.userName,
+            teams: timeOffData.teams,
+        });
+
+        return res.json({ message: 'time off request approved.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const rejectTimeOffRequest = (req: Request, res: Response) => {
+const rejectTimeOffRequest = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    db.doc(`/time-off-requests/${id}`)
-        .update({
-            status: 'Rejected',
-        })
-        .then(() => {
-            return res.json({ message: 'time off request rejected.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+    try {
+        await updateDocument<ITimeOffRequest>('time-off-requests', id, {
+            status: 'Declined',
         });
+
+        const timeOffRequest = await getDocumentById<ITimeOffRequest>('time-off-requests', id);
+
+        const timeOffData = getData(timeOffRequest);
+
+        await addDocument<ITimeOff>('time-off', {
+            name: timeOffData.type,
+            startDateTime: timeOffData.timeOffStart,
+            endDateTime: timeOffData.timeOffEnd,
+            userId: timeOffData.userId,
+            userName: timeOffData.userName,
+            teams: timeOffData.teams,
+        });
+
+        return res.json({ message: 'time off request declined.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteTimeOffRequest = (req: Request, res: Response) => {
+const deleteTimeOffRequest = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    db.doc(`/time-off/${id}`)
-        .delete()
-        .then(() => {
-            return res.json({ message: 'Time off request deleted.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        await deleteDocument('time-off', id);
+        return res.json({ message: 'Time off request deleted.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {

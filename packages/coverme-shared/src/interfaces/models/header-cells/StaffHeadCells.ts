@@ -1,7 +1,7 @@
 import { IUser } from '../User';
 import { IHeaderCells } from './HeaderCells';
 
-const headCells: IHeaderCells<IUser>[] = [
+export const StaffHeadCells: IHeaderCells<IUser>[] = [
     {
         id: 'email',
         numeric: false,
@@ -43,7 +43,7 @@ const headCells: IHeaderCells<IUser>[] = [
         capitalize: true,
     },
     {
-        id: 'hireDate',
+        id: 'hireDateDisplay',
         numeric: false,
         disablePadding: false,
         label: 'Hire Date',
@@ -67,5 +67,3 @@ const headCells: IHeaderCells<IUser>[] = [
         capitalize: true,
     },
 ];
-
-export default headCells;

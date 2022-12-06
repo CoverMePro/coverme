@@ -3,7 +3,7 @@ import { Box, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IShiftRotation } from 'models/ShiftRotation';
+import { IShiftRotation } from 'coverme-shared';
 import { formatAMPM, formatDurationClean } from 'utils/formatters/dateTime-formatter';
 
 interface IWeekRotationGridProps {

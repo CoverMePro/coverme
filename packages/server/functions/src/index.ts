@@ -18,7 +18,8 @@ import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
 import { sendPushNotification, testNot } from './utils/notifications';
-import { INotification, mapToNotification } from './models/Notification';
+import { INotification } from 'coverme-shared';
+import { mapFireStoreData } from './utils/db-helpers';
 // import { callout } from './utils/overtime';
 
 const app = express();
@@ -64,7 +65,7 @@ exports.createNot = functions.firestore
     .document('notifications/{notId}')
     .onCreate((snap, context) => {
         console.log('NOTIFICATION');
-        const notification: INotification = mapToNotification(snap.id, snap.data());
+        const notification: INotification = mapFireStoreData(snap.id, snap.data());
 
         sendPushNotification(notification);
 

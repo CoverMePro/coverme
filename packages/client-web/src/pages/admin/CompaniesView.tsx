@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 
-import companyHeadCells from 'models/HeaderCells/CompanyHeadCells';
 import { Box, CircularProgress } from '@mui/material';
-import { ICompany } from 'models/Company';
+import { ICompany, CompanyHeadCells } from 'coverme-shared';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateCompanyForm from 'components/forms/company/CreateCompanyForm';
@@ -116,7 +115,7 @@ const CompaniesView: React.FC = () => {
                     <EnhancedTable
                         title="Company List"
                         data={companies}
-                        headerCells={companyHeadCells}
+                        headerCells={CompanyHeadCells}
                         id="name"
                         selected={selected}
                         onSelect={handleSelectCompany}

@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import FormCard from './FormCard';
 import HowToRegIcon from '@mui/icons-material/Add';
-import { IMessage } from 'models/Message';
+import { IMessage } from 'coverme-shared';
 import { validateCreateMessage } from 'utils/validations/message';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';

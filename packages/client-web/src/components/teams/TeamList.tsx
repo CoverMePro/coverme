@@ -5,7 +5,7 @@ import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
-import { IUser } from 'models/User';
+import { IUser } from 'coverme-shared';
 
 import PermissionCheck from 'components/auth/PermissionCheck';
 

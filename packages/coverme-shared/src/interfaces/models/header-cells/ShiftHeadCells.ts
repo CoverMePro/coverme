@@ -1,7 +1,7 @@
 import { IShiftTemplateDisplay } from '../displays/ShiftTemplateDisplay';
 import { IHeaderCells } from './HeaderCells';
 
-const headCells: IHeaderCells<IShiftTemplateDisplay>[] = [
+export const ShiftHeadCells: IHeaderCells<IShiftTemplateDisplay>[] = [
     {
         id: 'name',
         numeric: false,
@@ -27,5 +27,3 @@ const headCells: IHeaderCells<IShiftTemplateDisplay>[] = [
         capitalize: true,
     },
 ];
-
-export default headCells;

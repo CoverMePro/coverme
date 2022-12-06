@@ -8,7 +8,7 @@ import PermissionCheck from 'components/auth/PermissionCheck';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateMessageForm from 'components/forms/CreateMessageForm';
 import DataFilter from 'components/shared/DataFilter';
-import { IMessage } from 'models/Message';
+import { IMessage } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
 

@@ -1,83 +1,48 @@
 import { Request, Response } from 'express';
-import { mapToShift } from '../models/Shift';
-import { ITradeRequest, mapToTradeRequest } from '../models/Trade';
-import { db } from '../utils/admin';
+import { IShift, ITeam, ITradeRequest } from 'coverme-shared';
+import dbHandler from '../db/db-handler';
+import { getBatch } from '../db/batch-handler';
 
-const createTradeRequest = (req: Request, res: Response) => {
+const createTradeRequest = async (req: Request, res: Response) => {
     const tradeRequest: ITradeRequest = req.body;
-
-    let fetchedTradeRequest: ITradeRequest;
 
     tradeRequest.proposedDate = new Date(tradeRequest.proposedDate!);
 
-    db.collection(`/trade-requests`)
-        .add(tradeRequest)
-        .then((result) => {
-            return result.get();
-        })
-        .then((tradeRequestDoc) => {
-            fetchedTradeRequest = mapToTradeRequest(tradeRequestDoc.id, tradeRequestDoc.data());
+    try {
+        const tradeRequestAdded = await dbHandler.addDocument<ITradeRequest>(
+            'trade-requests',
+            tradeRequest
+        );
+        const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+            'shifts',
+            '__name__',
+            'in',
+            [tradeRequest.proposedShiftId, tradeRequest.requestedShiftId]
+        );
 
-            return db
-                .collection(`/shifts`)
-                .where('__name__', 'in', [
-                    tradeRequest.proposedShiftId,
-                    tradeRequest.requestedShiftId,
-                ])
-                .get();
-            //
-        })
-        .then((shiftDocs) => {
-            shiftDocs.forEach((shiftDoc) => {
-                if (fetchedTradeRequest.proposedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data());
-                }
+        shifts.forEach((shift) => {
+            if (tradeRequestAdded.proposedShiftId === shift.id) {
+                tradeRequestAdded.proposedShift = shift;
+            }
 
-                if (fetchedTradeRequest.requestedShiftId === shiftDoc.id) {
-                    fetchedTradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data());
-                }
-            });
-
-            return res.json({
-                message: 'Trade request created!',
-                tradeRequest: fetchedTradeRequest,
-            });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+            if (tradeRequestAdded.requestedShiftId === shift.id) {
+                tradeRequestAdded.requestedShift = shift;
+            }
         });
+
+        return res.json(tradeRequestAdded);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getUserTradeRequest = async (req: Request, res: Response) => {
-    const user = req.params.user;
-
-    let tradeRequests: ITradeRequest[] = [];
-    const shiftIds: string[] = [];
+const getAllTradeRequests = async (req: Request, res: Response) => {
     try {
-        const proposedTrades = db
-            .collection(`/trade-requests`)
-            .where('proposedUserId', '==', user)
-            .get();
+        let tradeRequests = await dbHandler.getCollection<ITradeRequest>('trade-requests');
+        const shiftIds: string[] = [];
 
-        const requestedTrades = db
-            .collection(`/trade-requests`)
-            .where('requestedUserId', '==', user)
-            .get();
-
-        const [proposedTradeSnapshot, requestedTradesSnapshot] = await Promise.all([
-            proposedTrades,
-            requestedTrades,
-        ]);
-
-        const tradeRequestDocs = proposedTradeSnapshot.docs.concat(requestedTradesSnapshot.docs);
-
-        tradeRequestDocs.forEach((tradeRequestDoc) => {
-            const tradeRequest: ITradeRequest = mapToTradeRequest(
-                tradeRequestDoc.id,
-                tradeRequestDoc.data()
-            );
-
+        tradeRequests.forEach((tradeRequest) => {
             if (
                 shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) === -1
             ) {
@@ -90,26 +55,26 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
             ) {
                 shiftIds.push(tradeRequest.requestedShiftId!);
             }
-
-            tradeRequests.push(tradeRequest);
         });
 
         if (shiftIds.length > 0) {
-            const shiftSnapshot = await db
-                .collection(`/shifts`)
-                .where('__name__', 'in', shiftIds)
-                .get();
+            const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+                'shifts',
+                '__name__',
+                'in',
+                shiftIds
+            );
 
-            shiftSnapshot.docs.forEach((shiftDoc) => {
+            shifts.forEach((shift) => {
                 for (let i = 0, len = tradeRequests.length; i < len; ++i) {
                     const tradeRequest = tradeRequests[i];
 
-                    if (tradeRequest.proposedShiftId === shiftDoc.id) {
-                        tradeRequest.proposedShift = mapToShift(shiftDoc.id, shiftDoc.data());
+                    if (tradeRequest.proposedShiftId === shift.id) {
+                        tradeRequest.proposedShift = shift;
                     }
 
-                    if (tradeRequest.requestedShiftId === shiftDoc.id) {
-                        tradeRequest.requestedShift = mapToShift(shiftDoc.id, shiftDoc.data());
+                    if (tradeRequest.requestedShiftId === shift.id) {
+                        tradeRequest.requestedShift = shift;
                     }
                 }
             });
@@ -119,200 +84,249 @@ const getUserTradeRequest = async (req: Request, res: Response) => {
             return new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime();
         });
 
-        return res.json({ tradeRequests });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: err });
+        return res.json(tradeRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
     }
 };
 
-const getTradeRequestsFromTeam = (req: Request, res: Response) => {
+const getUserTradeRequest = async (req: Request, res: Response) => {
+    const user = req.params.user;
+    const shiftIds: string[] = [];
+    try {
+        const [proposedTrades, requestedTrades] = await dbHandler.getMultipleCollections([
+            dbHandler.getCollectionWithCondition<ITradeRequest>(
+                'trade-requests',
+                'proposedUserId',
+                '==',
+                user
+            ),
+            dbHandler.getCollectionWithCondition<ITradeRequest>(
+                'trade-requests',
+                'requestedUserId',
+                '==',
+                user
+            ),
+        ]);
+
+        let tradeRequests = [...proposedTrades, ...requestedTrades];
+
+        tradeRequests.forEach((tradeRequest) => {
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) === -1
+            ) {
+                shiftIds.push(tradeRequest.proposedShiftId!);
+            }
+
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.requestedShiftId) ===
+                -1
+            ) {
+                shiftIds.push(tradeRequest.requestedShiftId!);
+            }
+        });
+
+        if (shiftIds.length > 0) {
+            const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+                'shifts',
+                '__name__',
+                'in',
+                shiftIds
+            );
+
+            shifts.forEach((shift) => {
+                for (let i = 0, len = tradeRequests.length; i < len; ++i) {
+                    const tradeRequest = tradeRequests[i];
+
+                    if (tradeRequest.proposedShiftId === shift.id) {
+                        tradeRequest.proposedShift = shift;
+                    }
+
+                    if (tradeRequest.requestedShiftId === shift.id) {
+                        tradeRequest.requestedShift = shift;
+                    }
+                }
+            });
+        }
+
+        tradeRequests = tradeRequests.sort((a, b) => {
+            return new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime();
+        });
+
+        return res.json(tradeRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
+};
+
+const getTradeRequestsFromTeam = async (req: Request, res: Response) => {
     const teams = req.body.teams;
 
     let users: string[] = [];
-
-    let tradeRequests: ITradeRequest[] = [];
     const shiftIds: string[] = [];
 
-    db.collection(`/teams`)
-        .where('__name__', 'in', teams)
-        .get()
-        .then(async (teamResult) => {
-            teamResult.forEach((team) => {
-                const teamData = team.data();
+    try {
+        const retreivedTeams = await dbHandler.getCollectionWithCondition<ITeam>(
+            'teams',
+            '__name__',
+            'in',
+            teams
+        );
 
-                if (teamData.staff) {
-                    users = [...users, ...teamData.staff];
+        retreivedTeams.forEach((team) => {
+            if (team.staff) {
+                users = [...users, ...team.staff];
+            }
+        });
+
+        const [proposedTrades, requestedTrades] = await dbHandler.getMultipleCollections([
+            dbHandler.getCollectionWithCondition<ITradeRequest>(
+                'trade-requests',
+                'proposedUserId',
+                'in',
+                users
+            ),
+            dbHandler.getCollectionWithCondition<ITradeRequest>(
+                'trade-requests',
+                'requestedUserId',
+                'in',
+                users
+            ),
+        ]);
+
+        let tradeRequests = [...proposedTrades, ...requestedTrades];
+
+        tradeRequests.forEach((tradeRequest) => {
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.proposedShiftId) === -1
+            ) {
+                shiftIds.push(tradeRequest.proposedShiftId!);
+            }
+
+            if (
+                shiftIds.findIndex((shift: string) => shift === tradeRequest.requestedShiftId) ===
+                -1
+            ) {
+                shiftIds.push(tradeRequest.requestedShiftId!);
+            }
+        });
+
+        if (shiftIds.length > 0) {
+            const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+                'shifts',
+                '__name__',
+                'in',
+                shiftIds
+            );
+
+            shifts.forEach((shift) => {
+                for (let i = 0, len = tradeRequests.length; i < len; ++i) {
+                    const tradeRequest = tradeRequests[i];
+
+                    if (tradeRequest.proposedShiftId === shift.id) {
+                        tradeRequest.proposedShift = shift;
+                    }
+
+                    if (tradeRequest.requestedShiftId === shift.id) {
+                        tradeRequest.requestedShift = shift;
+                    }
                 }
             });
+        }
 
-            try {
-                const tradeRequestDocs = await db
-                    .collection(`/trade-requests`)
-                    .where('proposedUserId', 'in', users)
-                    .get();
-
-                tradeRequestDocs.forEach((tradeRequestDoc) => {
-                    const tradeRequest: ITradeRequest = mapToTradeRequest(
-                        tradeRequestDoc.id,
-                        tradeRequestDoc.data()
-                    );
-
-                    if (
-                        shiftIds.findIndex(
-                            (shift: string) => shift === tradeRequest.proposedShiftId
-                        ) === -1
-                    ) {
-                        shiftIds.push(tradeRequest.proposedShiftId!);
-                    }
-
-                    if (
-                        shiftIds.findIndex(
-                            (shift: string) => shift === tradeRequest.requestedShiftId
-                        ) === -1
-                    ) {
-                        shiftIds.push(tradeRequest.requestedShiftId!);
-                    }
-
-                    tradeRequests.push(tradeRequest);
-                });
-
-                if (shiftIds.length > 0) {
-                    const shiftSnapshot = await db
-                        .collection(`/shifts`)
-                        .where('__name__', 'in', shiftIds)
-                        .get();
-
-                    shiftSnapshot.docs.forEach((shiftDoc) => {
-                        for (let i = 0, len = tradeRequests.length; i < len; ++i) {
-                            const tradeRequest = tradeRequests[i];
-
-                            if (tradeRequest.proposedShiftId === shiftDoc.id) {
-                                tradeRequest.proposedShift = mapToShift(
-                                    shiftDoc.id,
-                                    shiftDoc.data()
-                                );
-                            }
-
-                            if (tradeRequest.requestedShiftId === shiftDoc.id) {
-                                tradeRequest.requestedShift = mapToShift(
-                                    shiftDoc.id,
-                                    shiftDoc.data()
-                                );
-                            }
-                        }
-                    });
-                }
-
-                tradeRequests = tradeRequests.sort((a, b) => {
-                    return (
-                        new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime()
-                    );
-                });
-
-                return res.json({ tradeRequests: tradeRequests });
-            } catch (err) {
-                console.error(err);
-                return res.status(500).json({ error: err });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+        tradeRequests = tradeRequests.sort((a, b) => {
+            return new Date(b.proposedDate!).getTime() - new Date(a.proposedDate!).getTime();
         });
+
+        return res.json(tradeRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteTradeRequest = (req: Request, res: Response) => {
+const deleteTradeRequest = async (req: Request, res: Response) => {
     const id = req.params.id;
-
-    db.doc(`/trade-requests/${id}`)
-        .delete()
-        .then(() => {
-            return res.json({ message: 'trade request deleted.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        await dbHandler.deleteDocument('trade-request', id);
+        return res.json({ message: 'trade request deleted.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 const acceptTradeRequest = async (req: Request, res: Response) => {
     const id = req.params.id;
 
     try {
-        const tradeRequestDoc = await db.doc(`/trade-requests/${id}`).get();
+        const tradeRequest = await dbHandler.getDocumentById<ITradeRequest>('trade-requests', id);
 
-        const tradeRequest: ITradeRequest = mapToTradeRequest(
-            tradeRequestDoc.id,
-            tradeRequestDoc.data()
-        );
+        const batch = getBatch();
 
-        const shift1Update = db.doc(`/shifts/${tradeRequest.proposedShiftId}`).update({
+        batch.update(dbHandler.getDocumentSnapshot(`/shifts/${tradeRequest.proposedShiftId}`), {
             userId: tradeRequest.requestedUserId,
         });
 
-        const shift2Update = db.doc(`/shifts/${tradeRequest.requestedShiftId}`).update({
+        batch.update(dbHandler.getDocumentSnapshot(`/shifts/${tradeRequest.requestedShiftId}`), {
             userId: tradeRequest.proposedUserId,
         });
 
-        const tradeRequestUpdate = db.doc(`/trade-requests/${id}`).update({
+        batch.update(dbHandler.getDocumentSnapshot(`/trade-requests/${id}`), {
             status: 'Approved',
         });
 
-        await Promise.all([shift1Update, shift2Update, tradeRequestUpdate]);
+        await batch.commit();
 
         return res.json({ message: 'trade has been made successfully' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: err });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
     }
 };
 
-const rejectTradeRequest = (req: Request, res: Response) => {
+const rejectTradeRequest = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    db.doc(`/trade-requests/${id}`)
-        .update({
+    try {
+        await dbHandler.updateDocument<ITradeRequest>('trade-requests', id, {
             status: 'Rejected',
-        })
-        .then(() => {
-            return res.json({ message: 'trade request rejectred.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
         });
+        return res.json({ message: 'trade request rejectred.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const archiveTradeRequest = (req: Request, res: Response) => {
+const archiveTradeRequest = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    db.doc(`/trade-requests/${id}`)
-        .get()
-        .then((tradeRequestResults) => {
-            let tradeRequestData = tradeRequestResults.data();
+    try {
+        const tradeRequests = await dbHandler.getDocumentById<ITradeRequest>('trade-requests', id);
 
-            if (tradeRequestData) {
-                if (tradeRequestData.archiveUsers) {
-                    tradeRequestData.archiveUsers.push(req.body.user);
-                } else {
-                    tradeRequestData.archiveUsers = [req.body.user];
-                }
-            }
+        if (tradeRequests.archiveUsers) {
+            tradeRequests.archiveUsers.push(req.body.user);
+        } else {
+            tradeRequests.archiveUsers = [req.body.user];
+        }
 
-            return db.doc(`/trade-requests/${id}`).set(tradeRequestData!);
-        })
-        .then(() => {
-            return res.json({ message: 'archived successfully' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+        await dbHandler.setDocument('trade-requets', id, {
+            ...dbHandler.getData(tradeRequests),
         });
+
+        return res.json({ message: 'archived successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {
     createTradeRequest,
+    getAllTradeRequests,
     getUserTradeRequest,
     deleteTradeRequest,
     acceptTradeRequest,

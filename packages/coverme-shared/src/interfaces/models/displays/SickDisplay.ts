@@ -1,4 +1,4 @@
-import { StaffRequestStatus } from 'types';
+import { StaffRequestStatus } from '../../../types';
 
 export interface ISickDisplay {
     id: string;

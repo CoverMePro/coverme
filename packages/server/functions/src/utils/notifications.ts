@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { messaging } from 'firebase-admin';
-import { INotification } from '../models/Notification';
+import { INotification } from 'coverme-shared';
 import { fbAdmin, db } from './admin';
 
 export const testNot = (req: Request, res: Response) => {

@@ -1,78 +1,68 @@
+import { INotification } from 'coverme-shared';
 import { Request, Response } from 'express';
-import { INotification, mapToNotification } from '../models/Notification';
-import { db } from '../utils/admin';
-import { formatFirestoreData } from '../utils/db-helpers';
+import { getBatch } from '../db/batch-handler';
+import dbHandler from '../db/db-handler';
 
-const getNotifications = (req: Request, res: Response) => {
+const getNotifications = async (req: Request, res: Response) => {
     const { userId } = req.params;
-
-    console.log(userId);
-
-    db.collection('notifications')
-        .where('usersNotified', 'array-contains', userId)
-        .get()
-        .then((notificationDocs) => {
-            const notifications: INotification[] = formatFirestoreData(
-                notificationDocs,
-                mapToNotification
+    try {
+        const notifications: INotification[] =
+            await dbHandler.getCollectionWithCondition<INotification>(
+                'notifications',
+                'usersNotified',
+                'array-contains',
+                userId
             );
 
-            console.log(notifications);
-
-            return res.json({ notifications: notifications });
-        })
-        .catch((err) => {
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(notifications);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const acknowledgeNotification = (req: Request, res: Response) => {
+const acknowledgeNotification = async (req: Request, res: Response) => {
     const { notificationId, userId } = req.body;
 
-    db.doc(`/notifications/${notificationId}`)
-        .get()
-        .then((notificationDoc) => {
-            const notificaiton: INotification = mapToNotification(
-                notificationDoc.id,
-                notificationDoc.data()
-            );
+    try {
+        const notificaiton: INotification = await dbHandler.getDocumentById<INotification>(
+            'notifications',
+            notificationId
+        );
 
-            const usersNotified = notificaiton.usersNotified.filter((user) => user !== userId);
+        const usersNotified = notificaiton.usersNotified!.filter((user) => user !== userId);
 
-            return db.doc(`/notifications/${notificationId}`).update({
-                usersNotified: usersNotified,
-            });
-        })
-        .then(() => {
-            return res.json({ message: 'notification acknowledged!' });
-        })
-        .catch((err) => {
-            return res.status(500).json({ error: err.code });
+        await dbHandler.updateDocument('notifications', notificationId, {
+            usersNotified: usersNotified,
         });
+
+        return res.json({ message: 'notification acknowledged!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 const acknowledgeNotifications = async (req: Request, res: Response) => {
     const { notificationIds, userId } = req.body;
 
-    const batch = db.batch();
+    const batch = getBatch();
 
     try {
         notificationIds.forEach(async (notId: string) => {
-            const notificationDoc = await db.doc(`/notifications/${notId}`).get();
-
-            const notificaiton: INotification = mapToNotification(
-                notificationDoc.id,
-                notificationDoc.data()
+            const notificaiton = await dbHandler.getDocumentById<INotification>(
+                'notifications',
+                notId
             );
 
-            const usersNotified = notificaiton.usersNotified.filter((user) => user !== userId);
+            const usersNotified = notificaiton.usersNotified!.filter((user) => user !== userId);
 
             if (usersNotified.length > 0) {
-                batch.update(db.doc(`/notifications/${notId}`), {
+                batch.update(dbHandler.getDocumentSnapshot(`/notifications/${notId}`), {
                     usersNotified: usersNotified,
                 });
             } else {
-                batch.delete(db.doc(`/notifications/${notId}`));
+                batch.delete(dbHandler.getDocumentSnapshot(`/notifications/${notId}`));
             }
         });
 

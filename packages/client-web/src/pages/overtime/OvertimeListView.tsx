@@ -10,10 +10,7 @@ import {
     SelectChangeEvent,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { IUser } from 'models/User';
-import { ITeamInfo } from 'models/Team';
-import { ILastCallouts } from 'models/LastCallouts';
-import OvertimeHeadCells from 'models/HeaderCells/OvertimeListHeadCells';
+import { IUser, ITeam, ILastCallouts, OvertimeHeadCells } from 'coverme-shared';
 import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
@@ -34,7 +31,7 @@ const OvertimeListView: React.FC = () => {
     const formatDates = (staff: IUser[]) => {
         return staff.map((user) => {
             const newHireDate = user.hireDate;
-            user.hireDate = formatDateString(newHireDate! as Date);
+            user.hireDateDisplay = formatDateString(newHireDate! as Date);
             return user;
         });
     };
@@ -123,7 +120,7 @@ const OvertimeListView: React.FC = () => {
         setSelectedTeam(team);
     };
 
-    const setTeamsSelect = (incomingTeams: ITeamInfo[]) => {
+    const setTeamsSelect = (incomingTeams: ITeam[]) => {
         const teamNames = incomingTeams.map((team) => {
             return team.name;
         });
@@ -157,7 +154,7 @@ const OvertimeListView: React.FC = () => {
         axios
             .get(`${process.env.REACT_APP_SERVER_API}/teams`)
             .then((result) => {
-                const incomingTeams: ITeamInfo[] = result.data;
+                const incomingTeams: ITeam[] = result.data;
                 setTeamsSelect(incomingTeams);
             })
             .catch((err) => {

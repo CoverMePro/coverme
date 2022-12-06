@@ -6,7 +6,7 @@ import { Box, Tabs, Tab, Typography, Tooltip, IconButton } from '@mui/material';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
-import { ITradeDisplay, ITradeRequest } from 'models/Trade';
+import { ITradeDisplay, ITradeRequest } from 'coverme-shared';
 
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateTradeRequestFrom from 'components/forms/CreateTradeRequestForm';
@@ -39,7 +39,7 @@ const TradeView: React.FC = () => {
             tradeRequests.forEach((tradeRequest) => {
                 const isProposed = tradeRequest.proposedUserId === user.id;
 
-                if (tradeRequest.status === 'Approved' || tradeRequest.status === 'Rejected') {
+                if (tradeRequest.status === 'Accepted' || tradeRequest.status === 'Rejected') {
                     fetchedResultTrades.push(formatTradeDisplay(tradeRequest, isProposed));
                 } else if (isProposed) {
                     fetchedProposedTrades.push(formatTradeDisplay(tradeRequest, isProposed));

@@ -9,3 +9,5 @@ export type StaffRequestStatus = 'Pending' | 'Approved' | 'Declined';
 export type TransactionType = 'add' | 'remove' | 'change';
 
 export type TimeOffType = 'Vacation' | 'Lieu' | 'Floater' | 'Other';
+
+export type OvertimePhase = 'Internal' | 'External';

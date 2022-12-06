@@ -6,8 +6,7 @@ import CreateWeekRotationForm from 'components/forms/CreateWeekRotationForm';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import { IShiftRotation } from 'models/ShiftRotation';
-import { IShiftTemplate } from 'models/ShiftTemplate';
+import { IShiftRotation, IShiftTemplate } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 
 interface IWeeklyRotationProps {

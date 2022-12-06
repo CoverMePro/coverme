@@ -17,9 +17,13 @@ import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
 import ShiftCreator from 'components/shared/ShiftCreator';
 import RotationCreator from 'components/shared/RotationCreator';
-import { IScheduleShiftCell, IShiftTransaction } from 'models/Shift';
-import { IShiftTemplate } from 'models/ShiftTemplate';
-import { IShiftRotation, IShiftRotationTransaction } from 'models/ShiftRotation';
+import {
+    IScheduleShiftCell,
+    IShiftTransaction,
+    IShiftTemplate,
+    IShiftRotation,
+    IShiftRotationTransaction,
+} from 'coverme-shared';
 import { validateCreateScheduleShift } from 'utils/validations/createShift';
 import axios from 'utils/axios-intance';
 

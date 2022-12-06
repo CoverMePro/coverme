@@ -2,7 +2,7 @@ import React from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import WeekRotationGrid from './WeekRotationGrid';
-import { IShiftRotation } from 'models/ShiftRotation';
+import { IShiftRotation } from 'coverme-shared';
 
 interface IRotationDetailsProps {
     rotations: IShiftRotation[];

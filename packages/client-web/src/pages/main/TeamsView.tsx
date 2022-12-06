@@ -8,7 +8,7 @@ import FormDialog from 'components/dialogs/FormDialog';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import PageLoading from 'components/loading/PageLoading';
 import TeamRoster from 'components/teams/TeamRoster';
-import { ITeamInfo } from 'models/Team';
+import { ITeam } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 
 const TeamsView: React.FC = () => {
@@ -17,7 +17,7 @@ const TeamsView: React.FC = () => {
     const [openAddTeam, setOpenAddTeam] = useState<boolean>(false);
     const [openDeleteTeam, setOpenDeleteTeam] = useState<boolean>(false);
     const [deleteMessage, setDeleteMessage] = useState<string>('');
-    const [teams, setTeams] = useState<ITeamInfo[]>([]);
+    const [teams, setTeams] = useState<ITeam[]>([]);
     const [selectedTeam, setSelectedTeam] = useState<string>('');
 
     const { enqueueSnackbar } = useSnackbar();

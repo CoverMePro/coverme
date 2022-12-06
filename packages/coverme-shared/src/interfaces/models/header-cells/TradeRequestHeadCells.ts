@@ -1,7 +1,7 @@
 import { ITradeDisplay } from '../displays/TradeDisplay';
 import { IHeaderCells } from './HeaderCells';
 
-const staffTradeRequestHeadCells: IHeaderCells<ITradeDisplay>[] = [
+export const staffTradeRequestHeadCells: IHeaderCells<ITradeDisplay>[] = [
     {
         id: 'date',
         numeric: false,
@@ -86,5 +86,3 @@ export const managerTradeRequestHeadCells: IHeaderCells<ITradeDisplay>[] = [
         label: 'Status',
     },
 ];
-
-export default staffTradeRequestHeadCells;

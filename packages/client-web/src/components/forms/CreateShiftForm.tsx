@@ -8,7 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers';
 import FormCard from './FormCard';
 import DurationCustom from 'components/number-formats/DurationCustom';
-import { IShiftTemplate } from 'models/ShiftTemplate';
+import { IShiftTemplate } from 'coverme-shared';
 import { validateShift } from 'utils/validations/shift';
 import { formatDuration } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';

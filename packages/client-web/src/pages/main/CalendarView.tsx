@@ -9,8 +9,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import PageLoading from 'components/loading/PageLoading';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import DataFilter from 'components/shared/DataFilter';
-import { IShift } from 'models/Shift';
-import { ITimeOff } from 'models/TimeOff';
+import { IShift, ITimeOff } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 

@@ -1,91 +1,70 @@
 import { Request, Response } from 'express';
-import { INotification, NotificationType } from '../models/Notification';
-import { IScheduleStaff } from '../models/ScheduleInfo';
-import { IShift, IShiftTemplate, mapToShift, mapToShiftDefinition } from '../models/Shift';
 import {
+    INotification,
+    NotificationType,
+    IScheduleStaff,
+    IShift,
+    IShiftTemplate,
     IShiftRotation,
     IShiftRotationTransaction,
-    mapToShiftRotation,
-} from '../models/ShiftRotation';
-import { IShiftTransaction } from '../models/ShiftTransaction';
-import { ITeam, mapToTeams } from '../models/Team';
-import { ITimeOff, mapToTimeOff } from '../models/TimeOff';
+    IShiftTransaction,
+    ITeam,
+    ITimeOff,
+    IUser,
+} from 'coverme-shared';
 import { db } from '../utils/admin';
-import { formatFirestoreData } from '../utils/db-helpers';
+import dbHandler from '../db/db-handler';
+import { getShiftDataDateRange, getShiftDataTodayOnward } from '../db/db-helpers';
+import { getBatch } from '../db/batch-handler';
 
-const getShiftsAndStaffFromCompany = (req: Request, res: Response) => {
-    const staff: IScheduleStaff[] = [];
-    let shifts: IShift[] = [];
-    let teams: ITeam[] = [];
-    let timeOff: ITimeOff[] = [];
-    let shiftDefs: IShiftTemplate[] = [];
-    let shiftRotations: IShiftRotation[] = [];
+const getShiftsAndStaffFromCompany = async (req: Request, res: Response) => {
+    try {
+        const users = await dbHandler.getCollection<IUser>('users');
 
-    //const teams: string[] = [];
+        const staff: IScheduleStaff[] = [];
 
-    db.collection('users')
-        .get()
-        .then((staffData) => {
-            staffData.forEach((user) => {
-                const userData = user.data();
+        users.forEach((user) => {
+            staff.push({
+                id: 'unclaimed',
+                teams: [],
+                userId: 'unclaimed',
+                userName: 'unassigned',
+                title: 'unassigned',
+                employeeType: 'unassigned',
+            });
+            if (user.role === 'staff') {
                 staff.push({
-                    id: 'unclaimed',
-                    teams: [],
-                    userId: 'unclaimed',
-                    userName: 'unassigned',
-                    title: 'unassigned',
-                    employeeType: 'unassigned',
+                    id: user.id,
+                    teams: user.teams ? user.teams : [],
+                    userId: user.id,
+                    userName: `${user.firstName} ${user.lastName}`,
+                    title: `${user.firstName} ${user.lastName}`,
+                    employeeType: user.employeeType,
                 });
-                if (userData.role === 'staff') {
-                    staff.push({
-                        id: user.id,
-                        teams: userData.teams ? userData.teams : [],
-                        userId: user.id,
-                        userName: `${userData.firstName} ${userData.lastName}`,
-                        title: `${userData.firstName} ${userData.lastName}`,
-                        employeeType: userData.employeeType,
-                    });
-                }
-            });
-
-            return db.collection(`/teams`).get();
-        })
-        .then((teamsDoc) => {
-            teams = formatFirestoreData(teamsDoc, mapToTeams);
-
-            return db.collection(`/shifts`).get();
-        })
-        .then((shiftDocs) => {
-            shifts = formatFirestoreData(shiftDocs, mapToShift);
-
-            return db.collection(`/time-off`).get();
-        })
-        .then((timeOffDocs) => {
-            timeOff = formatFirestoreData(timeOffDocs, mapToTimeOff);
-
-            return db.collection(`/shift-templates`).get();
-        })
-        .then((shiftDefinitionDocs) => {
-            shiftDefs = formatFirestoreData(shiftDefinitionDocs, mapToShiftDefinition);
-
-            return db.collection('/shift-rotations').get();
-        })
-        .then((shiftRotationDocs) => {
-            shiftRotations = formatFirestoreData(shiftRotationDocs, mapToShiftRotation);
-
-            return res.json({
-                staff: staff,
-                shifts: shifts,
-                teams: teams,
-                timeOff: timeOff,
-                shiftDefs: shiftDefs,
-                rotations: shiftRotations,
-            });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+            }
         });
+
+        const [teams, shifts, timeOff, shiftTemplates, shiftRotations] =
+            await dbHandler.getMultipleCollections([
+                dbHandler.getCollection<ITeam>('teams'),
+                dbHandler.getCollection<IShift>('shifts'),
+                dbHandler.getCollection<ITimeOff>('time-off'),
+                dbHandler.getCollection<IShiftTemplate>('shift-templates'),
+                dbHandler.getCollection<IShiftRotation>('shift-rotations'),
+            ]);
+
+        return res.json({
+            staff: staff,
+            shifts: shifts,
+            teams: teams,
+            timeOff: timeOff,
+            shiftDefs: shiftTemplates,
+            rotations: shiftRotations,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 const getEndDate = (startDate: Date, duration: string) => {
@@ -105,8 +84,8 @@ const getEndDate = (startDate: Date, duration: string) => {
 /**
  *  Organize and carry out specific db request based on transactions (add, change, remove)
  */
-const transactionShifts = (req: Request, res: Response) => {
-    const batch = db.batch();
+const transactionShifts = async (req: Request, res: Response) => {
+    const batch = getBatch();
 
     const transactions: IShiftTransaction[] = req.body.transactions;
     const rotationTransactions: IShiftRotationTransaction[] = req.body.rotationTransactions;
@@ -117,30 +96,30 @@ const transactionShifts = (req: Request, res: Response) => {
         const transaction = transactions[i];
 
         if (usersNotified.findIndex((id) => id === transaction.userId) === -1) {
-            usersNotified.push(transaction.userId);
+            usersNotified.push(transaction.userId!);
         }
 
         switch (transaction.type) {
             case 'add':
-                batch.create(db.collection(`/shifts`).doc(), {
+                batch.create(dbHandler.getDocumentSnapshot('shifts'), {
                     name: transaction.name,
                     userId: transaction.userId === '' ? 'unclaimed' : transaction.userId,
                     userName: transaction.userName === '' ? 'unclaimed' : transaction.userName,
                     teamId: transaction.teamId,
-                    startDateTime: new Date(transaction.startDate),
-                    endDateTime: new Date(transaction.endDate),
+                    startDateTime: new Date(transaction.startDate!),
+                    endDateTime: new Date(transaction.endDate!),
                 });
                 break;
             case 'remove':
-                batch.delete(db.doc(`/shifts/${transaction.id}`));
+                batch.delete(dbHandler.getDocumentSnapshot(`/shifts/${transaction.id}`));
                 break;
             case 'change':
-                batch.update(db.doc(`/shifts/${transaction.id}`), {
+                batch.update(dbHandler.getDocumentSnapshot(`/shifts/${transaction.id}`), {
                     userId: transaction.userId,
                     teamId: transaction.teamId,
                     userName: transaction.userName,
-                    startDateTime: new Date(transaction.startDate),
-                    endDateTime: new Date(transaction.endDate),
+                    startDateTime: new Date(transaction.startDate!),
+                    endDateTime: new Date(transaction.endDate!),
                 });
                 break;
         }
@@ -150,7 +129,7 @@ const transactionShifts = (req: Request, res: Response) => {
         const rotTransaction = rotationTransactions[i];
 
         if (usersNotified.findIndex((id) => id === rotTransaction.userId) === -1) {
-            usersNotified.push(rotTransaction.userId);
+            usersNotified.push(rotTransaction.userId!);
         }
 
         const end = new Date(rotTransaction.endDate);
@@ -268,7 +247,7 @@ const transactionShifts = (req: Request, res: Response) => {
             }
 
             if (foundShift) {
-                batch.create(db.collection(`/shifts`).doc(), {
+                batch.create(dbHandler.getDocumentSnapshot('shifts'), {
                     name: shiftName,
                     userId: rotTransaction.userId,
                     userName: rotTransaction.userName,
@@ -280,172 +259,142 @@ const transactionShifts = (req: Request, res: Response) => {
         }
     }
 
-    batch
-        .commit()
-        .then(() => {
-            const notification: INotification = {
-                messageTitle: 'Schedule updated!',
-                messageType: NotificationType.SHIFT,
-                messageBody: 'Your schedule has changed, please view the calendar.',
-                usersNotified: usersNotified,
-            };
+    try {
+        await batch.commit();
 
-            db.collection('/notifications')
-                .add(notification)
-                .then(() => {
-                    return res.json({ message: 'transactions completed!' });
-                })
-                .catch((err) => {
-                    console.error(err);
-                    return res.status(500).json({ error: err.code });
-                });
-        })
-        .catch((err) => {
-            return res.status(500).json({ error: err.code });
-        });
+        const notification: INotification = {
+            messageTitle: 'Schedule updated!',
+            messageType: NotificationType.SHIFT,
+            messageBody: 'Your schedule has changed, please view the calendar.',
+            usersNotified: usersNotified,
+        };
+
+        await dbHandler.addDocument('notifications', notification);
+
+        return res.json({ message: 'transactions completed!' });
+    } catch (error) {
+        console.error(error);
+        return res.json({ error: error });
+    }
 };
 
-const createShiftTemplate = (req: Request, res: Response) => {
+const createShiftTemplate = async (req: Request, res: Response) => {
     const shiftTemplateToAdd: IShiftTemplate = req.body;
-    db.collection(`/shift-templates`)
-        .add(shiftTemplateToAdd)
-        .then((result) => {
-            return result.get();
-        })
-        .then((resultdata) => {
-            const shiftTemplate = mapToShiftDefinition(resultdata.id, resultdata.data);
-            return res.json({ message: 'Shift definition created!', shiftTemplate: shiftTemplate });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+
+    try {
+        const addedShiftTemplate: IShiftTemplate = await dbHandler.addDocument<IShiftTemplate>(
+            'shift-templates',
+            shiftTemplateToAdd
+        );
+
+        return res.json(addedShiftTemplate);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteShiftTemplate = (req: Request, res: Response) => {
+const deleteShiftTemplate = async (req: Request, res: Response) => {
     const id = req.params.id;
-    db.doc(`/shift-templates/${id}`)
-        .delete()
-        .then((result) => {
-            return res.json({ message: 'Shift template deleted!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+
+    try {
+        await dbHandler.deleteDocument('shift-templates', id);
+        return res.json({ message: 'Shift template deleted!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getShiftTemplates = (_: Request, res: Response) => {
-    db.collection(`/shift-templates`)
-        .get()
-        .then((shiftTemplateDocs) => {
-            const shiftTemplates = formatFirestoreData(shiftTemplateDocs, mapToShiftDefinition);
+const getShiftTemplates = async (_: Request, res: Response) => {
+    try {
+        const shiftTemplates = await dbHandler.getCollection<IShiftTemplate>('shift-templates');
 
-            return res.json(shiftTemplates);
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(shiftTemplates);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const createShiftRotation = (req: Request, res: Response) => {
+const createShiftRotation = async (req: Request, res: Response) => {
     const shiftRotationToAdd: IShiftRotation = req.body;
-    db.collection(`/shift-rotations`)
-        .add(shiftRotationToAdd)
-        .then((result) => {
-            return result.get();
-        })
-        .then((resultdata) => {
-            const shiftRotation = mapToShiftRotation(resultdata.id, resultdata.data());
-            return res.json({ message: 'Shift Rotation created!', shiftRotation: shiftRotation });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+
+    try {
+        const addedShiftRotation = await dbHandler.addDocument<IShiftRotation>(
+            'shift-rotations',
+            shiftRotationToAdd
+        );
+
+        return res.json(addedShiftRotation);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteShiftRotation = (req: Request, res: Response) => {
+const deleteShiftRotation = async (req: Request, res: Response) => {
     const id = req.params.id;
-    db.doc(`/shift-rotations/${id}`)
-        .delete()
-        .then((result) => {
-            return res.json({ message: 'Shift template deleted!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+
+    try {
+        await dbHandler.deleteDocument('shift-rotations', id);
+        return res.json({ message: 'Shift template deleted!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getShiftRotations = (req: Request, res: Response) => {
-    db.collection(`/shift-rotations`)
-        .get()
-        .then((shiftRotationDocs) => {
-            const shiftRotations = formatFirestoreData(shiftRotationDocs, mapToShiftRotation);
-
-            return res.json(shiftRotations);
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+const getShiftRotations = async (req: Request, res: Response) => {
+    try {
+        const shiftRotations = await dbHandler.getCollection<IShiftRotation>('shift-rotations');
+        return res.json(shiftRotations);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getShiftFromUser = (req: Request, res: Response) => {
+const getShiftFromUser = async (req: Request, res: Response) => {
     const { user } = req.params;
-    db.collection(`/shifts`)
-        .where('userId', '==', user)
-        .get()
-        .then((shiftDocs) => {
-            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
 
-            return res.json({ shifts });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+            'shifts',
+            'userId',
+            '==',
+            user
+        );
+        return res.json(shifts);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getShiftsFromTodayOnward = (req: Request, res: Response) => {
+const getShiftsFromTodayOnward = async (req: Request, res: Response) => {
     let { user } = req.params;
-
-    db.collection(`/shifts`)
-        .where('userId', '==', user)
-        .where('startDateTime', '>', new Date())
-        .get()
-        .then((shiftDocs) => {
-            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
-
-            return res.json({ shifts });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        const shifts = await getShiftDataTodayOnward(user);
+        return res.json(shifts);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getShiftsFromDateRange = (req: Request, res: Response) => {
+const getShiftsFromDateRange = async (req: Request, res: Response) => {
     const { user } = req.params;
 
     const { startRange, endRange } = req.body;
 
-    db.collection(`/shifts`)
-        .where('userId', '==', user)
-        .where('startDateTime', '>', new Date(startRange))
-        .where('startDateTime', '<', new Date(endRange))
-        .get()
-        .then((shiftDocs) => {
-            const shifts: IShift[] = formatFirestoreData(shiftDocs, mapToShift);
-
-            return res.json({ shifts });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        const shifts = await getShiftDataDateRange(user, startRange, endRange);
+        return res.json(shifts);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {

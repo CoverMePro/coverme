@@ -18,9 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoginIcon from '@mui/icons-material/Login';
 import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
-import { IUser } from 'models/User';
-
-import { ICompany } from 'coverme-models/lib/index';
+import { IUser, ICompany } from 'coverme-shared';
 
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';

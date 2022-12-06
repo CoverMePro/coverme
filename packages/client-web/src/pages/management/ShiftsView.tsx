@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
-import { IShiftTemplate, IShiftTemplateDisplay } from 'models/ShiftTemplate';
+import { IShiftTemplate, IShiftTemplateDisplay, IShiftRotation } from 'coverme-shared';
 import PageLoading from 'components/loading/PageLoading';
 import axios from 'utils/axios-intance';
 import TabPanel from 'components/tabs/TabPanel';
 import DefineShift from 'components/shifts/DefineShift';
 import WeeklyRotation from 'components/shifts/WeeklyRotation';
-import { IShiftRotation } from 'models/ShiftRotation';
 import { formatShiftTemplateDisplay } from 'utils/formatters/display-formatter';
 
 const ShiftsView: React.FC = () => {

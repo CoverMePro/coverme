@@ -17,6 +17,7 @@ export interface IUser {
     hireDate: Date;
     status: UserStatus;
     teams: string[];
+    hireDateDisplay?: string;
     lastCalledOut?: any;
     reportTo?: string[];
 }

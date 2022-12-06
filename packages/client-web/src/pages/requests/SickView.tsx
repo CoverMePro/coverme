@@ -4,8 +4,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography } from '@mui/material';
 
-import { staffSickHeadCells } from 'models/HeaderCells/SickRequestHeadCells';
-import { ISickDisplay, ISickRequest } from 'models/Sick';
+import { staffSickHeadCells, ISickDisplay, ISickRequest } from 'coverme-shared';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import PageLoading from 'components/loading/PageLoading';

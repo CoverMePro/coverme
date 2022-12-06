@@ -1,20 +1,18 @@
-import { ICompany, mapToCompany } from '../models/Company';
-import { ITeam, mapToTeams } from '../models/Team';
-import { IUser, mapToUser } from '../models/User';
+import { ICompany, ITeam, IUser } from 'coverme-shared';
+import { mapFireStoreData, formatFirestoreData } from './db-helpers';
 import { db } from '../utils/admin';
-import { formatFirestoreData } from './db-helpers';
 
 export const gatherInfo = async (userId: string) => {
     try {
         const userData = await db.doc(`/users/${userId}`).get();
         const companyData = await db.doc('/company/info').get();
 
-        const userInfo: IUser = mapToUser(userData.id, userData.data());
-        const companyInfo: ICompany = mapToCompany(companyData.data());
+        const userInfo: IUser = mapFireStoreData(userData.id, userData.data());
+        const companyInfo: ICompany = mapFireStoreData(companyData.id, companyData.data(), false);
 
         const teamsDoc = await db.collection('teams').where('__name__', 'in', userInfo.teams).get();
 
-        const teams = formatFirestoreData<ITeam>(teamsDoc, mapToTeams);
+        const teams = formatFirestoreData<ITeam>(teamsDoc);
 
         const managers: string[] = [];
 

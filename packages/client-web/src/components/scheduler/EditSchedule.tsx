@@ -4,8 +4,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import QueueIcon from '@mui/icons-material/Queue';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateManualShiftForm from 'components/forms/CreateScheduleShiftForm';
-import { IShiftTemplate } from 'models/ShiftTemplate';
-import { IShiftRotation } from 'models/ShiftRotation';
+import { IShiftTemplate, IShiftRotation } from 'coverme-shared';
 
 interface IEditScheduleProps {
     shiftDefs: IShiftTemplate[];

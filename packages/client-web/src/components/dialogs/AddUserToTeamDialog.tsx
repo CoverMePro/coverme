@@ -10,7 +10,7 @@ import {
     CircularProgress,
     Button,
 } from '@mui/material';
-import { IUser } from 'models/User';
+import { IUser } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 
 interface IAddUserDialogProps {

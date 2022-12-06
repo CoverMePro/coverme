@@ -4,8 +4,7 @@ import { useSnackbar } from 'notistack';
 import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
-import { IShift } from 'models/Shift';
-import { IOvertime } from 'models/Overtime';
+import { IShift, IOvertime } from 'coverme-shared';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
@@ -35,7 +34,10 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
             setSelectedShift({
                 id: value.id,
                 team: value.teamId,
-                dateString: formatDateTimeOutputString(value.startDateTime, value.endDateTime),
+                dateString: formatDateTimeOutputString(
+                    value.startDateTime as string,
+                    value.endDateTime as string
+                ),
             });
         } else {
             setSelectedShift(undefined);
@@ -51,6 +53,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                 shiftInfo: selectedShift.dateString,
                 team: selectedShift.team,
                 callouts: [],
+                phase: 'Internal',
                 status: 'Pending',
             };
 
@@ -118,15 +121,15 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                                 options={unassignedShifts}
                                 getOptionLabel={(option) =>
                                     `${formatDateTimeOutputString(
-                                        option.startDateTime,
-                                        option.endDateTime
+                                        option.startDateTime as string,
+                                        option.endDateTime as string
                                     )}`
                                 }
                                 renderOption={(props, option, { selected }) => (
                                     <li {...props}>
                                         {formatDateTimeOutputString(
-                                            option.startDateTime,
-                                            option.endDateTime
+                                            option.startDateTime as string,
+                                            option.endDateTime as string
                                         )}
                                     </li>
                                 )}

@@ -17,7 +17,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DateRange, Range } from 'react-date-range';
-import { IShiftRotation, IShiftRotationTransaction } from 'models/ShiftRotation';
+import { IShiftRotation, IShiftRotationTransaction } from 'coverme-shared';
 
 // TODO: Utils
 const date = new Date();

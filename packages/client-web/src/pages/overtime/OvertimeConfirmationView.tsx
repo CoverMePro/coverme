@@ -5,7 +5,7 @@ import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
 import { AxiosError } from 'axios';
 import axios from 'utils/axios-intance';
-import { IOvertime } from 'models/Overtime';
+import { IOvertime } from 'coverme-shared';
 
 const OvertimeConfirmationView: React.FC = () => {
     const [overtimeCallout, setOvertimeCallout] = useState<IOvertime | undefined>(undefined);

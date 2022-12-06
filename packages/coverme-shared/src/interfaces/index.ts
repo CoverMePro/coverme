@@ -11,6 +11,7 @@ export * from './models/ScheduleStaff';
 export * from './models/Shift';
 export * from './models/ShiftRotation';
 export * from './models/Sick';
+export * from './models/TableInfo';
 export * from './models/Team';
 export * from './models/TimeOff';
 export * from './models/Trade';

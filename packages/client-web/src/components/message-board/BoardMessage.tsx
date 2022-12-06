@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { IMessage } from 'models/Message';
+import { IMessage } from 'coverme-shared';
 
 interface IBoardMessageProps {
     message: IMessage;

@@ -5,8 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import logo from 'images/cover-me-logo.png';
 
-import { ICompanyFormInfo } from 'models/Validation';
-import { ICompany } from 'models/Company';
+import { ICompanyFormInfo, ICompany } from 'coverme-shared';
 
 import CompanyForm from './form-steps/CompanyForm';
 import OwnerForm from './form-steps/OwnerForm';

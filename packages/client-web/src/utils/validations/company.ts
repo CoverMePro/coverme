@@ -1,4 +1,4 @@
-import { IOwnerFormInfo } from 'models/Validation';
+import { IOwnerFormInfo } from 'coverme-shared';
 import { isEmail, isEmpty, isPhone } from './shared';
 
 export const validateCompany = (values: {

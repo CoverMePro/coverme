@@ -1,5 +1,5 @@
 import { IShift } from './Shift';
-import { StaffRequestStatus } from 'types';
+import { StaffRequestStatus } from '../../types';
 
 export interface ISickRequest {
     id?: string;

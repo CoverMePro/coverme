@@ -1,4 +1,4 @@
-import { ShiftRequestStatus } from 'types';
+import { ShiftRequestStatus } from '../../types';
 import { IShift } from './Shift';
 
 export interface IUserTradeInfo {

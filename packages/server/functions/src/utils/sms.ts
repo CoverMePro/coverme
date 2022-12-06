@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { IUser, mapToUser } from '../models/User';
+import { IUser, IOvertime } from 'coverme-shared';
+import { mapFireStoreData } from './db-helpers';
 import { db } from '../utils/admin';
 
 import { Twilio } from 'twilio';
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER } from '../constants';
-import { IOvertime } from '../models/Overtime';
 
 const formatNumber = (phone: string) => {
     return phone.replace(/[- )(]/g, '');
@@ -20,7 +20,7 @@ export const sendSms = (req: Request, res: Response) => {
                 return res.status(403).json({ error: 'No user exists' });
             }
             try {
-                const user: IUser = mapToUser(userDoc.id, userDoc.data());
+                const user: IUser = mapFireStoreData(userDoc.id, userDoc.data());
 
                 const client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 

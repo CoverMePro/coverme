@@ -1,4 +1,4 @@
-import { ICompany } from 'models/Company';
+import { ICompany } from 'coverme-shared';
 import { ActionType } from 'state/action-types';
 import { Action } from 'state/actions';
 

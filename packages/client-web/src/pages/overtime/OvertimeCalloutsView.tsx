@@ -21,7 +21,7 @@ import UpdateIcon from '@mui/icons-material/Update';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import { IOvertime } from 'models/Overtime';
+import { IOvertime } from 'coverme-shared';
 import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutForm';

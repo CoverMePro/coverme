@@ -1,4 +1,4 @@
-import { TransactionType } from 'types';
+import { TransactionType } from '../../types';
 
 export interface IShift {
     id: string;
@@ -6,8 +6,8 @@ export interface IShift {
     teamId: string;
     userName: string;
     name: string;
-    startDateTime: string;
-    endDateTime: string;
+    startDateTime: string | Date;
+    endDateTime: string | Date;
 }
 
 export interface IShiftTransaction {
@@ -28,4 +28,8 @@ export interface IShiftTemplate {
     startTimeHours: number;
     startTimeMinutes: number;
     duration: string;
+}
+
+export interface IScheduleShiftCell {
+    id: number;
 }

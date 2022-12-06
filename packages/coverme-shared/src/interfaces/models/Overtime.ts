@@ -1,9 +1,10 @@
-import { ShiftRequestStatus } from 'types';
+import { OvertimePhase, ShiftRequestStatus } from '../../types';
 
 export interface ICallout {
     userId: string;
     userName: string;
     status: ShiftRequestStatus;
+    phone: string;
     team: string; // do we need this anymore?
 }
 
@@ -16,5 +17,6 @@ export interface IOvertime {
     status: string;
     team: string;
     callouts: ICallout[];
+    phase: OvertimePhase;
     shiftAcceptedBy?: string;
 }

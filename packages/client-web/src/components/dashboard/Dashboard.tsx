@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-import { Box, Typography, Drawer, Divider, Avatar, Button } from '@mui/material';
+import { Box, Typography, Drawer, Divider, Avatar } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { DRAWER_WIDTH } from '../../constants';
 import SettingsMenu from 'components/navigation/SettingsMenu';
@@ -14,7 +14,7 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 import axios from 'utils/axios-intance';
 import Notifications from 'components/shared/Notifications';
-import { INotification } from 'models/Notification';
+import { INotification } from 'coverme-shared';
 
 //import { onMessageListener } from '../../messaging_init_in_sw';
 
@@ -100,7 +100,7 @@ const Dashboard: React.FC = () => {
                 console.error(error);
             })
             .finally(() => {});
-    }, []);
+    }, [user.id]);
 
     const handleCloseNotifications = () => {
         const notIds = notifications.map((not) => not.id);

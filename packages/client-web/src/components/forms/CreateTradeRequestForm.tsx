@@ -15,9 +15,7 @@ import {
 } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
-import { ITradeRequest } from 'models/Trade';
-import { IUser } from 'models/User';
-import { IShift } from 'models/Shift';
+import { ITradeRequest, IUser, IShift } from 'coverme-shared';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
@@ -173,8 +171,8 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                                         return (
                                             <MenuItem key={shift.id} value={shift.id}>
                                                 {formatDateTimeOutputString(
-                                                    shift.startDateTime,
-                                                    shift.endDateTime
+                                                    shift.startDateTime as string,
+                                                    shift.endDateTime as string
                                                 )}
                                             </MenuItem>
                                         );
@@ -213,8 +211,8 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
                                         return (
                                             <MenuItem key={shift.id} value={shift.id}>
                                                 {formatDateTimeOutputString(
-                                                    shift.startDateTime,
-                                                    shift.endDateTime
+                                                    shift.startDateTime as string,
+                                                    shift.endDateTime as string
                                                 )}
                                             </MenuItem>
                                         );

@@ -1,7 +1,7 @@
 import { ICompany } from '../Company';
 import { IHeaderCells } from './HeaderCells';
 
-const companyHeadCells: IHeaderCells<ICompany>[] = [
+export const CompanyHeadCells: IHeaderCells<ICompany>[] = [
     {
         id: 'name',
         numeric: false,
@@ -27,5 +27,3 @@ const companyHeadCells: IHeaderCells<ICompany>[] = [
         label: 'Phone Number',
     },
 ];
-
-export default companyHeadCells;

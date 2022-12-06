@@ -4,8 +4,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateShiftForm from 'components/forms/CreateShiftForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
-import { IShiftTemplate, IShiftTemplateDisplay } from 'models/ShiftTemplate';
-import ShiftHeaderCells from 'models/HeaderCells/ShiftHeadCells';
+import { IShiftTemplate, IShiftTemplateDisplay, ShiftHeadCells } from 'coverme-shared';
 import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
 import axios from 'utils/axios-intance';
 
@@ -93,7 +92,7 @@ const DefineShift: React.FC<IDefineShiftProps> = ({ shiftTemplates, onAdd, onDel
         <>
             <EnhancedTable
                 data={shiftTemplates}
-                headerCells={ShiftHeaderCells}
+                headerCells={ShiftHeadCells}
                 id="id"
                 selected={selected}
                 onSelect={handleSelectShift}

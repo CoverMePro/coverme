@@ -21,8 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import DurationCustom from 'components/number-formats/DurationCustom';
-import { IShiftTemplate } from 'models/ShiftTemplate';
-import { IShiftTransaction } from 'models/Shift';
+import { IShiftTemplate, IShiftTransaction } from 'coverme-shared';
 import { formatAMPM, formatDurationClean } from 'utils/formatters/dateTime-formatter';
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 

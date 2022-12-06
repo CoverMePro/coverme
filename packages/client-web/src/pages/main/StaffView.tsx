@@ -6,8 +6,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import StaffHeaderCells from 'models/HeaderCells/StaffHeadCells';
-import { IUser } from 'models/User';
+import { IUser, StaffHeadCells } from 'coverme-shared';
 import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import axios from 'utils/axios-intance';
@@ -76,7 +75,7 @@ const StaffView: React.FC = () => {
     const formatHireDate = (staff: IUser[]) => {
         return staff.map((user) => {
             const date = user.hireDate;
-            user.hireDate = formatDateString(date! as Date);
+            user.hireDateDisplay = formatDateString(date! as Date);
             return user;
         });
     };
@@ -113,7 +112,7 @@ const StaffView: React.FC = () => {
                 <Box>
                     <EnhancedTable
                         data={staff}
-                        headerCells={StaffHeaderCells}
+                        headerCells={StaffHeadCells}
                         id="id"
                         selected={selected}
                         onSelect={handleSelectStaff}

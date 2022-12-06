@@ -16,7 +16,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import HowToRegIcon from '@mui/icons-material/Add';
 import logo from 'images/cover-me-logo.png';
-import { IUser } from 'models/User';
+import { IUser } from 'coverme-shared';
 import { validateCreateTeam } from 'utils/validations/team';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';

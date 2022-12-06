@@ -11,18 +11,21 @@ import { Box, Typography } from '@mui/material';
 import PageLoading from 'components/loading/PageLoading';
 import DataFilter from 'components/shared/DataFilter';
 import EditSchedule from 'components/scheduler/EditSchedule';
-import { ITimeOff } from 'models/TimeOff';
-import { IShift, IShiftTransaction } from 'models/Shift';
-import { IShiftTemplate } from 'models/ShiftTemplate';
-import { IShiftRotation } from 'models/ShiftRotation';
-import { ITeamInfo } from 'models/Team';
+import {
+    ITimeOff,
+    IShift,
+    IShiftTransaction,
+    IShiftTemplate,
+    IShiftRotation,
+    ITeam,
+} from 'coverme-shared';
 import axios from 'utils/axios-intance';
 import { AxiosResponse } from 'axios';
 
 // TODO: Refactor and split up code to other files/functions
 const ScheduleView: React.FC = () => {
     const [allStaff, setAllStaff] = useState<any[]>([]);
-    const [teams, setTeams] = useState<ITeamInfo[]>([]);
+    const [teams, setTeams] = useState<ITeam[]>([]);
     const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
     const [shiftDefs, setShiftDefs] = useState<IShiftTemplate[]>([]);
     const [shiftRotations, setShiftRotations] = useState<IShiftRotation[]>([]);
@@ -104,7 +107,7 @@ const ScheduleView: React.FC = () => {
         setShiftTransactions([...filtedTransactions, changedtransaction]);
     };
 
-    const getTeamColor = (teamId: string, teams: ITeamInfo[]) => {
+    const getTeamColor = (teamId: string, teams: ITeam[]) => {
         const selectedTeam = teams.find((team) => team.name === teamId);
 
         if (selectedTeam) {
@@ -114,38 +117,35 @@ const ScheduleView: React.FC = () => {
         return '#006d77';
     };
 
-    const formatEvents = useCallback(
-        (shifts: IShift[], timeOff: ITimeOff[], teams: ITeamInfo[]) => {
-            const formattedShifts = shifts.map((shift) => {
-                return {
-                    id: shift.id,
-                    title: shift.name,
-                    start: shift.startDateTime,
-                    end: shift.endDateTime,
-                    resourceId: shift.userId,
-                    color: getTeamColor(shift.teamId, teams),
-                };
+    const formatEvents = useCallback((shifts: IShift[], timeOff: ITimeOff[], teams: ITeam[]) => {
+        const formattedShifts = shifts.map((shift) => {
+            return {
+                id: shift.id,
+                title: shift.name,
+                start: shift.startDateTime,
+                end: shift.endDateTime,
+                resourceId: shift.userId,
+                color: getTeamColor(shift.teamId, teams),
+            };
+        });
+
+        const formattedTimeOff: any[] = [];
+
+        timeOff.forEach((to) => {
+            formattedTimeOff.push({
+                id: to.id,
+                title: to.name,
+                start: to.startDateTime,
+                end: to.endDateTime,
+                resourceId: to.userId,
+                color: 'red',
             });
+        });
 
-            const formattedTimeOff: any[] = [];
+        const formattedEvents = [...formattedShifts, ...formattedTimeOff];
 
-            timeOff.forEach((to) => {
-                formattedTimeOff.push({
-                    id: to.id,
-                    title: to.name,
-                    start: to.startDateTime,
-                    end: to.endDateTime,
-                    resourceId: to.userId,
-                    color: 'red',
-                });
-            });
-
-            const formattedEvents = [...formattedShifts, ...formattedTimeOff];
-
-            setEvents(formattedEvents);
-        },
-        []
-    );
+        setEvents(formattedEvents);
+    }, []);
 
     const handleDragStart = (arg: any) => {
         setIsDragging(true);

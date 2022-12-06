@@ -1,4 +1,4 @@
-import { IUser } from 'models/User';
+import { IUser } from 'coverme-shared';
 import { ActionType } from 'state/action-types';
 import { Action } from 'state/actions';
 
@@ -10,7 +10,9 @@ const initialState: IUser = {
     phone: '',
     role: '',
     company: '',
+    hireDate: new Date(),
     employeeType: 'Full-Time',
+    status: 'Active',
     teams: [],
 };
 

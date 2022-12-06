@@ -5,8 +5,7 @@ import { Box, CircularProgress, Fab, TextField } from '@mui/material';
 import MoreTimeIcon from '@mui/icons-material/MoreTime';
 import FormCard from './FormCard';
 import RotationShiftDay from 'components/shifts/RotationShiftDay';
-import { IShiftDetail, IShiftRotation } from 'models/ShiftRotation';
-import { IShiftTemplate } from 'models/ShiftTemplate';
+import { IShiftDetail, IShiftRotation, IShiftTemplate } from 'coverme-shared';
 import { validateCreateRotation } from 'utils/validations/createShift';
 import axios from 'utils/axios-intance';
 

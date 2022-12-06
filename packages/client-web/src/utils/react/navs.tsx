@@ -1,4 +1,4 @@
-import { INav } from 'models/Nav';
+import { INav } from 'coverme-shared';
 
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';

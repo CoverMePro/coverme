@@ -1,241 +1,224 @@
 import { Request, Response } from 'express';
-import { INotification, NotificationType } from '../models/Notification';
-import { mapToShift } from '../models/Shift';
-import { ISickRequest, mapToSickRequest } from '../models/Sick';
-import { ITeam, mapToTeams } from '../models/Team';
-import { db } from '../utils/admin';
+import { INotification, NotificationType, ISickRequest, IShift } from 'coverme-shared';
+import dbHandler from '../db/db-handler';
 
-const createSickRequest = (req: Request, res: Response) => {
+const createSickRequest = async (req: Request, res: Response) => {
     const sickRequest: ISickRequest = req.body;
     sickRequest.requestDate = new Date(sickRequest.requestDate!);
 
-    db.collection(`/sick-requests`)
-        .where('shiftId', '==', sickRequest.shiftId)
-        .get()
-        .then(async (sickRequestDocs) => {
-            if (!sickRequestDocs.empty) {
-                return res
-                    .status(403)
-                    .json({ error: 'A sick request was already made with this shift' });
-            }
+    try {
+        const sickRequestExist = await dbHandler.documentExistsByCondition(
+            'sick-requests',
+            'shiftId',
+            '==',
+            sickRequest.shiftId
+        );
 
-            try {
-                const sickRequestDoc = await db.collection(`/sick-requests`).add(sickRequest);
+        if (sickRequestExist) {
+            return res
+                .status(403)
+                .json({ error: 'A sick request was already made with this shift' });
+        }
 
-                sickRequest.id = sickRequestDoc.id;
+        const sickRequestAdded = await dbHandler.addDocument<ISickRequest>(
+            'sick-requests',
+            sickRequest
+        );
 
-                const shiftDoc = await db.doc(`/shifts/${sickRequest.shiftId}`).get();
+        const shift = await dbHandler.getDocumentById<IShift>('shifts', sickRequest.shiftId);
 
-                sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
+        sickRequestAdded.shift = shift;
 
-                const teamDoc = await db.doc(`/teams/${sickRequest.teamId}`).get();
-
-                const team: ITeam = mapToTeams(teamDoc.id, teamDoc.data());
-
-                const managers = team.managers;
-
-                const notification: INotification = {
-                    messageTitle: 'Sick Request Pending',
-                    messageType: NotificationType.SICK,
-                    messageBody: 'There has been a sick request made.',
-                    usersNotified: managers,
-                };
-
-                await db.collection('/notifications').add(notification);
-
-                return res.json({ sickRequest: sickRequest });
-            } catch (err) {
-                console.error(err);
-                return res.status(500).json({ error: err });
-            }
-        });
+        return res.json(sickRequestAdded);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getSickRequests = (req: Request, res: Response) => {
+const getSickRequests = async (req: Request, res: Response) => {
     const { user } = req.params;
-    const sickRequests: ISickRequest[] = [];
+    try {
+        const sickRequests = await dbHandler.getCollectionWithCondition<ISickRequest>(
+            'sick-requests',
+            'userId',
+            '==',
+            user
+        );
 
-    const shiftIds: string[] = [];
+        const shiftIds: string[] = [];
 
-    db.collection(`/sick-requests`)
-        .where('userId', '==', user)
-        .get()
-        .then(async (sickRequestDocs) => {
-            sickRequestDocs.forEach((sickRequestDoc) => {
-                const sickRequest: ISickRequest = mapToSickRequest(
-                    sickRequestDoc.id,
-                    sickRequestDoc.data()
-                );
-
-                sickRequests.push(sickRequest);
-                shiftIds.push(sickRequest.shiftId!);
-            });
-
-            if (shiftIds.length > 0) {
-                const shiftDocs = await db
-                    .collection(`/shifts`)
-                    .where('__name__', 'in', shiftIds)
-                    .get();
-
-                shiftDocs.forEach((shiftDoc) => {
-                    for (let i = 0, len = sickRequests.length; i < len; ++i) {
-                        const sickRequest = sickRequests[i];
-
-                        if (shiftDoc.id === sickRequest.shiftId) {
-                            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
-                        }
-                    }
-                });
-            }
-
-            return res.json({ sickRequests: sickRequests });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+        sickRequests.forEach((sickRequest) => {
+            shiftIds.push(sickRequest.shiftId);
         });
+
+        if (shiftIds.length > 0) {
+            const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+                'shifts',
+                '__name__',
+                'in',
+                shiftIds
+            );
+
+            shifts.forEach((shift) => {
+                for (let i = 0, len = sickRequests.length; i < len; ++i) {
+                    const sickRequest = sickRequests[i];
+
+                    if (shift.id === sickRequest.shiftId) {
+                        sickRequest.shift = {
+                            ...dbHandler.getData(shift),
+                        };
+                    }
+                }
+            });
+        }
+
+        return res.json(sickRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const getSickRequestsFromTeams = (req: Request, res: Response) => {
+const getSickRequestsFromTeams = async (req: Request, res: Response) => {
     const teams = req.body.teams;
 
     let users: string[] = [];
-    const sickRequests: ISickRequest[] = [];
 
     const shiftIds: string[] = [];
 
-    db.collection(`/teams`)
-        .where('__name__', 'in', teams)
-        .get()
-        .then((teamResult) => {
-            teamResult.forEach((team) => {
-                const teamData = team.data();
+    try {
+        const retreivedTeams = await dbHandler.getCollectionWithCondition(
+            'teams',
+            '__name__',
+            'in',
+            teams
+        );
 
-                if (teamData.staff) {
-                    users = [...users, ...teamData.staff];
+        retreivedTeams.forEach((team) => {
+            const teamData = dbHandler.getData(team);
+
+            if (teamData.staff) {
+                users = [...users, ...teamData.staff];
+            }
+        });
+
+        const sickRequests = await dbHandler.getCollectionChainedConditions<ISickRequest>(
+            'sick-requests',
+            [
+                {
+                    property: 'userId',
+                    operator: 'in',
+                    value: users,
+                },
+                {
+                    property: 'stauts',
+                    operator: '==',
+                    value: 'Pending',
+                },
+            ]
+        );
+
+        sickRequests.forEach((sickRequest) => {
+            shiftIds.push(sickRequest.shiftId!);
+        });
+
+        if (shiftIds.length > 0) {
+            const shifts = await dbHandler.getCollectionWithCondition<IShift>(
+                'shifts',
+                '__name__',
+                'in',
+                shiftIds
+            );
+
+            shifts.forEach((shift) => {
+                for (let i = 0, len = sickRequests.length; i < len; ++i) {
+                    const sickRequest = sickRequests[i];
+
+                    if (shift.id === sickRequest.shiftId) {
+                        sickRequest.shift = {
+                            ...dbHandler.getData(shift),
+                        };
+                    }
                 }
             });
+        }
 
-            return db
-                .collection(`/sick-requests`)
-                .where('userId', 'in', users)
-                .where('status', '==', 'Pending')
-                .get();
-        })
-        .then(async (sickRequestDocs) => {
-            sickRequestDocs.forEach((sickRequestDoc) => {
-                const sickRequest: ISickRequest = mapToSickRequest(
-                    sickRequestDoc.id,
-                    sickRequestDoc.data()
-                );
-
-                sickRequests.push(sickRequest);
-
-                shiftIds.push(sickRequest.shiftId!);
-            });
-
-            if (shiftIds.length > 0) {
-                const shiftDocs = await db
-                    .collection(`/shifts`)
-                    .where('__name__', 'in', shiftIds)
-                    .get();
-
-                shiftDocs.forEach((shiftDoc) => {
-                    for (let i = 0, len = sickRequests.length; i < len; ++i) {
-                        const sickRequest = sickRequests[i];
-                        if (shiftDoc.id === sickRequest.shiftId) {
-                            sickRequest.shift = mapToShift(shiftDoc.id, shiftDoc.data());
-                        }
-                    }
-                });
-            }
-
-            return res.json({ sickRequests: sickRequests });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(sickRequests);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const approveSickRequest = (req: Request, res: Response) => {
+const approveSickRequest = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     let userId: string;
 
-    db.doc(`/sick-requests/${id}`)
-        .update({
+    try {
+        await dbHandler.updateDocument<ISickRequest>('sick-requests', id, {
             status: 'Approved',
-        })
-        .then(() => {
-            return db.doc(`/sick-requests/${id}`).get();
-        })
-        .then((sickRequestDoc) => {
-            const sickRequest = mapToSickRequest(sickRequestDoc.id, sickRequestDoc.data());
-
-            userId = sickRequest.userId;
-
-            return db.doc(`/shifts/${sickRequest.shiftId}`).update({
-                userId: 'unclaimed',
-            });
-        })
-        .then(() => {
-            const notification: INotification = {
-                messageTitle: 'Sick Request Approved',
-                messageType: NotificationType.SICK,
-                messageBody: 'Your sick request has been approved.',
-                usersNotified: [userId],
-            };
-
-            return db.collection('/notifications').add(notification);
-        })
-        .then(() => {
-            return res.json({ message: 'Sick request approved.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
         });
+
+        const sickRequest = await dbHandler.getDocumentById<ISickRequest>('sick-requests', id);
+
+        userId = sickRequest.userId;
+
+        await dbHandler.updateDocument<IShift>('shifts', sickRequest.shiftId, {
+            userId: 'unclaimed',
+        });
+
+        const notification: INotification = {
+            messageTitle: 'Sick Request Approved',
+            messageType: NotificationType.SICK,
+            messageBody: 'Your sick request has been approved.',
+            usersNotified: [userId],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
+
+        return res.json({ message: 'Sick request approved.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const rejectSickRequest = (req: Request, res: Response) => {
+const rejectSickRequest = async (req: Request, res: Response) => {
     const { id, userId } = req.params;
 
-    db.doc(`/sick-requests/${id}`)
-        .update({
-            status: 'Rejected',
-        })
-        .then(() => {
-            const notification: INotification = {
-                messageTitle: 'Sick Request Approved',
-                messageType: NotificationType.SICK,
-                messageBody: 'Your sick request has been approved.',
-                usersNotified: [userId],
-            };
-
-            return db.collection('/notifications').add(notification);
-        })
-        .then(() => {
-            return res.json({ message: 'Sick request rejected.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+    try {
+        await dbHandler.updateDocument<ISickRequest>('sick-requests', id, {
+            status: 'Declined',
         });
+
+        const notification: INotification = {
+            messageTitle: 'Sick Request Approved',
+            messageType: NotificationType.SICK,
+            messageBody: 'Your sick request has been approved.',
+            usersNotified: [userId],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
+
+        return res.json({ message: 'Sick request rejected.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteSickRequest = (req: Request, res: Response) => {
+const deleteSickRequest = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    db.doc(`/sick-requests/${id}`)
-        .delete()
-        .then(() => {
-            return res.json({ message: 'Sick request deleted.' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+    try {
+        await dbHandler.deleteDocument('sick-requests', id);
+        return res.json({ message: 'Sick request deleted.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {

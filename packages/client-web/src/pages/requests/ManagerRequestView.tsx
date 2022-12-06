@@ -3,9 +3,14 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 
-import { IFullTradeDisplay, ITradeRequest } from 'models/Trade';
-import { ISickDisplay, ISickRequest } from 'models/Sick';
-import { ITimeOff, ITimeOffDisplay } from 'models/TimeOff';
+import {
+    IFullTradeDisplay,
+    ITradeRequest,
+    ISickDisplay,
+    ISickRequest,
+    ITimeOff,
+    ITimeOffDisplay,
+} from 'coverme-shared';
 
 import PageLoading from 'components/loading/PageLoading';
 import TabPanel from 'components/tabs/TabPanel';

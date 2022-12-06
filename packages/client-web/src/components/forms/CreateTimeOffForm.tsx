@@ -24,7 +24,7 @@ import { DateRange, Range } from 'react-date-range';
 import { TimePicker } from '@mui/x-date-pickers';
 import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
-import { ITimeOffRequest, TimeOffType } from 'models/TimeOff';
+import { ITimeOffRequest, TimeOffType } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 import { AxiosError } from 'axios';
 

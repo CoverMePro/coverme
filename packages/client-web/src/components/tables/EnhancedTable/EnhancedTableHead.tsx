@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, TableHead, TableRow, TableCell, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { IHeadCell, Order } from 'models/TableInfo';
-import { IUser } from 'models/User';
+import { IHeadCell, Order, IUser } from 'coverme-shared';
 
 interface IEnhancedTableProps {
     onRequestSort: (event: React.MouseEvent<unknown>, property: keyof IUser) => void;

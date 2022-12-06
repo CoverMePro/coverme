@@ -3,9 +3,7 @@ import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import { ITradeDisplay } from 'models/Trade';
-import { ISelectedAction } from 'models/TableInfo';
-import ProposeTradeHeadCells from 'models/HeaderCells/TradeRequestHeadCells';
+import { ITradeDisplay, ISelectedAction, staffTradeRequestHeadCells } from 'coverme-shared';
 import axios from 'utils/axios-intance';
 
 interface IProposedTradesProps {
@@ -59,7 +57,7 @@ const ProposedTrades: React.FC<IProposedTradesProps> = ({ tradeRequests, onDelet
                 data={tradeRequests}
                 id="id"
                 title="Proposed Trades"
-                headerCells={ProposeTradeHeadCells}
+                headerCells={staffTradeRequestHeadCells}
                 selected={selected}
                 onSelect={handleSelectRequest}
                 unSelectedActions={[]}

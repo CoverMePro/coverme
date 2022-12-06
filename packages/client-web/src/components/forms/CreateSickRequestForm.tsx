@@ -4,8 +4,7 @@ import { useSnackbar } from 'notistack';
 import { Box, Typography, CircularProgress, Fab, Autocomplete, TextField } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
-import { IShift } from 'models/Shift';
-import { ISickRequest } from 'models/Sick';
+import { IShift, ISickRequest } from 'coverme-shared';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import { getTodayAndTomorrowDates } from 'utils/helpers/dateTime-helpers';
 import axios from 'utils/axios-intance';
@@ -118,15 +117,15 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
                                         options={userShifts}
                                         getOptionLabel={(option) =>
                                             `${formatDateTimeOutputString(
-                                                option.startDateTime,
-                                                option.endDateTime
+                                                option.startDateTime as string,
+                                                option.endDateTime as string
                                             )}`
                                         }
                                         renderOption={(props, option, { selected }) => (
                                             <li {...props}>
                                                 {formatDateTimeOutputString(
-                                                    option.startDateTime,
-                                                    option.endDateTime
+                                                    option.startDateTime as string,
+                                                    option.endDateTime as string
                                                 )}
                                             </li>
                                         )}

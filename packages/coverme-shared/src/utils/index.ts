@@ -1,1 +1,1 @@
-export * from './data/firestore-data';
+export default {};

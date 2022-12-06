@@ -1,8 +1,6 @@
-import { IOvertime, ICallout, mapToOvertime } from '../models/Overtime';
-import { IShift, mapToShift } from '../models/Shift';
-import { IUser } from '../models/User';
+import { IOvertime, ICallout, IShift, IUser } from 'coverme-shared';
 import { db } from './admin';
-import { getCalloutList } from './db-helpers';
+import { getCalloutList, mapFireStoreData } from './db-helpers';
 import { sendConfirmOvertimeSms, sendOvertimeSms } from './sms';
 
 const userContainsTeam = (user: IUser, team: string) => {
@@ -174,7 +172,7 @@ const callout = () => {
 
             calloutResult.forEach(async (overtimeCalloutDoc) => {
                 try {
-                    const overtimeData: IOvertime = mapToOvertime(
+                    const overtimeData: IOvertime = mapFireStoreData(
                         overtimeCalloutDoc.id,
                         overtimeCalloutDoc.data()
                     );
@@ -197,7 +195,7 @@ const callout = () => {
                     if (shiftdoc && shiftdoc.data()) {
                         // check if shit start time is in reasonable time to call out
                         // if not, notify shift has not been assigned
-                        const shift: IShift = mapToShift(shiftdoc.id, shiftdoc.data());
+                        const shift: IShift = mapFireStoreData(shiftdoc.id, shiftdoc.data());
 
                         // method to calculate date within a certain time (1 hour)
                         if (hasCalloutReachedShiftStartTimeRange(shift, 1)) {

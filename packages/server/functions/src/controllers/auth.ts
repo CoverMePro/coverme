@@ -1,98 +1,85 @@
 import { Request, Response } from 'express';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
-import { IUser, IUserLogin, mapToUser } from '../models/User';
+import { IUser, IUserLogin } from 'coverme-shared';
 
 import { SESSION_COOKIE_EXPIRY } from '../constants';
 
-import { db, fbAuth, fbAdmin } from '../utils/admin';
+import { fbAuth, fbAdmin } from '../utils/admin';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
 import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
-import { updateNewUserIntoDb } from '../utils/db-helpers';
+import dbHandler from '../db/db-handler';
+import { updateNewUserIntoDb } from '../db/db-helpers';
+import { batchSetAndDelete } from '../db/batch-handler';
 
-import { ICompany, MapFireStoreData } from 'coverme-models/lib';
-
-const registerUser = (req: Request, res: Response) => {
+const registerUser = async (req: Request, res: Response) => {
     const { email, password, phone } = req.body;
+    try {
+        const data = await createUserWithEmailAndPassword(fbAuth, email, password);
 
-    let userUID: string;
+        const userUID = data.user.uid;
 
-    createUserWithEmailAndPassword(fbAuth, email, password)
-        .then(async (data) => {
-            try {
-                userUID = data.user.uid;
+        const user: IUser = await dbHandler.getDocumentFromCollectionWithCondition<IUser>(
+            'users',
+            'email',
+            '==',
+            email
+        );
 
-                const userDocs = await db
-                    .collection('users')
-                    .where('email', '==', email)
-                    .limit(1)
-                    .get();
+        const userData: any = {
+            ...user,
+            phone,
+        };
 
-                if (userDocs.empty) {
-                    return res.status(500).json({ error: 'Can not find user' });
-                }
+        delete userData.id;
 
-                const batch = db.batch();
-
-                batch.set(db.doc(`/users/${userUID}`), {
-                    ...userDocs.docs[0].data(),
-                    phone,
-                    status: 'Active',
-                    statusUpdatedAt: Date.now(),
-                });
-
-                batch.delete(db.doc(`/users/${userDocs.docs[0].id}`));
-
-                await batch.commit();
-
-                return res.json({
-                    message: 'User created successfully!',
-                });
-            } catch (err) {
-                console.error(err);
-                return res.status(500).json({ error: err });
+        await batchSetAndDelete(
+            {
+                path: 'users',
+                id: userUID,
+                data: user,
+            },
+            {
+                path: 'users',
+                id: user.id,
             }
-        })
-        .then(() => {
-            return res.json({
-                message: 'User created successfully!',
-            });
-        })
-        .catch((error) => {
-            console.error(error);
-            return res.status(500).json({ error });
+        );
+
+        return res.json({
+            message: 'User created successfully!',
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error });
+    }
 };
 
-const completeRegisterUser = (req: Request, res: Response) => {
+const completeRegisterUser = async (req: Request, res: Response) => {
     const { email, password, firstName, lastName, employeeType, role, hireDate, phone } = req.body;
 
     const newHiredate = new Date(new Date(hireDate as Date).setHours(24, 0, 0, 0));
 
-    createUserWithEmailAndPassword(fbAuth, email, password)
-        .then((data) => {
-            const userId = data.user.uid;
+    try {
+        const authData = await createUserWithEmailAndPassword(fbAuth, email, password);
 
-            return db.doc(`/users/${userId}`).set({
-                email,
-                firstName,
-                lastName,
-                employeeType,
-                role,
-                hireDate: newHiredate,
-                phone,
-                status: 'Active',
-            });
-        })
-        .then(() => {
-            return res.json({
-                message: 'User created successfully!',
-            });
-        })
-        .catch((error) => {
-            console.error(error);
-            return res.status(500).json({ error });
+        await dbHandler.setDocument('users', authData.user.uid, {
+            email,
+            firstName,
+            lastName,
+            employeeType,
+            role,
+            hireDate: newHiredate,
+            phone,
+            status: 'Active',
         });
+
+        return res.json({
+            message: 'User created successfully!',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error });
+    }
 };
 
 /**
@@ -100,22 +87,20 @@ const completeRegisterUser = (req: Request, res: Response) => {
  * At this time the user is not created in the firebase authentication
  * This is a hacky approach for now, will look into doing a more custom email approach
  */
-const sendRegisterLink = (req: Request, res: Response) => {
+const sendRegisterLink = async (req: Request, res: Response) => {
     const userInfo: IUser = req.body;
 
     const newHiredate = new Date(new Date(userInfo.hireDate as Date).setHours(24, 0, 0, 0));
 
-    emailSignInForUser(fbAuth, userInfo.email)
-        .then(() => {
-            return updateNewUserIntoDb(userInfo, newHiredate);
-        })
-        .then(() => {
-            return res.json({ message: 'Email link successful', email: userInfo.email });
-        })
-        .catch((error) => {
-            console.error(error);
-            return res.status(500).json({ error });
-        });
+    try {
+        await emailSignInForUser(fbAuth, userInfo.email);
+        await updateNewUserIntoDb(userInfo, newHiredate);
+
+        return res.json({ message: 'Email link successful', email: userInfo.email });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error });
+    }
 };
 
 const registerCallback = (req: Request, res: Response) => {
@@ -123,99 +108,76 @@ const registerCallback = (req: Request, res: Response) => {
     return res.redirect(`${process.env.WEB_CLIENT_DOMAIN}/register?email=${email}`);
 };
 
-const signIn = (req: Request, res: Response) => {
+const signIn = async (req: Request, res: Response) => {
     const userLogin: IUserLogin = req.body;
-
-    let cookie: string;
-    let userUID: string;
-    let userInfo: IUser;
-    let companyInfo: ICompany;
 
     const expiresIn = SESSION_COOKIE_EXPIRY;
 
-    return signInWithEmailAndPassword(fbAuth, userLogin.email, userLogin.password)
-        .then((data) => {
-            userUID = data.user.uid;
-            return data.user.getIdToken();
-        })
-        .then((tokenId) => {
-            return assignSessionCookie(tokenId, expiresIn);
-        })
-        .then((sessionCookie) => {
-            cookie = sessionCookie;
-            return db.doc(`/users/${userUID}`).get();
-        })
-        .then((userData) => {
-            userInfo = mapToUser(userData.id, userData.data());
+    try {
+        const authData = await signInWithEmailAndPassword(
+            fbAuth,
+            userLogin.email,
+            userLogin.password
+        );
+        const tokenId = await authData.user.getIdToken();
+        const sessionCookie = await assignSessionCookie(tokenId, expiresIn);
 
-            return db.doc('/company/info').get();
-        })
-        .then((companyDoc) => {
-            companyInfo = MapFireStoreData(companyDoc.id, companyDoc.data(), false);
+        const [user, company] = await dbHandler.getMultipleCollections([
+            dbHandler.getDocumentById('users', authData.user.uid),
+            dbHandler.getDocumentById('company', 'info'),
+        ]);
 
-            const cookieOptions = {
-                maxAge: expiresIn,
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none' as 'none',
-            };
-            res.cookie('__session', cookie, cookieOptions);
-            return res.json({
-                message: 'login successful',
-                user: userInfo,
-                companyInfo: companyInfo,
-            });
-        })
-        .catch((err) => {
-            switch (err.code) {
+        const cookieOptions = {
+            maxAge: expiresIn,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none' as 'none',
+        };
+
+        res.cookie('__session', sessionCookie, cookieOptions);
+        return res.json({
+            message: 'login successful',
+            user: user,
+            companyInfo: company,
+        });
+    } catch (error) {
+        console.error(error);
+        if ((error as any).code) {
+            switch ((error as any).code) {
                 case 'auth/wrong-password':
                 case 'auth/user-not-found':
                     return res.status(403).json({ general: 'Wrong credentials, please try again' });
                 default: {
-                    console.error(err);
-                    return res.status(500).json({ error: err });
+                    return res.status(500).json({ error: error });
                 }
             }
-        });
+        }
+
+        return res.status(500).json({ error: error });
+    }
 };
 
-const deleteAuthUser = (req: Request, res: Response) => {
+const deleteAuthUser = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    db.doc(`/users/${id}`)
-        .get()
-        .then((userData) => {
-            const user = userData.data();
-            if (user && user.status === 'Active') {
-                fbAdmin
-                    .auth()
-                    .deleteUser(id)
-                    .then(() => {
-                        return db.doc(`/users/${id}`).delete();
-                    })
-                    .then(() => {
-                        return res.json({ message: 'user successfully deleted' });
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        return res.status(500).json({ error: err });
-                    });
-            } else {
-                db.doc(`/users/${id}`)
-                    .delete()
-                    .then(() => {
-                        return res.json({ message: 'user successfully deleted' });
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        return res.status(500).json({ error: err });
-                    });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err });
-        });
+    try {
+        const user: IUser = await dbHandler.getDocumentById('users', id);
+
+        if (user && user.status === 'Active') {
+            await fbAdmin.auth().deleteUser(id);
+
+            await dbHandler.deleteDocument('users', id);
+
+            return res.json({ message: 'user successfully deleted' });
+        } else {
+            await dbHandler.deleteDocument('users', id);
+
+            return res.json({ message: 'user successfully deleted' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 const logOut = (_: Request, res: Response) => {
@@ -249,17 +211,12 @@ const checkAuth = async (req: Request, res: Response) => {
             const decodedToken = await verifySessionCookie(sessionCookie);
 
             if (decodedToken.email) {
-                const userData = await db.doc(`/users/${decodedToken.uid}`).get();
-                const companyData = await db.doc('/company/info').get();
+                const [user, company] = await dbHandler.getMultipleCollections([
+                    dbHandler.getDocumentById('users', decodedToken.uid),
+                    dbHandler.getDocumentById('company', 'info'),
+                ]);
 
-                const userInfo: IUser = mapToUser(userData.id, userData.data());
-                const companyInfo: ICompany = MapFireStoreData(
-                    companyData.id,
-                    companyData.data(),
-                    false
-                );
-
-                return res.json({ userInfo: userInfo, companyInfo: companyInfo });
+                return res.json({ userInfo: user, companyInfo: company });
             } else {
                 return res.status(401).json({ error: 'No email found' });
             }
@@ -284,20 +241,16 @@ const passwordReset = (req: Request, res: Response) => {
         });
 };
 
-const updateMessageToken = (req: Request, res: Response) => {
+const updateMessageToken = async (req: Request, res: Response) => {
     const { userId, token } = req.body;
 
-    db.doc(`message-tokens/${userId}`)
-        .set({
-            token: token,
-        })
-        .then(() => {
-            return res.json({ message: 'Token Set' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err });
-        });
+    try {
+        await dbHandler.setDocument('message-tokens', userId, { token: token });
+        return res.json({ message: 'Token Set' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {

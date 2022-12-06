@@ -1,219 +1,193 @@
 import { Request, Response } from 'express';
-import { ITeam, mapToTeams } from '../models/Team';
-import { db } from '../utils/admin';
-import { formatFirestoreData } from '../utils/db-helpers';
+import { ITeam, IUser } from 'coverme-shared';
+import {
+    deleteDocument,
+    documentExistsById,
+    getCollection,
+    getCollectionWithCondition,
+    getDocumentById,
+    getDocumentSnapshot,
+    setDocument,
+} from '../db/db-handler';
+import { getBatch } from '../db/batch-handler';
 
-// TO DO: Refactor and clean this up better (theres gotta be a way)
+const getAllTeams = async (_: Request, res: Response) => {
+    try {
+        const teams = await getCollection<ITeam>('teams');
 
-const getAllTeams = (_: Request, res: Response) => {
-    db.collection(`/teams`)
-        .get()
-        .then((teamDocs) => {
-            const teams: ITeam[] = formatFirestoreData(teamDocs, mapToTeams);
-
-            return res.json(teams);
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        return res.json(teams);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const createTeam = (req: Request, res: Response) => {
+const createTeam = async (req: Request, res: Response) => {
     const team: ITeam = req.body.team;
-    db.doc(`/teams/${team.name}`)
-        .get()
-        .then((teamData) => {
-            if (teamData.exists) {
-                // err
-                throw 403;
-            } else {
-                return db
-                    .doc(`/teams/${team.name}`)
-                    .set({
-                        managers: team.managers,
-                        staff: team.staff,
-                        owner: team.owner,
-                        color: team.color,
-                    });
-            }
-        })
-        .then(async () => {
-            const emails = [...team.managers, ...team.staff, team.owner];
-            if (emails.length > 0) {
-                const batch = db.batch();
-                db.collection('/users')
-                    .where('__name__', 'in', emails)
-                    .get()
-                    .then(async (userData) => {
-                        userData.forEach(async (doc) => {
-                            let teams = [];
-                            const user = db.doc(`/users/${doc.id}`);
-                            const userData = doc.data();
+    try {
+        const teamExist = await documentExistsById('teams', team.name);
 
-                            if (userData && userData.teams) {
-                                teams = [...userData.teams, team.name];
-                            } else {
-                                teams = [team.name];
-                            }
+        if (teamExist) {
+            return res.status(403).json({ error: 'Team with that name already exists' });
+        }
 
-                            batch.update(user, { teams: teams });
-                        });
-
-                        return batch.commit();
-                    });
-            } else {
-                return new Promise<void>((resolve, reject) => {});
-            }
-        })
-        .then(() => {
-            return res.json({ message: 'Team Created!' });
-        })
-        .catch((err) => {
-            if (err === 403) {
-                return res.status(403).json({ error: 'Team with that name already exists' });
-            } else {
-                console.error(err);
-                return res.status(500).json({ error: err.code });
-            }
+        await setDocument('teams', team.name, {
+            managers: team.managers,
+            staff: team.staff,
+            owner: team.owner,
+            color: team.color,
         });
+
+        const emails = [...team.managers, ...team.staff, team.owner];
+
+        if (emails.length > 0) {
+            const batch = getBatch();
+
+            const users = await getCollectionWithCondition<IUser>(
+                'users',
+                '__name__',
+                'in',
+                emails
+            );
+
+            users.forEach(async (user) => {
+                let teams = [];
+
+                const userDoc = getDocumentSnapshot(`users/${user.id}`);
+
+                if (user.teams) {
+                    teams = [...user.teams, team.name];
+                } else {
+                    teams = [team.name];
+                }
+
+                batch.update(userDoc, { teams: teams });
+            });
+
+            await batch.commit();
+        }
+
+        return res.json({ message: 'Team Created!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-/**
- * Delete a team from a company
- */
-
-const deleteTeam = (req: Request, res: Response) => {
+const deleteTeam = async (req: Request, res: Response) => {
     const { name } = req.params;
 
-    db.doc(`/teams/${name}`)
-        .delete()
-        .then(() => {
-            db.collection('/users')
-                .where('teams', 'array-contains', name)
-                .get()
-                .then(async (userData) => {
-                    const batch = db.batch();
-                    userData.forEach(async (doc) => {
-                        const user = db.doc(`/users/${doc.id}`);
-                        const userData = doc.data();
+    try {
+        await deleteDocument('teams', name);
 
-                        const teams = userData.teams.filter((t: any) => t != name);
+        const users = await getCollectionWithCondition<IUser>(
+            'users',
+            'teams',
+            'array-contains',
+            name
+        );
+        const batch = getBatch();
 
-                        batch.update(user, { teams: teams });
-                    });
+        users.forEach(async (user) => {
+            const userDoc = getDocumentSnapshot(`users/${user.id}`);
 
-                    return batch.commit();
-                });
-        })
-        .then(() => {
-            return res.json({ message: 'Team Deleted!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
+            const teams = user.teams.filter((t: any) => t != name);
+
+            batch.update(userDoc, { teams: teams });
         });
+
+        await batch.commit();
+
+        return res.json({ message: 'Team Deleted!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const addUserToTeam = (req: Request, res: Response) => {
+const addUserToTeam = async (req: Request, res: Response) => {
     const { name } = req.params;
     const user = req.body.user;
 
-    // add user to team doc
-    db.doc(`/teams/${name}`)
-        .get()
-        .then((teamDoc) => {
-            const team = teamDoc.data();
+    try {
+        const team = await getDocumentById<ITeam>('teams', name);
 
-            if (team) {
-                if (user.role === 'manager') {
-                    team.managers.push(user.id);
-                } else {
-                    team.staff.push(user.id);
-                }
+        if (user.role === 'manager') {
+            team.managers.push(user.id);
+        } else {
+            team.staff.push(user.id);
+        }
 
-                return db.doc(`/teams/${name}`).set(team);
-            }
-            throw Error('Team not found!');
-        })
-        .then(() => {
-            return db.doc(`/users/${user.id}`).get();
-        })
-        .then((userResult) => {
-            const userData = userResult.data();
+        const teamData: any = {
+            ...team,
+        };
 
-            if (userData) {
-                if (userData.teams) {
-                    userData.teams.push(name);
-                } else {
-                    userData.teams = [name];
-                }
+        delete teamData.name;
 
-                return db.doc(`/users/${user.id}`).set(userData);
-            }
+        await setDocument('teams', name, teamData);
 
-            throw Error('User not found!');
-        })
-        .then(() => {
-            return res.json({ message: 'User added to team!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        const userData: any = await getDocumentById<IUser>('users', user.id);
+
+        delete userData.id;
+
+        if (userData.teams) {
+            userData.teams.push(name);
+        } else {
+            userData.teams = [name];
+        }
+
+        await setDocument('users', user.id, userData);
+
+        return res.json({ message: 'User added to team!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
-const removeUserFromTeam = (req: Request, res: Response) => {
+const removeUserFromTeam = async (req: Request, res: Response) => {
     const { name } = req.params;
     const user = req.body.user;
 
-    // add user to team doc
-    db.doc(`/teams/${name}`)
-        .get()
-        .then((teamResult) => {
-            const team = teamResult.data();
+    try {
+        const team = await getDocumentById<ITeam>('teams', name);
 
-            if (team) {
-                let newTeams = [];
-                if (user.role === 'manager') {
-                    newTeams = team.managers.filter((manager: string) => manager !== user.id);
+        let newTeams = [];
+        if (user.role === 'manager') {
+            newTeams = team.managers.filter((manager: string) => manager !== user.id);
 
-                    team.managers = newTeams;
-                } else {
-                    newTeams = team.staff.filter((staff: string) => staff !== user.id);
+            team.managers = newTeams;
+        } else {
+            newTeams = team.staff.filter((staff: string) => staff !== user.id);
 
-                    team.staff = newTeams;
-                }
+            team.staff = newTeams;
+        }
 
-                return db.doc(`/teams/${name}`).set(team);
-            }
-            throw Error('Team not found!');
-        })
-        .then(() => {
-            return db.doc(`/users/${user.id}`).get();
-        })
-        .then((userResult) => {
-            const userData = userResult.data();
+        const teamData: any = {
+            ...team,
+        };
 
-            if (userData) {
-                if (userData.teams) {
-                    const newTeams = userData.teams.filter((team: string) => team !== name);
+        delete teamData.name;
 
-                    userData.teams = newTeams;
-                }
+        await setDocument('teams', name, teamData);
 
-                return db.doc(`/users/${user.id}`).set(userData);
-            }
+        const userData: any = await getDocumentById<IUser>('users', user.id);
 
-            throw Error('User not found!');
-        })
-        .then(() => {
-            return res.json({ message: 'User added to team!' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
+        delete userData.id;
+
+        if (userData.teams) {
+            const newTeams = userData.teams.filter((team: string) => team !== name);
+
+            userData.teams = newTeams;
+        }
+
+        await setDocument('users', user.id, userData);
+
+        return res.json({ message: 'User added to team!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
 };
 
 export default {

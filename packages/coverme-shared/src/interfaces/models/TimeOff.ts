@@ -1,4 +1,4 @@
-import { StaffRequestStatus, TimeOffType } from 'types';
+import { StaffRequestStatus, TimeOffType } from '../../types';
 
 export interface ITimeOffRequest {
     id?: string;

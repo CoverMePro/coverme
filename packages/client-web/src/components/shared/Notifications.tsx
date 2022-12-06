@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { IconButton, Menu, MenuItem, Badge, Typography } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { INotification } from 'models/Notification';
+import { INotification } from 'coverme-shared';
 
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 

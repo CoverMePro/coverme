@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 
-import { ICompany, mapToCompany } from '../models/Company';
-import { ILastCallouts } from '../models/LastCallout';
-import { IUser, mapToUser } from '../models/User';
+import { ICompany, ILastCallouts, IUser } from 'coverme-shared';
 
 import { db, fbAuth, fbAdmin } from '../utils/admin';
-import { getCalloutList, updateNewUserIntoDb } from '../utils/db-helpers';
+import { getCalloutList, mapFireStoreData, updateNewUserIntoDb } from '../db/db-helpers';
 import { emailSignInForUser } from '../utils/fb-emails';
 
 const getAllCompanyNames = (_: Request, res: Response) => {
@@ -31,7 +29,11 @@ const getCompany = (req: Request, res: Response) => {
         .get()
         .then((companyDoc) => {
             if (companyDoc.exists) {
-                const companyInfo: ICompany = mapToCompany(companyDoc.data());
+                const companyInfo: ICompany = mapFireStoreData(
+                    companyDoc.id,
+                    companyDoc.data(),
+                    false
+                );
                 return res.json(companyInfo);
             } else {
                 return res.status(404).json({ error: 'Company not found' });
@@ -88,7 +90,7 @@ const createCompany = async (req: Request, res: Response) => {
             return emailSignInForUser(fbAuth, ownerEmail);
         })
         .then(() => {
-            const ownerUser: IUser = mapToUser(ownerEmail, { ...ownerInfo, phone: '' });
+            const ownerUser: IUser = mapFireStoreData(ownerEmail, { ...ownerInfo, phone: '' });
             return updateNewUserIntoDb(ownerUser, new Date());
         })
         .then(() => {

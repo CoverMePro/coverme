@@ -1,5 +1,4 @@
-import { ICompany } from 'models/Company';
-import { IUser } from 'models/User';
+import { ICompany, IUser } from 'coverme-shared';
 import { ActionType } from 'state/action-types';
 import { SetCompanyAction, SetUserAction } from 'state/actions';
 
