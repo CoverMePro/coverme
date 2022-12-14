@@ -1,4 +1,4 @@
-import { db } from '../utils/admin';
+import { db } from "../utils/admin";
 
 interface IBatchCommand {
     path: string;
@@ -24,12 +24,22 @@ export const batchSetAndDelete = (
     return batch.commit();
 };
 
-export const updateAndDelete = (updateCommand: IBatchDataCommand, deleteCommand: IBatchCommand) => {
+export const updateAndDelete = (
+    updateCommand: IBatchDataCommand,
+    deleteCommand: IBatchCommand
+) => {
     const batch = db.batch();
 
-    batch.update(db.doc(`${updateCommand.path}/${updateCommand.id}`), updateCommand.data);
+    batch.update(
+        db.doc(`${updateCommand.path}/${updateCommand.id}`),
+        updateCommand.data
+    );
 
     batch.delete(db.doc(`${deleteCommand.path}/${deleteCommand.id}`));
 
     return batch.commit();
+};
+
+export const getBatch = () => {
+    return db.batch();
 };

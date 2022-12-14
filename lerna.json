@@ -1,5 +1,10 @@
 {
-    "packages": ["packages/client-web", "packages/coverme-shared", "packages/server/functions"],
-    "useNx": true,
-    "version": "0.0.0"
+    "packages": [
+        "packages/client-web",
+        "packages/coverme-shared",
+        "packages/server/functions"
+    ],
+    "version": "0.0.0",
+    "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+    "useWorkspaces": false
 }

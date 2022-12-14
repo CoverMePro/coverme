@@ -1,15 +1,15 @@
 {
-    "name": "coverme-shared",
-    "version": "1.0.0",
-    "description": "",
-    "main": "lib/index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc"
-    },
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "typescript": "^4.9.3"
-    }
+	"name": "coverme-shared",
+	"version": "1.0.0",
+	"description": "",
+	"main": "lib/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"typescript": "^4.9.3"
+	}
 }

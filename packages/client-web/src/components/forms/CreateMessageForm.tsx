@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
-import { useSnackbar } from 'notistack';
-import { useFormik } from 'formik';
+import React, { useState } from "react";
+import { useTypedSelector } from "hooks/use-typed-selector";
+import { useSnackbar } from "notistack";
+import { useFormik } from "formik";
 import {
     Box,
     CircularProgress,
@@ -12,13 +12,14 @@ import {
     Select,
     SelectChangeEvent,
     TextField,
-} from '@mui/material';
-import FormCard from './FormCard';
-import HowToRegIcon from '@mui/icons-material/Add';
-import { IMessage } from 'coverme-shared';
-import { validateCreateMessage } from 'utils/validations/message';
-import axios from 'utils/axios-intance';
-import { AxiosError } from 'axios';
+} from "@mui/material";
+import HowToRegIcon from "@mui/icons-material/Add";
+
+import FormCard from "./FormCard";
+import { validateCreateMessage } from "utils/validations/message";
+import api from "utils/api";
+
+import { IMessage } from "coverme-shared";
 
 interface ICreateMessageFormProps {
     onFinish: (message: IMessage | undefined) => void;
@@ -26,49 +27,55 @@ interface ICreateMessageFormProps {
 
 const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [messageFor, setMessageFor] = useState<string>('company');
+    const [messageFor, setMessageFor] = useState<string>("company");
 
     const user = useTypedSelector((state) => state.user);
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
-        initialValues: {
-            messageTitle: '',
-            messageContent: '',
-        },
-        validate: validateCreateMessage,
-        onSubmit: (values: any) => {
-            setIsLoading(true);
-            const message: IMessage = {
-                title: values.messageTitle,
-                content: values.messageContent,
-                date: new Date(),
-                userId: user.id,
-                userName: `${user.firstName} ${user.lastName}`,
-                for: messageFor,
-            };
+    const { handleSubmit, handleChange, handleBlur, touched, errors } =
+        useFormik({
+            initialValues: {
+                messageTitle: "",
+                messageContent: "",
+            },
+            validate: validateCreateMessage,
+            onSubmit: (values: any) => {
+                setIsLoading(true);
+                const message: IMessage = {
+                    title: values.messageTitle,
+                    content: values.messageContent,
+                    date: new Date(),
+                    userId: user.id,
+                    userName: `${user.firstName} ${user.lastName}`,
+                    for: messageFor,
+                };
 
-            axios
-                .post(`${process.env.REACT_APP_SERVER_API}/messages`, message)
-                .then((result) => {
-                    enqueueSnackbar('Message created.', {
-                        variant: 'success',
+                api.postCreateData<IMessage>(
+                    `${process.env.REACT_APP_SERVER_API}/messages`,
+                    message
+                )
+                    .then((message) => {
+                        enqueueSnackbar("Message created.", {
+                            variant: "success",
+                        });
+                        onFinish(message);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        enqueueSnackbar(
+                            "An error has occured, please try again",
+                            {
+                                variant: "error",
+                            }
+                        );
+                        onFinish(undefined);
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
                     });
-                    onFinish(result.data.message);
-                })
-                .catch((err: AxiosError) => {
-                    console.error(err);
-                    enqueueSnackbar('An error has occured, please try again', {
-                        variant: 'error',
-                    });
-                    onFinish(undefined);
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        },
-    });
+            },
+        });
 
     const handleMessageForChange = (event: SelectChangeEvent) => {
         setMessageFor(event.target.value as string);
@@ -79,7 +86,9 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
             <form onSubmit={handleSubmit}>
                 <Box>
                     <FormControl fullWidth>
-                        <InputLabel id="message-type-label">Message For</InputLabel>
+                        <InputLabel id="message-type-label">
+                            Message For
+                        </InputLabel>
                         <Select
                             labelId="message-type-label"
                             id="demo-simple-select"
@@ -87,7 +96,7 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                             label="Message For"
                             onChange={handleMessageForChange}
                         >
-                            <MenuItem value={'company'}>Company</MenuItem>
+                            <MenuItem value={"company"}>Company</MenuItem>
                             {user.teams.map((team) => (
                                 <MenuItem key={team} value={team}>
                                     {team}
@@ -98,7 +107,7 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                 </Box>
                 <Box sx={{ mt: 2 }}>
                     <TextField
-                        sx={{ width: '100%' }}
+                        sx={{ width: "100%" }}
                         variant="outlined"
                         type="text"
                         name="messageTitle"
@@ -108,14 +117,16 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                         error={
                             touched.messageTitle &&
                             errors.messageTitle !== undefined &&
-                            errors.messageTitle !== ''
+                            errors.messageTitle !== ""
                         }
-                        helperText={touched.messageTitle ? errors.messageTitle : ''}
+                        helperText={
+                            touched.messageTitle ? errors.messageTitle : ""
+                        }
                     />
                 </Box>
                 <Box sx={{ mt: 2 }}>
                     <TextField
-                        sx={{ width: '100%' }}
+                        sx={{ width: "100%" }}
                         variant="outlined"
                         multiline
                         rows={10}
@@ -127,16 +138,22 @@ const CreateMessageForm: React.FC<ICreateMessageFormProps> = ({ onFinish }) => {
                         error={
                             touched.messageContent &&
                             errors.messageContent !== undefined &&
-                            errors.messageContent !== ''
+                            errors.messageContent !== ""
                         }
-                        helperText={touched.messageContent ? errors.messageContent : ''}
+                        helperText={
+                            touched.messageContent ? errors.messageContent : ""
+                        }
                     />
                 </Box>
                 <Box sx={{ mt: 3 }}>
                     {isLoading ? (
                         <CircularProgress />
                     ) : (
-                        <Fab color="primary" aria-label="Register User" type="submit">
+                        <Fab
+                            color="primary"
+                            aria-label="Register User"
+                            type="submit"
+                        >
                             <HowToRegIcon fontSize="large" />
                         </Fab>
                     )}

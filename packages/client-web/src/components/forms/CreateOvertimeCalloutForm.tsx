@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
-import { useSnackbar } from 'notistack';
-import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
-import HowToRegIcon from '@mui/icons-material/Add';
-import FormCard from './FormCard';
-import { IShift, IOvertime } from 'coverme-shared';
-import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
-import axios from 'utils/axios-intance';
-import { AxiosError } from 'axios';
+import React, { useState, useEffect } from "react";
+import { useTypedSelector } from "hooks/use-typed-selector";
+import { useSnackbar } from "notistack";
+import {
+    Box,
+    TextField,
+    CircularProgress,
+    Autocomplete,
+    Fab,
+} from "@mui/material";
+import HowToRegIcon from "@mui/icons-material/Add";
+
+import FormCard from "./FormCard";
+import { formatDateTimeOutputString } from "utils/formatters/dateTime-formatter";
+import api from "utils/api";
+
+import { IShift, IOvertime } from "coverme-shared";
 
 interface ICreateOvertimeCalloutFormProps {
     onFinish: (overtimeCallout: IOvertime | undefined) => void;
@@ -19,17 +26,24 @@ interface IShiftInfo {
     dateString: string;
 }
 
-const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ onFinish }) => {
+const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({
+    onFinish,
+}) => {
     const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [unassignedShifts, setUnassignedShifts] = useState<IShift[]>([]);
-    const [selectedShift, setSelectedShift] = useState<IShiftInfo | undefined>(undefined);
+    const [selectedShift, setSelectedShift] = useState<IShiftInfo | undefined>(
+        undefined
+    );
 
     const user = useTypedSelector((state) => state.user);
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const handleShiftChange = (_: React.SyntheticEvent<Element, Event>, value: IShift | null) => {
+    const handleShiftChange = (
+        _: React.SyntheticEvent<Element, Event>,
+        value: IShift | null
+    ) => {
         if (value) {
             setSelectedShift({
                 id: value.id,
@@ -53,29 +67,38 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                 shiftInfo: selectedShift.dateString,
                 team: selectedShift.team,
                 callouts: [],
-                phase: 'Internal',
-                status: 'Pending',
+                phase: "Internal",
+                status: "Pending",
             };
 
             setIsLoading(true);
             axios
-                .post(`${process.env.REACT_APP_SERVER_API}/overtime-callouts`, overtimeCallout)
+                .post(
+                    `${process.env.REACT_APP_SERVER_API}/overtime-callouts`,
+                    overtimeCallout
+                )
                 .then((result) => {
-                    enqueueSnackbar('overtime callout created and started.', {
-                        variant: 'success',
+                    enqueueSnackbar("overtime callout created and started.", {
+                        variant: "success",
                     });
                     onFinish(result.data.overtimeCallout);
                 })
                 .catch((err: AxiosError) => {
                     if (err.response?.status === 403) {
-                        enqueueSnackbar('A callout for this shift has already been made', {
-                            variant: 'error',
-                        });
+                        enqueueSnackbar(
+                            "A callout for this shift has already been made",
+                            {
+                                variant: "error",
+                            }
+                        );
                     } else {
                         console.error(err);
-                        enqueueSnackbar('An error has occured, please try again', {
-                            variant: 'error',
-                        });
+                        enqueueSnackbar(
+                            "An error has occured, please try again",
+                            {
+                                variant: "error",
+                            }
+                        );
                     }
                     onFinish(undefined);
                 })
@@ -83,8 +106,8 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                     setIsLoading(false);
                 });
         } else {
-            enqueueSnackbar('A valid shift was not selected', {
-                variant: 'error',
+            enqueueSnackbar("A valid shift was not selected", {
+                variant: "error",
             });
         }
     };
@@ -93,9 +116,11 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
         // get unassigned shifts
         setIsLoadingData(true);
 
-        const unclaimedUser = 'unclaimed';
+        const unclaimedUser = "unclaimed";
         axios
-            .get(`${process.env.REACT_APP_SERVER_API}/shifts/${unclaimedUser}/today`)
+            .get(
+                `${process.env.REACT_APP_SERVER_API}/shifts/${unclaimedUser}/today`
+            )
             .then((shiftResults) => {
                 setUnassignedShifts(shiftResults.data.shifts);
             })
@@ -134,7 +159,10 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
                                     </li>
                                 )}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Select Unclaimed Shift" />
+                                    <TextField
+                                        {...params}
+                                        label="Select Unclaimed Shift"
+                                    />
                                 )}
                                 onChange={handleShiftChange}
                             />

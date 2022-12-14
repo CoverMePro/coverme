@@ -8,6 +8,7 @@
     ],
     "devDependencies": {
         "lerna": "^6.0.3",
-        "nx": "^15.2.1"
+        "nx": "^15.2.1",
+        "prettier": "2.8.1"
     }
 }
