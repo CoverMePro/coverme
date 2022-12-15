@@ -2,35 +2,35 @@ import React from 'react';
 import NumberFormat from 'react-number-format';
 
 interface IDurationFormatProps {
-    onChange: (event: { target: { name: string; value: string } }) => void;
-    name: string;
+	onChange: (event: { target: { name: string; value: string } }) => void;
+	name: string;
 }
 
 const DurationFormat = React.forwardRef<any, IDurationFormatProps>(function NumberFormatCustom(
-    props,
-    ref
+	props,
+	ref
 ) {
-    const { onChange, ...other } = props;
+	const { onChange, ...other } = props;
 
-    return (
-        <NumberFormat
-            {...other}
-            getInputRef={ref}
-            name="shiftDuration"
-            onValueChange={(values) => {
-                onChange({
-                    target: {
-                        name: props.name,
-                        value: values.value,
-                    },
-                });
-            }}
-            format="##:##"
-            placeholder="HH:MM"
-            mask={['H', 'H', 'M', 'M']}
-            isNumericString
-        />
-    );
+	return (
+		<NumberFormat
+			{...other}
+			getInputRef={ref}
+			name="shiftDuration"
+			onValueChange={(values) => {
+				onChange({
+					target: {
+						name: props.name,
+						value: values.value,
+					},
+				});
+			}}
+			format="##:##"
+			placeholder="HH:MM"
+			mask={['H', 'H', 'M', 'M']}
+			isNumericString
+		/>
+	);
 });
 
 export default DurationFormat;
