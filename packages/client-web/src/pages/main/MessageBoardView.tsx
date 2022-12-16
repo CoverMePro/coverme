@@ -32,11 +32,11 @@ const BlogView: React.FC = () => {
 		setOpenAddMessage(false);
 	};
 
-	const handleAddMessage = (message: IMessage | undefined) => {
+	const handleAddMessage = (message?: IMessage) => {
 		if (message) {
 			const newMessages = [message, ...messages];
-
 			setMessages(newMessages);
+			setFilteredMessages(filterMessages(newMessages, filter));
 		}
 
 		handleCloseAddMessage();

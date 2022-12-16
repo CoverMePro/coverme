@@ -129,7 +129,7 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" aria-label="Register User" type="submit">
+						<Fab color="primary" type="submit">
 							<MoreTimeIcon fontSize="large" />
 						</Fab>
 					)}

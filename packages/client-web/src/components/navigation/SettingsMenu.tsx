@@ -11,7 +11,7 @@ const SettingsMenu: React.FC = () => {
 	const settingsRef = useRef<any>();
 
 	const handleLogout = () => {
-		api.get(`${process.env.REACT_APP_SERVER_API}/auth/logout`)
+		api.get(`auth/logout`)
 			.then(() => {
 				navigate('/login');
 			})

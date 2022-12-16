@@ -1,8 +1,10 @@
-import axios from './axios-intance';
+import axiosInstance from './axios-intance';
+import axios from 'axios';
 import { AxiosError } from 'axios';
+import { IAuthInfo } from 'coverme-shared';
 
 const get = (path: string): Promise<void> => {
-	return axios
+	return axiosInstance
 		.get(`${process.env.REACT_APP_SERVER_API}/${path}`)
 		.then(() => {
 			return;
@@ -13,7 +15,7 @@ const get = (path: string): Promise<void> => {
 };
 
 const getData = <T>(path: string): Promise<T> => {
-	return axios
+	return axiosInstance
 		.get<T>(`${process.env.REACT_APP_SERVER_API}/${path}`)
 		.then((result) => {
 			return result.data;
@@ -24,7 +26,7 @@ const getData = <T>(path: string): Promise<T> => {
 };
 
 const getAllData = <T>(path: string): Promise<T[]> => {
-	return axios
+	return axiosInstance
 		.get<T[]>(`${process.env.REACT_APP_SERVER_API}/${path}`)
 		.then((result) => {
 			return result.data;
@@ -35,7 +37,7 @@ const getAllData = <T>(path: string): Promise<T[]> => {
 };
 
 const getGenericData = (path: string): Promise<any> => {
-	return axios
+	return axiosInstance
 		.get(`${process.env.REACT_APP_SERVER_API}/${path}`)
 		.then((result) => {
 			return result.data;
@@ -46,7 +48,7 @@ const getGenericData = (path: string): Promise<any> => {
 };
 
 const post = (path: string, data: any): Promise<void> => {
-	return axios
+	return axiosInstance
 		.post(`${process.env.REACT_APP_SERVER_API}/${path}`, data)
 		.then(() => {
 			return;
@@ -57,7 +59,7 @@ const post = (path: string, data: any): Promise<void> => {
 };
 
 const postCreateData = <T>(path: string, data: T): Promise<T> => {
-	return axios
+	return axiosInstance
 		.post<T>(`${process.env.REACT_APP_SERVER_API}/${path}`, data)
 		.then((result) => {
 			return result.data;
@@ -68,7 +70,7 @@ const postCreateData = <T>(path: string, data: T): Promise<T> => {
 };
 
 const postGetData = (path: string, data: any): Promise<any> => {
-	return axios
+	return axiosInstance
 		.post(`${process.env.REACT_APP_SERVER_API}/${path}`, data)
 		.then((result) => {
 			return result.data;
@@ -79,8 +81,37 @@ const postGetData = (path: string, data: any): Promise<any> => {
 };
 
 const postGetAllData = <T>(path: string, data: any): Promise<T[]> => {
-	return axios
+	return axiosInstance
 		.post<T[]>(`${process.env.REACT_APP_SERVER_API}/${path}`, data)
+		.then((result) => {
+			return result.data;
+		})
+		.catch((error: AxiosError) => {
+			throw new Error(error.message);
+		});
+};
+
+const authLogin = (email: string, password: string): Promise<IAuthInfo> => {
+	return axios
+		.post<IAuthInfo>(
+			`${process.env.REACT_APP_SERVER_API}/auth/signin`,
+			{
+				email,
+				password,
+			},
+			{ withCredentials: true }
+		)
+		.then((result) => {
+			return result.data;
+		})
+		.catch((error: AxiosError) => {
+			throw new Error(error.message);
+		});
+};
+
+const authCheck = (): Promise<IAuthInfo> => {
+	return axios
+		.get<IAuthInfo>(`${process.env.REACT_APP_SERVER_API}/auth`, { withCredentials: true })
 		.then((result) => {
 			return result.data;
 		})
@@ -98,4 +129,6 @@ export default {
 	postCreateData,
 	postGetData,
 	postGetAllData,
+	authLogin,
+	authCheck,
 };

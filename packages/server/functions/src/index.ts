@@ -19,27 +19,27 @@ import userRoutes from './routes/users';
 import { sendSms } from './utils/sms';
 import { sendPushNotification, testNot } from './utils/notifications';
 import { INotification } from 'coverme-shared';
-import { mapFireStoreData } from './utils/db-helpers';
+import { mapFireStoreData } from './db/db-helpers';
 // import { callout } from './utils/overtime';
 
 const app = express();
 app.use(
-    cors({
-        origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
-        credentials: true,
-    })
+	cors({
+		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
+		credentials: true,
+	})
 );
 app.use(cookieParser());
 app.use(express.json());
 app.use(
-    express.urlencoded({
-        extended: true,
-    })
+	express.urlencoded({
+		extended: true,
+	})
 );
 
 app.use(function (_, res, next) {
-    res.setHeader('Cache-Control', 'private');
-    next();
+	res.setHeader('Cache-Control', 'private');
+	next();
 });
 
 app.use('/auth', authRoutes);
@@ -62,15 +62,15 @@ app.post('/test-not', testNot);
 exports.api = functions.https.onRequest(app);
 
 exports.createNot = functions.firestore
-    .document('notifications/{notId}')
-    .onCreate((snap, context) => {
-        console.log('NOTIFICATION');
-        const notification: INotification = mapFireStoreData(snap.id, snap.data());
+	.document('notifications/{notId}')
+	.onCreate((snap, context) => {
+		console.log('NOTIFICATION');
+		const notification: INotification = mapFireStoreData(snap.id, snap.data());
 
-        sendPushNotification(notification);
+		sendPushNotification(notification);
 
-        return true;
-    });
+		return true;
+	});
 
 // exports.scheduledFunctions = functions
 //     .runWith({ memory: '2GB' })

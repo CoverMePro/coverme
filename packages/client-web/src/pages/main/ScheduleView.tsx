@@ -109,7 +109,7 @@ const ScheduleView: React.FC = () => {
 	};
 
 	const getTeamColor = (teamId: string, teams: ITeam[]) => {
-		const selectedTeam = teams.find((team) => team.name === teamId);
+		const selectedTeam = teams.find((team) => team.id === teamId);
 
 		if (selectedTeam) {
 			return selectedTeam.color;
@@ -367,8 +367,8 @@ const ScheduleView: React.FC = () => {
 							) : (
 								<>
 									{teams.map((team) => (
-										<Box key={team.name} sx={{ display: 'flex', gap: 1 }}>
-											<Typography variant="h5">{team.name}</Typography>
+										<Box key={team.id} sx={{ display: 'flex', gap: 1 }}>
+											<Typography variant="h5">{team.id}</Typography>
 											<Box
 												sx={{
 													width: '50px',

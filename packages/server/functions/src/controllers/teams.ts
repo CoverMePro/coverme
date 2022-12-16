@@ -15,22 +15,22 @@ const getAllTeams = async (_: Request, res: Response) => {
 };
 
 const createTeam = async (req: Request, res: Response) => {
-	const team: ITeam = req.body.team;
 	try {
-		const teamExist = await dbHandler.documentExistsById('teams', team.name);
+		const team: ITeam = req.body;
+		const teamExist = await dbHandler.documentExistsById('teams', team.id);
 
 		if (teamExist) {
 			return res.status(403).json({ error: 'Team with that name already exists' });
 		}
 
-		await dbHandler.setDocument('teams', team.name, {
+		await dbHandler.setDocument('teams', team.id, {
 			managers: team.managers,
 			staff: team.staff,
 			owner: team.owner,
 			color: team.color,
 		});
 
-		const teamAdded = await dbHandler.getDocumentById<ITeam>('teams', team.name);
+		const teamAdded = await dbHandler.getDocumentById<ITeam>('teams', team.id);
 
 		const emails = [...team.managers, ...team.staff, team.owner];
 
@@ -50,9 +50,9 @@ const createTeam = async (req: Request, res: Response) => {
 				const userDoc = dbHandler.getDocumentSnapshot(`users/${user.id}`);
 
 				if (user.teams) {
-					teams = [...user.teams, teamAdded.name];
+					teams = [...user.teams, teamAdded.id];
 				} else {
-					teams = [teamAdded.name];
+					teams = [teamAdded.id];
 				}
 
 				batch.update(userDoc, { teams: teams });

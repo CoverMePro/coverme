@@ -48,12 +48,9 @@ const LoginView: React.FC = () => {
 			setIsLoggingIn(true);
 			setLoginError(undefined);
 
-			api.postGetData(`auth/signin`, {
-				email,
-				password,
-			})
+			api.authLogin(email, password)
 				.then((result) => {
-					const userData: IUser = result.user;
+					const userData: IUser = result.userInfo;
 					const companyData: ICompany = result.companyInfo;
 
 					console.log(companyData);
@@ -75,8 +72,9 @@ const LoginView: React.FC = () => {
 	});
 
 	useEffect(() => {
-		api.getData<IAuthInfo>(`auth`)
+		api.authCheck()
 			.then((userResult) => {
+				console.log(userResult);
 				setUser(userResult.userInfo);
 				setCompany(userResult.companyInfo);
 				navigate('/dashboard');

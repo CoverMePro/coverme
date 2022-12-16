@@ -49,7 +49,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const { enqueueSnackbar } = useSnackbar();
 
 	const hasTeam = (teams: string[]) => {
-		return teams.findIndex((teamName) => teamName === team.name) > -1;
+		return teams.findIndex((teamName) => teamName === team.id) > -1;
 	};
 
 	const handleOpenRoster = (team: ITeam) => (_: React.SyntheticEvent, isExpanded: boolean) => {
@@ -60,7 +60,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 			setLoadingStaff([...team.staff]);
 			const emails = [...team.managers, ...team.staff];
 			if (emails.length > 0) {
-				api.postGetData(`${process.env.REACT_APP_SERVER_API}/users`, {
+				api.postGetData(`users`, {
 					emails,
 				})
 					.then((result) => {
@@ -81,7 +81,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	};
 
 	const handleDeleteTeam = () => {
-		onOpenDeleteTeam(team.name);
+		onOpenDeleteTeam(team.id);
 	};
 
 	const handleOpenAddUserToTeam = () => {
@@ -106,7 +106,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const handleOpenRemoveUser = (user: IUser) => {
 		setUserSelectedToRemove(user);
 		setRemoveUserMessage(
-			`Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${team.name}`
+			`Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${team.id}`
 		);
 		setOpenRemoveUser(true);
 	};
@@ -114,11 +114,11 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const handleRemoveUserFromTeam = () => {
 		setIsLoading(true);
 		if (userSelectedToRemove) {
-			api.post(`teams/${team.name}/remove-user`, {
+			api.post(`teams/${team.id}/remove-user`, {
 				user: userSelectedToRemove,
 			})
 				.then(() => {
-					enqueueSnackbar(`User removed from ${team.name}`, { variant: 'success' });
+					enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
 					if (userSelectedToRemove.role === 'manager') {
 						const newManagers = managers.filter(
 							(manager) => manager.email !== userSelectedToRemove.email
@@ -166,7 +166,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		<Box sx={{ my: 1 }}>
 			<Accordion expanded={expanded} onChange={handleOpenRoster(team)}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-					<Typography variant="h3">{team.name}</Typography>
+					<Typography variant="h3">{team.id}</Typography>
 					<Box
 						sx={{
 							width: '50px',
@@ -216,7 +216,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 			</Accordion>
 			<AddUserToTeamDialog
 				open={openAddUserToTeam}
-				teamName={team.name}
+				teamName={team.id}
 				usersToAdd={usersToAdd}
 				onDialogClose={handleCloseAddUserToTeam}
 				onAddComplete={handleAddUserCompleted}

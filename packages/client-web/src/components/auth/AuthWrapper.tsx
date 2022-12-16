@@ -25,7 +25,7 @@ const AuthWrapper: React.FC<IAuthWrapperProps> = ({ children, permissionLevel = 
 
 	useEffect(() => {
 		if (!user.id) {
-			api.getData<IAuthInfo>(`auth`)
+			api.authCheck()
 				.then((authResult) => {
 					setUser(authResult.userInfo);
 					setCompany(authResult.companyInfo);

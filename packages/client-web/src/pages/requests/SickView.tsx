@@ -52,9 +52,7 @@ const SickView: React.FC = () => {
 		setIsLoadingSickRequest(true);
 
 		if (user.role === 'staff') {
-			api.getAllData<ISickRequest>(
-				`${process.env.REACT_APP_SERVER_API}/sick-requests/${user.id!}`
-			)
+			api.getAllData<ISickRequest>(`sick-requests/${user.id!}`)
 				.then((sickRequests) => {
 					const sickDisplay: ISickDisplay[] = [];
 
@@ -69,12 +67,9 @@ const SickView: React.FC = () => {
 				})
 				.finally(() => setIsLoadingSickRequest(false));
 		} else {
-			api.postGetAllData<ISickRequest>(
-				`${process.env.REACT_APP_SERVER_API}/sick-requests/from-teams`,
-				{
-					teams: user.teams,
-				}
-			)
+			api.postGetAllData<ISickRequest>(`sick-requests/from-teams`, {
+				teams: user.teams,
+			})
 				.then((sickRequests) => {
 					const sickDisplay: ISickDisplay[] = [];
 

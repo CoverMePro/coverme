@@ -56,11 +56,11 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 		onSubmit: (values: any) => {
 			setIsLoading(true);
 			api.postCreateData<ITeam>(`teams`, {
-				name: values.teamName,
+				id: values.teamName,
 				owner: user.id!,
 				managers: selectedManagers,
 				staff: selectedStaff,
-				color: teamColor,
+				color: `#${teamColor}`,
 			})
 				.then((teamAdded) => {
 					enqueueSnackbar('Team created.', {
@@ -92,7 +92,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	};
 
 	useEffect(() => {
-		api.getAllData<IUser>(`${process.env.REACT_APP_SERVER_API}/users`)
+		api.getAllData<IUser>(`users`)
 			.then((users) => {
 				const retrievedManagers = users.filter((user) => user.role === 'manager');
 				const retreivedStaff = users.filter((user) => user.role === 'staff');

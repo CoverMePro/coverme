@@ -45,24 +45,15 @@ const ManagerRequestView: React.FC = () => {
 
 	useEffect(() => {
 		setIsLoading(true);
-		const sickRequestApi = api.postGetData(
-			`${process.env.REACT_APP_SERVER_API}/sick-requests/from-teams`,
-			{
-				teams: user.teams,
-			}
-		);
-		const leaveRequestApi = api.postGetData(
-			`${process.env.REACT_APP_SERVER_API}/time-off/from-teams`,
-			{
-				teams: user.teams,
-			}
-		);
-		const tradeRequestApi = api.postGetData(
-			`${process.env.REACT_APP_SERVER_API}/trade-request/from-teams`,
-			{
-				teams: user.teams,
-			}
-		);
+		const sickRequestApi = api.postGetData(`sick-requests/from-teams`, {
+			teams: user.teams,
+		});
+		const leaveRequestApi = api.postGetData(`time-off/from-teams`, {
+			teams: user.teams,
+		});
+		const tradeRequestApi = api.postGetData(`trade-request/from-teams`, {
+			teams: user.teams,
+		});
 
 		Promise.all([sickRequestApi, leaveRequestApi, tradeRequestApi])
 			.then(([sickRequestResponse, leaveRequestResponse, tradeRequestRespons]) => {

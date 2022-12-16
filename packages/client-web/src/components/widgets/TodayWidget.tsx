@@ -50,7 +50,7 @@ const TodayWidget: React.FC = () => {
 		setIsLoading(true);
 		api.getGenericData(`shifts`)
 			.then((result) => {
-				formatEvents(result.data.shifts, result.data.timeOff);
+				formatEvents(result.shifts, result.timeOff);
 			})
 			.catch((error) => {
 				console.error(error);

@@ -124,7 +124,7 @@ const OvertimeListView: React.FC = () => {
 
 	const setTeamsSelect = (incomingTeams: ITeam[]) => {
 		const teamNames = incomingTeams.map((team) => {
-			return team.name;
+			return team.id;
 		});
 
 		setTeams([...teamNames]);
