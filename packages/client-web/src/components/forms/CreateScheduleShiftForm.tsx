@@ -12,6 +12,7 @@ import {
 	FormHelperText,
 	Fab,
 	Button,
+	CircularProgress,
 } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import FormCard from './FormCard';
@@ -47,6 +48,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 	const [rotationTransactions, setRotationTransactions] = useState<IShiftRotationTransaction[]>(
 		[]
 	);
+	const [isLoading, setIsLoading];
 
 	const user = useTypedSelector((state) => state.user);
 	const { enqueueSnackbar } = useSnackbar();
@@ -60,6 +62,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		validate: validateCreateScheduleShift,
 		onSubmit: (shiftValues: any) => {
 			// axios.post
+
 			api.post(`shift-transactions`, {
 				transactions: transactions,
 				rotationTransactions: rotationTransactions,
@@ -275,9 +278,13 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 				</Box>
 
 				<Box sx={{ mt: 3 }}>
-					<Fab color="primary" type="submit" disabled={isCreateDisabled()}>
-						<HowToRegIcon fontSize="large" />
-					</Fab>
+					{isLoading ? (
+						<CircularProgress />
+					) : (
+						<Fab color="primary" type="submit" disabled={isCreateDisabled()}>
+							<HowToRegIcon fontSize="large" />
+						</Fab>
+					)}
 				</Box>
 			</form>
 		</FormCard>
