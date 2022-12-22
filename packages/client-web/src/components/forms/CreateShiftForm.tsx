@@ -13,7 +13,7 @@ import { validateShift } from 'utils/validations/shift';
 import { formatDuration } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
 
-import { IShift, IShiftTemplate } from 'coverme-shared';
+import { IShiftTemplate } from 'coverme-shared';
 
 interface ICreateShiftFormProps {
 	onAddComplete(shiftDef: IShiftTemplate): void;

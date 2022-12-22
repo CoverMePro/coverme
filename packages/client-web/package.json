@@ -31,6 +31,7 @@
 		"coverme-shared": "*",
 		"date-fns": "^2.28.0",
 		"firebase": "^9.9.4",
+		"firebase-admin": "^11.4.0",
 		"formik": "^2.2.9",
 		"history": "^5.1.0",
 		"material-ui-phone-number": "^3.0.0",

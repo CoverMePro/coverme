@@ -13,6 +13,7 @@ import Notifications from 'components/shared/Notifications';
 
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { collection, query, where, onSnapshot, getFirestore } from 'firebase/firestore';
 
 import { INotification } from 'coverme-shared';
 
@@ -29,6 +30,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = getMessaging(app);
@@ -40,6 +42,9 @@ export const onMessageListener = () =>
 		});
 	});
 
+let notificationIds: string[] = [];
+let loaded = false;
+
 const Dashboard: React.FC = () => {
 	const [notifications, setNotifications] = useState<INotification[]>([]);
 	const user = useTypedSelector((state) => state.user);
@@ -47,73 +52,110 @@ const Dashboard: React.FC = () => {
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	onMessageListener()
-		.then((payload: any) => {
-			enqueueSnackbar(`${payload.notification.title}: ${payload.notification.body}`, {
-				variant: 'info',
-			});
+	// onMessageListener()
+	// 	.then((payload: any) => {
+	// 		enqueueSnackbar(`${payload.notification.title}: ${payload.notification.body}`, {
+	// 			variant: 'info',
+	// 		});
 
-			const newNotifications: INotification[] = [
-				...notifications,
-				{
-					id: payload.data.id,
-					messageTitle: payload.notification.title,
-					messageBody: payload.notification.body,
-					messageType: payload.notification.type,
-				},
-			];
+	// 		const newNotifications: INotification[] = [
+	// 			...notifications,
+	// 			{
+	// 				id: payload.data.id,
+	// 				messageTitle: payload.notification.title,
+	// 				messageBody: payload.notification.body,
+	// 				messageType: payload.notification.type,
+	// 			},
+	// 		];
 
-			setNotifications([...newNotifications]);
-		})
-		.catch((err) => console.log('failed: ', err));
+	// 		setNotifications([...newNotifications]);
+	// 	})
+	// 	.catch((err) => console.log('failed: ', err));
 
 	useEffect(() => {
-		getToken(messaging, {
-			vapidKey: process.env.REACT_APP_FB_MESSAGE_KEY,
-		}).then((currentToken) => {
-			if (currentToken) {
-				console.log('Current Token: ', currentToken);
+		// getToken(messaging, {
+		// 	vapidKey: process.env.REACT_APP_FB_MESSAGE_KEY,
+		// }).then((currentToken) => {
+		// 	if (currentToken) {
+		// 		console.log('Current Token: ', currentToken);
 
-				api.post(`auth/update-message-token`, {
-					userId: user.id,
-					token: currentToken,
-				})
-					.then(() => {
-						console.log('SUCCESS token updated');
-					})
-					.catch((error) => {})
-					.finally(() => {});
+		// 		api.post(`auth/update-message-token`, {
+		// 			userId: user.id,
+		// 			token: currentToken,
+		// 		})
+		// 			.then(() => {
+		// 				console.log('SUCCESS token updated');
+		// 			})
+		// 			.catch((error) => {})
+		// 			.finally(() => {});
+		// 	} else {
+		// 		console.log('Can not get current token');
+		// 	}
+		// });
+
+		// api.getAllData<INotification>(`notifications/${user.id}`)
+		// 	.then((notifications) => {
+		// 		console.log('got notifications');
+		// 		setNotifications(notifications);
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error(error);
+		// 	})
+		// 	.finally(() => {});
+
+		const q = query(
+			collection(db, 'notifications'),
+			where('usersNotified', 'array-contains', user.id)
+		);
+		const Unsubscribe = onSnapshot(q, (snapshot) => {
+			console.log('UPDATED');
+			const retreivedNotifications: any[] = [];
+			snapshot.forEach((doc) => {
+				retreivedNotifications.push({
+					id: doc.id,
+					...doc.data(),
+				});
+			});
+
+			console.log(retreivedNotifications);
+
+			console.log(loaded);
+
+			if (loaded) {
+				retreivedNotifications.forEach((not) => {
+					if (notificationIds.findIndex((id) => id === not.id) === -1) {
+						enqueueSnackbar(`${not.messageTitle}: ${not.messageBody}`, {
+							variant: 'info',
+						});
+					}
+				});
 			} else {
-				console.log('Can not get current token');
+				notificationIds = retreivedNotifications.map((not) => not.id);
+				loaded = true;
 			}
+
+			setNotifications(retreivedNotifications);
 		});
 
-		api.getAllData<INotification>(`notifications/${user.id}`)
-			.then((notifications) => {
-				console.log('got notifications');
-				setNotifications(notifications);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => {});
+		return () => {
+			Unsubscribe();
+		};
 	}, [user.id]);
 
 	const handleCloseNotifications = () => {
-		const notIds = notifications.map((not) => not.id);
-
-		api.post(`notifications/acknowledge-many`, {
-			userId: user.id,
-			notificationIds: notIds,
-		})
-			.then(() => {
-				console.log('notifications acknowledge');
-				setNotifications([]);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => {});
+		// const notIds = notifications.map((not) => not.id);
+		// api.post(`notifications/acknowledge-many`, {
+		// 	userId: user.id,
+		// 	notificationIds: notIds,
+		// })
+		// 	.then(() => {
+		// 		console.log('notifications acknowledge');
+		// 		setNotifications([]);
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error(error);
+		// 	})
+		// 	.finally(() => {});
 	};
 
 	return (

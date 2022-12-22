@@ -120,7 +120,7 @@ const authCheck = (): Promise<IAuthInfo> => {
 		});
 };
 
-export default {
+const api = {
 	get,
 	getData,
 	getAllData,
@@ -132,3 +132,5 @@ export default {
 	authLogin,
 	authCheck,
 };
+
+export default api;

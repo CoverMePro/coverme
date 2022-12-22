@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { hasPermission } from 'utils/validations/permissions';
 import api from 'utils/api';
 
-import { IAuthInfo } from 'coverme-shared';
-
 interface IAuthWrapperProps {
 	permissionLevel?: number;
 }

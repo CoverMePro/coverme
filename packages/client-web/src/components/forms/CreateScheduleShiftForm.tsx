@@ -48,7 +48,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 	const [rotationTransactions, setRotationTransactions] = useState<IShiftRotationTransaction[]>(
 		[]
 	);
-	const [isLoading, setIsLoading];
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const user = useTypedSelector((state) => state.user);
 	const { enqueueSnackbar } = useSnackbar();
@@ -62,7 +62,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		validate: validateCreateScheduleShift,
 		onSubmit: (shiftValues: any) => {
 			// axios.post
-
+			setIsLoading(true);
 			api.post(`shift-transactions`, {
 				transactions: transactions,
 				rotationTransactions: rotationTransactions,
@@ -72,10 +72,12 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 						variant: 'success',
 					});
 					setTransactions([]);
+					setIsLoading(false);
 					onCompleteAdd();
 				})
 				.catch((error) => {
 					console.error(error);
+					setIsLoading(false);
 					enqueueSnackbar('An error has occured, please try again.', {
 						variant: 'error',
 					});

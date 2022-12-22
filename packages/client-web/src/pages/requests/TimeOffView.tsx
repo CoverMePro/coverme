@@ -3,7 +3,7 @@ import { useTypedSelector } from 'hooks/use-typed-selector';
 
 import { Box, Typography } from '@mui/material';
 
-import { staffTimeOffHeadCells, ITimeOffDisplay, ITimeOffRequest, ITimeOff } from 'coverme-shared';
+import { staffTimeOffHeadCells, ITimeOffDisplay, ITimeOffRequest } from 'coverme-shared';
 
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateTimeOffForm from 'components/forms/CreateTimeOffForm';

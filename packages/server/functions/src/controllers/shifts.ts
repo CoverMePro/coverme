@@ -100,7 +100,7 @@ const transactionShifts = async (req: Request, res: Response) => {
 
 		switch (transaction.type) {
 			case 'add':
-				batch.create(dbHandler.getDocumentSnapshot('shifts'), {
+				batch.create(dbHandler.getCollectionSnapshot('/shifts'), {
 					name: transaction.name,
 					userId: transaction.userId === '' ? 'unclaimed' : transaction.userId,
 					userName: transaction.userName === '' ? 'unclaimed' : transaction.userName,

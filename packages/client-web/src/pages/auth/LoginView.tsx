@@ -25,7 +25,7 @@ import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
 import { validateLogin } from 'utils/validations/auth';
 import api from 'utils/api';
 
-import { IUser, ICompany, IAuthInfo } from 'coverme-shared';
+import { IUser, ICompany } from 'coverme-shared';
 
 const LoginView: React.FC = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
