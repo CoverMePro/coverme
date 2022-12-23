@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
-import { IUser, IUserLogin } from 'coverme-shared';
+import { ITeam, IUser, IUserLogin } from 'coverme-shared';
 
 import { SESSION_COOKIE_EXPIRY } from '../constants';
 
@@ -127,6 +127,16 @@ const signIn = async (req: Request, res: Response) => {
 			dbHandler.getDocumentById('company', 'info'),
 		]);
 
+		const teams = await dbHandler.getCollectionWithCondition<ITeam>('teams', 'staff', 'array-contains', authData.user.uid);
+
+		let managerIds: string[] = [];
+
+		teams.forEach(team => {
+			managerIds = [...managerIds, ...team.managers];
+		});
+
+		user.reportTo = [...managerIds];
+
 		const cookieOptions = {
 			maxAge: expiresIn,
 			httpOnly: true,
@@ -137,7 +147,7 @@ const signIn = async (req: Request, res: Response) => {
 		res.cookie('__session', sessionCookie, cookieOptions);
 		return res.json({
 			message: 'login successful',
-			user: user,
+			userInfo: user,
 			companyInfo: company,
 		});
 	} catch (error) {

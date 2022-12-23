@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IMessage } from 'coverme-shared';
+import { IMessage, INotification, IUser, NotificationType } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 
 const createMessage = async (req: Request, res: Response) => {
@@ -9,6 +9,26 @@ const createMessage = async (req: Request, res: Response) => {
             '/messages',
             incomingMessage
         );
+
+        let users = [];
+
+        if (incomingMessage.for === 'company') {
+            users = await dbHandler.getCollectionWithCondition<IUser>('users', 'role', '!=', 'owner');
+        } else {
+            users = await dbHandler.getCollectionWithCondition<IUser>('users', 'teams', 'array-contains', incomingMessage.for);
+        }
+
+        const userIds = users.map(user => user.id);
+
+        const notification: INotification = {
+            messageTitle: 'New Message',
+            messageType: NotificationType.MESSAGE,
+            messageBody: `A new message has been posted by ${incomingMessage.userName}`,
+            usersNotified: [...userIds],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
+
         return res.json(createdMessage);
     } catch (error) {
         console.error(error);

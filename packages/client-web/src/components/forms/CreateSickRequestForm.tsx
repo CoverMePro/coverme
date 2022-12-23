@@ -39,7 +39,10 @@ const CreateSickRequestForm: React.FC<ICreateSickRequestFromProps> = ({ onFinish
 
 			setIsLoading(true);
 			setError(undefined);
-			api.postCreateData<ISickRequest>(`sick-requests`, sickRequest)
+			api.postCreateData<ISickRequest>(`sick-requests`, {
+				sickRequest,
+				managers: user.reportTo
+			})
 				.then((addedSickRequest) => {
 					enqueueSnackbar('Sick request submitted.', {
 						variant: 'success',

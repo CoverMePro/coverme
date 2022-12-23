@@ -58,7 +58,7 @@ const post = (path: string, data: any): Promise<void> => {
 		});
 };
 
-const postCreateData = <T>(path: string, data: T): Promise<T> => {
+const postCreateData = <T>(path: string, data: any): Promise<T> => {
 	return axiosInstance
 		.post<T>(`${process.env.REACT_APP_SERVER_API}/${path}`, data)
 		.then((result) => {

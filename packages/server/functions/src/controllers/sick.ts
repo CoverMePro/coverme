@@ -3,7 +3,7 @@ import { INotification, NotificationType, ISickRequest, IShift } from 'coverme-s
 import dbHandler from '../db/db-handler';
 
 const createSickRequest = async (req: Request, res: Response) => {
-    const sickRequest: ISickRequest = req.body;
+    const {sickRequest, managers} = req.body;
     sickRequest.requestDate = new Date(sickRequest.requestDate!);
 
     try {
@@ -28,6 +28,15 @@ const createSickRequest = async (req: Request, res: Response) => {
         const shift = await dbHandler.getDocumentById<IShift>('shifts', sickRequest.shiftId);
 
         sickRequestAdded.shift = shift;
+
+        const notification: INotification = {
+            messageTitle: 'New Sick Request',
+            messageType: NotificationType.SICK,
+            messageBody: `${sickRequestAdded.user} has requested a sick day.`,
+            usersNotified: [...managers],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
 
         return res.json(sickRequestAdded);
     } catch (error) {
@@ -194,9 +203,9 @@ const rejectSickRequest = async (req: Request, res: Response) => {
         });
 
         const notification: INotification = {
-            messageTitle: 'Sick Request Approved',
+            messageTitle: 'Sick Request Declined',
             messageType: NotificationType.SICK,
-            messageBody: 'Your sick request has been approved.',
+            messageBody: 'Your sick request has been declined.',
             usersNotified: [userId],
         };
 

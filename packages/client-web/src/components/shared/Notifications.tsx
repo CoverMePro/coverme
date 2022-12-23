@@ -1,14 +1,26 @@
 import React, { useState, useRef } from 'react';
-import { IconButton, Menu, MenuItem, Badge, Typography } from '@mui/material';
+import { IconButton, Menu, MenuItem, Badge, Typography, Box } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { INotification } from 'coverme-shared';
+import { INotification, NotificationType } from 'coverme-shared';
 
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import SickIcon from '@mui/icons-material/Sick';
+import ConnectingAirportsIcon from '@mui/icons-material/ConnectingAirports';
+import TimerIcon from '@mui/icons-material/Timer';
+import MessageIcon from '@mui/icons-material/Message';
+
+import ClearIcon from '@mui/icons-material/Clear';
+import AssistantDirectionIcon from '@mui/icons-material/AssistantDirection';
 
 interface INotificationsProps {
 	notifications: INotification[];
 	onClose: () => void;
 }
+
+
 
 const Notifications: React.FC<INotificationsProps> = ({ notifications, onClose }) => {
 	const [openNotifications, setOpenNotifications] = useState<boolean>(false);
@@ -18,6 +30,19 @@ const Notifications: React.FC<INotificationsProps> = ({ notifications, onClose }
 		onClose();
 		setOpenNotifications(false);
 	};
+
+	const getIcon = (type: NotificationType) => {
+		const icon: any = {
+			'SHIFT': <CalendarMonthIcon/>,
+			'TRADE': <CompareArrowsIcon/>,
+			'SICK': <SickIcon/>,
+			'TIMEOFF': <ConnectingAirportsIcon/>,
+			'OVERTIME': <TimerIcon/>,
+			'MESSAGE': <MessageIcon/>
+		};
+
+		return icon[type];
+	}
 
 	return (
 		<>
@@ -40,8 +65,12 @@ const Notifications: React.FC<INotificationsProps> = ({ notifications, onClose }
 						key={not.id}
 						sx={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}
 					>
-						<NotificationsActiveIcon />
+						{getIcon(not.messageType)}
 						<Typography variant="body1">{not.messageBody}</Typography>
+						<Box>
+							<ClearIcon />
+							<AssistantDirectionIcon />
+						</Box>
 					</MenuItem>
 				))}
 				{notifications.length === 0 && <MenuItem>No New Notifications</MenuItem>}

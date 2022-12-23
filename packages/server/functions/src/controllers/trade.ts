@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IShift, ITeam, ITradeRequest } from 'coverme-shared';
+import { INotification, IShift, ITeam, ITradeRequest, NotificationType } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getBatch } from '../db/batch-handler';
 
@@ -29,6 +29,15 @@ const createTradeRequest = async (req: Request, res: Response) => {
                 tradeRequestAdded.requestedShift = shift;
             }
         });
+
+		const notification: INotification = {
+            messageTitle: 'Trade Request',
+            messageType: NotificationType.TRADE,
+            messageBody: tradeRequestAdded.proposedUser + " would like to trade shifts.",
+            usersNotified: [tradeRequest.requestedUserId],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
 
         return res.json(tradeRequestAdded);
     } catch (error) {
@@ -280,6 +289,15 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
 
         await batch.commit();
 
+        const notification: INotification = {
+            messageTitle: 'Trade Accepted',
+            messageType: NotificationType.TRADE,
+            messageBody: tradeRequest.requestedUser + " has accepted your trade.",
+            usersNotified: [tradeRequest.proposedUserId],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
+
         return res.json({ message: 'trade has been made successfully' });
     } catch (error) {
         console.error(error);
@@ -294,6 +312,18 @@ const rejectTradeRequest = async (req: Request, res: Response) => {
         await dbHandler.updateDocument<ITradeRequest>('trade-requests', id, {
             status: 'Rejected',
         });
+
+        const tradeRequest = await dbHandler.getDocumentById<ITradeRequest>('trade-requests', id);
+
+        const notification: INotification = {
+            messageTitle: 'Trade Rejected',
+            messageType: NotificationType.TRADE,
+            messageBody: tradeRequest.requestedUser + " has rejected your trade.",
+            usersNotified: [tradeRequest.proposedUserId],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
+
         return res.json({ message: 'trade request rejectred.' });
     } catch (error) {
         console.error(error);

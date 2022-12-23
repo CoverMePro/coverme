@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ITeam, ITimeOff, ITimeOffRequest } from 'coverme-shared';
+import { INotification, ITeam, ITimeOff, ITimeOffRequest, NotificationType } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 
 const createTimeOffRequest = async (req: Request, res: Response) => {
-	const timeOffRequest: ITimeOffRequest = req.body;
+	const {timeOffRequest, managers} = req.body;
 
 	timeOffRequest.requestDate = new Date(timeOffRequest.requestDate!);
 	timeOffRequest.timeOffStart = new Date(timeOffRequest.timeOffStart!);
@@ -11,6 +11,15 @@ const createTimeOffRequest = async (req: Request, res: Response) => {
 
 	try {
 		const timeOffAdded = await dbHandler.addDocument('time-off-requests', timeOffRequest);
+
+		const notification: INotification = {
+            messageTitle: 'New Time Off Request',
+            messageType: NotificationType.TIMEOFF,
+            messageBody: timeOffRequest.user + "has requested time off.",
+            usersNotified: [...managers],
+        };
+
+        await dbHandler.addDocument<INotification>('notifications', notification);
 
 		return res.json(timeOffAdded);
 	} catch (error) {
@@ -114,6 +123,15 @@ const approveTimeOffRequest = async (req: Request, res: Response) => {
 			teams: timeOffData.teams,
 		});
 
+		const notification: INotification = {
+            messageTitle: 'Time Off Request Approved',
+            messageType: NotificationType.TIMEOFF,
+            messageBody: 'Your time off request has been approved.',
+            usersNotified: [timeOffRequest.userId],
+        };
+
+		await dbHandler.addDocument<INotification>('notifications', notification);
+
 		return res.json({ message: 'time off request approved.' });
 	} catch (error) {
 		console.error(error);
@@ -144,6 +162,16 @@ const rejectTimeOffRequest = async (req: Request, res: Response) => {
 			userName: timeOffData.userName,
 			teams: timeOffData.teams,
 		});
+
+		const notification: INotification = {
+            messageTitle: 'Time Off Request Rejected',
+            messageType: NotificationType.TIMEOFF,
+            messageBody: 'Your time off request has been rejected.',
+            usersNotified: [timeOffRequest.userId],
+        };
+
+		await dbHandler.addDocument<INotification>('notifications', notification);
+
 
 		return res.json({ message: 'time off request declined.' });
 	} catch (error) {

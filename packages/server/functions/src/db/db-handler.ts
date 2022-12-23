@@ -126,7 +126,7 @@ const getDocumentFromCollectionWithCondition = <T>(
 		});
 };
 
-const getMultipleCollections = (collectionCalls: Promise<any[]>[]) => {
+const getMultipleCollections = (collectionCalls: Promise<any>[]) => {
 	return Promise.all(collectionCalls)
 		.then((values) => {
 			return values;
