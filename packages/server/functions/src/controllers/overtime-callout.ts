@@ -37,12 +37,12 @@ const createOvertimeCallout = async (req: Request, res: Response) => {
 const getOvertimeCallouts = async (req: Request, res: Response) => {
 	try {
 		const overtimeCallouts = await dbHandler.getCollectionsWithSort<IOvertime>(
-			'ovetime-callouts',
+			'overtime-callouts',
 			'dateCreated',
 			'asc'
 		);
 
-		return res.json({ overtimeCallouts: overtimeCallouts });
+		return res.json(overtimeCallouts);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: error });
@@ -91,13 +91,17 @@ const getOvertimeCalloutInfo = async (req: Request, res: Response) => {
 };
 
 const acceptCalloutShift = async (req: Request, res: Response) => {
-	const { id } = req.params;
-	const userId = req.body.userId;
+	const smsInfo = req.body;
+
+	const customInfo = (smsInfo.custom_string as string).split('|');
+
+	const overtimeId = customInfo[0];
+	const userId = customInfo[1];
 
 	try {
 		const overtimeCallout: IOvertime = await dbHandler.getDocumentById<IOvertime>(
 			'overtime-callouts',
-			id
+			overtimeId
 		);
 
 		const calloutList = [...overtimeCallout.callouts!];
@@ -107,7 +111,7 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
 		if (userInListIdx != -1) {
 			calloutList[userInListIdx].status = 'Accepted';
 
-			await dbHandler.updateDocument('overtime-callouts', id, {
+			await dbHandler.updateDocument('overtime-callouts', overtimeId, {
 				callouts: calloutList,
 			});
 
@@ -122,11 +126,19 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
 };
 
 const rejectedCalloutShift = async (req: Request, res: Response) => {
-	const { id } = req.params;
-	const userId = req.body.userId;
+	console.log('IN REJECTION');
+	const smsInfo = req.body;
+
+	const customInfo = (smsInfo.custom_string as string).split('|');
+
+	const overtimeId = customInfo[0];
+	const userId = customInfo[1];
 
 	try {
-		const overtimeCallout = await dbHandler.getDocumentById<IOvertime>('overtime-callouts', id);
+		const overtimeCallout: IOvertime = await dbHandler.getDocumentById<IOvertime>(
+			'overtime-callouts',
+			overtimeId
+		);
 
 		const calloutList = [...overtimeCallout.callouts!];
 
@@ -135,11 +147,53 @@ const rejectedCalloutShift = async (req: Request, res: Response) => {
 		if (userInListIdx != -1) {
 			calloutList[userInListIdx].status = 'Rejected';
 
-			await dbHandler.updateDocument('overtime-callouts', id, {
+			await dbHandler.updateDocument('overtime-callouts', overtimeId, {
 				callouts: calloutList,
 			});
 
 			return res.json({ message: 'shift has been rejected' });
+		}
+
+		return res.status(500).json({ error: 'No user found in callout request' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
+const voiceProcess = async (req: Request, res: Response) => {
+	console.log('In VOICE PROCESS');
+
+	const voiceInfo = req.body;
+
+	const response = voiceInfo.digits ? (voiceInfo.digits as string).charAt(0) : '0';
+	const customInfo = (voiceInfo.custom_string as string).split('|');
+
+	const overtimeId = customInfo[0];
+	const userId = customInfo[1];
+
+	try {
+		const overtimeCallout: IOvertime = await dbHandler.getDocumentById<IOvertime>(
+			'overtime-callouts',
+			overtimeId
+		);
+
+		const calloutList = [...overtimeCallout.callouts!];
+
+		const userInListIdx = calloutList.findIndex((user) => user.userId === userId);
+
+		if (userInListIdx != -1) {
+			calloutList[userInListIdx].status = response === '1' ? 'Accepted' : 'Rejected';
+
+			await dbHandler.updateDocument('overtime-callouts', overtimeId, {
+				callouts: calloutList,
+			});
+
+			console.log(`${response === '1' ? 'ACCEPTED' : 'REJECTED'} SHIFT WOO`);
+
+			return res.json({
+				message: `shift has been ${response === '1' ? 'ACCEPTED' : 'REJECTED'}`,
+			});
 		}
 
 		return res.status(500).json({ error: 'No user found in callout request' });
@@ -177,6 +231,7 @@ export default {
 	getOvertimeCalloutInfo,
 	acceptCalloutShift,
 	rejectedCalloutShift,
+	voiceProcess,
 	testCycleCallout,
 	getCompanyOvertimeCalloutList,
 };

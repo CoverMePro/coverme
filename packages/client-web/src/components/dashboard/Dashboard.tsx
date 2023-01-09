@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { Outlet } from 'react-router';
 import { useTypedSelector } from 'hooks/use-typed-selector';
-import { Box, Typography, Drawer, Divider, Avatar } from '@mui/material';
+import { Box, Typography, Drawer, Divider, Avatar, Button } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { DRAWER_WIDTH } from '../../constants';
@@ -158,6 +158,27 @@ const Dashboard: React.FC = () => {
 		// 	.finally(() => {});
 	};
 
+	const handleText = () => {
+		api.post('send-sms', {})
+			.then(() => {
+				console.log('message sent');
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	const handleRemoveNotification = (id: string) => {
+		const newNotifications = notifications.filter((not) => not.id! !== id);
+		setNotifications([...newNotifications]);
+		notificationIds = newNotifications.map((not) => not.id!);
+	};
+
+	const handleRemoveAllNotifications = () => {
+		setNotifications([]);
+		notificationIds = [];
+	};
+
 	return (
 		<Box sx={{ display: 'flex' }}>
 			<CssBaseline />
@@ -213,6 +234,8 @@ const Dashboard: React.FC = () => {
 									<Notifications
 										notifications={notifications}
 										onClose={handleCloseNotifications}
+										onClearNotifications={handleRemoveNotification}
+										onClearAllNotifications={handleRemoveAllNotifications}
 									/>
 									<SettingsMenu />
 								</Box>

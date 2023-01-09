@@ -261,11 +261,13 @@ const transactionShifts = async (req: Request, res: Response) => {
 	try {
 		await batch.commit();
 
+		const newNotifiedUsers = usersNotified.filter((notified) => notified !== 'unclaimed');
+
 		const notification: INotification = {
 			messageTitle: 'Schedule updated!',
 			messageType: NotificationType.SHIFT,
 			messageBody: 'Your schedule has changed, please view the calendar.',
-			usersNotified: usersNotified,
+			usersNotified: newNotifiedUsers,
 		};
 
 		await dbHandler.addDocument('notifications', notification);

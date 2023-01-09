@@ -45,7 +45,7 @@ const createTeam = async (req: Request, res: Response) => {
 			);
 
 			users.forEach(async (user: IUser) => {
-				let teams = [];
+				let teams: string[] = [];
 
 				const userDoc = dbHandler.getDocumentSnapshot(`users/${user.id}`);
 
@@ -146,7 +146,7 @@ const removeUserFromTeam = async (req: Request, res: Response) => {
 	try {
 		const team = await dbHandler.getDocumentById<ITeam>('teams', name);
 
-		let newTeams = [];
+		let newTeams: string[] = [];
 		if (user.role === 'manager') {
 			newTeams = team.managers.filter((manager: string) => manager !== user.id);
 

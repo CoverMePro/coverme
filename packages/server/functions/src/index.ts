@@ -16,7 +16,7 @@ import overtimeRoutes from './routes/overtime-callout';
 import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
-import { sendSms } from './utils/sms';
+import { sendSms, testReceive } from './utils/sms';
 import { sendPushNotification, testNot } from './utils/notifications';
 import { INotification } from 'coverme-shared';
 import { mapFireStoreData } from './db/db-helpers';
@@ -25,7 +25,7 @@ import { mapFireStoreData } from './db/db-helpers';
 const app = express();
 app.use(
 	cors({
-		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
+		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!, '*'],
 		credentials: true,
 	})
 );
@@ -58,6 +58,7 @@ app.use('/notifications', notificationRoutes);
 
 app.post('/send-sms', sendSms);
 app.post('/test-not', testNot);
+app.post('/receive-sms', testReceive);
 
 exports.api = functions.https.onRequest(app);
 

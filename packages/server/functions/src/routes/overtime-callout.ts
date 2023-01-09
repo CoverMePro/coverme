@@ -12,9 +12,11 @@ router.get('/list', authGuard, overtimeCalloutController.getCompanyOvertimeCallo
 
 router.get('/:id/:user/info', overtimeCalloutController.getOvertimeCalloutInfo);
 
-router.post('/:id/accept', overtimeCalloutController.acceptCalloutShift);
+router.post('/accept', overtimeCalloutController.acceptCalloutShift);
 
-router.post('/:id/reject', overtimeCalloutController.rejectedCalloutShift);
+router.post('/reject', overtimeCalloutController.rejectedCalloutShift);
+
+router.post('/voice-response', overtimeCalloutController.voiceProcess);
 
 router.post('/', authGuard, overtimeCalloutController.createOvertimeCallout);
 

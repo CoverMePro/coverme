@@ -1,8 +1,9 @@
 import { IOvertime, ICallout, IShift, IUser } from 'coverme-shared';
+import dbHandler from '../db/db-handler';
 import { getCalloutList, mapFireStoreData } from '../db/db-helpers';
 import { db } from './admin';
 
-import { sendConfirmOvertimeSms, sendOvertimeSms } from './sms';
+import { sendOvertimeVoice, sendConfirmOvertimeVoice } from './sms';
 
 const userContainsTeam = (user: IUser, team: string) => {
 	if (!user.teams || user.teams.length === 0) {
@@ -47,7 +48,7 @@ const hasUserAcceptedCallout = async (
 				});
 			}
 
-			sendConfirmOvertimeSms(callout.phone, overtimeData);
+			sendConfirmOvertimeVoice(callout.phone, overtimeData);
 
 			hasAccepted = true;
 		}
@@ -111,8 +112,6 @@ const handleCalloutCycle = async (
 ) => {
 	let calloutindex = 0;
 
-	console.log(users);
-
 	if (lastCalloutUser) {
 		console.log(lastCalloutUser);
 		const userIndex = lastCalloutUser
@@ -149,7 +148,7 @@ const handleCalloutCycle = async (
 				status: 'Pending',
 			});
 
-			await sendOvertimeSms(nextCalloutuser, overtimeInfo, overtimeId);
+			await sendOvertimeVoice(nextCalloutuser, overtimeInfo, overtimeId);
 
 			await db.doc(`/overtime-callouts/${overtimeId}`).update({
 				callouts: [...callouts],
@@ -191,13 +190,14 @@ const callout = () => {
 						return;
 					}
 
-					const shiftdoc = await db.doc(`/shifts/${shiftId}`).get();
+					const shift: IShift = await dbHandler.getDocumentById<IShift>(
+						'shifts',
+						shiftId
+					);
 
-					if (shiftdoc && shiftdoc.data()) {
+					if (shift) {
 						// check if shit start time is in reasonable time to call out
 						// if not, notify shift has not been assigned
-						const shift: IShift = mapFireStoreData(shiftdoc.id, shiftdoc.data());
-
 						// method to calculate date within a certain time (1 hour)
 						if (hasCalloutReachedShiftStartTimeRange(shift, 1)) {
 							// update status of shift
