@@ -1,0 +1,40 @@
+{
+	"name": "functions",
+	"scripts": {
+		"build": "tsc",
+		"serve": "npm run build && firebase emulators:start --only functions",
+		"shell": "npm run build && firebase functions:shell",
+		"start": "npm run shell",
+		"deploy": "firebase deploy --only functions",
+		"logs": "firebase functions:log",
+		"deploy:dev": "firebase deploy --only functions -P dev",
+		"deploy:demo": "firebase deploy --only functions -P demo",
+		"deploy:oakville": "firebase deploy --only functions -P oakville",
+		"compile": "tsc --project tsconfig.json"
+	},
+	"engines": {
+		"node": "14"
+	},
+	"main": "lib/index.js",
+	"dependencies": {
+		"bluebird": "^3.7.2",
+		"clicksend": "^5.0.37",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"coverme-shared": "file:./src/coverme-shared",
+		"express": "^4.17.1",
+		"firebase": "^9.14.0",
+		"firebase-admin": "^10.0.2",
+		"firebase-functions": "^3.23.0",
+		"http": "0.0.1-security",
+		"request": "^2.88.2",
+		"twilio": "^3.78.0"
+	},
+	"devDependencies": {
+		"@types/cookie-parser": "^1.4.2",
+		"@types/node": "^18.11.18",
+		"firebase-functions-test": "^0.2.0",
+		"typescript": "^4.9.3"
+	},
+	"private": true
+}

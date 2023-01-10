@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"outDir": "lib",
+		"sourceMap": true,
+		"strict": true,
+		"target": "es2017",
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"noImplicitAny": false,
+		"baseUrl": "./src",
+		"paths": {
+			"shared": ["packages/coverme-shared/src"]
+		}
+	},
+	"compileOnSave": true,
+	"include": ["src"]
+}

@@ -1,14 +1,25 @@
 {
-    "name": "root",
-    "private": true,
-    "workspaces": [
-        "packages/client-web",
-        "packages/coverme-shared",
-        "packages/server/functions"
-    ],
-    "devDependencies": {
-        "lerna": "^6.0.3",
-        "nx": "^15.2.1",
-        "prettier": "2.8.1"
-    }
+	"name": "cover-me",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"compile": "lerna run compile --stream",
+		"postinstall": "lerna bootstrap",
+		"remove-shared": "shx rm -rf \"packages/functions/src/coverme-shared\" && shx rm -rf \"packages/client-web/src/coverme-shared\"",
+		"add-shared": "shx cp -R \"packages/coverme-shared/.\" \"packages/functions/src/coverme-shared\" && shx cp -R \"packages/coverme-shared/.\" \"packages/client-web/src/coverme-shared\"",
+		"update-shared": "npm run remove-shared && npm run add-shared",
+		"local-server": "cd packages/functions && firebase use dev && npm run serve",
+		"local-client": "cd packages/client-web && firebase use dev && npm start"
+	},
+	"workspaces": [
+		"packages/client-web",
+		"packages/coverme-shared",
+		"packages/functions"
+	],
+	"devDependencies": {
+		"lerna": "^6.0.3",
+		"nx": "^15.2.1",
+		"prettier": "2.8.1",
+		"typescript": "^4.9.3"
+	}
 }
