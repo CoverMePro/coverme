@@ -27,8 +27,7 @@
 		"firebase-admin": "^10.0.2",
 		"firebase-functions": "^3.23.0",
 		"http": "0.0.1-security",
-		"request": "^2.88.2",
-		"twilio": "^3.78.0"
+		"request": "^2.88.2"
 	},
 	"devDependencies": {
 		"@types/cookie-parser": "^1.4.2",
