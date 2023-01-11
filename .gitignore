@@ -1,1 +1,15 @@
-node_modules/
+node_modules
+build
+lib
+
+#environments
+.env
+.env.dev
+.env.demo
+.env.oakville
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+typings/
