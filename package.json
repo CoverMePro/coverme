@@ -11,11 +11,6 @@
 		"local-server": "cd packages/functions && firebase use dev && npm run serve",
 		"local-client": "cd packages/client-web && firebase use dev && npm start"
 	},
-	"workspaces": [
-		"packages/client-web",
-		"packages/coverme-shared",
-		"packages/functions"
-	],
 	"devDependencies": {
 		"lerna": "^6.0.3",
 		"nx": "^15.2.1",

@@ -17,9 +17,7 @@ import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
 import { sendSms, testReceive } from './utils/sms';
-import { sendPushNotification, testNot } from './utils/notifications';
-import { INotification } from 'coverme-shared';
-import { mapFireStoreData } from './db/db-helpers';
+import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
 
 const app = express();
@@ -61,21 +59,3 @@ app.post('/test-not', testNot);
 app.post('/receive-sms', testReceive);
 
 exports.api = functions.https.onRequest(app);
-
-exports.createNot = functions.firestore
-	.document('notifications/{notId}')
-	.onCreate((snap, context) => {
-		console.log('NOTIFICATION');
-		const notification: INotification = mapFireStoreData(snap.id, snap.data());
-
-		sendPushNotification(notification);
-
-		return true;
-	});
-
-// exports.scheduledFunctions = functions
-//     .runWith({ memory: '2GB' })
-//     .pubsub.schedule('* * * * *')
-//     .onRun((context) => {
-//         callout();
-//     });
