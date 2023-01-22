@@ -127,11 +127,16 @@ const signIn = async (req: Request, res: Response) => {
 			dbHandler.getDocumentById('company', 'info'),
 		]);
 
-		const teams = await dbHandler.getCollectionWithCondition<ITeam>('teams', 'staff', 'array-contains', authData.user.uid);
+		const teams = await dbHandler.getCollectionWithCondition<ITeam>(
+			'teams',
+			'staff',
+			'array-contains',
+			authData.user.uid
+		);
 
 		let managerIds: string[] = [];
 
-		teams.forEach(team => {
+		teams.forEach((team) => {
 			managerIds = [...managerIds, ...team.managers];
 		});
 
@@ -214,6 +219,8 @@ const logOut = (_: Request, res: Response) => {
  * Check if you have a session cookie so you can bypass login
  */
 const checkAuth = async (req: Request, res: Response) => {
+	console.log(process.env);
+
 	if (req.cookies['__session']) {
 		try {
 			const sessionCookie = `${req.cookies['__session']}`;

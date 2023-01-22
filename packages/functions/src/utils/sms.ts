@@ -71,18 +71,14 @@ export const sendOvertimeSms = async (user: IUser, overtimeInfo: IOvertime, over
 	await smsApi.smsSendPost(smsCollection);
 };
 
-export const sendOvertimeVoice = async (
-	user: IUser,
-	overtimeInfo: IOvertime,
-	overtimeId: string
-) => {
+export const sendOvertimeVoice = async (user: IUser, overtime: IOvertime) => {
 	const bodyTemplate = `Hello ${
 		user.firstName
-	}, There is a shift available: ${overtimeInfo.shiftInfo.replace(
+	}, There is a shift available: ${overtime.shiftInfo.replace(
 		'-',
 		'until'
 	)}. From the following team: ${
-		overtimeInfo.team
+		overtime.team
 	}. Press 1 if you want to take the shift or Press 2 if you do not want the shift`;
 
 	const voiceApi = new VoiceApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
@@ -92,7 +88,7 @@ export const sendOvertimeVoice = async (
 	voiceMessage.to = formatNumber(user.phone);
 	voiceMessage.body = bodyTemplate;
 	voiceMessage.requireInput = 1;
-	voiceMessage.customString = `${overtimeId}|${user.id}`;
+	voiceMessage.customString = `${overtime.id!}|${user.id}`;
 
 	var voiceCollection = new VoiceMessageCollection();
 

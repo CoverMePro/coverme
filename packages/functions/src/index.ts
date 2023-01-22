@@ -21,12 +21,14 @@ import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
 
 const app = express();
+
 app.use(
 	cors({
-		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!, '*'],
+		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
 		credentials: true,
 	})
 );
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(
@@ -35,10 +37,13 @@ app.use(
 	})
 );
 
-app.use(function (_, res, next) {
-	res.setHeader('Cache-Control', 'private');
-	next();
-});
+// app.use(function (_, res, next) {
+// 	res.setHeader('Access-Control-Allow-Origin', `${process.env.WEB_CLIENT_DOMAIN}`);
+// 	res.setHeader('Access-Control-Allow-Credentials', 'true');
+// 	res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+// 	res.setHeader('Cache-Control', 'private');
+// 	next();
+// });
 
 app.use('/auth', authRoutes);
 app.use('/overtime-callouts', overtimeRoutes);

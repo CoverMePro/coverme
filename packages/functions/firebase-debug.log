@@ -1,0 +1,153 @@
+[debug] [2023-01-21T22:42:38.245Z] ----------------------------------------------------------------------
+[debug] [2023-01-21T22:42:38.246Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Matthew Douglas\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --only functions
+[debug] [2023-01-21T22:42:38.247Z] CLI Version:   11.18.0
+[debug] [2023-01-21T22:42:38.247Z] Platform:      win32
+[debug] [2023-01-21T22:42:38.247Z] Node Version:  v14.21.2
+[debug] [2023-01-21T22:42:38.247Z] Time:          Sat Jan 21 2023 17:42:38 GMT-0500 (Eastern Standard Time)
+[debug] [2023-01-21T22:42:38.247Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-01-21T22:42:38.290Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-01-21T22:42:38.290Z] > authorizing via signed-in user (matthew@bytesizecoder.ca)
+[info] i  emulators: Starting emulators: functions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions"}}
+[debug] [2023-01-21T22:42:38.295Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-21T22:42:38.295Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2023-01-21T22:42:38.300Z] [hub] writing locator at C:\Users\MATTHE~1\AppData\Local\Temp\hub-coverme-47dc7.json
+[debug] [2023-01-21T22:42:38.310Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-21T22:42:38.311Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2023-01-21T22:42:38.311Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: auth, firestore, database, hosting, pubsub, storage {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mauth, firestore, database, hosting, pubsub, storage\u001b[22m"}}
+[info] +  functions: Using node@14 from host. {"metadata":{"emulator":{"name":"functions"},"message":"Using node@14 from host."}}
+[debug] [2023-01-21T22:42:38.323Z] defaultcredentials: writing to file C:\Users\Matthew Douglas\AppData\Roaming\firebase\matthew_bytesizecoder_ca_application_default_credentials.json
+[debug] [2023-01-21T22:42:38.325Z] Setting GAC to C:\Users\Matthew Douglas\AppData\Roaming\firebase\matthew_bytesizecoder_ca_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Matthew Douglas\\AppData\\Roaming\\firebase\\matthew_bytesizecoder_ca_application_default_credentials.json"}}
+[debug] [2023-01-21T22:42:38.326Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/coverme-47dc7/adminSdkConfig [none]
+[debug] [2023-01-21T22:42:38.609Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/coverme-47dc7/adminSdkConfig 200
+[debug] [2023-01-21T22:42:38.609Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/coverme-47dc7/adminSdkConfig {"projectId":"coverme-47dc7","storageBucket":"coverme-47dc7.appspot.com","locationId":"us-east1"}
+[debug] [2023-01-21T22:42:38.619Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2023-01-21T22:42:38.619Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2023-01-21T22:42:38.619Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\Matthew Douglas\\.cache\\firebase\\emulators\\ui-v1.11.1\\server\\server.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\Matthew Douglas\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.1\\\\server\\\\server.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2023-01-21T22:42:38.698Z] Web / API server started at 127.0.0.1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:4000\n"}}
+[debug] [2023-01-21T22:42:38.698Z] Web / API server started at ::1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:4000\n"}}
+[info] i  functions: Watching "C:\Code\coverme\packages\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\Code\\coverme\\packages\\functions\" for Cloud Functions..."}}
+[debug] [2023-01-21T22:42:38.886Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2023-01-21T22:42:40.518Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "env-cmd -f .env.dev npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "deploy:dev": "env-cmd -f .env.dev firebase deploy --only functions -P dev",
+    "deploy:demo": "firebase deploy --only functions -P demo",
+    "deploy:oakville": "firebase deploy --only functions -P oakville",
+    "compile": "tsc --project tsconfig.json"
+  },
+  "engines": {
+    "node": "14"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "clicksend": "^5.0.37",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "coverme-shared": "file:./src/coverme-shared",
+    "express": "^4.17.1",
+    "firebase": "^9.14.0",
+    "firebase-admin": "^10.0.2",
+    "firebase-functions": "^3.23.0",
+    "http": "0.0.1-security",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/node": "^18.11.18",
+    "env-cmd": "^10.1.0",
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^4.9.3"
+  },
+  "private": true
+}
+[debug] [2023-01-21T22:42:40.518Z] Building nodejs source
+[debug] [2023-01-21T22:42:40.518Z] Analyzing nodejs backend spec
+[debug] [2023-01-21T22:42:40.519Z] Could not find functions.yaml. Must use http discovery
+[debug] [2023-01-21T22:42:40.648Z] Serving at port 9005
+
+[debug] [2023-01-21T22:42:40.712Z] {
+  CLOUD_EVENTARC_EMULATOR_HOST: 'http://127.0.0.1:9299',
+  COMSPEC: 'C:\\Windows\\system32\\cmd.exe',
+  dp0: 'C:\\Code\\coverme\\packages\\functions\\node_modules\\.bin\\',
+  FIREBASE_CONFIG: '{"storageBucket":"coverme-47dc7.appspot.com","projectId":"coverme-47dc7"}',
+  FIREBASE_DEBUG_FEATURES: '{"skipTokenVerification":true,"enableCors":true}',
+  FIREBASE_DEBUG_MODE: 'true',
+  FIREBASE_EMULATOR_HUB: '127.0.0.1:4400',
+  FUNCTIONS_CONTROL_API: 'true',
+  FUNCTIONS_EMULATOR: 'true',
+  GCLOUD_PROJECT: 'coverme-47dc7',
+  GOOGLE_APPLICATION_CREDENTIALS: 'C:\\Users\\Matthew Douglas\\AppData\\Roaming\\firebase\\matthew_bytesizecoder_ca_application_default_credentials.json',
+  HOME: 'C:\\Users\\Matthew Douglas',
+  HOMEDRIVE: 'C:',
+  HOMEPATH: '\\Users\\Matthew Douglas',
+  K_REVISION: '1',
+  LOGONSERVER: '\\\\DESKTOP-5Q98MEL',
+  PATH: 'C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm\\v14.21.2\\node_modules\\npm\\node_modules\\npm-lifecycle\\node-gyp-bin;C:\\Code\\coverme\\packages\\functions\\node_modules\\.bin;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm\\v14.21.2\\node_modules\\npm\\node_modules\\npm-lifecycle\\node-gyp-bin;C:\\Code\\coverme\\node_modules\\.bin;C:\\Program Files (x86)\\SCE\\Prospero SDKs\\4.000\\host_tools\\bin;C:\\Program Files (x86)\\SCE\\Prospero\\Tools\\Publishing Tools\\bin;C:\\Program Files (x86)\\SCE\\Prospero\\Tools\\Target Manager Server\\bin;C:\\Program Files (x86)\\SCE\\ORBIS SDKs\\9.000\\host_tools\\bin;C:\\Program Files (x86)\\SCE\\ORBIS\\Tools\\Target Manager Server\\bin;C:\\Program Files (x86)\\SCE\\ORBIS\\Tools\\Publishing Tools\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\NVIDIA NvDLISR;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;%NVM_HOME%;%NVM_SYMLINK%;C:\\Program Files\\Microsoft SQL Server\\150\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\TortoiseSVN\\bin;C:\\Strawberry\\c\\bin;C:\\Strawberry\\perl\\site\\bin;C:\\Strawberry\\perl\\bin;C:\\Program Files\\Git\\cmd;C:\\Users\\Matthew Douglas\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\npm;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm;C:\\Program Files\\nodejs;C:\\Users\\Matthew Douglas\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\Matthew Douglas\\.dotnet\\tools;C:\\Users\\Matthew Douglas\\AppData\\Local\\GitHubDesktop\\bin',
+  PATHEXT: '.COM;.EXE;.BAT;.CMD;.VBS;.WS;.MSC',
+  PORT: '9005',
+  PROMPT: '$P$G',
+  SYSTEMDRIVE: 'C:',
+  SYSTEMROOT: 'C:\\Windows',
+  TEMP: 'C:\\Users\\MATTHE~1\\AppData\\Local\\Temp',
+  TZ: 'UTC',
+  USERDOMAIN: 'DESKTOP-5Q98MEL',
+  USERNAME: 'Matthew Douglas',
+  USERPROFILE: 'C:\\Users\\Matthew Douglas',
+  WINDIR: 'C:\\Windows',
+  _prog: 'node'
+}
+
+[debug] [2023-01-21T22:42:40.752Z] Got response from /__/functions.yaml Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'
+Require stack:
+- C:\Code\coverme\packages\functions\lib\utils\overtime.js
+- C:\Code\coverme\packages\functions\lib\controllers\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\routes\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\index.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\runtime\loader.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\bin\firebase-functions.js
+[debug] [2023-01-21T22:42:40.754Z] Failed to parse functions.yamlincomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line at line 1, column 56:
+     ... fest from function source: Error: Cannot find module 'db/batch-h ... 
+                                         ^ {"name":"YAMLException","reason":"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line","mark":{"name":null,"buffer":"Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'\nRequire stack:\n- C:\\Code\\coverme\\packages\\functions\\lib\\utils\\overtime.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\controllers\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\routes\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\index.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\runtime\\loader.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\bin\\firebase-functions.js\n\u0000","position":55,"line":0,"column":55},"message":"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line at line 1, column 56:\n     ... fest from function source: Error: Cannot find module 'db/batch-h ... \n                                         ^"}
+[debug] [2023-01-21T22:42:40.756Z] shutdown requested via /__/quitquitquit
+
+[error] !!  functions: Failed to load function definition from source: FirebaseError: Failed to load function definition from source: Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'
+Require stack:
+- C:\Code\coverme\packages\functions\lib\utils\overtime.js
+- C:\Code\coverme\packages\functions\lib\controllers\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\routes\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\index.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\runtime\loader.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\bin\firebase-functions.js {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: Failed to load function definition from source: Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'\nRequire stack:\n- C:\\Code\\coverme\\packages\\functions\\lib\\utils\\overtime.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\controllers\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\routes\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\index.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\runtime\\loader.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\bin\\firebase-functions.js"}}
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2023-01-21T22:43:22.182Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2023-01-21T22:43:22.183Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2023-01-21T22:43:22.185Z] [work-queue] {"queueLength":0,"workRunningCount":0}

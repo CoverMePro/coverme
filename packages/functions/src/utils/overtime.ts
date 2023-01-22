@@ -1,8 +1,7 @@
 import { IOvertime, ICallout, IShift, IUser } from 'coverme-shared';
+import { getBatch } from 'db/batch-handler';
 import dbHandler from '../db/db-handler';
-import { getCalloutList, mapFireStoreData } from '../db/db-helpers';
-import { db } from './admin';
-
+import { getCalloutList } from '../db/db-helpers';
 import { sendOvertimeVoice, sendConfirmOvertimeVoice } from './sms';
 
 const userContainsTeam = (user: IUser, team: string) => {
@@ -17,40 +16,47 @@ const isInCallouts = (callouts: ICallout[], user: IUser) => {
 	return callouts.findIndex((callout) => callout.userId === user.id) !== -1;
 };
 
-const hasUserAcceptedCallout = async (
-	callouts: ICallout[],
-	overtimeData: IOvertime,
-	team: string
-) => {
+const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime, team: string) => {
 	let hasAccepted = false;
 
 	for (let i = 0, len = callouts.length; i < len; ++i) {
 		const callout = callouts[i];
 
+		// if one of the users has chose to accept the shift
 		if (callout.status === 'Accepted') {
-			await db.doc(`/overtime-callouts/${overtimeData.id}`).update({
-				shiftAcceptedBy: callout.userName,
-				status: 'Complete',
-			});
+			try {
+				const batch = getBatch();
 
-			// assign shift here too
-			await db.doc(`/shifts/${overtimeData.shiftId}`).update({
-				userId: callout.userId,
-			});
+				// Update callout, shift, and the user as the last person to accept callout
+				batch.update(dbHandler.getDocumentSnapshot(`overtime-callouts/${overtime.id}`), {
+					shiftAcceptedBy: callout.userName,
+					status: 'Complete',
+				});
 
-			if (callout.team === 'internal') {
-				await db.doc(`/last-callouts/internal`).update({
-					[team]: callout.userId,
+				batch.update(dbHandler.getDocumentSnapshot(`shifts/${overtime.shiftId}`), {
+					userId: callout.userId,
 				});
-			} else {
-				await db.doc(`/last-callouts/external`).update({
-					email: callout.userId,
-				});
+
+				// If its an internal user (user within the team) make sure to update correct 'last callout'
+				// If external, then update that list.
+				if (callout.team === 'internal') {
+					batch.update(dbHandler.getDocumentSnapshot(`last-callouts/internal`), {
+						[team]: callout.userId,
+					});
+				} else {
+					batch.update(dbHandler.getDocumentSnapshot(`last-callouts/external`), {
+						[team]: callout.userId,
+					});
+				}
+
+				await batch.commit();
+
+				sendConfirmOvertimeVoice(callout.phone, overtime);
+
+				hasAccepted = true;
+			} catch (err: any) {
+				throw new Error(err.message);
 			}
-
-			sendConfirmOvertimeVoice(callout.phone, overtimeData);
-
-			hasAccepted = true;
 		}
 	}
 
@@ -69,6 +75,9 @@ const hasCalloutReachedShiftStartTimeRange = (shift: IShift, hourRange: number) 
 		// end callouts for this one
 		console.log(`WITHIN ${hourRange} HOURS!`);
 
+		//TODO: update callout that it complete
+		//TODO: notfiy manager shift has not been assinged
+
 		return true;
 	}
 
@@ -82,7 +91,6 @@ const hasReachedLimit = (array1: any[], array2: any[]) => {
 const hasAllUsersBeenNotifiedOrDeclined = (users: IUser[], callouts: ICallout[]) => {
 	// check if all users are notified, if so then dont go through all this
 	if (hasReachedLimit(users, callouts)) {
-		console.log('ALL USERS NOTIFIED');
 		// check if all users declined, then end this callout
 		let allDeclined = true;
 
@@ -94,6 +102,8 @@ const hasAllUsersBeenNotifiedOrDeclined = (users: IUser[], callouts: ICallout[])
 
 		if (allDeclined) {
 			// close the callout so it doesnt run anymore
+			//TODO: update callout that it complete
+			//TODO: notfiy manager shift has not been assinged
 		}
 
 		return true;
@@ -102,185 +112,124 @@ const hasAllUsersBeenNotifiedOrDeclined = (users: IUser[], callouts: ICallout[])
 	return false;
 };
 
-const handleCalloutCycle = async (
-	callouts: ICallout[],
-	users: IUser[],
-	lastCalloutUser: string | undefined,
-	overtimeId: string,
-	overtimeInfo: IOvertime,
-	phase: 'internal' | 'external'
-) => {
-	let calloutindex = 0;
+const getNextUserToCallout = (callouts: ICallout[], users: IUser[], calloutIndex: number) => {
+	let nextCalloutuser = users[calloutIndex];
+	// loop through and get next user for call out
+	while (callouts.length !== users.length) {
+		nextCalloutuser = users[calloutIndex];
 
-	if (lastCalloutUser) {
-		console.log(lastCalloutUser);
-		const userIndex = lastCalloutUser
-			? users.findIndex((user) => user.email === lastCalloutUser)
-			: -1;
-
-		console.log(userIndex);
-
-		if (userIndex !== -1) {
-			calloutindex = userIndex + 1 >= users.length ? 0 : userIndex + 1;
+		if (isInCallouts(callouts, nextCalloutuser)) {
+			calloutIndex = calloutIndex + 1 >= users.length ? 0 : calloutIndex + 1;
+			continue;
 		} else {
-			calloutindex = 0;
+			break;
 		}
 	}
 
-	// loop through and get next user for call out
-	while (callouts.length !== users.length) {
-		const nextCalloutuser = users[calloutindex];
+	return nextCalloutuser;
+};
 
-		if (isInCallouts(callouts, nextCalloutuser)) {
-			console.log('In callout!!!');
-			calloutindex = calloutindex + 1 >= users.length ? 0 : calloutindex + 1;
-			console.log(calloutindex);
-			continue;
-		} else {
-			// check if user can take shift ???
-			console.log(`CONTACTING ${nextCalloutuser.email}`);
-			// initiate callout
-			callouts.push({
-				userId: nextCalloutuser.id!,
-				userName: `${nextCalloutuser.firstName} ${nextCalloutuser.lastName}`,
-				phone: nextCalloutuser.phone,
+const getLastCalloutUserIndex = (lastCalloutUser: string, users: IUser[]) => {
+	let calloutindex = 0;
+
+	const userIndex = lastCalloutUser
+		? users.findIndex((user) => user.email === lastCalloutUser)
+		: -1;
+
+	console.log(userIndex);
+
+	if (userIndex !== -1) {
+		calloutindex = userIndex + 1 >= users.length ? 0 : userIndex + 1;
+	}
+
+	return calloutindex;
+};
+
+const callout = async () => {
+	try {
+		const pendingOvertime = await dbHandler.getCollectionWithCondition<IOvertime>(
+			'overtime-callouts',
+			'status',
+			'==',
+			'Pending'
+		);
+
+		if (pendingOvertime.length === 0) return;
+
+		pendingOvertime.forEach(async (overtime) => {
+			const staffCalled = overtime.callouts ? [...overtime.callouts] : [];
+
+			const { team, shiftId } = overtime;
+
+			const userAcceptedCallout = await hasUserAcceptedCallout(staffCalled, overtime, team);
+
+			if (userAcceptedCallout) return;
+
+			const shift: IShift = await dbHandler.getDocumentById<IShift>('shifts', shiftId);
+
+			// check if shit start time is in reasonable time to call out
+			// if not, notify shift has not been assigned
+			// method to calculate date within a certain time (1 hour)
+			if (hasCalloutReachedShiftStartTimeRange(shift, 1)) return;
+
+			const { users, lastCallouts } = await getCalloutList();
+
+			// check if all users are notified, if so then dont go through all this
+			if (hasAllUsersBeenNotifiedOrDeclined(users, staffCalled)) return;
+
+			let userLists;
+			let lastCalloutUser;
+			let phase = 'internal';
+
+			// check if in internal phase (staff within team of callout)
+			// adjust the user list and last callout user accordingly
+			if (!overtime.phase || overtime.phase === 'Internal') {
+				userLists = users.filter((user) => userContainsTeam(user, team));
+				lastCalloutUser = lastCallouts.internal[team]
+					? lastCallouts.internal[team]
+					: undefined;
+			} else {
+				userLists = users;
+				lastCalloutUser = lastCallouts.external.email;
+				phase = 'external';
+			}
+
+			let calloutUserIndex = 0;
+
+			// get the new index of the user to callout
+			if (lastCalloutUser !== undefined) {
+				calloutUserIndex = getLastCalloutUserIndex(lastCalloutUser, userLists);
+			}
+
+			const userToCallout = getNextUserToCallout(staffCalled, userLists, calloutUserIndex);
+
+			staffCalled.push({
+				userId: userToCallout.id!,
+				userName: `${userToCallout.firstName} ${userToCallout.lastName}`,
+				phone: userToCallout.phone,
 				team: phase,
 				status: 'Pending',
 			});
 
-			await sendOvertimeVoice(nextCalloutuser, overtimeInfo, overtimeId);
+			const batch = getBatch();
 
-			await db.doc(`/overtime-callouts/${overtimeId}`).update({
-				callouts: [...callouts],
+			batch.update(dbHandler.getDocumentSnapshot(`overtime-callouts/${overtime.id!}`), {
+				callouts: [...staffCalled],
 			});
 
-			break;
-		}
-	}
-};
-
-const callout = () => {
-	return db
-		.collection('/overtime-callouts')
-		.where('status', '==', 'Pending')
-		.get()
-		.then((calloutResult) => {
-			if (calloutResult.empty) {
-				console.log('NO CALLOUTS CURRENTLY');
-				return;
+			if (hasReachedLimit(staffCalled, userLists) && phase === 'internal') {
+				batch.update(dbHandler.getDocumentSnapshot(`overtime-callouts/${overtime.id!}`), {
+					phase: 'external',
+				});
 			}
 
-			calloutResult.forEach(async (overtimeCalloutDoc) => {
-				try {
-					const overtimeData: IOvertime = mapFireStoreData(
-						overtimeCalloutDoc.id,
-						overtimeCalloutDoc.data()
-					);
-					const callouts = overtimeData.callouts ? [...overtimeData.callouts] : [];
-
-					const { team, shiftId } = overtimeData;
-
-					const userAcceptedCallout = await hasUserAcceptedCallout(
-						callouts,
-						overtimeData,
-						team
-					);
-
-					if (userAcceptedCallout) {
-						return;
-					}
-
-					const shift: IShift = await dbHandler.getDocumentById<IShift>(
-						'shifts',
-						shiftId
-					);
-
-					if (shift) {
-						// check if shit start time is in reasonable time to call out
-						// if not, notify shift has not been assigned
-						// method to calculate date within a certain time (1 hour)
-						if (hasCalloutReachedShiftStartTimeRange(shift, 1)) {
-							// update status of shift
-
-							return;
-						}
-
-						// get callout list information
-						const { users, lastCallouts } = await getCalloutList();
-
-						// check if all users are notified, if so then dont go through all this
-						if (hasAllUsersBeenNotifiedOrDeclined(users, callouts)) {
-							return;
-						}
-
-						// check if its we are in internal or external callout phase
-						// TODO: Need some sort of phase property
-						if (!overtimeData.phase || overtimeData.phase === 'Internal') {
-							console.log('INTERNAL');
-							const internalUsers = users.filter((user) =>
-								userContainsTeam(user, team)
-							);
-							// get index where last call out was made
-
-							// if no last callout setup nyet, gotta upate that
-							console.log(lastCallouts);
-
-							const lastCalloutUserForTeam = lastCallouts.internal[team]
-								? lastCallouts.internal[team]
-								: undefined;
-
-							await handleCalloutCycle(
-								callouts,
-								internalUsers,
-								lastCalloutUserForTeam,
-								overtimeData.id!,
-								overtimeData,
-								'internal'
-							);
-
-							if (hasReachedLimit(callouts, internalUsers)) {
-								await db.doc(`/overtime-callouts/${overtimeData.id}`).update({
-									phase: 'External',
-								});
-							}
-
-							return;
-						} else {
-							console.log('EXTERNAL');
-							const lastCalloutUserForCompany = lastCallouts.external.email;
-
-							await handleCalloutCycle(
-								callouts,
-								users,
-								lastCalloutUserForCompany,
-								overtimeData.id!,
-								overtimeData,
-								'external'
-							);
-
-							if (hasReachedLimit(callouts, users)) {
-								await db.doc(`/overtime-callouts/${overtimeData.id}`).update({
-									status: 'Complete',
-								});
-							}
-
-							return;
-						}
-					}
-					console.log('TEST END NO SHIFT');
-					return;
-				} catch (err) {
-					console.error(err);
-					throw new Error();
-				}
-			});
-			console.log('END HERE');
-			return;
-		})
-		.catch((err) => {
-			console.error(err);
-			throw new Error(err);
+			await batch.commit();
+			await sendOvertimeVoice(userToCallout, overtime);
 		});
+	} catch (err: any) {
+		console.error(err);
+		throw new Error(err);
+	}
 };
 
 export default callout;
