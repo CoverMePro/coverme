@@ -174,7 +174,7 @@ const signIn = async (req: Request, res: Response) => {
 
 const deleteAuthUser = async (req: Request, res: Response) => {
 	const id = req.params.id;
-
+	// adding comment
 	try {
 		const user: IUser = await dbHandler.getDocumentById('users', id);
 

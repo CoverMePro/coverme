@@ -151,3 +151,105 @@ Issues? Report them at https://github.com/firebase/firebase-tools/issues and att
 [debug] [2023-01-21T22:43:22.182Z] [work-queue] {"queueLength":1,"workRunningCount":0}
 [debug] [2023-01-21T22:43:22.183Z] [work-queue] {"queueLength":0,"workRunningCount":1}
 [debug] [2023-01-21T22:43:22.185Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2023-01-22T18:06:09.084Z] File C:\Code\coverme\packages\functions\src\controllers\auth.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Code\\coverme\\packages\\functions\\src\\controllers\\auth.ts changed, reloading triggers"}}
+[debug] [2023-01-22T18:06:10.090Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2023-01-22T18:06:12.163Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "env-cmd -f .env.dev npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "deploy:dev": "env-cmd -f .env.dev firebase deploy --only functions -P dev",
+    "deploy:demo": "firebase deploy --only functions -P demo",
+    "deploy:oakville": "firebase deploy --only functions -P oakville",
+    "compile": "tsc --project tsconfig.json"
+  },
+  "engines": {
+    "node": "14"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "clicksend": "^5.0.37",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "coverme-shared": "file:./src/coverme-shared",
+    "express": "^4.17.1",
+    "firebase": "^9.14.0",
+    "firebase-admin": "^10.0.2",
+    "firebase-functions": "^3.23.0",
+    "http": "0.0.1-security",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/node": "^18.11.18",
+    "env-cmd": "^10.1.0",
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^4.9.3"
+  },
+  "private": true
+}
+[debug] [2023-01-22T18:06:12.163Z] Building nodejs source
+[debug] [2023-01-22T18:06:12.163Z] Analyzing nodejs backend spec
+[debug] [2023-01-22T18:06:12.163Z] Could not find functions.yaml. Must use http discovery
+[debug] [2023-01-22T18:06:12.348Z] Serving at port 9005
+
+[debug] [2023-01-22T18:06:12.430Z] {
+  CLOUD_EVENTARC_EMULATOR_HOST: 'http://127.0.0.1:9299',
+  COMSPEC: 'C:\\Windows\\system32\\cmd.exe',
+  dp0: 'C:\\Code\\coverme\\packages\\functions\\node_modules\\.bin\\',
+  FIREBASE_CONFIG: '{"storageBucket":"coverme-47dc7.appspot.com","projectId":"coverme-47dc7"}',
+  FIREBASE_DEBUG_FEATURES: '{"skipTokenVerification":true,"enableCors":true}',
+  FIREBASE_DEBUG_MODE: 'true',
+  FIREBASE_EMULATOR_HUB: '127.0.0.1:4400',
+  FUNCTIONS_CONTROL_API: 'true',
+  FUNCTIONS_EMULATOR: 'true',
+  GCLOUD_PROJECT: 'coverme-47dc7',
+  GOOGLE_APPLICATION_CREDENTIALS: 'C:\\Users\\Matthew Douglas\\AppData\\Roaming\\firebase\\matthew_bytesizecoder_ca_application_default_credentials.json',
+  HOME: 'C:\\Users\\Matthew Douglas',
+  HOMEDRIVE: 'C:',
+  HOMEPATH: '\\Users\\Matthew Douglas',
+  K_REVISION: '1',
+  LOGONSERVER: '\\\\DESKTOP-5Q98MEL',
+  PATH: 'C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm\\v14.21.2\\node_modules\\npm\\node_modules\\npm-lifecycle\\node-gyp-bin;C:\\Code\\coverme\\packages\\functions\\node_modules\\.bin;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm\\v14.21.2\\node_modules\\npm\\node_modules\\npm-lifecycle\\node-gyp-bin;C:\\Code\\coverme\\node_modules\\.bin;C:\\Program Files (x86)\\SCE\\Prospero SDKs\\4.000\\host_tools\\bin;C:\\Program Files (x86)\\SCE\\Prospero\\Tools\\Publishing Tools\\bin;C:\\Program Files (x86)\\SCE\\Prospero\\Tools\\Target Manager Server\\bin;C:\\Program Files (x86)\\SCE\\ORBIS SDKs\\9.000\\host_tools\\bin;C:\\Program Files (x86)\\SCE\\ORBIS\\Tools\\Target Manager Server\\bin;C:\\Program Files (x86)\\SCE\\ORBIS\\Tools\\Publishing Tools\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\NVIDIA NvDLISR;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;%NVM_HOME%;%NVM_SYMLINK%;C:\\Program Files\\Microsoft SQL Server\\150\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\TortoiseSVN\\bin;C:\\Strawberry\\c\\bin;C:\\Strawberry\\perl\\site\\bin;C:\\Strawberry\\perl\\bin;C:\\Program Files\\Git\\cmd;C:\\Users\\Matthew Douglas\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\npm;C:\\Users\\Matthew Douglas\\AppData\\Roaming\\nvm;C:\\Program Files\\nodejs;C:\\Users\\Matthew Douglas\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\Matthew Douglas\\.dotnet\\tools;C:\\Users\\Matthew Douglas\\AppData\\Local\\GitHubDesktop\\bin',
+  PATHEXT: '.COM;.EXE;.BAT;.CMD;.VBS;.WS;.MSC',
+  PORT: '9005',
+  PROMPT: '$P$G',
+  SYSTEMDRIVE: 'C:',
+  SYSTEMROOT: 'C:\\Windows',
+  TEMP: 'C:\\Users\\MATTHE~1\\AppData\\Local\\Temp',
+  TZ: 'UTC',
+  USERDOMAIN: 'DESKTOP-5Q98MEL',
+  USERNAME: 'Matthew Douglas',
+  USERPROFILE: 'C:\\Users\\Matthew Douglas',
+  WINDIR: 'C:\\Windows',
+  _prog: 'node'
+}
+
+[debug] [2023-01-22T18:06:12.503Z] Got response from /__/functions.yaml Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'
+Require stack:
+- C:\Code\coverme\packages\functions\lib\utils\overtime.js
+- C:\Code\coverme\packages\functions\lib\controllers\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\routes\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\index.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\runtime\loader.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\bin\firebase-functions.js
+[debug] [2023-01-22T18:06:12.503Z] Failed to parse functions.yamlincomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line at line 1, column 56:
+     ... fest from function source: Error: Cannot find module 'db/batch-h ... 
+                                         ^ {"name":"YAMLException","reason":"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line","mark":{"name":null,"buffer":"Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'\nRequire stack:\n- C:\\Code\\coverme\\packages\\functions\\lib\\utils\\overtime.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\controllers\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\routes\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\index.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\runtime\\loader.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\bin\\firebase-functions.js\n\u0000","position":55,"line":0,"column":55},"message":"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line at line 1, column 56:\n     ... fest from function source: Error: Cannot find module 'db/batch-h ... \n                                         ^"}
+[debug] [2023-01-22T18:06:12.509Z] shutdown requested via /__/quitquitquit
+
+[error] !!  functions: Failed to load function definition from source: FirebaseError: Failed to load function definition from source: Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'
+Require stack:
+- C:\Code\coverme\packages\functions\lib\utils\overtime.js
+- C:\Code\coverme\packages\functions\lib\controllers\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\routes\overtime-callout.js
+- C:\Code\coverme\packages\functions\lib\index.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\runtime\loader.js
+- C:\Code\coverme\packages\functions\node_modules\firebase-functions\lib\bin\firebase-functions.js {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: Failed to load function definition from source: Failed to generate manifest from function source: Error: Cannot find module 'db/batch-handler'\nRequire stack:\n- C:\\Code\\coverme\\packages\\functions\\lib\\utils\\overtime.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\controllers\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\routes\\overtime-callout.js\n- C:\\Code\\coverme\\packages\\functions\\lib\\index.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\runtime\\loader.js\n- C:\\Code\\coverme\\packages\\functions\\node_modules\\firebase-functions\\lib\\bin\\firebase-functions.js"}}
