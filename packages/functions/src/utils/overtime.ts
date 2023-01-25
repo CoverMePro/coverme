@@ -1,5 +1,5 @@
 import { IOvertime, ICallout, IShift, IUser } from 'coverme-shared';
-import { getBatch } from 'db/batch-handler';
+import { getBatch } from '../db/batch-handler';
 import dbHandler from '../db/db-handler';
 import { getCalloutList } from '../db/db-helpers';
 import { sendOvertimeVoice, sendConfirmOvertimeVoice } from './sms';
