@@ -56,7 +56,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 				lastName: '',
 				email: '',
 				position: '',
-				hireDate: '',
+				hireDate: String(new Date()),
 				phone: '',
 				password: '',
 			},
@@ -237,12 +237,12 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 									setSavedHireDate(newValue);
 									setValues({
 										...values,
-										hireDate: newValue.toString(),
+										hireDate: newValue.toDateString(),
 									});
 								} else if (keyboardValue !== undefined) {
 									setValues({
 										...values,
-										hireDate: savedHireDate.toString(),
+										hireDate: savedHireDate.toDateString(),
 									});
 								}
 							}}

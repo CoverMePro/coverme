@@ -57,7 +57,7 @@ const registerUser = async (req: Request, res: Response) => {
 const completeRegisterUser = async (req: Request, res: Response) => {
 	const { email, password, firstName, lastName, employeeType, role, hireDate, phone } = req.body;
 
-	const newHiredate = new Date(new Date(hireDate as Date).setHours(24, 0, 0, 0));
+	const newHiredate = new Date(new Date(hireDate as Date).setHours(0, 0, 0, 0));
 
 	try {
 		const authData = await createUserWithEmailAndPassword(fbAuth, email, password);
@@ -90,7 +90,7 @@ const completeRegisterUser = async (req: Request, res: Response) => {
 const sendRegisterLink = async (req: Request, res: Response) => {
 	const userInfo: IUser = req.body;
 
-	const newHiredate = new Date(new Date(userInfo.hireDate as Date).setHours(24, 0, 0, 0));
+	const newHiredate = new Date(new Date(userInfo.hireDate as Date).setHours(0, 0, 0, 0));
 
 	try {
 		await emailSignInForUser(fbAuth, userInfo.email);
