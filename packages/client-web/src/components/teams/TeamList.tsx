@@ -20,7 +20,7 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
 			{staff.map((user) => (
 				<ListItem
 					key={user.email!}
-					sx={{ width: '100%' }}
+					sx={{ width: '60%' }}
 					secondaryAction={
 						<PermissionCheck permissionLevel={2}>
 							<IconButton
@@ -39,11 +39,12 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
 						</Avatar>
 					</ListItemAvatar>
 					<ListItemText
+						sx={{ width: '100%' }}
 						primary={`${user.firstName} ${user.lastName}`}
 						secondary={user.employeeType}
 					/>
 					<ListItemText
-						sx={{ width: '50%' }}
+						sx={{ width: '50%', textAlign: 'left' }}
 						primary={user.email}
 						secondary={user.phone}
 					/>

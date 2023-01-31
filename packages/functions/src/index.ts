@@ -38,7 +38,7 @@ app.use(
 );
 
 // app.use(function (_, res, next) {
-// 	res.setHeader('Access-Control-Allow-Origin', `${process.env.WEB_CLIENT_DOMAIN}`);
+// 	res.setHeader('Access-Control-Allow-Origin', '*');
 // 	res.setHeader('Access-Control-Allow-Credentials', 'true');
 // 	res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 // 	res.setHeader('Cache-Control', 'private');
