@@ -12,6 +12,7 @@ import {
 	Select,
 	MenuItem,
 	SelectChangeEvent,
+	FormHelperText,
 } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 
@@ -35,6 +36,13 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 	const [selectedRequestedUser, setSelectedRequestedUserId] = useState<any>(undefined);
 	const [selectedRequestedShiftId, setSelectedRequestedShiftId] = useState<string>('');
 
+	//validation useState
+	const [validation, setValidation] = useState({
+		selectedProposedShiftId: false,
+		selectedRequestedUser: false,
+		selectedRequestedShiftId: false,
+	});
+
 	const user = useTypedSelector((state) => state.user);
 
 	const { enqueueSnackbar } = useSnackbar();
@@ -42,44 +50,79 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 	// TO DO: better form validation using what we have! do more research and figure out how to utilize here
 
 	const handleSubmit = () => {
-		const tradeRequest: ITradeRequest = {
-			proposedDate: new Date(),
-			proposedUserId: user.id,
-			proposedUser: {
-				name: `${user.firstName} ${user.lastName}`,
-				email: user.email,
-			},
-			proposedShiftId: selectedProposedShiftId,
-			requestedUserId: selectedRequestedUser.id,
-			requestedUser: {
-				name: selectedRequestedUser.name,
-				email: selectedRequestedUser.email,
-			},
-			requestedShiftId: selectedRequestedShiftId,
-			status: 'Pending',
-		};
+		if (validCheck() == true) {
+			const tradeRequest: ITradeRequest = {
+				proposedDate: new Date(),
+				proposedUserId: user.id,
+				proposedUser: {
+					name: `${user.firstName} ${user.lastName}`,
+					email: user.email,
+				},
 
-		setIsLoading(true);
-		api.postCreateData<ITradeRequest>(`trade-request`, tradeRequest)
-			.then((addedTradeRequest) => {
-				enqueueSnackbar('Trade request submitted.', {
-					variant: 'success',
+				proposedShiftId: selectedProposedShiftId,
+
+				requestedUserId: selectedRequestedUser.id,
+				requestedUser: {
+					name: selectedRequestedUser.name,
+					email: selectedRequestedUser.email,
+				},
+				requestedShiftId: selectedRequestedShiftId,
+				status: 'Pending',
+			};
+
+			setIsLoading(true);
+			api.postCreateData<ITradeRequest>(`trade-request`, tradeRequest)
+				.then((addedTradeRequest) => {
+					enqueueSnackbar('Trade request submitted.', {
+						variant: 'success',
+					});
+					onFinish(addedTradeRequest);
+				})
+				.catch((err) => {
+					console.error(err);
+					enqueueSnackbar('An error has occured, please try again', {
+						variant: 'error',
+					});
+					onFinish(undefined);
+				})
+				.finally(() => {
+					setIsLoading(false);
 				});
-				onFinish(addedTradeRequest);
-			})
-			.catch((err) => {
-				console.error(err);
-				enqueueSnackbar('An error has occured, please try again', {
-					variant: 'error',
-				});
-				onFinish(undefined);
-			})
-			.finally(() => {
-				setIsLoading(false);
-			});
+			return true;
+		} else return false;
+	};
+
+	const validCheck = () => {
+		let errors = { ...validation };
+
+		if (
+			selectedProposedShiftId === '' ||
+			selectedRequestedShiftId === '' ||
+			selectedRequestedUser === '' ||
+			selectedRequestedUser === undefined
+		) {
+			if (selectedProposedShiftId === '') {
+				errors.selectedProposedShiftId = true;
+			}
+			if (selectedRequestedShiftId === '') {
+				errors.selectedRequestedShiftId = true;
+			}
+			if (selectedRequestedUser === '' || selectedRequestedUser === undefined) {
+				errors.selectedRequestedUser = true;
+			}
+			setValidation(errors);
+			return false;
+		} else return true;
 	};
 
 	const handlePropsedShiftChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
+		let errors = { ...validation };
+		if (event.target.value == '') {
+			errors.selectedProposedShiftId = true;
+		} else {
+			errors.selectedProposedShiftId = false;
+		}
+		setValidation(errors);
 		setSelectedProposedShiftId(event.target.value);
 	};
 
@@ -87,7 +130,12 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 		_: React.SyntheticEvent<Element, Event>,
 		value: IUser | null
 	) => {
+		let errors = { ...validation };
+
 		if (value) {
+			errors.selectedRequestedUser = false;
+			setValidation(errors);
+
 			setSelectedRequestedUserId({
 				id: value.id,
 				name: `${value.firstName} ${value.lastName}`,
@@ -103,15 +151,28 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 					console.error(err);
 				})
 				.finally();
+		} else if (value !== '') {
+			errors.selectedRequestedUser = true;
+			setValidation(errors);
 		} else {
+			errors.selectedRequestedUser = true;
+			setValidation(errors);
 			setSelectedRequestedUserId(undefined);
 		}
+		return setValidation(errors);
 	};
 
 	const handleRequestedShiftChange = (
 		event: SelectChangeEvent<string>,
 		child: React.ReactNode
 	) => {
+		let errors = { ...validation };
+		if (event.target.value == '') {
+			errors.selectedRequestedShiftId = true;
+		} else {
+			errors.selectedRequestedShiftId = false;
+		}
+		setValidation(errors);
 		setSelectedRequestedShiftId(event.target.value);
 	};
 
@@ -150,7 +211,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 				) : (
 					<>
 						<Box>
-							<FormControl fullWidth>
+							<FormControl fullWidth error={validation.selectedProposedShiftId}>
 								<InputLabel id="proposed-shift-label">
 									Your Shift To Trade
 								</InputLabel>
@@ -172,27 +233,40 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 										);
 									})}
 								</Select>
+								<FormHelperText error={validation.selectedProposedShiftId}>
+									{validation.selectedProposedShiftId ? 'Required' : ''}
+								</FormHelperText>
 							</FormControl>
 						</Box>
 						<Box sx={{ mt: 2 }}>
-							<Autocomplete
-								options={staff}
-								getOptionLabel={(option) =>
-									`${option.firstName} ${option.lastName} - ${option.email}`
-								}
-								renderOption={(props, option, { selected }) => (
-									<li {...props}>
-										{option.firstName} {option.lastName} - {option.email}
-									</li>
-								)}
-								renderInput={(params) => (
-									<TextField {...params} label="Staff to Trade With" />
-								)}
-								onChange={handleRequestedUserChange}
-							/>
+							<FormControl fullWidth>
+								<Autocomplete
+									options={staff}
+									getOptionLabel={(option) =>
+										`${option.firstName} ${option.lastName} - ${option.email}`
+									}
+									renderOption={(props, option, { selected }) => (
+										<li {...props}>
+											{option.firstName} {option.lastName} - {option.email}
+										</li>
+									)}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											label="Staff to Trade With"
+											name="requestedUserId"
+											error={validation.selectedRequestedUser}
+											helperText={
+												validation.selectedRequestedUser ? 'Required' : ''
+											}
+										/>
+									)}
+									onChange={handleRequestedUserChange}
+								/>
+							</FormControl>
 						</Box>
 						<Box sx={{ mt: 2 }}>
-							<FormControl fullWidth>
+							<FormControl fullWidth error={validation.selectedRequestedShiftId}>
 								<InputLabel id="requested-shift-label">Requested Shift</InputLabel>
 								<Select
 									labelId="requested-shift-label"
@@ -212,6 +286,9 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 										);
 									})}
 								</Select>
+								<FormHelperText error={validation.selectedRequestedShiftId}>
+									{validation.selectedRequestedShiftId ? 'Required' : ''}
+								</FormHelperText>
 							</FormControl>
 						</Box>
 
