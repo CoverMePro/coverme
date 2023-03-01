@@ -54,12 +54,17 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 	const [hours, setHours] = useState<number>(0);
 	const [minutes, setMinutes] = useState<number>(0);
 
+	const [flag, setFlag] = useState<boolean>(true);
+
 	const handleToggleManualInput = () => {
 		const newManualInput = !manualInput;
+		clearSelected();
 		setManualInput(newManualInput);
 	};
 
 	const handleChange = (event: any) => {
+		if (event.target.value == '') setFlag(true);
+		else setFlag(false);
 		setDuration(event.target.value);
 	};
 
@@ -67,6 +72,16 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 		const shiftTemplateId = event.target.value as string;
 
 		setSelectedShiftTemplateId(shiftTemplateId);
+
+		if (shiftTemplateId == '') setFlag(true);
+		else setFlag(false);
+	};
+
+	const clearSelected = () => {
+		setFlag(true);
+		setDuration('');
+		setTimeValue(new Date(12, 0, 0, 0));
+		setSelectedShiftTemplateId('');
 	};
 
 	const handleConfirm = () => {
@@ -150,6 +165,7 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 											sx={{ width: '50%' }}
 											label="Duration"
 											onChange={handleChange}
+											value={duration}
 											name="shiftDuration"
 											id="formatted-numberformat-input"
 											InputProps={{
@@ -182,7 +198,11 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 
 								<Box sx={{ display: 'flex', gap: 1 }}>
 									<Tooltip title="Confirm">
-										<IconButton size="large" onClick={handleConfirm}>
+										<IconButton
+											size="large"
+											onClick={handleConfirm}
+											disabled={flag}
+										>
 											<CheckCircleIcon color="primary" fontSize="large" />
 										</IconButton>
 									</Tooltip>
@@ -269,6 +289,7 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 										size="large"
 										onClick={() => {
 											onDelete(day);
+											clearSelected();
 										}}
 									>
 										<DeleteIcon color="primary" fontSize="large" />
