@@ -28,17 +28,21 @@ const CreateWeekRotationForm: React.FC<ICreateWeekRotationFormProps> = ({
 
 	const [shiftDetails, setShiftDetails] = useState<IWeekDetails>({});
 
+	const [dayCount, setDayCount] = useState<number>(0);
+
 	const { enqueueSnackbar } = useSnackbar();
 
 	const handleAddShiftDetail = (day: string, details: IShiftDetail) => {
 		const newShitDetails = { ...shiftDetails };
 		newShitDetails[day] = details;
+		setDayCount(dayCount + 1);
 		setShiftDetails(newShitDetails);
 	};
 
 	const handleDeleteShiftDetails = (day: string) => {
 		const newShitDetails = { ...shiftDetails };
 		delete newShitDetails[day.toLocaleLowerCase()];
+		setDayCount(dayCount - 1);
 		setShiftDetails(newShitDetails);
 	};
 
@@ -172,7 +176,12 @@ const CreateWeekRotationForm: React.FC<ICreateWeekRotationFormProps> = ({
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" aria-label="Register User" type="submit">
+						<Fab
+							color="primary"
+							aria-label="Register User"
+							type="submit"
+							disabled={dayCount <= 0}
+						>
 							<MoreTimeIcon fontSize="large" />
 						</Fab>
 					)}
