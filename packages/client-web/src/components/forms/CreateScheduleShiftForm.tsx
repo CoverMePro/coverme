@@ -152,9 +152,9 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		if (selectedStaff) {
 			transactions.forEach(function (transaction) {
 				if (
-					transaction.startDate != shiftTransaction.startDate &&
-					transaction.endDate != shiftTransaction.endDate &&
-					shiftTransaction.name != transaction.name
+					transaction.startDate !== shiftTransaction.startDate &&
+					transaction.endDate !== shiftTransaction.endDate &&
+					shiftTransaction.name !== transaction.name
 				) {
 					newTransactions.push(transaction);
 				}
@@ -189,9 +189,9 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		if (selectedStaff) {
 			rotationTransactions.forEach(function (transaction) {
 				if (
-					rotationTransaction.startDate != transaction.startDate &&
-					rotationTransaction.endDate != transaction.endDate &&
-					rotationTransaction.userId != transaction.userId
+					rotationTransaction.startDate !== transaction.startDate &&
+					rotationTransaction.endDate !== transaction.endDate &&
+					rotationTransaction.userId !== transaction.userId
 				) {
 					newTransactions.push(transaction);
 				}

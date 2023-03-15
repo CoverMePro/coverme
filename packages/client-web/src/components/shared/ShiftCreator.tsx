@@ -137,7 +137,6 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 
 			onDelete(shiftTransaction);
 			setDisplay('');
-			//setEditMode(false);
 		} else {
 			const selectedShiftTemplate = shifts.find(
 				(shift) => shift.id === selectedShiftTemplateId
@@ -177,7 +176,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		let isDisabled = false;
 
 		if (!manualInput) {
-			if (shifts.length === 0 || selectedShiftTemplateId == '') {
+			if (shifts.length === 0 || selectedShiftTemplateId === '') {
 				isDisabled = true;
 			}
 		} else {
@@ -324,7 +323,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 					</Box>
 				</Box>
 			) : (
-				display != '' && (
+				display !== '' && (
 					<Box>
 						<Box sx={{ flexGrow: 1 }}>
 							<Box

@@ -63,7 +63,7 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 	};
 
 	const handleChange = (event: any) => {
-		if (event.target.value == '') setFlag(true);
+		if (event.target.value === '') setFlag(true);
 		else setFlag(false);
 		setDuration(event.target.value);
 	};
@@ -73,7 +73,7 @@ const RotationShiftDay: React.FC<IRotationShiftDayProps> = ({
 
 		setSelectedShiftTemplateId(shiftTemplateId);
 
-		if (shiftTemplateId == '') setFlag(true);
+		if (shiftTemplateId === '') setFlag(true);
 		else setFlag(false);
 	};
 

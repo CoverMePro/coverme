@@ -188,7 +188,7 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({
 					</Box>
 				</Box>
 			) : (
-				display != '' && (
+				display !== '' && (
 					<Box>
 						<Box sx={{ flexGrow: 1 }}>
 							<Box
