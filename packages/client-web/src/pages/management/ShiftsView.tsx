@@ -36,11 +36,7 @@ const ShiftsView: React.FC = () => {
 	};
 
 	const handleConfirmAddShiftRotation = (shiftRotation: IShiftRotation) => {
-		console.log(shiftRotation);
-
 		const newShiftRotations = [...shiftRotations, shiftRotation];
-
-		console.log(newShiftRotations);
 		setShiftRotations(newShiftRotations);
 	};
 

@@ -158,8 +158,6 @@ const ScheduleView: React.FC = () => {
 	 * @param draggedEvent - Information on the event that is being dragged
 	 */
 	const handleDragStop = (draggedEvent: EventDragStopArg) => {
-		console.log(draggedEvent);
-
 		let trashEl = document.getElementById('fc-trash')!; //as HTMLElement;
 
 		let x1 = trashEl.offsetLeft;
@@ -230,7 +228,6 @@ const ScheduleView: React.FC = () => {
 	};
 
 	const isInTeam = (teams: string[], userTeams: string[]) => {
-		console.log(teams);
 		let result = false;
 		userTeams.forEach((userTeam) => {
 			const foundTeam = teams.findIndex((t) => t === userTeam) !== -1;
@@ -244,7 +241,6 @@ const ScheduleView: React.FC = () => {
 
 	const formatStaff = useCallback(
 		(staff: any[], filterValue: string) => {
-			console.log(staff);
 			if (user.role === 'owner') {
 				return [...staff];
 			}

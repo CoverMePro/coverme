@@ -56,6 +56,9 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 				callouts: [],
 				phase: 'Internal',
 				status: 'Pending',
+				managerNumbers: [],
+				allNotifed: false,
+				alldeclined: false
 			};
 
 			setIsLoading(true);

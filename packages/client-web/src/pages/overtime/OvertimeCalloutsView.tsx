@@ -114,7 +114,6 @@ const OvertimeCalloutsView: React.FC = () => {
 	const getCalloutsForCompany = useCallback(() => {
 		api.getGenericData(`overtime-callouts`)
 			.then((overtimeCallouts) => {
-				console.log(overtimeCallouts);
 				setCallouts(overtimeCallouts);
 			})
 			.catch((err) => {

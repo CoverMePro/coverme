@@ -219,8 +219,6 @@ const logOut = (_: Request, res: Response) => {
  * Check if you have a session cookie so you can bypass login
  */
 const checkAuth = async (req: Request, res: Response) => {
-	console.log(process.env);
-
 	if (req.cookies['__session']) {
 		try {
 			const sessionCookie = `${req.cookies['__session']}`;

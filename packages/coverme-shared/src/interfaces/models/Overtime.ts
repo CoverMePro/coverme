@@ -16,7 +16,10 @@ export interface IOvertime {
     shiftInfo: string;
     status: string;
     team: string;
+    managerNumbers: string[];
     callouts: ICallout[];
     phase: OvertimePhase;
     shiftAcceptedBy?: string;
+    allNotifed?: boolean;
+    alldeclined?: boolean;
 }

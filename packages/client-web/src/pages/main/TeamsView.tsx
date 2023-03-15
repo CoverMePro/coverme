@@ -78,7 +78,6 @@ const TeamsView: React.FC = () => {
 	const handleGetTeams = useCallback(() => {
 		api.getAllData<ITeam>(`teams`)
 			.then((teams) => {
-				console.log(teams);
 				setTeams(teams);
 			})
 			.catch((err) => {

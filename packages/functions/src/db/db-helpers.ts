@@ -74,8 +74,8 @@ export const getShiftDataDateRange = (user: string, startRange: string, endRange
     return db
         .collection(`/shifts`)
         .where('userId', '==', user)
-        .where('startDateTime', '>', new Date(startRange))
-        .where('startDateTime', '<', new Date(endRange))
+        .where('startDateTime', '>=', new Date(startRange))
+        .where('startDateTime', '<=', new Date(endRange))
         .get()
         .then((shiftDocs) => {
             const shifts: IShift[] = formatFirestoreData(shiftDocs);

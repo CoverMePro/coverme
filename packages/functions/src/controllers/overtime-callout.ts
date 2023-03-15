@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IOvertime } from 'coverme-shared';
+import { IOvertime, ITeam, IUser } from 'coverme-shared';
 import { getCalloutList } from '../db/db-helpers';
 import calloutCyle from '../utils/overtime';
 import dbHandler from '../db/db-handler';
@@ -17,17 +17,22 @@ const createOvertimeCallout = async (req: Request, res: Response) => {
 
 		if (overtimeExists) {
 			return res.status(403).json({ error: 'A Callout already has been made on this shift' });
-		}
+		};
+
+		const team = await dbHandler.getDocumentById<ITeam>('teams', overtimeCallout.team);
+
+		const managers = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', team.managers);
 
 		const addedOvertime: IOvertime = await dbHandler.addDocument<IOvertime>(
 			'overtime-callouts',
 			{
 				...overtimeCallout,
 				dateCreated: new Date(),
+				managerNumbers: managers.map(manager => manager.phone)
 			}
 		);
 
-		return res.json({ overtimeCallout: addedOvertime });
+		return res.json(addedOvertime);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: error });

@@ -136,3 +136,90 @@ export const sendConfirmOvertimeVoice = async (phone: string, overtimeInfo: IOve
 
 	await voiceApi.voiceSendPost(voiceCollection);
 };
+
+export const sendManagerUserAcceptedShift= async (overtimeInfo: IOvertime, user: string) => {
+	const bodyTemplate = `Hello,\n\n ${user} has ACCEPTED following shift available: \n ${overtimeInfo.shiftInfo.replace(
+		'-',
+		'until'
+	)}\n\n from the following team: \n ${
+		overtimeInfo.team
+	} \n\n The shift has been added to ${user} schedule.`;
+
+	var smsCollection = new SmsMessageCollection();
+
+	overtimeInfo.managerNumbers.forEach(number => {
+		const smsMessage = new SmsMessage();
+
+		smsMessage.from = CLICKSEND_NUMBER;
+		smsMessage.to = formatNumber(number);
+		smsMessage.body = bodyTemplate;
+
+		smsCollection.messages.push(smsMessage);
+	
+	});
+
+
+	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
+
+
+	await smsApi.smsSendPost(smsCollection);
+};
+
+export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
+
+	const bodyTemplate = `Hello,\n\n All staffed have been NOTIFIED of the following shift available: \n ${overtimeInfo.shiftInfo.replace(
+		'-',
+		'until'
+	)}\n\n from the following team: \n ${
+		overtimeInfo.team
+	} \n\n The callout will remain open until all have responded.\n\n If you want to stop, go to the overtime call out and manually end.`;
+
+	var smsCollection = new SmsMessageCollection();
+
+	overtimeInfo.managerNumbers.forEach(number => {
+		const smsMessage = new SmsMessage();
+
+		smsMessage.from = CLICKSEND_NUMBER;
+		smsMessage.to = formatNumber(number);
+		smsMessage.body = bodyTemplate;
+
+		smsCollection.messages.push(smsMessage);
+	
+	});
+
+
+	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
+
+
+	await smsApi.smsSendPost(smsCollection);
+};
+
+
+export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
+	const bodyTemplate = `Hello,\n\n All staffed have DECLINED the following shift: \n ${overtimeInfo.shiftInfo.replace(
+		'-',
+		'until'
+	)}\n\n from the following team: \n ${
+		overtimeInfo.team
+	} \n\n This callout is now closed, you must now manually address this available shift.`;
+
+	var smsCollection = new SmsMessageCollection();
+	
+	overtimeInfo.managerNumbers.forEach(number => {
+		const smsMessage = new SmsMessage();
+
+		smsMessage.from = CLICKSEND_NUMBER;
+		smsMessage.to = formatNumber(number);
+		smsMessage.body = bodyTemplate;
+
+		smsCollection.messages.push(smsMessage);
+	
+	});
+
+
+	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
+
+
+	await smsApi.smsSendPost(smsCollection);
+
+};

@@ -246,7 +246,7 @@ const transactionShifts = async (req: Request, res: Response) => {
 			}
 
 			if (foundShift) {
-				batch.create(dbHandler.getDocumentSnapshot('shifts'), {
+				batch.create(dbHandler.getCollectionSnapshot('/shifts'), {
 					name: shiftName,
 					userId: rotTransaction.userId,
 					userName: rotTransaction.userName,
