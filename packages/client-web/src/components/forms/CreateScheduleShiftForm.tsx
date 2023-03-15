@@ -145,6 +145,23 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 			setTransactions(newTransactions);
 		}
 	};
+	const handleDeleteScheduleShift = async (shiftTransaction: IShiftTransaction) => {
+		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
+		let newTransactions = new Array();
+
+		if (selectedStaff) {
+			transactions.forEach(function (transaction) {
+				if (
+					transaction.startDate != shiftTransaction.startDate &&
+					transaction.endDate != shiftTransaction.endDate &&
+					shiftTransaction.name != transaction.name
+				) {
+					newTransactions.push(transaction);
+				}
+			});
+		}
+		setTransactions(newTransactions);
+	};
 
 	const handleConfirmScheduleRotation = (rotationTransaction: IShiftRotationTransaction) => {
 		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
@@ -165,7 +182,25 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		}
 	};
 
-	const isCreateDisabled = () => {
+	const handleDeleteScheduleRotation = (rotationTransaction: IShiftRotationTransaction) => {
+		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
+		let newTransactions = new Array();
+
+		if (selectedStaff) {
+			rotationTransactions.forEach(function (transaction) {
+				if (
+					rotationTransaction.startDate != transaction.startDate &&
+					rotationTransaction.endDate != transaction.endDate &&
+					rotationTransaction.userId != transaction.userId
+				) {
+					newTransactions.push(transaction);
+				}
+			});
+		}
+		setRotationTransactions(newTransactions);
+	};
+
+	const IsCreateDisabled = () => {
 		let isDisabled = false;
 
 		if (
@@ -251,6 +286,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 								shifts={shiftTemplates}
 								onCancel={() => handleCancelScheduleShift(schedule.id)}
 								onConfirm={handleConfirmScheduleShift}
+								onDelete={handleDeleteScheduleShift}
 							/>
 						);
 					})}
@@ -264,6 +300,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 								rotations={rotations}
 								onCancel={() => handleCancelRotation(schedule.id)}
 								onConfirm={handleConfirmScheduleRotation}
+								onDelete={handleDeleteScheduleRotation}
 							/>
 						);
 					})}
@@ -283,7 +320,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" type="submit" disabled={isCreateDisabled()}>
+						<Fab color="primary" type="submit" disabled={IsCreateDisabled()}>
 							<HowToRegIcon fontSize="large" />
 						</Fab>
 					)}

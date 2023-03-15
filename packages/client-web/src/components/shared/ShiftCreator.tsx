@@ -26,6 +26,7 @@ import { formatAMPM, formatDurationClean } from 'utils/formatters/dateTime-forma
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 
 import { IShiftTemplate, IShiftTransaction } from 'coverme-shared';
+import { Transaction } from 'firebase/firestore';
 
 // TODO: Utils it
 const date = new Date();
@@ -35,9 +36,10 @@ interface IShiftCreatorProps {
 	shifts: IShiftTemplate[];
 	onCancel: () => void;
 	onConfirm: (shiftTransaction: IShiftTransaction) => void;
+	onDelete: (shiftTransaction: IShiftTransaction) => void;
 }
 
-const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfirm }) => {
+const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfirm, onDelete }) => {
 	const [editMode, setEditMode] = useState<boolean>(true);
 	const [manualInput, setManualInput] = useState<boolean>(false);
 
@@ -122,6 +124,47 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		}
 	};
 
+	const handleDelete = () => {
+		let shiftTransaction: IShiftTransaction;
+
+		if (manualInput) {
+			shiftTransaction = {
+				type: 'remove',
+				name: shiftName,
+				startDate: dateTimeValue,
+				endDate: getEndDate(dateTimeValue, duration),
+			};
+
+			onDelete(shiftTransaction);
+			setDisplay('');
+			//setEditMode(false);
+		} else {
+			const selectedShiftTemplate = shifts.find(
+				(shift) => shift.id === selectedShiftTemplateId
+			);
+
+			if (selectedShiftTemplate) {
+				const newStartDate = new Date(startDate);
+
+				newStartDate.setHours(
+					selectedShiftTemplate.startTimeHours,
+					selectedShiftTemplate.startTimeMinutes
+				);
+
+				shiftTransaction = {
+					type: 'remove',
+					name: selectedShiftTemplate.name,
+					startDate: newStartDate,
+					endDate: getEndDate(startDate, selectedShiftTemplate.duration),
+				};
+
+				onDelete(shiftTransaction);
+				setDisplay('');
+				setEditMode(false);
+			}
+		}
+	};
+
 	const handleCancel = () => {
 		if (display === '') {
 			onCancel();
@@ -134,7 +177,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		let isDisabled = false;
 
 		if (!manualInput) {
-			if (shifts.length === 0) {
+			if (shifts.length === 0 || selectedShiftTemplateId == '') {
 				isDisabled = true;
 			}
 		} else {
@@ -281,47 +324,49 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 					</Box>
 				</Box>
 			) : (
-				<Box>
-					<Box sx={{ flexGrow: 1 }}>
-						<Box
-							sx={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								gap: 1,
-							}}
-						>
+				display != '' && (
+					<Box>
+						<Box sx={{ flexGrow: 1 }}>
 							<Box
 								sx={{
 									display: 'flex',
-									gap: 2,
-									justifyContent: 'center',
-									flexGrow: 1,
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									gap: 1,
 								}}
 							>
-								<Typography variant="h3">{display}</Typography>
-							</Box>
-							<Box sx={{ display: 'flex', gap: 2 }}>
-								<Tooltip title="Edit Shift ">
-									<IconButton size="large" onClick={() => setEditMode(true)}>
-										<EditIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+								<Box
+									sx={{
+										display: 'flex',
+										gap: 2,
+										justifyContent: 'center',
+										flexGrow: 1,
+									}}
+								>
+									<Typography variant="h3">{display}</Typography>
+								</Box>
+								<Box sx={{ display: 'flex', gap: 2 }}>
+									<Tooltip title="Edit Shift ">
+										<IconButton size="large" onClick={() => setEditMode(true)}>
+											<EditIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
 
-								<Tooltip title="Delete Shift ">
-									<IconButton
-										size="large"
-										onClick={() => {
-											// onDelete(day);
-										}}
-									>
-										<DeleteIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+									<Tooltip title="Delete Shift ">
+										<IconButton
+											size="large"
+											onClick={() => {
+												handleDelete();
+											}}
+										>
+											<DeleteIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
+								</Box>
 							</Box>
 						</Box>
 					</Box>
-				</Box>
+				)
 			)}
 		</>
 	);
