@@ -200,7 +200,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		setRotationTransactions(newTransactions);
 	};
 
-	const IsCreateDisabled = () => {
+	const isCreateDisabled = () => {
 		let isDisabled = false;
 
 		if (
@@ -320,7 +320,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" type="submit" disabled={IsCreateDisabled()}>
+						<Fab color="primary" type="submit" disabled={isCreateDisabled()}>
 							<HowToRegIcon fontSize="large" />
 						</Fab>
 					)}
