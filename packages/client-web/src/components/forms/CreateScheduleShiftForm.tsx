@@ -108,6 +108,19 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		setScheduledShifts([...scheduledShifts, scheduleShift]);
 	};
 
+	const handleDeleteShift = (id: number) => {
+		const newTransaction = transactions.filter(
+			(transaction) => transaction.id !== id.toString()
+		);
+
+		const newScheduleShifts = scheduledShifts.filter(
+			(scheduledShift) => scheduledShift.id !== id
+		);
+
+		setTransactions(newTransaction);
+		setScheduledShifts(newScheduleShifts);
+	};
+
 	const handleAddScheduleRotation = () => {
 		// TO DO: Better Id generation
 		const scheduleRotation: IScheduleShiftCell = {
@@ -115,6 +128,19 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 		};
 
 		setScheduledRotations([...scheduledRotations, scheduleRotation]);
+	};
+
+	const handleDeleteRotation = (id: number) => {
+		const newRotationTransaction = rotationTransactions.filter(
+			(transaction) => transaction.id !== id.toString()
+		);
+
+		const newScheduleRotation = scheduledRotations.filter(
+			(scheduledRotation) => scheduledRotation.id !== id
+		);
+
+		setRotationTransactions(newRotationTransaction);
+		setScheduledRotations(newScheduleRotation);
 	};
 
 	const handleCancelScheduleShift = (id: number) => {
@@ -134,7 +160,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 			const updatedTransaction: IShiftTransaction = {
 				...shiftTransaction,
 				// TO DO: Better Id generation
-				id: (Math.random() * 10000).toString(),
+
 				teamId: values.selectedTeam,
 				userId: selectedStaff.userId,
 				userName: selectedStaff.userName,
@@ -145,23 +171,6 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 			setTransactions(newTransactions);
 		}
 	};
-	const handleDeleteScheduleShift = async (shiftTransaction: IShiftTransaction) => {
-		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
-		let newTransactions = new Array();
-
-		if (selectedStaff) {
-			transactions.forEach(function (transaction) {
-				if (
-					transaction.startDate !== shiftTransaction.startDate &&
-					transaction.endDate !== shiftTransaction.endDate &&
-					shiftTransaction.name !== transaction.name
-				) {
-					newTransactions.push(transaction);
-				}
-			});
-		}
-		setTransactions(newTransactions);
-	};
 
 	const handleConfirmScheduleRotation = (rotationTransaction: IShiftRotationTransaction) => {
 		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
@@ -170,7 +179,7 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 			const updatedTransaction: IShiftRotationTransaction = {
 				...rotationTransaction,
 				// TO DO: Better Id generation
-				id: (Math.random() * 10000).toString(),
+
 				userName: selectedStaff.userName,
 				teamId: values.selectedTeam,
 				userId: selectedStaff.userId,
@@ -180,24 +189,6 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 
 			setRotationTransactions(newTransactions);
 		}
-	};
-
-	const handleDeleteScheduleRotation = (rotationTransaction: IShiftRotationTransaction) => {
-		const selectedStaff = staff.find((user) => user.userId === values.selectedUser);
-		let newTransactions = new Array();
-
-		if (selectedStaff) {
-			rotationTransactions.forEach(function (transaction) {
-				if (
-					rotationTransaction.startDate !== transaction.startDate &&
-					rotationTransaction.endDate !== transaction.endDate &&
-					rotationTransaction.userId !== transaction.userId
-				) {
-					newTransactions.push(transaction);
-				}
-			});
-		}
-		setRotationTransactions(newTransactions);
 	};
 
 	const isCreateDisabled = () => {
@@ -285,8 +276,9 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 								key={schedule.id}
 								shifts={shiftTemplates}
 								onCancel={() => handleCancelScheduleShift(schedule.id)}
+								onDelete={() => handleDeleteShift(schedule.id)}
 								onConfirm={handleConfirmScheduleShift}
-								onDelete={handleDeleteScheduleShift}
+								shiftScheduleId={schedule.id}
 							/>
 						);
 					})}
@@ -299,8 +291,9 @@ const CreateScheduleShiftForm: React.FC<ICreateScheduleShiftFormProps> = ({
 								key={schedule.id}
 								rotations={rotations}
 								onCancel={() => handleCancelRotation(schedule.id)}
+								onDelete={() => handleDeleteRotation(schedule.id)}
 								onConfirm={handleConfirmScheduleRotation}
-								onDelete={handleDeleteScheduleRotation}
+								rotationScheduleId={schedule.id}
 							/>
 						);
 					})}

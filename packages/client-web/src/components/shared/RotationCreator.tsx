@@ -25,14 +25,16 @@ const date = new Date();
 date.setHours(12, 0, 0, 0);
 
 interface IRotationCreatorProps {
+	rotationScheduleId: number;
 	rotations: IShiftRotation[];
 	onCancel: () => void;
 	onConfirm: (rotationTransaction: IShiftRotationTransaction) => void;
-	onDelete: (rotationTransaction: IShiftRotationTransaction) => void;
+	onDelete: () => void;
 }
 
 const RotationCreator: React.FC<IRotationCreatorProps> = ({
 	rotations,
+	rotationScheduleId,
 	onCancel,
 	onConfirm,
 	onDelete,
@@ -70,26 +72,11 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({
 				startDate: dateRange[0].startDate!,
 				endDate: dateRange[0].endDate!,
 				rotation: selectedRotation,
+				id: rotationScheduleId.toString(),
 			};
 
 			onConfirm(rotationTransaction);
 			handleDisplay(selectedRotation);
-			setEditMode(false);
-		}
-	};
-
-	const handleDelete = () => {
-		const selectedRotation = rotations.find((rot) => rot.id === selectedRotationId);
-
-		if (selectedRotation) {
-			const rotationTransaction: IShiftRotationTransaction = {
-				startDate: dateRange[0].startDate!,
-				endDate: dateRange[0].endDate!,
-				rotation: selectedRotation,
-			};
-
-			onDelete(rotationTransaction);
-			setDisplay('');
 			setEditMode(false);
 		}
 	};
@@ -220,7 +207,8 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({
 										<IconButton
 											size="large"
 											onClick={() => {
-												handleDelete();
+												onDelete();
+												setDisplay('');
 											}}
 										>
 											<DeleteIcon color="primary" fontSize="large" />

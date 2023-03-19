@@ -26,20 +26,26 @@ import { formatAMPM, formatDurationClean } from 'utils/formatters/dateTime-forma
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 
 import { IShiftTemplate, IShiftTransaction } from 'coverme-shared';
-import { Transaction } from 'firebase/firestore';
 
 // TODO: Utils it
 const date = new Date();
 date.setHours(12, 0, 0, 0);
 
 interface IShiftCreatorProps {
+	shiftScheduleId: number;
 	shifts: IShiftTemplate[];
 	onCancel: () => void;
 	onConfirm: (shiftTransaction: IShiftTransaction) => void;
-	onDelete: (shiftTransaction: IShiftTransaction) => void;
+	onDelete: () => void;
 }
 
-const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfirm, onDelete }) => {
+const ShiftCreator: React.FC<IShiftCreatorProps> = ({
+	shifts,
+	shiftScheduleId,
+	onCancel,
+	onConfirm,
+	onDelete,
+}) => {
 	const [editMode, setEditMode] = useState<boolean>(true);
 	const [manualInput, setManualInput] = useState<boolean>(false);
 
@@ -87,6 +93,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		if (manualInput) {
 			shiftTransaction = {
 				type: 'add',
+				id: shiftScheduleId.toString(),
 				name: shiftName,
 				startDate: dateTimeValue,
 				endDate: getEndDate(dateTimeValue, duration),
@@ -110,6 +117,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 
 				shiftTransaction = {
 					type: 'add',
+					id: shiftScheduleId.toString(),
 					name: selectedShiftTemplate.name,
 					startDate: newStartDate,
 					endDate: getEndDate(startDate, selectedShiftTemplate.duration),
@@ -119,46 +127,6 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 
 				onConfirm(shiftTransaction);
 				handleDisplay(newStartDate, selectedShiftTemplate.duration);
-				setEditMode(false);
-			}
-		}
-	};
-
-	const handleDelete = () => {
-		let shiftTransaction: IShiftTransaction;
-
-		if (manualInput) {
-			shiftTransaction = {
-				type: 'remove',
-				name: shiftName,
-				startDate: dateTimeValue,
-				endDate: getEndDate(dateTimeValue, duration),
-			};
-
-			onDelete(shiftTransaction);
-			setDisplay('');
-		} else {
-			const selectedShiftTemplate = shifts.find(
-				(shift) => shift.id === selectedShiftTemplateId
-			);
-
-			if (selectedShiftTemplate) {
-				const newStartDate = new Date(startDate);
-
-				newStartDate.setHours(
-					selectedShiftTemplate.startTimeHours,
-					selectedShiftTemplate.startTimeMinutes
-				);
-
-				shiftTransaction = {
-					type: 'remove',
-					name: selectedShiftTemplate.name,
-					startDate: newStartDate,
-					endDate: getEndDate(startDate, selectedShiftTemplate.duration),
-				};
-
-				onDelete(shiftTransaction);
-				setDisplay('');
 				setEditMode(false);
 			}
 		}
@@ -355,7 +323,8 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 										<IconButton
 											size="large"
 											onClick={() => {
-												handleDelete();
+												onDelete();
+												setDisplay('');
 											}}
 										>
 											<DeleteIcon color="primary" fontSize="large" />
