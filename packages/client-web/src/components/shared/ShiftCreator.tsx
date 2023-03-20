@@ -32,12 +32,20 @@ const date = new Date();
 date.setHours(12, 0, 0, 0);
 
 interface IShiftCreatorProps {
+	shiftScheduleId: number;
 	shifts: IShiftTemplate[];
 	onCancel: () => void;
 	onConfirm: (shiftTransaction: IShiftTransaction) => void;
+	onDelete: () => void;
 }
 
-const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfirm }) => {
+const ShiftCreator: React.FC<IShiftCreatorProps> = ({
+	shifts,
+	shiftScheduleId,
+	onCancel,
+	onConfirm,
+	onDelete,
+}) => {
 	const [editMode, setEditMode] = useState<boolean>(true);
 	const [manualInput, setManualInput] = useState<boolean>(false);
 
@@ -85,6 +93,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		if (manualInput) {
 			shiftTransaction = {
 				type: 'add',
+				id: shiftScheduleId.toString(),
 				name: shiftName,
 				startDate: dateTimeValue,
 				endDate: getEndDate(dateTimeValue, duration),
@@ -108,6 +117,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 
 				shiftTransaction = {
 					type: 'add',
+					id: shiftScheduleId.toString(),
 					name: selectedShiftTemplate.name,
 					startDate: newStartDate,
 					endDate: getEndDate(startDate, selectedShiftTemplate.duration),
@@ -134,7 +144,7 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 		let isDisabled = false;
 
 		if (!manualInput) {
-			if (shifts.length === 0) {
+			if (shifts.length === 0 || selectedShiftTemplateId === '') {
 				isDisabled = true;
 			}
 		} else {
@@ -281,47 +291,50 @@ const ShiftCreator: React.FC<IShiftCreatorProps> = ({ shifts, onCancel, onConfir
 					</Box>
 				</Box>
 			) : (
-				<Box>
-					<Box sx={{ flexGrow: 1 }}>
-						<Box
-							sx={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								gap: 1,
-							}}
-						>
+				display !== '' && (
+					<Box>
+						<Box sx={{ flexGrow: 1 }}>
 							<Box
 								sx={{
 									display: 'flex',
-									gap: 2,
-									justifyContent: 'center',
-									flexGrow: 1,
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									gap: 1,
 								}}
 							>
-								<Typography variant="h3">{display}</Typography>
-							</Box>
-							<Box sx={{ display: 'flex', gap: 2 }}>
-								<Tooltip title="Edit Shift ">
-									<IconButton size="large" onClick={() => setEditMode(true)}>
-										<EditIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+								<Box
+									sx={{
+										display: 'flex',
+										gap: 2,
+										justifyContent: 'center',
+										flexGrow: 1,
+									}}
+								>
+									<Typography variant="h3">{display}</Typography>
+								</Box>
+								<Box sx={{ display: 'flex', gap: 2 }}>
+									<Tooltip title="Edit Shift ">
+										<IconButton size="large" onClick={() => setEditMode(true)}>
+											<EditIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
 
-								<Tooltip title="Delete Shift ">
-									<IconButton
-										size="large"
-										onClick={() => {
-											// onDelete(day);
-										}}
-									>
-										<DeleteIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+									<Tooltip title="Delete Shift ">
+										<IconButton
+											size="large"
+											onClick={() => {
+												onDelete();
+												setDisplay('');
+											}}
+										>
+											<DeleteIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
+								</Box>
 							</Box>
 						</Box>
 					</Box>
-				</Box>
+				)
 			)}
 		</>
 	);

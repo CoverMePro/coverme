@@ -25,12 +25,20 @@ const date = new Date();
 date.setHours(12, 0, 0, 0);
 
 interface IRotationCreatorProps {
+	rotationScheduleId: number;
 	rotations: IShiftRotation[];
 	onCancel: () => void;
 	onConfirm: (rotationTransaction: IShiftRotationTransaction) => void;
+	onDelete: () => void;
 }
 
-const RotationCreator: React.FC<IRotationCreatorProps> = ({ rotations, onCancel, onConfirm }) => {
+const RotationCreator: React.FC<IRotationCreatorProps> = ({
+	rotations,
+	rotationScheduleId,
+	onCancel,
+	onConfirm,
+	onDelete,
+}) => {
 	const [editMode, setEditMode] = useState<boolean>(true);
 	const [selectedRotationId, setSelectedRotationId] = useState<string>('');
 	const [display, setDisplay] = useState<string>('');
@@ -64,6 +72,7 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({ rotations, onCancel,
 				startDate: dateRange[0].startDate!,
 				endDate: dateRange[0].endDate!,
 				rotation: selectedRotation,
+				id: rotationScheduleId.toString(),
 			};
 
 			onConfirm(rotationTransaction);
@@ -81,7 +90,7 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({ rotations, onCancel,
 	};
 
 	const isConfirmDisabled = () => {
-		return rotations.length === 0;
+		return rotations.length === 0 || selectedRotationId === '';
 	};
 
 	return (
@@ -166,47 +175,50 @@ const RotationCreator: React.FC<IRotationCreatorProps> = ({ rotations, onCancel,
 					</Box>
 				</Box>
 			) : (
-				<Box>
-					<Box sx={{ flexGrow: 1 }}>
-						<Box
-							sx={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								gap: 1,
-							}}
-						>
+				display !== '' && (
+					<Box>
+						<Box sx={{ flexGrow: 1 }}>
 							<Box
 								sx={{
 									display: 'flex',
-									gap: 2,
-									justifyContent: 'center',
-									flexGrow: 1,
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									gap: 1,
 								}}
 							>
-								<Typography variant="h4">{display}</Typography>
-							</Box>
-							<Box sx={{ display: 'flex', gap: 2 }}>
-								<Tooltip title="Edit Shift ">
-									<IconButton size="large" onClick={() => setEditMode(true)}>
-										<EditIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+								<Box
+									sx={{
+										display: 'flex',
+										gap: 2,
+										justifyContent: 'center',
+										flexGrow: 1,
+									}}
+								>
+									<Typography variant="h4">{display}</Typography>
+								</Box>
+								<Box sx={{ display: 'flex', gap: 2 }}>
+									<Tooltip title="Edit Shift ">
+										<IconButton size="large" onClick={() => setEditMode(true)}>
+											<EditIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
 
-								<Tooltip title="Delete Shift ">
-									<IconButton
-										size="large"
-										onClick={() => {
-											// onDelete(day);
-										}}
-									>
-										<DeleteIcon color="primary" fontSize="large" />
-									</IconButton>
-								</Tooltip>
+									<Tooltip title="Delete Shift ">
+										<IconButton
+											size="large"
+											onClick={() => {
+												onDelete();
+												setDisplay('');
+											}}
+										>
+											<DeleteIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
+								</Box>
 							</Box>
 						</Box>
 					</Box>
-				</Box>
+				)
 			)}
 		</>
 	);

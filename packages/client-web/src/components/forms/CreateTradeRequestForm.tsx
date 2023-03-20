@@ -50,7 +50,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 	// TO DO: better form validation using what we have! do more research and figure out how to utilize here
 
 	const handleSubmit = () => {
-		if (validCheck() == true) {
+		if (validCheck() === true) {
 			const tradeRequest: ITradeRequest = {
 				proposedDate: new Date(),
 				proposedUserId: user.id,
@@ -117,7 +117,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 
 	const handlePropsedShiftChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
 		let errors = { ...validation };
-		if (event.target.value == '') {
+		if (event.target.value === '') {
 			errors.selectedProposedShiftId = true;
 		} else {
 			errors.selectedProposedShiftId = false;
@@ -167,7 +167,7 @@ const CreateTradeRequestFrom: React.FC<ICreateTradeRequestFromProps> = ({ onFini
 		child: React.ReactNode
 	) => {
 		let errors = { ...validation };
-		if (event.target.value == '') {
+		if (event.target.value === '') {
 			errors.selectedRequestedShiftId = true;
 		} else {
 			errors.selectedRequestedShiftId = false;

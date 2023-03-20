@@ -6,7 +6,7 @@ import QueueIcon from '@mui/icons-material/Queue';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateManualShiftForm from 'components/forms/CreateScheduleShiftForm';
 
-import { IShiftTemplate, IShiftRotation } from 'coverme-shared';
+import { IShiftTemplate, IShiftRotation, IScheduleShiftCell } from 'coverme-shared';
 
 interface IEditScheduleProps {
 	shiftDefs: IShiftTemplate[];
