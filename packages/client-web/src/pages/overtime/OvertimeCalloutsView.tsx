@@ -27,6 +27,9 @@ import FormDialog from 'components/dialogs/FormDialog';
 import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutForm';
 import PermissionCheck from 'components/auth/PermissionCheck';
 import api from 'utils/api';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+
+import db from 'utils/firebase';
 
 import { IOvertime } from 'coverme-shared';
 
@@ -128,6 +131,28 @@ const OvertimeCalloutsView: React.FC = () => {
 		// Get pending callouts
 		setIsLoadingCallouts(true);
 		getCalloutsForCompany();
+
+		const q = query(
+			collection(db, 'overtime-callouts')
+		);
+		
+		// Update callouts when they get updated
+		const Unsubscribe = onSnapshot(q, (snapshot) => {
+			const retrievedCallouts: IOvertime[] = [];
+			snapshot.forEach((doc) => {
+				const overtime: IOvertime = {
+					id: doc.id,
+					...doc.data()
+				} as IOvertime;
+				retrievedCallouts.push(overtime);
+			});
+			setCallouts([...retrievedCallouts]);
+		});
+
+		return () => {
+			Unsubscribe();
+		};
+
 	}, [getCalloutsForCompany]);
 
 	// need to update this page somehow

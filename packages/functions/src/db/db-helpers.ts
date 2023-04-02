@@ -26,6 +26,7 @@ export const getCalloutList = () => {
     return db
         .collection('/users')
         .where('role', '==', 'staff')
+        .where('employeeType', '==', 'Full-Time')
         .orderBy('hireDate', 'asc')
         .get()
         .then((userDocs) => {

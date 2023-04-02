@@ -147,6 +147,8 @@ export const sendManagerUserAcceptedShift= async (overtimeInfo: IOvertime, user:
 
 	var smsCollection = new SmsMessageCollection();
 
+	smsCollection.messages = [];
+
 	overtimeInfo.managerNumbers.forEach(number => {
 		const smsMessage = new SmsMessage();
 
@@ -176,6 +178,8 @@ export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
 
 	var smsCollection = new SmsMessageCollection();
 
+	smsCollection.messages = [];
+
 	overtimeInfo.managerNumbers.forEach(number => {
 		const smsMessage = new SmsMessage();
 
@@ -190,7 +194,6 @@ export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
 
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
-
 	await smsApi.smsSendPost(smsCollection);
 };
 
@@ -204,6 +207,8 @@ export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
 	} \n\n This callout is now closed, you must now manually address this available shift.`;
 
 	var smsCollection = new SmsMessageCollection();
+
+	smsCollection.messages = [];
 	
 	overtimeInfo.managerNumbers.forEach(number => {
 		const smsMessage = new SmsMessage();

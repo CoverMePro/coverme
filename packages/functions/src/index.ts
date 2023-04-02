@@ -19,6 +19,7 @@ import userRoutes from './routes/users';
 import { sendSms, testReceive } from './utils/sms';
 import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
+import calloutCyle from './utils/overtime';
 
 const app = express();
 
@@ -64,3 +65,13 @@ app.post('/test-not', testNot);
 app.post('/receive-sms', testReceive);
 
 exports.api = functions.https.onRequest(app);
+
+exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun((context) => {
+	return calloutCyle()
+	.then(() => {
+		console.log("$$OVERTIME CALLOUT$$: Cycle Complete!")
+	})
+	.catch((err) => {
+		console.error(err);
+	});
+});

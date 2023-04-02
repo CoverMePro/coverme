@@ -2,7 +2,7 @@ import { IOvertime, ICallout, IUser, IShift } from 'coverme-shared';
 import { getBatch } from '../db/batch-handler';
 import dbHandler from '../db/db-handler';
 import { getCalloutList, getShiftDataDateRange } from '../db/db-helpers';
-import {sendConfirmOvertimeSms, sendManagerAllUsersDeclined, sendManagerAllUsersNotified, sendManagerUserAcceptedShift } from './sms';
+import {sendConfirmOvertimeSms, sendManagerAllUsersDeclined, sendManagerAllUsersNotified, sendManagerUserAcceptedShift, sendOvertimeSms } from './sms';
 
 const userContainsTeam = (user: IUser, team: string) => {
 	if (!user.teams || user.teams.length === 0) {
@@ -53,9 +53,9 @@ const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime,
 
 				console.log(`$$OVERTIME: User (${callout.userName}) accepted callout!`);
 
-				sendManagerUserAcceptedShift(overtime, callout.userName);
+				await sendManagerUserAcceptedShift(overtime, callout.userName);
 
-				sendConfirmOvertimeSms(callout.phone, overtime);
+				await sendConfirmOvertimeSms(callout.phone, overtime);
 
 				hasAccepted = true;
 			} catch (err: any) {
@@ -301,7 +301,7 @@ const callout = async () => {
 			}
 
 			await batch.commit();
-			//await sendOvertimeSms(userToCallout, overtime, overtime.id!);
+			await sendOvertimeSms(userToCallout, overtime, overtime.id!);
 		});
 	} catch (err: any) {
 		console.error(err);
