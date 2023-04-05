@@ -13,21 +13,16 @@ import {
 	ListItemText,
 	ListItemAvatar,
 	Avatar,
-	CircularProgress,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import UpdateIcon from '@mui/icons-material/Update';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
 import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
 import CreateOvertimeCalloutForm from 'components/forms/CreateOvertimeCalloutForm';
-import PermissionCheck from 'components/auth/PermissionCheck';
 import api from 'utils/api';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 
 import db from 'utils/firebase';
 
@@ -38,8 +33,6 @@ const OvertimeCalloutsView: React.FC = () => {
 	const [callouts, setCallouts] = useState<IOvertime[]>([]);
 	const [expanded, setExpanded] = useState<string | false>(false);
 	const [openCalloutCreation, setOpenCalloutCreation] = useState<boolean>(false);
-
-	const [isLoadingCycle, setIsLoadingCycle] = useState<boolean>(false);
 
 	const handleCalloutChange =
 		(calloutId: any) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -64,56 +57,21 @@ const OvertimeCalloutsView: React.FC = () => {
 		setOpenCalloutCreation(false);
 	};
 
-	const handleCycleCallout = () => {
-		setIsLoadingCycle(true);
-		api.get(`overtime-callouts/test`)
-			.then(() => {
-				setTimeout(() => {
-					getCalloutsForCompany();
-				}, 1000);
-			})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => {
-				setIsLoadingCycle(false);
-			});
-	};
-
-	const handleAcceptedCallout = (calloutId: string, calloutUser: string) => {
-		api.post(`overtime-callouts/${calloutId}/accept`, {
-			email: calloutUser,
-		})
-			.then(() => {
-				setTimeout(() => {
-					getCalloutsForCompany();
-				}, 1000);
-			})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => {
-				setIsLoadingCycle(false);
-			});
-	};
-
-	const handleRejectedCallout = (calloutId: string, calloutUser: string) => {
-		api.post(`overtime-callouts/${calloutId}/reject`, {
-			email: calloutUser,
-		})
-			.then(() => {
-				setTimeout(() => {
-					getCalloutsForCompany();
-				}, 1000);
-			})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => {
-				setIsLoadingCycle(false);
-			});
-	};
-
+	// const handleCycleCallout = () => {
+	// 	setIsLoadingCycle(true);
+	// 	api.get(`overtime-callouts/test`)
+	// 		.then(() => {
+	// 			setTimeout(() => {
+	// 				getCalloutsForCompany();
+	// 			}, 1000);
+	// 		})
+	// 		.catch((err) => {
+	// 			console.error(err);
+	// 		})
+	// 		.finally(() => {
+	// 			setIsLoadingCycle(false);
+	// 		});
+	// };
 	const getCalloutsForCompany = useCallback(() => {
 		api.getGenericData(`overtime-callouts`)
 			.then((overtimeCallouts) => {
@@ -164,26 +122,6 @@ const OvertimeCalloutsView: React.FC = () => {
 			<ListItem
 				key={user.userId}
 				sx={{ width: '100%' }}
-				secondaryAction={
-					<PermissionCheck permissionLevel={2}>
-						<Tooltip title="Accept Callout">
-							<IconButton
-								onClick={() => handleAcceptedCallout(callout.id!, user.userId)}
-								edge="end"
-							>
-								<ThumbUpIcon color="primary" />
-							</IconButton>
-						</Tooltip>
-						<Tooltip title="Reject Callout">
-							<IconButton
-								onClick={() => handleRejectedCallout(callout.id!, user.userId)}
-								edge="end"
-							>
-								<ThumbDownIcon color="primary" />
-							</IconButton>
-						</Tooltip>
-					</PermissionCheck>
-				}
 			>
 				<ListItemAvatar>
 					<Avatar sx={{ bgcolor: 'primary.main' }}>
@@ -201,7 +139,7 @@ const OvertimeCalloutsView: React.FC = () => {
 			<Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
 				<Typography variant="h1">Overtime Callouts</Typography>
 				<Box>
-					{isLoadingCycle ? (
+					{/* {isLoadingCycle ? (
 						<>
 							<CircularProgress />
 						</>
@@ -211,7 +149,7 @@ const OvertimeCalloutsView: React.FC = () => {
 								<UpdateIcon color="primary" fontSize="large" />
 							</IconButton>
 						</Tooltip>
-					)}
+					)} */}
 					<Tooltip title="Start Overtime Callout">
 						<IconButton size="large" onClick={handleOpenCalloutCreation}>
 							<AddCircleIcon color="primary" fontSize="large" />
