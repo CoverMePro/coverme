@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
-import { Box, TextField, Fab, CircularProgress } from '@mui/material';
+import { Box, TextField, Fab, CircularProgress, duration } from '@mui/material';
 import MoreTimeIcon from '@mui/icons-material/MoreTime';
+import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers';
@@ -16,24 +17,37 @@ import api from 'utils/api';
 import { IShiftTemplate } from 'coverme-shared';
 
 interface ICreateShiftFormProps {
+	editMode: boolean;
+	selectedTemplate: any;
 	onAddComplete(shiftDef: IShiftTemplate): void;
+	onFinish: (shiftTemplate: IShiftTemplate) => void;
+	selectedTimes: any;
 }
 
 // TODO: Add to a util
 const date = new Date();
-date.setHours(12, 0, 0, 0);
-
-const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => {
+const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({
+	onAddComplete,
+	editMode,
+	selectedTemplate,
+	selectedTimes,
+	onFinish,
+}) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+
+	if (editMode) {
+		date.setHours(selectedTimes.startTimeHours);
+		date.setMinutes(selectedTimes.startTimeMinutes);
+	} else date.setHours(12, 0, 0, 0);
 
 	const [timeValue, setTimeValue] = useState<Date>(date);
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const { handleSubmit, handleChange, handleBlur, touched, errors } = useFormik({
+	const { handleSubmit, handleChange, handleBlur, values, touched, errors } = useFormik({
 		initialValues: {
-			shiftName: '',
-			shiftDuration: '',
+			shiftName: editMode ? selectedTemplate.name : '',
+			shiftDuration: editMode ? selectedTimes.duration.replace(':', '') : '',
 		},
 		validate: validateShift,
 		onSubmit: (shiftValues: any) => {
@@ -46,31 +60,54 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 				startTimeMinutes: timeValue.getMinutes(),
 				duration: formatDuration(shiftDuration),
 			};
-
-			api.postCreateData<IShiftTemplate>(`shift-templates`, shiftTemplate)
-				.then((addedShiftTemplate) => {
-					enqueueSnackbar('Shift template created!', {
-						variant: 'success',
-						autoHideDuration: 3000,
+			if (editMode) {
+				api.postGetData(`shift-templates/${selectedTimes.id}`, {
+					name: shiftName,
+					startTimeHours: timeValue.getHours(),
+					startTimeMinutes: timeValue.getMinutes(),
+					duration: shiftTemplate.duration,
+				})
+					.then((result) => {
+						setIsLoading(false);
+						enqueueSnackbar('Success! Shift Template has been updated', {
+							variant: 'success',
+							autoHideDuration: 3000,
+						});
+						onFinish(result.updatedShiftTemplate);
+					})
+					.catch((err) => {
+						console.error(err);
+						setIsLoading(false);
+						enqueueSnackbar('An error has occured, please try again', {
+							variant: 'error',
+						});
 					});
+			} else {
+				api.postCreateData<IShiftTemplate>(`shift-templates`, shiftTemplate)
+					.then((addedShiftTemplate) => {
+						enqueueSnackbar('Shift template created!', {
+							variant: 'success',
+							autoHideDuration: 3000,
+						});
 
-					onAddComplete(addedShiftTemplate);
-				})
-				.catch((err) => {
-					console.error(err);
-					enqueueSnackbar(
-						'An unknow error occured, please try again or contact support.',
-						{ variant: 'error', autoHideDuration: 5000 }
-					);
-				})
-				.finally(() => {
-					setIsLoading(false);
-				});
+						onAddComplete(addedShiftTemplate);
+					})
+					.catch((err) => {
+						console.error(err);
+						enqueueSnackbar(
+							'An unknow error occured, please try again or contact support.',
+							{ variant: 'error', autoHideDuration: 5000 }
+						);
+					})
+					.finally(() => {
+						setIsLoading(false);
+					});
+			}
 		},
 	});
 
 	return (
-		<FormCard title="Create a Shift Template">
+		<FormCard title={editMode ? 'Edit Shift template' : 'Create a Shift Template'}>
 			<form onSubmit={handleSubmit}>
 				<Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
 					<TextField
@@ -79,6 +116,7 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 						type="text"
 						name="shiftName"
 						label="Shift Name"
+						value={values.shiftName}
 						onChange={handleChange}
 						onBlur={handleBlur}
 						error={
@@ -96,7 +134,6 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 							value={timeValue}
 							onChange={(newValue) => {
 								if (newValue) {
-									console.log(newValue);
 									setTimeValue(newValue);
 								}
 							}}
@@ -109,6 +146,7 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 						sx={{ width: '50%' }}
 						label="Duration"
 						onChange={handleChange}
+						value={values.shiftDuration}
 						name="shiftDuration"
 						id="formatted-numberformat-input"
 						InputProps={{
@@ -130,7 +168,11 @@ const CreateShiftForm: React.FC<ICreateShiftFormProps> = ({ onAddComplete }) => 
 						<CircularProgress />
 					) : (
 						<Fab color="primary" type="submit">
-							<MoreTimeIcon fontSize="large" />
+							{editMode ? (
+								<UpdateIcon fontSize="large" />
+							) : (
+								<MoreTimeIcon fontSize="large" />
+							)}
 						</Fab>
 					)}
 				</Box>

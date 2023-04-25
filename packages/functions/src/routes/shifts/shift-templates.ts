@@ -8,5 +8,6 @@ router.get('/', authGuard, shiftController.getShiftTemplates);
 router.get('/:id/delete', authGuard, shiftController.deleteShiftTemplate);
 
 router.post('/', authGuard, shiftController.createShiftTemplate);
+router.post('/:id', authGuard, shiftController.updateShiftTemplate);
 
 export default router;

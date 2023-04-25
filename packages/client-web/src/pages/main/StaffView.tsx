@@ -7,7 +7,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
 
@@ -16,6 +16,7 @@ import { IUser, StaffHeadCells } from 'coverme-shared';
 const StaffView: React.FC = () => {
 	const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
 	const [openDeleteStaff, setOpenDeleteStaff] = useState<boolean>(false);
+	const [openEditStaff, setOpenEditStaff] = useState<boolean>(false);
 	const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
 	const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] = useState<boolean>(false);
 	const [deleteMessage, setDeleteMessage] = useState<string>('');
@@ -46,8 +47,16 @@ const StaffView: React.FC = () => {
 		setOpenDeleteStaff(true);
 	};
 
+	const handleOpenEditStaff = (selectedStaff: any) => {
+		setOpenEditStaff(true);
+	};
+
 	const handleCloseAddStaff = () => {
 		setOpenAddStaff(false);
+	};
+
+	const handleCloseEditStaff = () => {
+		setOpenEditStaff(false);
 	};
 
 	const handleCloseDeleteStaff = () => {
@@ -56,6 +65,7 @@ const StaffView: React.FC = () => {
 
 	const handleConfirmDeleteStaff = () => {
 		setIsLoadingDeleteStaff(true);
+
 		api.get(`auth/delete/${selected}`)
 			.then(() => {
 				enqueueSnackbar('User successfully deleted', { variant: 'success' });
@@ -117,12 +127,28 @@ const StaffView: React.FC = () => {
 						selected={selected}
 						onSelect={handleSelectStaff}
 						unSelectedActions={getAddAction('Staff', handleAddStaff)}
-						selectedActions={getDeleteAction('Staff', handleOpenDeleteStaff)}
+						selectedActions={getEditDeleteAction(
+							'Staff',
+							handleOpenDeleteStaff,
+							handleOpenEditStaff
+						)}
 					/>
 					<FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
 						<RegisterUserForm
+							editMode={false}
+							selectedUser={selected}
 							onFinish={() => {
 								handleCloseAddStaff();
+								handleGetUsers();
+							}}
+						/>
+					</FormDialog>
+					<FormDialog open={openEditStaff} onClose={handleCloseEditStaff}>
+						<RegisterUserForm
+							editMode={true}
+							selectedUser={getSelectedStaffName(selected)}
+							onFinish={() => {
+								handleCloseEditStaff();
 								handleGetUsers();
 							}}
 						/>

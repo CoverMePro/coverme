@@ -28,7 +28,17 @@ const ShiftsView: React.FC = () => {
 
 	const handleConfirmAddShiftTemplate = (shiftTemplate: IShiftTemplate) => {
 		const newShiftDefs = [...shiftTemplates, formatShiftTemplateDisplay(shiftTemplate)];
+		const newShifts = [...shifts, shiftTemplate];
+		setShifts(newShifts);
 		setShiftTemplates(newShiftDefs);
+	};
+
+	const handleConfirmEditShiftTemplate = (shiftTemplate: IShiftTemplate) => {
+		const newShifts = [...shifts];
+		const updatedShiftIndex = newShifts.findIndex((shift) => shift.id === shiftTemplate.id);
+		newShifts[updatedShiftIndex] = { ...shiftTemplate };
+		setShifts(newShifts);
+		setShiftTemplates(formatShiftTemplatesToDisplay(newShifts));
 	};
 
 	const handleConfirmDeleteShiftRotation = (newShiftRotations: IShiftRotation[]) => {
@@ -90,8 +100,10 @@ const ShiftsView: React.FC = () => {
 					<Box>
 						<TabPanel index={0} value={tabValue}>
 							<DefineShift
+								shifts={shifts}
 								shiftTemplates={shiftTemplates}
 								onAdd={handleConfirmAddShiftTemplate}
+								onEdit={handleConfirmEditShiftTemplate}
 								onDelete={handleConfirmDeleteShiftTemplate}
 							/>
 						</TabPanel>

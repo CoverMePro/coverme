@@ -246,6 +246,18 @@ const updateDocument = <T>(
 		});
 };
 
+const updateDocumentAndReturnData = <T>(path: string, id: string, data: Partial<T>): Promise<T> => {
+	return db
+		.doc(`${path}/${id}`)
+		.update(data)
+		.then(async (result) => {
+			return await getDocumentById<T>(`${path}`, id);
+		})
+		.catch((error) => {
+			throw handleError(error);
+		});
+};
+
 const deleteDocument = (path: string, id: string): Promise<FirebaseFirestore.WriteResult> => {
 	return db
 		.doc(`${path}/${id}`)
@@ -275,4 +287,5 @@ export default {
 	deleteDocument,
 	documentExistsByCondition,
 	documentExistsById,
+	updateDocumentAndReturnData,
 };

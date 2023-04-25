@@ -1,5 +1,6 @@
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/EditRounded';
 import { ISelectedAction, IUnselectedAction } from 'coverme-shared';
 
 export const getAddAction = (
@@ -23,6 +24,28 @@ export const getDeleteAction = (
 	permissionLevel: number = 1
 ): ISelectedAction[] => {
 	return [
+		{
+			tooltipTitle: `Delete ${object}`,
+			permissionLevel: permissionLevel,
+			icon: <DeleteIcon color="primary" fontSize="large" />,
+			onClick: onDelete,
+		},
+	];
+};
+
+export const getEditDeleteAction = (
+	object: string,
+	onDelete: (selected: any) => void,
+	onEdit: (selected: any) => void,
+	permissionLevel: number = 1
+): ISelectedAction[] => {
+	return [
+		{
+			tooltipTitle: `Edit ${object}`,
+			permissionLevel: permissionLevel,
+			icon: <EditIcon color="primary" fontSize="large" />,
+			onClick: onEdit,
+		},
 		{
 			tooltipTitle: `Delete ${object}`,
 			permissionLevel: permissionLevel,

@@ -56,7 +56,7 @@ export function formatAMPM(hours: number, minutes: number) {
 
 export function formatDurationClean(duration: string) {
 	const durHrs = duration?.substring(0, 2);
-	const durMin = duration?.substring(2);
+	const durMin = duration?.substring(3);
 
 	const hours = parseInt(durHrs!, 10);
 	const mins = parseInt(durMin!, 10);

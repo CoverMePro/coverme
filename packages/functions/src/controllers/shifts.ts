@@ -334,6 +334,22 @@ const createShiftRotation = async (req: Request, res: Response) => {
 	}
 };
 
+const updateShiftTemplate = async (req: Request, res: Response) => {
+	const { id } = req.params;
+	let shiftInfo: IShiftTemplate = req.body;
+	try {
+		const updatedShiftTemplate = await dbHandler.updateDocumentAndReturnData(
+			'shift-templates',
+			id,
+			{ ...shiftInfo }
+		);
+		return res.json({ updatedShiftTemplate, message: 'Shift updated successfully!' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 const deleteShiftRotation = async (req: Request, res: Response) => {
 	const id = req.params.id;
 
@@ -405,6 +421,7 @@ export default {
 	deleteShiftTemplate,
 	getShiftTemplates,
 	createShiftRotation,
+	updateShiftTemplate,
 	deleteShiftRotation,
 	getShiftRotations,
 	getShiftFromUser,
