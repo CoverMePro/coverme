@@ -16,7 +16,7 @@ import overtimeRoutes from './routes/overtime-callout';
 import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
-import { sendSms, testReceive } from './utils/sms';
+import smsRoutes from './routes/sms';
 import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
 import calloutCyle from './utils/overtime';
@@ -59,10 +59,9 @@ app.use('/time-off', timeOffRoutes);
 app.use('/sick-requests', sickRequestRoutes);
 app.use('/messages', messageRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/sms', smsRoutes);
 
-app.post('/send-sms', sendSms);
 app.post('/test-not', testNot);
-app.post('/receive-sms', testReceive);
 
 exports.api = functions.https.onRequest(app);
 

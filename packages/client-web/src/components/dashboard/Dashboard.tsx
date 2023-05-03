@@ -42,8 +42,6 @@ export const onMessageListener = () =>
 		});
 	});
 
-let notificationIds: string[] = [];
-let loaded = false;
 
 const Dashboard: React.FC = () => {
 	const [notifications, setNotifications] = useState<INotification[]>([]);
@@ -73,66 +71,19 @@ const Dashboard: React.FC = () => {
 	// 	.catch((err) => console.log('failed: ', err));
 
 	useEffect(() => {
-		// getToken(messaging, {
-		// 	vapidKey: process.env.REACT_APP_FB_MESSAGE_KEY,
-		// }).then((currentToken) => {
-		// 	if (currentToken) {
-		// 		console.log('Current Token: ', currentToken);
-
-		// 		api.post(`auth/update-message-token`, {
-		// 			userId: user.id,
-		// 			token: currentToken,
-		// 		})
-		// 			.then(() => {
-		// 				console.log('SUCCESS token updated');
-		// 			})
-		// 			.catch((error) => {})
-		// 			.finally(() => {});
-		// 	} else {
-		// 		console.log('Can not get current token');
-		// 	}
-		// });
-
-		// api.getAllData<INotification>(`notifications/${user.id}`)
-		// 	.then((notifications) => {
-		// 		console.log('got notifications');
-		// 		setNotifications(notifications);
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error(error);
-		// 	})
-		// 	.finally(() => {});
-
 		const q = query(
 			collection(db, 'notifications'),
 			where('usersNotified', 'array-contains', user.id)
 		);
 		const Unsubscribe = onSnapshot(q, (snapshot) => {
 			console.log('UPDATED');
-			const retreivedNotifications: any[] = [];
+			const retreivedNotifications: INotification[] = [];
 			snapshot.forEach((doc) => {
 				retreivedNotifications.push({
 					id: doc.id,
 					...doc.data(),
-				});
+				} as INotification);
 			});
-
-			console.log(retreivedNotifications);
-
-			console.log(loaded);
-
-			if (loaded) {
-				retreivedNotifications.forEach((not) => {
-					if (notificationIds.findIndex((id) => id === not.id) === -1) {
-						enqueueSnackbar(`${not.messageTitle}: ${not.messageBody}`, {
-							variant: 'info',
-						});
-					}
-				});
-			} else {
-				notificationIds = retreivedNotifications.map((not) => not.id);
-				loaded = true;
-			}
 
 			setNotifications(retreivedNotifications);
 		});
@@ -168,15 +119,40 @@ const Dashboard: React.FC = () => {
 			});
 	};
 
+	const handleOpenNotifications = (userSeenNots: string[]) => {
+		// mark all notifcations as seen my user
+			api.post(`notifications/seen`, {
+			userId: user.id,
+			notificationIds: userSeenNots,
+		})
+			.then(() => {
+				console.log('notifications seen');
+			})
+			.catch((error) => {
+				console.error(error);
+			})
+			.finally(() => {});
+
+		const updatedNotifications = notifications.map(not => {
+			const userSeen = not.usersSeen ? not.usersSeen : [];
+
+			if (userSeen.findIndex(id => id === user.id) === -1) {
+				userSeen.push(user.id);
+			}
+			
+			return not;
+		});
+
+		setNotifications(updatedNotifications);
+	}
+
 	const handleRemoveNotification = (id: string) => {
 		const newNotifications = notifications.filter((not) => not.id! !== id);
 		setNotifications([...newNotifications]);
-		notificationIds = newNotifications.map((not) => not.id!);
 	};
 
 	const handleRemoveAllNotifications = () => {
 		setNotifications([]);
-		notificationIds = [];
 	};
 
 	return (
@@ -233,6 +209,7 @@ const Dashboard: React.FC = () => {
 								<Box>
 									<Notifications
 										notifications={notifications}
+										onOpen={handleOpenNotifications}
 										onClose={handleCloseNotifications}
 										onClearNotifications={handleRemoveNotification}
 										onClearAllNotifications={handleRemoveAllNotifications}

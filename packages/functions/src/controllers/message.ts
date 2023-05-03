@@ -37,7 +37,7 @@ const createMessage = async (req: Request, res: Response) => {
 			usersNotified: [...userIds],
 		};
 
-		await dbHandler.addDocument<INotification>('notifications', notification);
+		dbHandler.addDocument<INotification>('notifications', notification);
 
 		return res.json(createdMessage);
 	} catch (error) {

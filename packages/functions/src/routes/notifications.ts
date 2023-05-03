@@ -10,4 +10,6 @@ router.post('/acknowledge-one', authGuard, notificationsController.acknowledgeNo
 
 router.post('/acknowledge-many', authGuard, notificationsController.acknowledgeNotifications);
 
+router.post('/seen', authGuard, notificationsController.seenNotifications);
+
 export default router;
