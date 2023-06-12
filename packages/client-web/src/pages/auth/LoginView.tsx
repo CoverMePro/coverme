@@ -101,12 +101,13 @@ const LoginView: React.FC = () => {
 			>
 				<Paper
 					sx={{
-						width: { xs: '80%', md: 400 },
+						width: { xs: '90%', sm: 400 },
 						borderRadius: 5,
 						display: 'flex',
 						flexDirection: 'column',
 						alignItems: 'center',
 						textAlign: 'center',
+						marginTop: { xs: '2rem', md: 0 },
 					}}
 				>
 					<Box
