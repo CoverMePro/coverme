@@ -13,6 +13,14 @@ import {
 	Paper,
 	CircularProgress,
 } from '@mui/material';
+import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
+
+import { IUser, ICompany } from 'coverme-shared';
+
+import { validateLogin } from 'utils/validations/auth';
+import api from 'utils/api';
+import { AxiosError } from 'axios';
+
 import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -20,12 +28,6 @@ import LoginIcon from '@mui/icons-material/Login';
 
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
-
-import ForgotPasswordDialog from 'components/dialogs/ForgotPasswordDialog';
-import { validateLogin } from 'utils/validations/auth';
-import api from 'utils/api';
-
-import { IUser, ICompany } from 'coverme-shared';
 
 const LoginView: React.FC = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -58,9 +60,9 @@ const LoginView: React.FC = () => {
 					setUser(userData);
 					setCompany(companyData);
 					setIsLoggingIn(false);
-					navigate('/dashboard/home');
+					navigate('/portal/home');
 				})
-				.catch((err) => {
+				.catch((err: AxiosError) => {
 					setIsLoggingIn(false);
 					if (err.response?.status === 403) {
 						setLoginError('Your email or password was incorrect.');
@@ -77,7 +79,7 @@ const LoginView: React.FC = () => {
 				console.log(userResult);
 				setUser(userResult.userInfo);
 				setCompany(userResult.companyInfo);
-				navigate('/dashboard');
+				navigate('/portal');
 			})
 			.catch((err) => {
 				console.error(err);
