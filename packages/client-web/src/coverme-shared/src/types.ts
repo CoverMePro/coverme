@@ -1,5 +1,7 @@
 export type EmployeeType = 'Full-Time' | 'Part-Time' | 'Temp';
 
+export type StaffType = 'Full-Time' | 'Part-Time' | 'Temp';
+
 export type UserStatus = 'Pending' | 'Active';
 
 export type ShiftRequestStatus = 'Pending' | 'Accepted' | 'Rejected';
