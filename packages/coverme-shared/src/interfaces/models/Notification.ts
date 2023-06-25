@@ -13,5 +13,6 @@ export interface INotification {
 	messageTitle: string;
 	messageBody: string;
 	usersNotified?: string[];
+	usersSeen?: string[];
 	meta?: any;
 }

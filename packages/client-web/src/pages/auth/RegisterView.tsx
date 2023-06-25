@@ -70,7 +70,7 @@ const RegisterView: React.FC = () => {
 	});
 
 	const handleDone = () => {
-		navigate('/dashboard');
+		navigate('/portal');
 	};
 
 	useEffect(() => {

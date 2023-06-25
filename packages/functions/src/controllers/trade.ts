@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { INotification, IShift, ITeam, ITradeRequest, NotificationType } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getBatch } from '../db/batch-handler';
+import { sendNotificationSms } from '../utils/sms';
 
 const createTradeRequest = async (req: Request, res: Response) => {
     const tradeRequest: ITradeRequest = req.body;
@@ -33,11 +34,16 @@ const createTradeRequest = async (req: Request, res: Response) => {
 		const notification: INotification = {
             messageTitle: 'Trade Request',
             messageType: NotificationType.TRADE,
-            messageBody: tradeRequestAdded.proposedUser + " would like to trade shifts.",
+            messageBody: tradeRequestAdded.proposedUser.name + " would like to trade shifts.",
             usersNotified: [tradeRequest.requestedUserId],
+            usersSeen: []
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n ${tradeRequestAdded.proposedUser.name} would like to trade shifts, please go to the Cover me app to view the trade request.`;
+
+		sendNotificationSms([tradeRequest.requestedUserId], bodyTemplate);
 
         return res.json(tradeRequestAdded);
     } catch (error) {
@@ -296,7 +302,11 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
             usersNotified: [tradeRequest.proposedUserId],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n ${tradeRequest.requestedUser} has accepted your trade request, the schedule has now changed to reflect this.`;
+
+		sendNotificationSms([tradeRequest.requestedUserId], bodyTemplate);
 
         return res.json({ message: 'trade has been made successfully' });
     } catch (error) {
@@ -322,8 +332,12 @@ const rejectTradeRequest = async (req: Request, res: Response) => {
             usersNotified: [tradeRequest.proposedUserId],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
 
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n ${tradeRequest.requestedUser} has rejected your trade request.`;
+
+		sendNotificationSms([tradeRequest.requestedUserId], bodyTemplate);
+        
         return res.json({ message: 'trade request rejectred.' });
     } catch (error) {
         console.error(error);

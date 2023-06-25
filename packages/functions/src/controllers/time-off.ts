@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { INotification, ITeam, ITimeOff, ITimeOffRequest, NotificationType } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
+import { sendNotificationSms, sendTimeOffSms } from '../utils/sms';
+import { formatDateDayOutputString } from '../utils/formatter';
 
 const createTimeOffRequest = async (req: Request, res: Response) => {
 	const {timeOffRequest, managers} = req.body;
@@ -10,7 +12,7 @@ const createTimeOffRequest = async (req: Request, res: Response) => {
 	timeOffRequest.timeOffEnd = new Date(timeOffRequest.timeOffEnd!);
 
 	try {
-		const timeOffAdded = await dbHandler.addDocument('time-off-requests', timeOffRequest);
+		const timeOffAdded = await dbHandler.addDocument<ITimeOffRequest>('time-off-requests', timeOffRequest);
 
 		const notification: INotification = {
             messageTitle: 'New Time Off Request',
@@ -19,7 +21,15 @@ const createTimeOffRequest = async (req: Request, res: Response) => {
             usersNotified: [...managers],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n ${timeOffRequest.user} has requested time off for the following dates: \n
+		${formatDateDayOutputString(timeOffAdded.timeOffStart.toISOString(), timeOffAdded.timeOffEnd.toISOString())}
+		\n\n Reply 1 to APPROVE or 2 to DECLINE the request.
+        \n You may also go to the Cover Me app to review the request.
+		`;
+
+		sendTimeOffSms([...managers], bodyTemplate, timeOffAdded.id);
 
 		return res.json(timeOffAdded);
 	} catch (error) {
@@ -130,7 +140,12 @@ const approveTimeOffRequest = async (req: Request, res: Response) => {
             usersNotified: [timeOffRequest.userId],
         };
 
-		await dbHandler.addDocument<INotification>('notifications', notification);
+		dbHandler.addDocument<INotification>('notifications', notification);
+
+		
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n Your time off request has been approved.`;
+
+		sendNotificationSms([timeOffRequest.userId], bodyTemplate);
 
 		return res.json({ message: 'time off request approved.' });
 	} catch (error) {
@@ -170,8 +185,11 @@ const rejectTimeOffRequest = async (req: Request, res: Response) => {
             usersNotified: [timeOffRequest.userId],
         };
 
-		await dbHandler.addDocument<INotification>('notifications', notification);
+		dbHandler.addDocument<INotification>('notifications', notification);
 
+		const bodyTemplate = `Hello from Cover Me Pro,\n\n Your time off request has been rejected. Please contact manager(s) for clarification.`;
+
+		sendNotificationSms([timeOffRequest.userId], bodyTemplate);
 
 		return res.json({ message: 'time off request declined.' });
 	} catch (error) {

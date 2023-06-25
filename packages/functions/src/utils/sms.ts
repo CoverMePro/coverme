@@ -11,33 +11,10 @@ import {
 } from 'clicksend/api';
 
 import { CLICKSEND_AUTH_TOKEN, CLICKSEND_NUMBER, CLICKSEND_USERNAME } from '../constants';
+import dbHandler from '../db/db-handler';
 
 const formatNumber = (phone: string) => {
 	return phone.replace(/[- )(]/g, '');
-};
-
-export const sendSms = async (req: Request, res: Response) => {
-	try {
-		const smsMessage = new SmsMessage();
-
-		smsMessage.from = '+18443682904';
-		smsMessage.to = '+12262371409';
-		smsMessage.body = 'test message from clicksend!';
-		smsMessage.customString = 'test the string';
-
-		var smsApi = new SMSApi('matthew@bytesizecoder.ca', 'A703A887-E13F-CDE7-B0B3-86CEE24DF6C5');
-
-		var smsCollection = new SmsMessageCollection();
-
-		smsCollection.messages = [smsMessage];
-
-		await smsApi.smsSendPost(smsCollection);
-
-		return res.json({ message: 'sms successfully sent' });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({ error: err });
-	}
 };
 
 export const testReceive = async (req: Request, res: Response) => {
@@ -228,3 +205,68 @@ export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
 	await smsApi.smsSendPost(smsCollection);
 
 };
+
+export const sendNotificationSms = async (usersIds: string[], message: string) => {
+
+	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+
+	const numbers: string [] = users.map(user => user.phone);
+
+	await sendSms(numbers, message);
+}
+
+// TO DO: create seperate functions for each sms message (vacation, sick, etc)
+// need to have different custom strings for each
+
+export const sendSickSms = async (usersIds: string[], message: string, requestId: string) => {
+	
+	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+
+	const numbers: string [] = users.map(user => user.phone);
+
+	await sendSms(numbers, message, `SICK$$${requestId}`);
+}
+
+export const sendTimeOffSms = async (usersIds: string[], message: string, requestId) => {
+	
+	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+
+	const numbers: string [] = users.map(user => user.phone);
+
+	await sendSms(numbers, message, `TIMEOFF$$${requestId}`);
+}
+
+
+export const sendTradeSms = async (usersIds: string[], message: string, requestId) => {
+	
+	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+
+	const numbers: string [] = users.map(user => user.phone);
+
+	await sendSms(numbers, message, `TRADE$$${requestId}`);
+}
+
+
+const sendSms = async (numbers: string[], messageBody: string, customString: string = "") => {
+	var smsCollection = new SmsMessageCollection();
+
+	smsCollection.messages = [];
+
+	numbers.forEach(number => {
+		const smsMessage = new SmsMessage();
+
+		smsMessage.from = CLICKSEND_NUMBER;
+		smsMessage.to = formatNumber(number);
+		smsMessage.body = messageBody;
+		smsMessage.customString = customString;
+
+		smsCollection.messages.push(smsMessage);
+	});
+
+	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
+
+
+	await smsApi.smsSendPost(smsCollection);
+}
+
+

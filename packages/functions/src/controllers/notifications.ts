@@ -32,9 +32,13 @@ const acknowledgeNotification = async (req: Request, res: Response) => {
 
         const usersNotified = notificaiton.usersNotified!.filter((user) => user !== userId);
 
-        await dbHandler.updateDocument('notifications', notificationId, {
-            usersNotified: usersNotified,
-        });
+        if (usersNotified.length > 0) {
+            await dbHandler.updateDocument('notifications', notificationId, {
+                usersNotified: usersNotified,
+            });
+        } else {
+            await dbHandler.deleteDocument('notifications', notificationId);
+        }
 
         return res.json({ message: 'notification acknowledged!' });
     } catch (error) {
@@ -49,7 +53,7 @@ const acknowledgeNotifications = async (req: Request, res: Response) => {
     const batch = getBatch();
 
     try {
-        notificationIds.forEach(async (notId: string) => {
+        for await (const notId of notificationIds) {
             const notificaiton = await dbHandler.getDocumentById<INotification>(
                 'notifications',
                 notId
@@ -64,7 +68,7 @@ const acknowledgeNotifications = async (req: Request, res: Response) => {
             } else {
                 batch.delete(dbHandler.getDocumentSnapshot(`/notifications/${notId}`));
             }
-        });
+        };
 
         await batch.commit();
 
@@ -75,8 +79,38 @@ const acknowledgeNotifications = async (req: Request, res: Response) => {
     }
 };
 
+const seenNotifications = async (req: Request, res: Response) => {
+    const { notificationIds, userId } = req.body;
+
+    const batch = getBatch();
+
+    try {
+        for await (const notId of notificationIds) {
+            const notificaiton = await dbHandler.getDocumentById<INotification>(
+                'notifications',
+                notId
+            );
+
+            const usersSeen = notificaiton.usersSeen ? notificaiton.usersSeen : [];
+    
+            batch.update(dbHandler.getDocumentSnapshot(`/notifications/${notId}`), {
+                usersSeen: [...usersSeen, userId],
+            });
+        };
+
+        await batch.commit();
+
+        return res.json({ message: 'notifications seen!' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
+
+}
+
 export default {
     getNotifications,
     acknowledgeNotification,
     acknowledgeNotifications,
+    seenNotifications
 };

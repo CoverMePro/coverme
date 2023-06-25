@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { INotification, NotificationType, ISickRequest, IShift } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
+import { sendNotificationSms, sendSickSms } from '../utils/sms';
+import { formatDateTimeOutputString } from '../utils/formatter';
 
 const createSickRequest = async (req: Request, res: Response) => {
     const {sickRequest, managers} = req.body;
@@ -36,7 +38,15 @@ const createSickRequest = async (req: Request, res: Response) => {
             usersNotified: [...managers],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n ${sickRequestAdded.user} has requested a sick day for the following shift: \n
+        ${formatDateTimeOutputString(shift.startDateTime.toString(), shift.endDateTime.toString())}
+        \n\n Reply 1 to APPROVE or 2 to DECLINE the request. If you APPROVE this request, a callout will automatically be initiated for this shift.
+        \n You may also go to the Cover Me app to review the request.
+        `;
+
+		sendSickSms([...managers], bodyTemplate, sickRequestAdded.id!);
 
         return res.json(sickRequestAdded);
     } catch (error) {
@@ -185,7 +195,11 @@ const approveSickRequest = async (req: Request, res: Response) => {
             usersNotified: [userId],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n Your sick request has been approved.`;
+
+		sendNotificationSms([userId], bodyTemplate);
 
         return res.json({ message: 'Sick request approved.' });
     } catch (error) {
@@ -209,7 +223,11 @@ const rejectSickRequest = async (req: Request, res: Response) => {
             usersNotified: [userId],
         };
 
-        await dbHandler.addDocument<INotification>('notifications', notification);
+        dbHandler.addDocument<INotification>('notifications', notification);
+
+        const bodyTemplate = `Hello from Cover Me Pro,\n\n Your sick request has been declined. Please contact your manager(s) for clarification.`;
+
+		sendNotificationSms([userId], bodyTemplate);
 
         return res.json({ message: 'Sick request rejected.' });
     } catch (error) {
