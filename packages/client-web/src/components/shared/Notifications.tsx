@@ -18,6 +18,7 @@ import api from 'utils/api';
 
 interface INotificationsProps {
 	notifications: INotification[];
+	onOpen: (unseenNotIds: string[]) => void;
 	onClose: () => void;
 	onClearNotifications: (id: string) => void;
 	onClearAllNotifications: () => void;
@@ -25,6 +26,7 @@ interface INotificationsProps {
 
 const Notifications: React.FC<INotificationsProps> = ({
 	notifications,
+	onOpen,
 	onClose,
 	onClearAllNotifications,
 	onClearNotifications,
@@ -89,11 +91,41 @@ const Notifications: React.FC<INotificationsProps> = ({
 		onClearAllNotifications();
 	};
 
+	const handleOpenNotifications = () => {
+		const unseenNotIds: string[] = [];
+		notifications.forEach(not => {
+			if (not.usersSeen === undefined || not.usersSeen === null || (not.usersSeen && not.usersSeen.findIndex(id => id === user.id) === -1)) {
+				unseenNotIds.push(not.id!);
+			}
+		});
+
+		onOpen(unseenNotIds);
+		setOpenNotifications(true);
+	}
+
+	const getUnseenNotifications = () => {
+		if (notifications === undefined || notifications === null || notifications.length === 0) {
+			return 0;
+		}
+
+		let unseen = 0;
+
+		notifications.forEach(not => {
+			if (not.usersSeen === undefined || not.usersSeen === null || (not.usersSeen && not.usersSeen.findIndex(id => id === user.id) === -1)) {
+				unseen++;
+			}
+		});
+
+		console.log(unseen);
+
+		return unseen;
+	}
+
 	return (
 		<>
-			<IconButton ref={notRef} color="secondary" onClick={() => setOpenNotifications(true)}>
+			<IconButton ref={notRef} color="secondary" onClick={handleOpenNotifications}>
 				{!openNotifications ? (
-					<Badge badgeContent={notifications.length} color="secondary">
+					<Badge badgeContent={getUnseenNotifications()} color="secondary">
 						<NotificationsIcon />
 					</Badge>
 				) : (

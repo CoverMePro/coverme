@@ -8,6 +8,7 @@ export * from './models/Nav';
 export * from './models/Notification';
 export * from './models/Overtime';
 export * from './models/ScheduleStaff';
+export * from './models/Staff';
 export * from './models/Shift';
 export * from './models/ShiftRotation';
 export * from './models/Sick';

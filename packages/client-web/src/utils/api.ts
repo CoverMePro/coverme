@@ -105,7 +105,7 @@ const authLogin = (email: string, password: string): Promise<IAuthInfo> => {
 			return result.data;
 		})
 		.catch((error: AxiosError) => {
-			throw new Error(error.message);
+			throw error;
 		});
 };
 

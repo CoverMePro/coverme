@@ -15,6 +15,7 @@ import {
 import dbHandler from '../db/db-handler';
 import { getShiftDataDateRange, getShiftDataTodayOnward } from '../db/db-helpers';
 import { getBatch } from '../db/batch-handler';
+import { sendNotificationSms } from '../utils/sms';
 
 const getShiftsAndStaffFromCompany = async (req: Request, res: Response) => {
 	try {
@@ -268,9 +269,13 @@ const transactionShifts = async (req: Request, res: Response) => {
 			messageType: NotificationType.SHIFT,
 			messageBody: 'Your schedule has changed, please view the calendar.',
 			usersNotified: newNotifiedUsers,
+			usersSeen: []
 		};
+		const bodyTemplate = `Hello from Cover Me Pro,\n\n Your schedule has changed, please view the calendar on the Cover Me app`;
 
-		await dbHandler.addDocument('notifications', notification);
+		sendNotificationSms(newNotifiedUsers, bodyTemplate);
+
+		dbHandler.addDocument('notifications', notification);
 
 		return res.json({ message: 'transactions completed!' });
 	} catch (error) {

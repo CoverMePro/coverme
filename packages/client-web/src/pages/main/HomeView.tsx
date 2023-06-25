@@ -1,30 +1,60 @@
 import React from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
-import TodayWidget from 'components/widgets/TodayWidget';
-import MessageWidget from 'components/widgets/MessageWidget';
-import CalendarWidget from 'components/widgets/CalendarWidget';
+import NavCard from 'components/navigation/NavCard';
+
+// Nav Icons
+import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
+import GroupsIcon from '@mui/icons-material/Groups';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const HomeView: React.FC = () => {
-	const user = useTypedSelector((state) => state.user);
 	return (
-		<>
-			<Box sx={{ mb: 2 }}>
-				<Typography variant="h1">Welcome, {user.firstName}!</Typography>
-			</Box>
-			<Grid container spacing={2}>
-				<Grid item sx={{ height: '500px' }} sm={12} md={6} lg={4}>
-					<TodayWidget />
-				</Grid>
-				<Grid item sx={{ height: '500px' }} sm={12} md={6} lg={8}>
-					<MessageWidget />
-				</Grid>
-				<Grid item sx={{ height: '700px' }} sm={12} md={12} lg={12}>
-					<CalendarWidget />
-				</Grid>
+		<Box
+			sx={{
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<Grid container spacing={4} sx={{ height: '100%' }}>
+				<NavCard
+					icon={<ScheduleSendIcon fontSize="inherit" color="secondary" />}
+					title="Callouts"
+					path="callouts"
+				/>
+				<NavCard
+					icon={<AssignmentIndIcon fontSize="inherit" color="secondary" />}
+					title="Staff List"
+					path="staff"
+				/>
+				<NavCard
+					icon={<GroupWorkIcon fontSize="inherit" color="secondary" />}
+					title="Teams"
+					path="teams"
+				/>
+				<NavCard
+					icon={<PendingActionsIcon fontSize="inherit" color="secondary" />}
+					title="Shift Templates"
+					path="shift-templates"
+				/>
+				<NavCard
+					icon={<GroupsIcon fontSize="inherit" color="secondary" />}
+					title="Users"
+					path="staff"
+				/>
+				<NavCard
+					icon={<SettingsIcon fontSize="inherit" color="secondary" />}
+					title="Settings"
+					path="settings"
+				/>
 			</Grid>
-		</>
+		</Box>
 	);
 };
 

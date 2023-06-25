@@ -4,23 +4,24 @@ import { Box, Typography } from '@mui/material';
 
 import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import RegisterUserForm from 'components/forms/RegisterUserForm';
+import CreateStaffForm from 'components/forms/CreateStaffForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
 
-import { IUser, StaffHeadCells } from 'coverme-shared';
+import { IStaff, StaffHeadCells } from 'coverme-shared';
 
 const StaffView: React.FC = () => {
 	const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
 	const [openDeleteStaff, setOpenDeleteStaff] = useState<boolean>(false);
+	const [openEditStaff, setOpenEditStaff] = useState<boolean>(false);
 	const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
 	const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] = useState<boolean>(false);
 	const [deleteMessage, setDeleteMessage] = useState<string>('');
 	const [selected, setSelected] = useState<any | undefined>(undefined);
-	const [staff, setStaff] = useState<IUser[]>([]);
+	const [staff, setStaff] = useState<IStaff[]>([]);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -54,16 +55,24 @@ const StaffView: React.FC = () => {
 		setOpenDeleteStaff(false);
 	};
 
+	const handleOpenEditStaff = () => {
+		setOpenEditStaff(true);
+	};
+
+	const handleCloseEditStaff = () => {
+		setOpenEditStaff(false);
+	};
+
 	const handleConfirmDeleteStaff = () => {
 		setIsLoadingDeleteStaff(true);
 		api.get(`auth/delete/${selected}`)
 			.then(() => {
-				enqueueSnackbar('User successfully deleted', { variant: 'success' });
+				enqueueSnackbar('Staff member successfully deleted', { variant: 'success' });
 				setSelected(undefined);
 				handleGetUsers();
 			})
 			.catch((err) => {
-				enqueueSnackbar('Error trying to delete user, please try again', {
+				enqueueSnackbar('Error trying to delete Staff member, please try again', {
 					variant: 'error',
 				});
 			})
@@ -73,7 +82,7 @@ const StaffView: React.FC = () => {
 			});
 	};
 
-	const formatHireDate = (staff: IUser[]) => {
+	const formatHireDate = (staff: IStaff[]) => {
 		return staff.map((user) => {
 			const date = user.hireDate;
 			user.hireDateDisplay = formatDateString(date! as Date);
@@ -82,9 +91,9 @@ const StaffView: React.FC = () => {
 	};
 
 	const handleGetUsers = useCallback(() => {
-		api.getAllData<IUser>(`users`)
-			.then((users) => {
-				setStaff(formatHireDate(users));
+		api.getAllData<IStaff>(`staff`)
+			.then((staff) => {
+				setStaff(formatHireDate(staff));
 			})
 			.catch((err) => {
 				console.error(err);
@@ -117,12 +126,22 @@ const StaffView: React.FC = () => {
 						selected={selected}
 						onSelect={handleSelectStaff}
 						unSelectedActions={getAddAction('Staff', handleAddStaff)}
-						selectedActions={getDeleteAction('Staff', handleOpenDeleteStaff)}
+						selectedActions={getEditDeleteAction(
+							'Staff',
+							handleOpenDeleteStaff,
+							handleOpenEditStaff
+						)}
 					/>
-					<FormDialog open={openAddStaff} onClose={handleCloseAddStaff}>
-						<RegisterUserForm
+					<FormDialog
+						open={openEditStaff ? true : openAddStaff}
+						onClose={openEditStaff ? handleCloseEditStaff : handleCloseAddStaff}
+					>
+						<CreateStaffForm
+							editMode={openEditStaff}
+							selectedUser={getSelectedStaffName(selected)}
 							onFinish={() => {
 								handleCloseAddStaff();
+								handleCloseEditStaff();
 								handleGetUsers();
 							}}
 						/>

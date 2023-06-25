@@ -6,12 +6,7 @@ import {
 	TextField,
 	Fab,
 	FormControl,
-	FormControlLabel,
-	Radio,
-	RadioGroup,
 	CircularProgress,
-	Typography,
-	Checkbox,
 	InputLabel,
 	Select,
 	MenuItem,
@@ -22,6 +17,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import HowToRegIcon from '@mui/icons-material/Add';
+import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
 
 import FormCard from './FormCard';
 import { validateUserCreate } from 'utils/validations/user';
@@ -30,19 +26,24 @@ import api from 'utils/api';
 
 interface IRegisterUserFormProps {
 	onFinish: () => void;
+	editMode: boolean;
+	selectedUser: any;
 }
 
-const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
-	const [role, setRole] = useState<string>('staff');
+const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
+	onFinish,
+	editMode,
+	selectedUser,
+}) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [isTestUser, setIsTestUser] = useState<boolean>(false);
 	const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 	const [employeeType, setEmployeeType] = useState<string>('Full-Time');
+	const [contactBy, setContactBy] = useState<string>('phone');
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const handleChangeRole = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setRole((event.target as HTMLInputElement).value);
+	const handleContactByChange = (event: SelectChangeEvent) => {
+		setContactBy(event.target.value as string);
 	};
 
 	const handleEmployeeTypeChange = (event: SelectChangeEvent) => {
@@ -52,33 +53,30 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 	const { handleSubmit, handleChange, handleBlur, setValues, values, touched, errors } =
 		useFormik({
 			initialValues: {
-				firstName: '',
-				lastName: '',
-				email: '',
-				position: '',
-				hireDate: String(new Date()),
-				phone: '',
-				password: '',
+				firstName: editMode ? selectedUser.firstName : '',
+				lastName: editMode ? selectedUser.lastName : '',
+				hireDate: editMode ? selectedUser.hireDate : String(new Date()),
+				phone: editMode ? selectedUser.phone : '',
+				employeeType: editMode ? selectedUser.employeeType : 'Full-Time',
+				contactBy: editMode ? selectedUser.contactBy : 'Phone',
 			},
 			validate: validateUserCreate,
 			onSubmit: (userValues: any) => {
-				const { email, firstName, lastName, password, phone } = userValues;
-				console.log('TEST');
+				const { firstName, lastName, phone } = userValues;
 				setIsLoading(true);
-				if (isTestUser) {
-					api.post(`auth/complete-register`, {
-						email,
+
+				if (editMode) {
+					api.post(`staff/${selectedUser.id}`, {
 						firstName,
 						lastName,
-						role: role,
 						employeeType: employeeType,
 						hireDate: savedHireDate,
-						password: password,
 						phone: phone,
+						contactBy: contactBy,
 					})
 						.then(() => {
 							setIsLoading(false);
-							enqueueSnackbar('Success! User has been created', {
+							enqueueSnackbar('Success! Updated Staff member', {
 								variant: 'success',
 							});
 							onFinish();
@@ -92,22 +90,19 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 							onFinish();
 						});
 				} else {
-					api.post(`auth/register-link`, {
-						email,
+					api.post(`staff`, {
 						firstName,
 						lastName,
-						role: role,
 						employeeType: employeeType,
 						hireDate: savedHireDate,
+						phone: phone,
+						contactBy: contactBy,
 					})
 						.then(() => {
 							setIsLoading(false);
-							enqueueSnackbar(
-								'Success! an email has been sent out to this user to complete registration.',
-								{
-									variant: 'success',
-								}
-							);
+							enqueueSnackbar('Success! Created Staff member', {
+								variant: 'success',
+							});
 							onFinish();
 						})
 						.catch((err) => {
@@ -122,17 +117,8 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 			},
 		});
 
-	const handleChangeTestUser = (_: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-		setIsTestUser(checked);
-	};
-
 	return (
-		<FormCard title=" Register a User">
-			<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-				<Typography variant="body1">Test User</Typography>
-				<Checkbox value={isTestUser} onChange={handleChangeTestUser} />
-			</Box>
-
+		<FormCard title={editMode ? ' Edit Staff Member' : ' Register a Staff Member'}>
 			<form onSubmit={handleSubmit}>
 				<Box>
 					<TextField
@@ -141,6 +127,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						type="text"
 						name="firstName"
 						label="Fist Name"
+						value={values.firstName}
 						onChange={handleChange}
 						onBlur={handleBlur}
 						error={
@@ -158,6 +145,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						type="text"
 						name="lastName"
 						label="Last Name"
+						value={values.lastName}
 						onChange={handleChange}
 						onBlur={handleBlur}
 						error={
@@ -169,39 +157,13 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 					/>
 				</Box>
 				<Box sx={{ mt: 2 }}>
-					<TextField
-						sx={{ width: '100%' }}
-						variant="outlined"
-						type="email"
-						name="email"
-						label="Email"
-						onChange={handleChange}
-						onBlur={handleBlur}
-						error={touched.email && errors.email !== undefined && errors.email !== ''}
-						helperText={touched.email ? errors.email : ''}
-					/>
-				</Box>
-				<Box sx={{ mt: 2 }}>
-					<FormControl component="fieldset">
-						<RadioGroup
-							row
-							name="row-radio-buttons-group"
-							onChange={handleChangeRole}
-							defaultValue="staff"
-						>
-							<FormControlLabel value="manager" control={<Radio />} label="Manager" />
-							<FormControlLabel value="staff" control={<Radio />} label="Staff" />
-						</RadioGroup>
-					</FormControl>
-				</Box>
-				<Box sx={{ mt: 2 }}>
 					<FormControl fullWidth>
-						<InputLabel id="demo-simple-select-label">Employee Type</InputLabel>
+						<InputLabel id="demo-simple-select-label">Staff Type</InputLabel>
 						<Select
 							labelId="demo-simple-select-label"
 							id="demo-simple-select"
-							value={employeeType}
-							label="Employee Type"
+							defaultValue={values.employeeType}
+							label="Staff Type"
 							onChange={handleEmployeeTypeChange}
 						>
 							<MenuItem value="Full-Time">Full-Time</MenuItem>
@@ -249,51 +211,50 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						/>
 					</Box>
 					<>
-						{isTestUser && (
-							<>
-								<Box sx={{ mt: 2 }}>
-									<TextField
-										sx={{ mb: 2, width: '100%' }}
-										variant="outlined"
-										label="Password"
-										type="text"
-										name="password"
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={
-											touched.password &&
-											errors.password !== undefined &&
-											errors.password !== ''
-										}
-										helperText={touched.password ? errors.password : ''}
-									/>
-								</Box>
-								<Box sx={{ mt: 2 }}>
-									<MuiPhoneNumber
-										defaultCountry={'ca'}
-										disableDropdown
-										sx={{ mb: 2, width: '40%' }}
-										variant="outlined"
-										label="Phone Number"
-										type="tel"
-										name="phone"
-										onChange={(e) => {
-											setValues({
-												...values,
-												phone: e as string,
-											});
-										}}
-										onBlur={handleBlur}
-										error={
-											touched.phone &&
-											errors.phone !== undefined &&
-											errors.phone !== ''
-										}
-										helperText={touched.phone ? errors.phone : ''}
-									/>
-								</Box>
-							</>
-						)}
+						<>
+							<Box sx={{ mt: 2 }}>
+								<MuiPhoneNumber
+									defaultCountry={'ca'}
+									disableDropdown
+									sx={{ mb: 2, width: '40%' }}
+									variant="outlined"
+									label="Phone Number"
+									value={values.phone}
+									type="tel"
+									name="phone"
+									onChange={(e) => {
+										setValues({
+											...values,
+											phone: e as string,
+										});
+									}}
+									onBlur={handleBlur}
+									error={
+										touched.phone &&
+										errors.phone !== undefined &&
+										errors.phone !== ''
+									}
+									helperText={touched.phone ? errors.phone : ''}
+								/>
+
+								<FormControl fullWidth sx={{ ml: 2, mb: 2, width: '40%' }}>
+									<InputLabel id="demo-simple-select-label">
+										Contact By
+									</InputLabel>
+									<Select
+										labelId="demo-simple-select-label"
+										id="demo-simple-select"
+										defaultValue={values.contactBy}
+										label="Contact By"
+										onChange={handleContactByChange}
+									>
+										<MenuItem value="Phone">Phone</MenuItem>
+										<MenuItem value="Text">Text</MenuItem>
+										<MenuItem value="Phone/text">Phone/Text</MenuItem>
+									</Select>
+								</FormControl>
+							</Box>
+						</>
 					</>
 				</LocalizationProvider>
 
@@ -301,8 +262,12 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" aria-label="Register User" type="submit">
-							<HowToRegIcon fontSize="large" />
+						<Fab color="primary" aria-label={'Register Staff Member'} type="submit">
+							{editMode ? (
+								<UpdateIcon fontSize="large" />
+							) : (
+								<HowToRegIcon fontSize="large" />
+							)}
 						</Fab>
 					)}
 				</Box>
@@ -311,4 +276,4 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 	);
 };
 
-export default RegisterUserForm;
+export default CreateStaffForm;
