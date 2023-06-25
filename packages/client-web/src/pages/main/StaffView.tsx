@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 
 import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import RegisterUserForm from 'components/forms/RegisterUserForm';
+import CreateStaffForm from 'components/forms/CreateStaffForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
 import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-helper';
@@ -136,7 +136,7 @@ const StaffView: React.FC = () => {
 						open={openEditStaff ? true : openAddStaff}
 						onClose={openEditStaff ? handleCloseEditStaff : handleCloseAddStaff}
 					>
-						<RegisterUserForm
+						<CreateStaffForm
 							editMode={openEditStaff}
 							selectedUser={getSelectedStaffName(selected)}
 							onFinish={() => {

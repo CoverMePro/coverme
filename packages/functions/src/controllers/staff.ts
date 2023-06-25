@@ -15,7 +15,7 @@ const getStaff = (req: Request, res: Response) => {
 
 const getAllStaff = async (_: Request, res: Response) => {
 	try {
-		const staff = await dbHandler.getCollectionWithCondition('staff', 'role', '!=', 'owner');
+		const staff = await dbHandler.getCollection('staff');
 		return res.json(staff);
 	} catch (error) {
 		console.error(error);
@@ -23,40 +23,24 @@ const getAllStaff = async (_: Request, res: Response) => {
 	}
 };
 
-// const getStaffFromList = async (req: Request, res: Response) => {
-//     const userEmails = req.body.emails;
-
-//     try {
-//         const users = await dbHandler.getCollectionWithCondition<IStaff>(
-//             'users',
-//             '__name__',
-//             'in',
-//             userEmails
-//         );
-
-//         const managers: IStaff[] = [];
-//         const staff: IStaff[] = [];
-//         users.forEach((user) => {
-//             if (user.role === 'manager') {
-//                 managers.push(user);
-//             } else if (user.role === 'staff') {
-//                 staff.push(user);
-//             }
-//         });
-
-//         return res.json({ managers, staff });
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ error: error });
-//     }
-// };
-
 const updateStaff = async (req: Request, res: Response) => {
-	const { staffId } = req.params;
+	const { id } = req.params;
 	let staffInfo: IStaff = req.body;
 
 	try {
-		await dbHandler.updateDocument('staff', staffId, { ...staffInfo });
+		await dbHandler.updateDocument('staff', id, { ...staffInfo });
+		return res.json({ message: 'staff updated successfully!' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
+const createStaff = async (req: Request, res: Response) => {
+	let staffInfo: IStaff = req.body;
+
+	try {
+		await dbHandler.addDocument('staff', { ...staffInfo });
 		return res.json({ message: 'staff updated successfully!' });
 	} catch (error) {
 		console.error(error);
@@ -80,7 +64,7 @@ const checkStaff = async (req: Request, res: Response) => {
 export default {
 	getStaff,
 	getAllStaff,
-	//	getStaffFromList,
+	createStaff,
 	updateStaff,
 	checkStaff,
 };

@@ -8,7 +8,7 @@ router.get('/', authGuard, staffController.getAllStaff);
 router.get('/check/:id', authGuard, staffController.checkStaff);
 router.get('/:id', authGuard, staffController.getStaff);
 
+router.post('/', authGuard, staffController.createStaff);
 router.post('/:id', authGuard, staffController.updateStaff);
-//router.post('/', authGuard, staffController.getUsersFromList);
 
 export default router;

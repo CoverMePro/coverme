@@ -51,7 +51,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		capitalize: true,
 	},
 	{
-		id: 'phoneNo',
+		id: 'phone',
 		numeric: false,
 		disablePadding: false,
 		label: 'Phone #',

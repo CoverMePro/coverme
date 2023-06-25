@@ -16,6 +16,7 @@ import overtimeRoutes from './routes/overtime-callout';
 import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
+import staffRoutes from './routes/staff';
 import smsRoutes from './routes/sms';
 import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
@@ -25,7 +26,11 @@ const app = express();
 
 app.use(
 	cors({
-		origin: [process.env.WEB_CLIENT_DOMAIN!, process.env.LOCAL_CLIENT_DOMAIN!],
+		origin: [
+			process.env.WEB_CLIENT_DOMAIN!,
+			process.env.LOCAL_CLIENT_DOMAIN!,
+			'http://localhost:3000',
+		],
 		credentials: true,
 	})
 );
@@ -49,6 +54,7 @@ app.use(
 app.use('/auth', authRoutes);
 app.use('/overtime-callouts', overtimeRoutes);
 app.use('/users', userRoutes);
+app.use('/staff', staffRoutes);
 app.use('/teams', teamRoutes);
 app.use('/shifts', shiftRoutes);
 app.use('/shift-templates', shiftTemplateRoutes);
@@ -67,10 +73,10 @@ exports.api = functions.https.onRequest(app);
 
 exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun((context) => {
 	return calloutCyle()
-	.then(() => {
-		console.log("$$OVERTIME CALLOUT$$: Cycle Complete!")
-	})
-	.catch((err) => {
-		console.error(err);
-	});
+		.then(() => {
+			console.log('$$OVERTIME CALLOUT$$: Cycle Complete!');
+		})
+		.catch((err) => {
+			console.error(err);
+		});
 });

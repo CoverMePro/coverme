@@ -6,12 +6,7 @@ import {
 	TextField,
 	Fab,
 	FormControl,
-	FormControlLabel,
-	Radio,
-	RadioGroup,
 	CircularProgress,
-	Typography,
-	Checkbox,
 	InputLabel,
 	Select,
 	MenuItem,
@@ -35,23 +30,17 @@ interface IRegisterUserFormProps {
 	selectedUser: any;
 }
 
-const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
+const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 	onFinish,
 	editMode,
 	selectedUser,
 }) => {
-	//const [role, setRole] = useState<string>('staff');
-	//const [isTestUser, setIsTestUser] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 	const [employeeType, setEmployeeType] = useState<string>('Full-Time');
 	const [contactBy, setContactBy] = useState<string>('phone');
 
 	const { enqueueSnackbar } = useSnackbar();
-
-	// const handleChangeRole = (event: React.ChangeEvent<HTMLInputElement>) => {
-	// 	setRole((event.target as HTMLInputElement).value);
-	// };
 
 	const handleContactByChange = (event: SelectChangeEvent) => {
 		setContactBy(event.target.value as string);
@@ -70,45 +59,12 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 				phone: editMode ? selectedUser.phone : '',
 				employeeType: editMode ? selectedUser.employeeType : 'Full-Time',
 				contactBy: editMode ? selectedUser.contactBy : 'Phone',
-				//email: '',
-				//position: '',
-				//password: '',
 			},
 			validate: validateUserCreate,
 			onSubmit: (userValues: any) => {
 				const { firstName, lastName, phone } = userValues;
-				console.log('TEST');
 				setIsLoading(true);
 
-				// Check if this is a test user( skips over email verification)
-
-				// if (isTestUser) {
-				// 	api.post(`auth/complete-register`, {
-				// 		email,
-				// 		firstName,
-				// 		lastName,
-				// 		role: role,
-				// 		employeeType: employeeType,
-				// 		hireDate: savedHireDate,
-				// 		password: password,
-				// 		phone: phone,
-				// 	})
-				// 		.then(() => {
-				// 			setIsLoading(false);
-				// 			enqueueSnackbar('Success! Staff member has been created', {
-				// 				variant: 'success',
-				// 			});
-				// 			onFinish();
-				// 		})
-				// 		.catch((err) => {
-				// 			console.error(err);
-				// 			setIsLoading(false);
-				// 			enqueueSnackbar('An error has occured, please try again', {
-				// 				variant: 'error',
-				// 			});
-				// 			onFinish();
-				// 		});
-				//} else {
 				if (editMode) {
 					api.post(`staff/${selectedUser.id}`, {
 						firstName,
@@ -134,7 +90,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 							onFinish();
 						});
 				} else {
-					api.post(`auth/complete-register`, {
+					api.post(`staff`, {
 						firstName,
 						lastName,
 						employeeType: employeeType,
@@ -144,7 +100,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 					})
 						.then(() => {
 							setIsLoading(false);
-							enqueueSnackbar('Success! Registered Staff Member.', {
+							enqueueSnackbar('Success! Created Staff member', {
 								variant: 'success',
 							});
 							onFinish();
@@ -161,17 +117,8 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 			},
 		});
 
-	// const handleChangeTestUser = (_: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-	// 	setIsTestUser(checked);
-	// };
-
 	return (
 		<FormCard title={editMode ? ' Edit Staff Member' : ' Register a Staff Member'}>
-			<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-				{/* <Typography variant="body1">Test User</Typography>
-				<Checkbox value={isTestUser} onChange={handleChangeTestUser} /> */}
-			</Box>
-
 			<form onSubmit={handleSubmit}>
 				<Box>
 					<TextField
@@ -209,32 +156,6 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 						helperText={touched.lastName ? errors.lastName : ''}
 					/>
 				</Box>
-				{/* <Box sx={{ mt: 2 }}>
-					<TextField
-						sx={{ width: '100%' }}
-						variant="outlined"
-						type="email"
-						name="email"
-						label="Email"
-						onChange={handleChange}
-						onBlur={handleBlur}
-						error={touched.email && errors.email !== undefined && errors.email !== ''}
-						helperText={touched.email ? errors.email : ''}
-					/>
-				</Box> */}
-				{/* <Box sx={{ mt: 2 }}>
-					<FormControl component="fieldset">
-						<RadioGroup
-							row
-							name="row-radio-buttons-group"
-							onChange={handleChangeRole}
-							defaultValue="staff"
-						>
-							<FormControlLabel value="manager" control={<Radio />} label="Manager" />
-							<FormControlLabel value="staff" control={<Radio />} label="Staff" />
-						</RadioGroup>
-					</FormControl>
-				</Box> */}
 				<Box sx={{ mt: 2 }}>
 					<FormControl fullWidth>
 						<InputLabel id="demo-simple-select-label">Staff Type</InputLabel>
@@ -290,25 +211,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 						/>
 					</Box>
 					<>
-						{/* {isTestUser && ( */}
 						<>
-							{/* <Box sx={{ mt: 2 }}>
-									<TextField
-										sx={{ mb: 2, width: '100%' }}
-										variant="outlined"
-										label="Password"
-										type="text"
-										name="password"
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={
-											touched.password &&
-											errors.password !== undefined &&
-											errors.password !== ''
-										}
-										helperText={touched.password ? errors.password : ''}
-									/>
-								</Box> */}
 							<Box sx={{ mt: 2 }}>
 								<MuiPhoneNumber
 									defaultCountry={'ca'}
@@ -352,7 +255,6 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 								</FormControl>
 							</Box>
 						</>
-						{/* )} */}
 					</>
 				</LocalizationProvider>
 
@@ -374,4 +276,4 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 	);
 };
 
-export default RegisterUserForm;
+export default CreateStaffForm;
