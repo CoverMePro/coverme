@@ -38,7 +38,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		id: 'employeeType',
 		numeric: false,
 		disablePadding: false,
-		label: 'employee Type',
+		label: 'Staff Type',
 		sortable: true,
 		capitalize: true,
 	},
