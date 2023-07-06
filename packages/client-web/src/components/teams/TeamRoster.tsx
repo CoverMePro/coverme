@@ -118,18 +118,19 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 				user: userSelectedToRemove,
 			})
 				.then(() => {
-					enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
-					if (userSelectedToRemove.role === 'manager') {
-						const newManagers = managers.filter(
-							(manager) => manager.email !== userSelectedToRemove.email
-						);
-						setManagers(newManagers);
-					} else if (userSelectedToRemove.role === 'staff') {
-						const newStaff = staff.filter(
-							(staff) => staff.email !== userSelectedToRemove.email
-						);
-						setStaff(newStaff);
-					}
+					// TODO: HANDLE THIS
+					// enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
+					// if (userSelectedToRemove.role === 'manager') {
+					// 	const newManagers = managers.filter(
+					// 		(manager) => manager.email !== userSelectedToRemove.email
+					// 	);
+					// 	setManagers(newManagers);
+					// } else if (userSelectedToRemove.role === 'staff') {
+					// 	const newStaff = staff.filter(
+					// 		(staff) => staff.email !== userSelectedToRemove.email
+					// 	);
+					// 	setStaff(newStaff);
+					// }
 				})
 				.catch((err) => {
 					enqueueSnackbar('An error occured, please try again!', {
@@ -153,11 +154,12 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	};
 
 	const handleAddUserCompleted = (userAdded: IUser) => {
-		if (userAdded.role === 'manager') {
-			setManagers((prev) => [...prev, userAdded]);
-		} else if (userAdded.role === 'staff') {
-			setStaff((prev) => [...prev, userAdded]);
-		}
+		// TODO: HANDLE THIS
+		// if (userAdded.role === 'manager') {
+		// 	setManagers((prev) => [...prev, userAdded]);
+		// } else if (userAdded.role === 'staff') {
+		// 	setStaff((prev) => [...prev, userAdded]);
+		// }
 
 		setOpenAddUserToTeam(false);
 	};

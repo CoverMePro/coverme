@@ -21,8 +21,8 @@ import TeamsView from 'pages/main/TeamsView';
 import UsersView from 'pages/main/UsersView';
 import SettingsView from 'pages/main/SettingsView';
 import NotFound from 'pages/main/NotFound';
-import ShiftsView from 'pages/_deprecated/management/ShiftsView';
-import OvertimeListView from 'pages/_deprecated/overtime/OvertimeListView';
+//import ShiftsView from 'pages/_deprecated/management/ShiftsView';
+//import OvertimeListView from 'pages/_deprecated/overtime/OvertimeListView';
 import OvertimeCalloutsView from 'pages/main/OvertimeCalloutsView';
 
 import { theme } from './theme';
@@ -71,14 +71,14 @@ ReactDOM.render(
 									}
 								/>
 
-								<Route
+								{/* <Route
 									path="shift-templates"
 									element={
 										<AuthWrapper permissionLevel={1}>
 											<ShiftsView />
 										</AuthWrapper>
 									}
-								/>
+								/> */}
 								<Route
 									path="users"
 									element={
@@ -96,14 +96,14 @@ ReactDOM.render(
 									}
 								/>
 
-								<Route
+								{/* <Route
 									path="overtime/list"
 									element={
 										<AuthWrapper>
 											<OvertimeListView />
 										</AuthWrapper>
 									}
-								/>
+								/> */}
 
 								<Route
 									path="overtime/callouts"

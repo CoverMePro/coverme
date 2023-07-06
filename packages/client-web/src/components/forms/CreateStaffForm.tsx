@@ -20,7 +20,7 @@ import HowToRegIcon from '@mui/icons-material/Add';
 import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
 
 import FormCard from './FormCard';
-import { validateUserCreate } from 'utils/validations/user';
+import { validateStaffCreate } from 'utils/validations/staff';
 
 import api from 'utils/api';
 
@@ -60,7 +60,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 				employeeType: editMode ? selectedUser.employeeType : 'Full-Time',
 				contactBy: editMode ? selectedUser.contactBy : 'Phone',
 			},
-			validate: validateUserCreate,
+			validate: validateStaffCreate,
 			onSubmit: (userValues: any) => {
 				const { firstName, lastName, phone } = userValues;
 				setIsLoading(true);

@@ -49,7 +49,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		// TO DO: Handle when a shift already has a callout? - NEEDS TO TEST
 		if (selectedShift) {
 			const overtimeCallout: IOvertime = {
-				company: user.company!,
+				company: '',
 				shiftId: selectedShift.id,
 				shiftInfo: selectedShift.dateString,
 				team: selectedShift.team,
@@ -58,7 +58,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 				status: 'Pending',
 				managerNumbers: [],
 				allNotifed: false,
-				alldeclined: false
+				alldeclined: false,
 			};
 
 			setIsLoading(true);
@@ -108,7 +108,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 			.finally(() => {
 				setIsLoadingData(false);
 			});
-	}, [user.company]);
+	}, []);
 
 	return (
 		<FormCard title="Overtime Callout">
