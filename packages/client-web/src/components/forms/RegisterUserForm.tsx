@@ -15,18 +15,25 @@ import {
 } from '@mui/material';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import HowToRegIcon from '@mui/icons-material/Add';
+import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
 
 import FormCard from './FormCard';
-import { validateUserCreate } from 'utils/validations/user';
+import { validateUserCreate, validateUserEdit } from 'utils/validations/user';
 
 import api from 'utils/api';
 
 interface IRegisterUserFormProps {
+	editMode: boolean;
+	selectedUser: any;
 	onFinish: () => void;
 }
 
-const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
-	const [role, setRole] = useState<string>('Manager');
+const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
+	editMode,
+	selectedUser,
+	onFinish,
+}) => {
+	const [role, setRole] = useState<string>(editMode ? selectedUser.role : 'Manager');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [isTestUser, setIsTestUser] = useState<boolean>(false);
 
@@ -39,25 +46,23 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 	const { handleSubmit, handleChange, handleBlur, setValues, values, touched, errors } =
 		useFormik({
 			initialValues: {
-				firstName: '',
-				lastName: '',
-				email: '',
-				position: '',
-				hireDate: String(new Date()),
-				phone: '',
+				firstName: editMode ? selectedUser.firstName : '',
+				lastName: editMode ? selectedUser.lastName : '',
+				email: editMode ? selectedUser.email : '',
+				phone: editMode ? selectedUser.phone : '',
 				password: '',
 			},
-			validate: validateUserCreate,
+			validate: editMode ? validateUserEdit : validateUserCreate,
 			onSubmit: (userValues: any) => {
 				const { email, firstName, lastName, password, phone } = userValues;
 				setIsLoading(true);
-				if (isTestUser) {
-					api.post(`auth/complete-register`, {
+
+				if (editMode) {
+					api.post(`users/${selectedUser.id}`, {
 						email,
 						firstName,
 						lastName,
 						role: role,
-						password: password,
 						phone: phone,
 					})
 						.then(() => {
@@ -76,30 +81,56 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 							onFinish();
 						});
 				} else {
-					api.post(`auth/register-link`, {
-						email,
-						firstName,
-						lastName,
-						role: role,
-					})
-						.then(() => {
-							setIsLoading(false);
-							enqueueSnackbar(
-								'Success! an email has been sent out to this user to complete registration.',
-								{
-									variant: 'success',
-								}
-							);
-							onFinish();
+					if (isTestUser) {
+						api.post(`auth/complete-register`, {
+							email,
+							firstName,
+							lastName,
+							role: role,
+							password: password,
+							phone: phone,
 						})
-						.catch((err) => {
-							console.error(err);
-							setIsLoading(false);
-							enqueueSnackbar('An error has occured, please try again', {
-								variant: 'error',
+							.then(() => {
+								setIsLoading(false);
+								enqueueSnackbar('Success! User has been created', {
+									variant: 'success',
+								});
+								onFinish();
+							})
+							.catch((err) => {
+								console.error(err);
+								setIsLoading(false);
+								enqueueSnackbar('An error has occured, please try again', {
+									variant: 'error',
+								});
+								onFinish();
 							});
-							onFinish();
-						});
+					} else {
+						api.post(`auth/register-link`, {
+							email,
+							firstName,
+							lastName,
+							role: role,
+						})
+							.then(() => {
+								setIsLoading(false);
+								enqueueSnackbar(
+									'Success! an email has been sent out to this user to complete registration.',
+									{
+										variant: 'success',
+									}
+								);
+								onFinish();
+							})
+							.catch((err) => {
+								console.error(err);
+								setIsLoading(false);
+								enqueueSnackbar('An error has occured, please try again', {
+									variant: 'error',
+								});
+								onFinish();
+							});
+					}
 				}
 			},
 		});
@@ -109,11 +140,13 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 	};
 
 	return (
-		<FormCard title=" Register a User">
-			<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-				<Typography variant="body1">Test User</Typography>
-				<Checkbox value={isTestUser} onChange={handleChangeTestUser} />
-			</Box>
+		<FormCard title={editMode ? 'Edit User' : 'Register a User'}>
+			{!editMode && (
+				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+					<Typography variant="body1">Test User</Typography>
+					<Checkbox value={isTestUser} onChange={handleChangeTestUser} />
+				</Box>
+			)}
 
 			<form onSubmit={handleSubmit}>
 				<Box>
@@ -125,6 +158,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						label="Fist Name"
 						onChange={handleChange}
 						onBlur={handleBlur}
+						value={values.firstName}
 						error={
 							touched.firstName &&
 							errors.firstName !== undefined &&
@@ -141,6 +175,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						name="lastName"
 						label="Last Name"
 						onChange={handleChange}
+						value={values.lastName}
 						onBlur={handleBlur}
 						error={
 							touched.lastName &&
@@ -158,6 +193,7 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 						name="email"
 						label="Email"
 						onChange={handleChange}
+						value={values.email}
 						onBlur={handleBlur}
 						error={touched.email && errors.email !== undefined && errors.email !== ''}
 						helperText={touched.email ? errors.email : ''}
@@ -228,8 +264,12 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({ onFinish }) => {
 					{isLoading ? (
 						<CircularProgress />
 					) : (
-						<Fab color="primary" aria-label="Register User" type="submit">
-							<HowToRegIcon fontSize="large" />
+						<Fab color="primary" aria-label={'Register Staff Member'} type="submit">
+							{editMode ? (
+								<UpdateIcon fontSize="large" />
+							) : (
+								<HowToRegIcon fontSize="large" />
+							)}
 						</Fab>
 					)}
 				</Box>

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { IUser } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
+import { fbAdmin } from '../utils/admin';
 
 const getUser = (req: Request, res: Response) => {
 	const { id } = req.params;
@@ -42,11 +43,25 @@ const getUsersFromList = async (req: Request, res: Response) => {
 };
 
 const updateUser = async (req: Request, res: Response) => {
-	const { userId } = req.params;
+	const { id } = req.params;
 	let userInfo: IUser = req.body;
 
 	try {
-		await dbHandler.updateDocument('users', userId, { ...userInfo });
+		const user = await dbHandler.getDocumentById<IUser>('users', id);
+		let updateEmail = false;
+
+		if (user) {
+			updateEmail = user.email !== userInfo.email;
+		}
+
+		await dbHandler.updateDocument('users', id, { ...userInfo });
+
+		if (updateEmail) {
+			await fbAdmin.auth().updateUser(user.id, {
+				email: userInfo.email,
+			});
+		}
+
 		return res.json({ message: 'User updated successfully!' });
 	} catch (error) {
 		console.error(error);

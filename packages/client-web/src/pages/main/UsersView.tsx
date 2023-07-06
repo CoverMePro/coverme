@@ -6,7 +6,11 @@ import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import { getAddAction, getDeleteAction } from 'utils/react/table-actions-helper';
+import {
+	getAddAction,
+	getDeleteAction,
+	getEditDeleteAction,
+} from 'utils/react/table-actions-helper';
 import api from 'utils/api';
 
 import { IUser } from 'coverme-shared';
@@ -16,6 +20,7 @@ import RegisterUserForm from 'components/forms/RegisterUserForm';
 const UserView: React.FC = () => {
 	const [openAddUser, setOpenAddUser] = useState<boolean>(false);
 	const [openDeleteUser, setOpenDeleteUser] = useState<boolean>(false);
+	const [openEditUser, setOpenEditUser] = useState<boolean>(false);
 	const [isLoadingUser, setIsLoadingUser] = useState<boolean>(false);
 	const [isLoadingDeleteUser, setIsLoadingDeleteUser] = useState<boolean>(false);
 	const [deleteMessage, setDeleteMessage] = useState<string>('');
@@ -30,6 +35,10 @@ const UserView: React.FC = () => {
 		} else {
 			setSelected(staff);
 		}
+	};
+
+	const handleEditUser = () => {
+		setOpenEditUser(true);
 	};
 
 	const handleAddUser = () => {
@@ -48,6 +57,10 @@ const UserView: React.FC = () => {
 
 	const handleCloseAddUser = () => {
 		setOpenAddUser(false);
+	};
+
+	const handleCloseEditUser = () => {
+		setOpenEditUser(false);
 	};
 
 	const handleCloseDeleteUser = () => {
@@ -109,12 +122,21 @@ const UserView: React.FC = () => {
 						selected={selected}
 						onSelect={handleSelectUser}
 						unSelectedActions={getAddAction('User', handleAddUser)}
-						selectedActions={getDeleteAction('User', handleOpenDeleteUser)}
+						selectedActions={getEditDeleteAction(
+							'User',
+							handleOpenDeleteUser,
+							handleEditUser
+						)}
 					/>
-					<FormDialog open={openAddUser} onClose={handleCloseAddUser}>
+					<FormDialog
+						open={openEditUser ? true : openAddUser}
+						onClose={openEditUser ? handleCloseEditUser : handleCloseAddUser}
+					>
 						<RegisterUserForm
+							editMode={openEditUser}
+							selectedUser={getSelectedUserName(selected)}
 							onFinish={() => {
-								handleCloseAddUser();
+								openEditUser ? handleCloseEditUser() : handleCloseAddUser();
 								handleGetUsers();
 							}}
 						/>

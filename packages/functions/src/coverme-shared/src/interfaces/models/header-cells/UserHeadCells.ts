@@ -42,4 +42,12 @@ export const UserHeadCells: IHeaderCells<IUser>[] = [
 		sortable: true,
 		capitalize: true,
 	},
+	{
+		id: 'status',
+		numeric: false,
+		disablePadding: false,
+		label: 'Status',
+		sortable: true,
+		capitalize: true,
+	},
 ];
