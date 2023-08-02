@@ -23,6 +23,24 @@ const getAllStaff = async (_: Request, res: Response) => {
 	}
 };
 
+const getStaffFromList = async (req: Request, res: Response) => {
+	const staffIds = req.body.staffIds;
+
+	try {
+		const staff = await dbHandler.getCollectionWithCondition<IStaff>(
+			'staff',
+			'__name__',
+			'in',
+			staffIds
+		);
+
+		return res.json({ staff });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 const updateStaff = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	let staffInfo: IStaff = req.body;
@@ -75,6 +93,7 @@ const deleteStaff = async (req: Request, res: Response) => {
 export default {
 	getStaff,
 	getAllStaff,
+	getStaffFromList,
 	createStaff,
 	updateStaff,
 	checkStaff,

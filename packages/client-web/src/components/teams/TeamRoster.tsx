@@ -58,25 +58,32 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		if (isExpanded && !hasLoaded) {
 			setLoadingManagers([...team.managers]);
 			setLoadingStaff([...team.staff]);
-			const emails = [...team.managers, ...team.staff];
-			if (emails.length > 0) {
-				api.postGetData(`users`, {
-					emails,
+			const managerIds = [...team.managers];
+			const staffIds = [...team.staff];
+
+			const managerGet = api.postGetData(`users`, {
+				userIds: managerIds,
+			});
+
+			const staffGet = api.postGetData(`staff/list`, {
+				staffIds,
+			});
+
+			Promise.all([managerGet, staffGet])
+				.then((results) => {
+					const managers = results[0];
+					const staff = results[1];
+					setManagers(managers);
+					setStaff(staff);
+					setHasLoaded(true);
 				})
-					.then((result) => {
-						const { managers, staff } = result;
-						setManagers(managers);
-						setStaff(staff);
-						setHasLoaded(true);
-					})
-					.catch((err) => {
-						console.error(err);
-					})
-					.finally(() => {
-						setLoadingManagers([]);
-						setLoadingStaff([]);
-					});
-			}
+				.catch((err) => {
+					console.error(err);
+				})
+				.finally(() => {
+					setLoadingManagers([]);
+					setLoadingStaff([]);
+				});
 		}
 	};
 

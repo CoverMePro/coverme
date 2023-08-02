@@ -25,14 +25,14 @@ const getAllUsers = async (_: Request, res: Response) => {
 };
 
 const getUsersFromList = async (req: Request, res: Response) => {
-	const userEmails = req.body.emails;
+	const userIds = req.body.userIds;
 
 	try {
 		const users = await dbHandler.getCollectionWithCondition<IUser>(
 			'users',
 			'__name__',
 			'in',
-			userEmails
+			userIds
 		);
 
 		return res.json({ users });
