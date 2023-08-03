@@ -93,15 +93,19 @@ const Notifications: React.FC<INotificationsProps> = ({
 
 	const handleOpenNotifications = () => {
 		const unseenNotIds: string[] = [];
-		notifications.forEach(not => {
-			if (not.usersSeen === undefined || not.usersSeen === null || (not.usersSeen && not.usersSeen.findIndex(id => id === user.id) === -1)) {
+		notifications.forEach((not) => {
+			if (
+				not.usersSeen === undefined ||
+				not.usersSeen === null ||
+				(not.usersSeen && not.usersSeen.findIndex((id) => id === user.id) === -1)
+			) {
 				unseenNotIds.push(not.id!);
 			}
 		});
 
 		onOpen(unseenNotIds);
 		setOpenNotifications(true);
-	}
+	};
 
 	const getUnseenNotifications = () => {
 		if (notifications === undefined || notifications === null || notifications.length === 0) {
@@ -110,8 +114,12 @@ const Notifications: React.FC<INotificationsProps> = ({
 
 		let unseen = 0;
 
-		notifications.forEach(not => {
-			if (not.usersSeen === undefined || not.usersSeen === null || (not.usersSeen && not.usersSeen.findIndex(id => id === user.id) === -1)) {
+		notifications.forEach((not) => {
+			if (
+				not.usersSeen === undefined ||
+				not.usersSeen === null ||
+				(not.usersSeen && not.usersSeen.findIndex((id) => id === user.id) === -1)
+			) {
 				unseen++;
 			}
 		});
@@ -119,7 +127,7 @@ const Notifications: React.FC<INotificationsProps> = ({
 		console.log(unseen);
 
 		return unseen;
-	}
+	};
 
 	return (
 		<>

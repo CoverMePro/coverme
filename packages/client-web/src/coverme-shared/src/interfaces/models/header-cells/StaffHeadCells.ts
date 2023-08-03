@@ -74,4 +74,12 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 	// 	sortable: true,
 	// 	capitalize: true,
 	// },
+	{
+		id: 'lastCalledOut',
+		numeric: false,
+		disablePadding: false,
+		label: 'Last Called Out',
+		sortable: false,
+		capitalize: true,
+	},
 ];

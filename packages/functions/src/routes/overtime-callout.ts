@@ -10,6 +10,8 @@ router.get('/test', authGuard, overtimeCalloutController.testCycleCallout);
 
 router.get('/list', authGuard, overtimeCalloutController.getCompanyOvertimeCalloutList);
 
+router.get('/staffList', authGuard, overtimeCalloutController.getCompanyOvertimeCalloutStaffList);
+
 router.get('/:id/:user/info', overtimeCalloutController.getOvertimeCalloutInfo);
 
 router.post('/accept', overtimeCalloutController.acceptCalloutShift);

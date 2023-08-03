@@ -35,6 +35,7 @@ const createMessage = async (req: Request, res: Response) => {
 			messageType: NotificationType.MESSAGE,
 			messageBody: `A new message has been posted by ${incomingMessage.userName}`,
 			usersNotified: [...userIds],
+			usersSeen: [],
 		};
 
 		dbHandler.addDocument<INotification>('notifications', notification);
