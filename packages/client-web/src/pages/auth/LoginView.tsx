@@ -54,9 +54,6 @@ const LoginView: React.FC = () => {
 				.then((result) => {
 					const userData: IUser = result.userInfo;
 					const companyData: ICompany = result.companyInfo;
-
-					console.log(companyData);
-
 					setUser(userData);
 					setCompany(companyData);
 					setIsLoggingIn(false);
@@ -76,7 +73,6 @@ const LoginView: React.FC = () => {
 	useEffect(() => {
 		api.authCheck()
 			.then((userResult) => {
-				console.log(userResult);
 				setUser(userResult.userInfo);
 				setCompany(userResult.companyInfo);
 				navigate('/portal');

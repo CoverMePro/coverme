@@ -3,8 +3,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 //import { getMessaging } from 'firebase/messaging';
 
-console.log(process.env);
-
 const config = {
 	apiKey: `${process.env.FB_API_KEY}`,
 	authDomain: `${process.env.FB_AUTH_DOMNAIN}`,

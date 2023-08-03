@@ -28,12 +28,16 @@ const getUsersFromList = async (req: Request, res: Response) => {
 	const userIds = req.body.userIds;
 
 	try {
-		const users = await dbHandler.getCollectionWithCondition<IUser>(
-			'users',
-			'__name__',
-			'in',
-			userIds
-		);
+		let users: IUser[] = [];
+
+		if (userIds.length > 0) {
+			users = await dbHandler.getCollectionWithCondition<IUser>(
+				'users',
+				'__name__',
+				'in',
+				userIds
+			);
+		}
 
 		return res.json({ users });
 	} catch (error) {

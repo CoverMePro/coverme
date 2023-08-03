@@ -13,48 +13,60 @@ import {
 
 import api from 'utils/api';
 
-import { IUser } from 'coverme-shared';
+import { IStaff, IUser } from 'coverme-shared';
 
 interface IAddUserDialogProps {
 	open: boolean;
 	teamName: string;
-	usersToAdd: IUser[];
-	onAddComplete: (user: IUser) => void;
+	membersToAdd: IUser[] | IStaff[];
+	onAddComplete: (data: IUser | IStaff, isStaff: boolean) => void;
 	onDialogClose: () => void;
+	isStaff: boolean;
 }
 
 const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
 	open,
 	teamName,
-	usersToAdd,
+	membersToAdd,
 	onAddComplete,
 	onDialogClose,
+	isStaff,
 }) => {
-	const [userSelectedToAdd, setUserSelectedToAdd] = useState<IUser | undefined>(undefined);
+	const [memberSelectedToAdd, setMemberSelectedToAdd] = useState<IUser | IStaff | undefined>(
+		undefined
+	);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const handleSelectUserToAdd = (selectUser: IUser | null) => {
-		if (selectUser) {
-			setUserSelectedToAdd(selectUser);
+	const handleSelectUserToAdd = (selectMember: IUser | IStaff | null) => {
+		if (selectMember) {
+			setMemberSelectedToAdd(selectMember);
 		} else {
-			setUserSelectedToAdd(undefined);
+			setMemberSelectedToAdd(undefined);
 		}
 	};
 
 	const handleAddUserToTeam = () => {
 		setIsLoading(true);
-		if (userSelectedToAdd) {
-			api.post(`teams/${teamName}/add-user`, {
-				user: userSelectedToAdd,
-			})
+		if (memberSelectedToAdd) {
+			let apiCall;
+			if (isStaff) {
+				apiCall = api.post(`teams/${teamName}/add-staff`, {
+					staff: memberSelectedToAdd,
+				});
+			} else {
+				apiCall = api.post(`teams/${teamName}/add-user`, {
+					user: memberSelectedToAdd,
+				});
+			}
+			apiCall
 				.then(() => {
 					enqueueSnackbar(`User added to ${teamName}`, {
 						variant: 'success',
 					});
 
-					onAddComplete(userSelectedToAdd);
+					onAddComplete(memberSelectedToAdd, isStaff);
 				})
 				.catch((err) => {
 					enqueueSnackbar('An error occured, please try again!', {
@@ -72,12 +84,12 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
 
 	return (
 		<Dialog open={open} onClose={onDialogClose}>
-			<DialogTitle>Add User to {teamName}</DialogTitle>
+			<DialogTitle>Add to {teamName}</DialogTitle>
 			<DialogContent>
 				<Autocomplete
 					sx={{ mt: 2 }}
 					disablePortal
-					options={usersToAdd}
+					options={membersToAdd as any[]}
 					getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
 					onChange={(e, val) => {
 						handleSelectUserToAdd(val);

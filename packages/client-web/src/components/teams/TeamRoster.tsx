@@ -14,6 +14,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import SkeletonTeamList from './SkeletonTeamList';
 
 import TeamList from './TeamList';
@@ -22,7 +23,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import AddUserToTeamDialog from 'components/dialogs/AddUserToTeamDialog';
 import api from 'utils/api';
 
-import { ITeam, IUser } from 'coverme-shared';
+import { IStaff, ITeam, IUser } from 'coverme-shared';
 
 interface ITeamRosterProps {
 	team: ITeam;
@@ -33,8 +34,8 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const [loadingManagers, setLoadingManagers] = useState<string[]>([]);
 	const [loadingStaff, setLoadingStaff] = useState<string[]>([]);
 	const [managers, setManagers] = useState<IUser[]>([]);
-	const [staff, setStaff] = useState<IUser[]>([]);
-	const [usersToAdd, setUsersToAdd] = useState<IUser[]>([]);
+	const [staff, setStaff] = useState<IStaff[]>([]);
+	const [teamMembersToAdd, setTeamMembersToAdd] = useState<IUser[] | IStaff[]>([]);
 
 	const [expanded, setExpanded] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -42,9 +43,13 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 	const [openAddUserToTeam, setOpenAddUserToTeam] = useState<boolean>(false);
 
+	const [openAddStaffToTeam, setOpenAddStaffToTeam] = useState<boolean>(false);
+
 	const [openRemoveUser, setOpenRemoveUser] = useState<boolean>(false);
 	const [removeUserMessage, setRemoveUserMessage] = useState<string>('');
-	const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | undefined>(undefined);
+	const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | IStaff | undefined>(
+		undefined
+	);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -71,8 +76,9 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 			Promise.all([managerGet, staffGet])
 				.then((results) => {
-					const managers = results[0];
-					const staff = results[1];
+					console.log(results);
+					const managers = results[0].users;
+					const staff = results[1].staff;
 					setManagers(managers);
 					setStaff(staff);
 					setHasLoaded(true);
@@ -92,7 +98,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	};
 
 	const handleOpenAddUserToTeam = () => {
-		setUsersToAdd([]);
+		setTeamMembersToAdd([]);
 		api.getAllData<IUser>(`users`)
 			.then((retreivedUsers) => {
 				const users = retreivedUsers;
@@ -101,7 +107,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 					return !user.teams || !hasTeam(user.teams);
 				});
 
-				setUsersToAdd(availableUsers);
+				setTeamMembersToAdd(availableUsers);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -110,7 +116,26 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		setOpenAddUserToTeam(true);
 	};
 
-	const handleOpenRemoveUser = (user: IUser) => {
+	const handleOpenAddStaffToTeam = () => {
+		setTeamMembersToAdd([]);
+		api.getAllData<IStaff>(`staff`)
+			.then((retreivedUsers) => {
+				const staff = retreivedUsers;
+
+				const availableStaff = staff.filter((s) => {
+					return !s.teams || !hasTeam(s.teams);
+				});
+
+				setTeamMembersToAdd(availableStaff);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+
+		setOpenAddStaffToTeam(true);
+	};
+
+	const handleOpenRemoveUser = (user: IUser | IStaff) => {
 		setUserSelectedToRemove(user);
 		setRemoveUserMessage(
 			`Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${team.id}`
@@ -121,34 +146,51 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const handleRemoveUserFromTeam = () => {
 		setIsLoading(true);
 		if (userSelectedToRemove) {
-			api.post(`teams/${team.id}/remove-user`, {
-				user: userSelectedToRemove,
-			})
-				.then(() => {
-					// TODO: HANDLE THIS
-					// enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
-					// if (userSelectedToRemove.role === 'manager') {
-					// 	const newManagers = managers.filter(
-					// 		(manager) => manager.email !== userSelectedToRemove.email
-					// 	);
-					// 	setManagers(newManagers);
-					// } else if (userSelectedToRemove.role === 'staff') {
-					// 	const newStaff = staff.filter(
-					// 		(staff) => staff.email !== userSelectedToRemove.email
-					// 	);
-					// 	setStaff(newStaff);
-					// }
+			if ('email' in userSelectedToRemove) {
+				api.post(`teams/${team.id}/remove-user`, {
+					user: userSelectedToRemove,
 				})
-				.catch((err) => {
-					enqueueSnackbar('An error occured, please try again!', {
-						variant: 'error',
+					.then(() => {
+						enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
+
+						const newManagers = managers.filter(
+							(manager) => manager.email !== userSelectedToRemove.email
+						);
+						setManagers(newManagers);
+					})
+					.catch((err) => {
+						enqueueSnackbar('An error occured, please try again!', {
+							variant: 'error',
+						});
+						console.error(err);
+					})
+					.finally(() => {
+						setIsLoading(false);
+						handleCloseRemoveUser();
 					});
-					console.error(err);
+			} else {
+				api.post(`teams/${team.id}/remove-staff`, {
+					staff: userSelectedToRemove,
 				})
-				.finally(() => {
-					setIsLoading(false);
-					handleCloseRemoveUser();
-				});
+					.then(() => {
+						enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
+						const newStaff = staff.filter(
+							(staff) => staff.id !== userSelectedToRemove.id
+						);
+
+						setStaff(newStaff);
+					})
+					.catch((err) => {
+						enqueueSnackbar('An error occured, please try again!', {
+							variant: 'error',
+						});
+						console.error(err);
+					})
+					.finally(() => {
+						setIsLoading(false);
+						handleCloseRemoveUser();
+					});
+			}
 		}
 	};
 
@@ -156,19 +198,30 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		setOpenAddUserToTeam(false);
 	};
 
+	const handleCloseAddStaffToTeam = () => {
+		setOpenAddStaffToTeam(false);
+	};
+
 	const handleCloseRemoveUser = () => {
 		setOpenRemoveUser(false);
 	};
 
-	const handleAddUserCompleted = (userAdded: IUser) => {
-		// TODO: HANDLE THIS
-		// if (userAdded.role === 'manager') {
-		// 	setManagers((prev) => [...prev, userAdded]);
-		// } else if (userAdded.role === 'staff') {
-		// 	setStaff((prev) => [...prev, userAdded]);
-		// }
+	const handleAddTeamMemberComplete = (data: any, isStaff: boolean) => {
+		if (isStaff) {
+			handleAddStaffCompleted(data as IStaff);
+		} else {
+			handleAddUserCompleted(data as IUser);
+		}
+	};
 
+	const handleAddUserCompleted = (userAdded: IUser) => {
+		setManagers((prev) => [...prev, userAdded]);
 		setOpenAddUserToTeam(false);
+	};
+
+	const handleAddStaffCompleted = (userAdded: IStaff) => {
+		setStaff((prev) => [...prev, userAdded]);
+		setOpenAddStaffToTeam(false);
 	};
 
 	return (
@@ -192,7 +245,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 							{loadingManagers.length > 0 ? (
 								<SkeletonTeamList loadingStaff={loadingManagers} />
 							) : (
-								<TeamList staff={managers} onRemoveUser={handleOpenRemoveUser} />
+								<TeamList members={managers} onRemoveUser={handleOpenRemoveUser} />
 							)}
 						</List>
 					</Box>
@@ -203,16 +256,21 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 							{loadingStaff.length > 0 ? (
 								<SkeletonTeamList loadingStaff={loadingStaff} />
 							) : (
-								<TeamList staff={staff} onRemoveUser={handleOpenRemoveUser} />
+								<TeamList members={staff} onRemoveUser={handleOpenRemoveUser} />
 							)}
 						</List>
 					</Box>
 				</AccordionDetails>
 				<PermissionCheck permissionLevel={2}>
 					<AccordionActions>
-						<Tooltip title="Add To Team">
+						<Tooltip title="Add Manager">
 							<IconButton size="large" onClick={handleOpenAddUserToTeam}>
 								<PersonAddIcon color="primary" fontSize="large" />
+							</IconButton>
+						</Tooltip>
+						<Tooltip title="Add Staff">
+							<IconButton size="large" onClick={handleOpenAddStaffToTeam}>
+								<GroupAddIcon color="primary" fontSize="large" />
 							</IconButton>
 						</Tooltip>
 						<Tooltip title="Delete Team">
@@ -226,9 +284,18 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 			<AddUserToTeamDialog
 				open={openAddUserToTeam}
 				teamName={team.id}
-				usersToAdd={usersToAdd}
+				membersToAdd={teamMembersToAdd}
 				onDialogClose={handleCloseAddUserToTeam}
-				onAddComplete={handleAddUserCompleted}
+				onAddComplete={handleAddTeamMemberComplete}
+				isStaff={false}
+			/>
+			<AddUserToTeamDialog
+				open={openAddStaffToTeam}
+				teamName={team.id}
+				membersToAdd={teamMembersToAdd}
+				onDialogClose={handleCloseAddStaffToTeam}
+				onAddComplete={handleAddTeamMemberComplete}
+				isStaff={true}
 			/>
 			<DeleteConfirmation
 				open={openRemoveUser}

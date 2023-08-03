@@ -27,12 +27,16 @@ const getStaffFromList = async (req: Request, res: Response) => {
 	const staffIds = req.body.staffIds;
 
 	try {
-		const staff = await dbHandler.getCollectionWithCondition<IStaff>(
-			'staff',
-			'__name__',
-			'in',
-			staffIds
-		);
+		let staff: IStaff[] = [];
+
+		if (staffIds.length > 0) {
+			staff = await dbHandler.getCollectionWithCondition<IStaff>(
+				'staff',
+				'__name__',
+				'in',
+				staffIds
+			);
+		}
 
 		return res.json({ staff });
 	} catch (error) {

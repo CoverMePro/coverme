@@ -9,4 +9,5 @@ export interface IStaff {
 	contactBy: String;
 	hireDateDisplay?: string;
 	lastCalledOut?: any;
+	teams: string[];
 }

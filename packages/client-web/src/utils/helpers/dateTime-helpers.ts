@@ -22,8 +22,5 @@ export const getEndDate = (startDate: Date, duration: string) => {
 
 	endDate.setTime(endDate.getTime() + hours * 60 * 60 * 1000 + mins * 60 * 1000);
 
-	console.log(startDate);
-	console.log(endDate);
-
 	return endDate;
 };
