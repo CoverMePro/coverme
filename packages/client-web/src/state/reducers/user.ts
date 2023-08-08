@@ -3,28 +3,25 @@ import { ActionType } from 'state/action-types';
 import { Action } from 'state/actions';
 
 const initialState: IUser = {
-    id: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    role: '',
-    company: '',
-    hireDate: new Date(),
-    employeeType: 'Full-Time',
-    status: 'Active',
-    teams: [],
+	id: '',
+	email: '',
+	firstName: '',
+	lastName: '',
+	phone: '',
+	role: 'Manager',
+	status: 'Active',
+	teams: [],
 };
 
 const reducer = (state: IUser = initialState, action: Action): IUser => {
-    switch (action.type) {
-        case ActionType.SET_USER: {
-            return { ...action.payload.user };
-        }
+	switch (action.type) {
+		case ActionType.SET_USER: {
+			return { ...action.payload.user };
+		}
 
-        default:
-            return state;
-    }
+		default:
+			return state;
+	}
 };
 
 export default reducer;

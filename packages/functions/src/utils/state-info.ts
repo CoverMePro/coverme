@@ -23,8 +23,6 @@ export const gatherInfo = async (userId: string) => {
 			});
 		});
 
-		userInfo.reportTo = managers;
-
 		return {
 			userInfo,
 			companyInfo,

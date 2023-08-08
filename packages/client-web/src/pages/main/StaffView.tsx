@@ -80,7 +80,7 @@ const StaffView: React.FC = () => {
 
 	const handleConfirmDeleteStaff = () => {
 		setIsLoadingDeleteStaff(true);
-		api.get(`auth/delete/${selected}`)
+		api.get(`staff/delete/${selected}`)
 			.then(() => {
 				enqueueSnackbar('Staff member successfully deleted', { variant: 'success' });
 				setSelected(undefined);

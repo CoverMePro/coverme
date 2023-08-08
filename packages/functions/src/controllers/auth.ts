@@ -37,7 +37,7 @@ const registerUser = async (req: Request, res: Response) => {
 			{
 				path: 'users',
 				id: userUID,
-				data: user,
+				data: userData,
 			},
 			{
 				path: 'users',
@@ -55,9 +55,7 @@ const registerUser = async (req: Request, res: Response) => {
 };
 
 const completeRegisterUser = async (req: Request, res: Response) => {
-	const { email, password, firstName, lastName, employeeType, role, hireDate, phone } = req.body;
-
-	const newHiredate = new Date(new Date(hireDate as Date).setHours(0, 0, 0, 0));
+	const { email, password, firstName, lastName, role, phone } = req.body;
 
 	try {
 		const authData = await createUserWithEmailAndPassword(fbAuth, email, password);
@@ -66,9 +64,7 @@ const completeRegisterUser = async (req: Request, res: Response) => {
 			email,
 			firstName,
 			lastName,
-			employeeType,
 			role,
-			hireDate: newHiredate,
 			phone,
 			status: 'Active',
 		});
@@ -90,11 +86,9 @@ const completeRegisterUser = async (req: Request, res: Response) => {
 const sendRegisterLink = async (req: Request, res: Response) => {
 	const userInfo: IUser = req.body;
 
-	const newHiredate = new Date(new Date(userInfo.hireDate as Date).setHours(0, 0, 0, 0));
-
 	try {
 		await emailSignInForUser(fbAuth, userInfo.email);
-		await updateNewUserIntoDb(userInfo, newHiredate);
+		await updateNewUserIntoDb(userInfo);
 
 		return res.json({ message: 'Email link successful', email: userInfo.email });
 	} catch (error) {
@@ -105,7 +99,7 @@ const sendRegisterLink = async (req: Request, res: Response) => {
 
 const registerCallback = (req: Request, res: Response) => {
 	const { email } = req.query;
-	return res.redirect(`${process.env.WEB_CLIENT_DOMAIN}/register?email=${email}`);
+	return res.redirect(`${process.env.LOCAL_CLIENT_DOMAIN}/register?email=${email}`);
 };
 
 const signIn = async (req: Request, res: Response) => {

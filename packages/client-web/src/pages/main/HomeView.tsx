@@ -46,7 +46,7 @@ const HomeView: React.FC = () => {
 				<NavCard
 					icon={<GroupsIcon fontSize="inherit" color="secondary" />}
 					title="Users"
-					path="staff"
+					path="users"
 				/>
 				<NavCard
 					icon={<SettingsIcon fontSize="inherit" color="secondary" />}

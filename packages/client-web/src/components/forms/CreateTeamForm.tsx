@@ -92,18 +92,17 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	};
 
 	useEffect(() => {
-		api.getAllData<IUser>(`users`)
-			.then((users) => {
-				const retrievedManagers = users.filter((user) => user.role === 'manager');
-				const retreivedStaff = users.filter((user) => user.role === 'staff');
-
-				setManagers(retrievedManagers);
-				setStaff(retreivedStaff);
-			})
-			.catch((err) => {
-				console.error(err);
-			});
-	}, [user.company]);
+		// api.getAllData<IUser>(`users`)
+		// 	.then((users) => {
+		// 		const retrievedManagers = users.filter((user) => user.role === 'manager');
+		// 		const retreivedStaff = users.filter((user) => user.role === 'staff');
+		// 		setManagers(retrievedManagers);
+		// 		setStaff(retreivedStaff);
+		// 	})
+		// 	.catch((err) => {
+		// 		console.error(err);
+		// 	});
+	}, []);
 
 	return (
 		<Box

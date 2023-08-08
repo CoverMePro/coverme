@@ -60,6 +60,17 @@ const checkStaff = async (req: Request, res: Response) => {
 		return res.status(500).json({ error: error });
 	}
 };
+const deleteStaff = async (req: Request, res: Response) => {
+	const id = req.params.id;
+	try {
+		await dbHandler.deleteDocument('staff', id);
+
+		return res.json({ message: 'staff member successfully deleted' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
 
 export default {
 	getStaff,
@@ -67,4 +78,5 @@ export default {
 	createStaff,
 	updateStaff,
 	checkStaff,
+	deleteStaff,
 };

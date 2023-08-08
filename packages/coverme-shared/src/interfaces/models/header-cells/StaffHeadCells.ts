@@ -2,14 +2,6 @@ import { IStaff } from '../Staff';
 import { IHeaderCells } from './HeaderCells';
 
 export const StaffHeadCells: IHeaderCells<IStaff>[] = [
-	// {
-	// 	id: 'email',
-	// 	numeric: false,
-	// 	disablePadding: false,
-	// 	capitalize: false,
-	// 	sortable: true,
-	// 	label: 'Email',
-	// },
 	{
 		id: 'firstName',
 		numeric: false,
@@ -26,19 +18,11 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		sortable: true,
 		capitalize: true,
 	},
-	// {
-	// 	id: 'role',
-	// 	numeric: false,
-	// 	disablePadding: false,
-	// 	label: 'Role',
-	// 	sortable: true,
-	// 	capitalize: true,
-	// },
 	{
 		id: 'employeeType',
 		numeric: false,
 		disablePadding: false,
-		label: 'employee Type',
+		label: 'Staff Type',
 		sortable: true,
 		capitalize: true,
 	},

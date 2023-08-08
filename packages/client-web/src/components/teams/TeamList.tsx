@@ -41,7 +41,6 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
 					<ListItemText
 						sx={{ width: '100%' }}
 						primary={`${user.firstName} ${user.lastName}`}
-						secondary={user.employeeType}
 					/>
 					<ListItemText
 						sx={{ width: '50%', textAlign: 'left' }}

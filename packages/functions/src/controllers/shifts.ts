@@ -2,15 +2,11 @@ import { Request, Response } from 'express';
 import {
 	INotification,
 	NotificationType,
-	IScheduleStaff,
 	IShift,
 	IShiftTemplate,
 	IShiftRotation,
 	IShiftRotationTransaction,
 	IShiftTransaction,
-	ITeam,
-	ITimeOff,
-	IUser,
 } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getShiftDataDateRange, getShiftDataTodayOnward } from '../db/db-helpers';
@@ -18,53 +14,55 @@ import { getBatch } from '../db/batch-handler';
 import { sendNotificationSms } from '../utils/sms';
 
 const getShiftsAndStaffFromCompany = async (req: Request, res: Response) => {
-	try {
-		const users = await dbHandler.getCollection<IUser>('users');
+	// try {
+	// 	const users = await dbHandler.getCollection<IUser>('users');
 
-		const staff: IScheduleStaff[] = [];
+	// 	const staff: IScheduleStaff[] = [];
 
-		users.forEach((user) => {
-			staff.push({
-				id: 'unclaimed',
-				teams: [],
-				userId: 'unclaimed',
-				userName: 'unassigned',
-				title: 'unassigned',
-				employeeType: 'unassigned',
-			});
-			if (user.role === 'staff') {
-				staff.push({
-					id: user.id,
-					teams: user.teams ? user.teams : [],
-					userId: user.id,
-					userName: `${user.firstName} ${user.lastName}`,
-					title: `${user.firstName} ${user.lastName}`,
-					employeeType: user.employeeType,
-				});
-			}
-		});
+	// 	users.forEach((user) => {
+	// 		staff.push({
+	// 			id: 'unclaimed',
+	// 			teams: [],
+	// 			userId: 'unclaimed',
+	// 			userName: 'unassigned',
+	// 			title: 'unassigned',
+	// 			employeeType: 'unassigned',
+	// 		});
+	// 		if (user.role === 'staff') {
+	// 			staff.push({
+	// 				id: user.id,
+	// 				teams: user.teams ? user.teams : [],
+	// 				userId: user.id,
+	// 				userName: `${user.firstName} ${user.lastName}`,
+	// 				title: `${user.firstName} ${user.lastName}`,
+	// 				employeeType: user.employeeType,
+	// 			});
+	// 		}
+	// 	});
 
-		const [teams, shifts, timeOff, shiftTemplates, shiftRotations] =
-			await dbHandler.getMultipleCollections([
-				dbHandler.getCollection<ITeam>('teams'),
-				dbHandler.getCollection<IShift>('shifts'),
-				dbHandler.getCollection<ITimeOff>('time-off'),
-				dbHandler.getCollection<IShiftTemplate>('shift-templates'),
-				dbHandler.getCollection<IShiftRotation>('shift-rotations'),
-			]);
+	// 	const [teams, shifts, timeOff, shiftTemplates, shiftRotations] =
+	// 		await dbHandler.getMultipleCollections([
+	// 			dbHandler.getCollection<ITeam>('teams'),
+	// 			dbHandler.getCollection<IShift>('shifts'),
+	// 			dbHandler.getCollection<ITimeOff>('time-off'),
+	// 			dbHandler.getCollection<IShiftTemplate>('shift-templates'),
+	// 			dbHandler.getCollection<IShiftRotation>('shift-rotations'),
+	// 		]);
 
-		return res.json({
-			staff: staff,
-			shifts: shifts,
-			teams: teams,
-			timeOff: timeOff,
-			shiftDefs: shiftTemplates,
-			rotations: shiftRotations,
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: error });
-	}
+	// 	return res.json({
+	// 		staff: staff,
+	// 		shifts: shifts,
+	// 		teams: teams,
+	// 		timeOff: timeOff,
+	// 		shiftDefs: shiftTemplates,
+	// 		rotations: shiftRotations,
+	// 	});
+	// } catch (error) {
+	// 	console.error(error);
+	// 	return res.status(500).json({ error: error });
+	// }
+
+	return res.status(500).json({ error: 'Needs to be implemented' });
 };
 
 const getEndDate = (startDate: Date, duration: string) => {
@@ -269,7 +267,7 @@ const transactionShifts = async (req: Request, res: Response) => {
 			messageType: NotificationType.SHIFT,
 			messageBody: 'Your schedule has changed, please view the calendar.',
 			usersNotified: newNotifiedUsers,
-			usersSeen: []
+			usersSeen: [],
 		};
 		const bodyTemplate = `Hello from Cover Me Pro,\n\n Your schedule has changed, please view the calendar on the Cover Me app`;
 

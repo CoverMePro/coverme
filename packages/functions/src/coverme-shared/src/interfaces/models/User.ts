@@ -1,23 +1,19 @@
-import { EmployeeType, UserStatus } from '../../types';
+import { UserStatus } from '../../types';
 
 export interface IUserLogin {
-    email: string;
-    password: string;
+	email: string;
+	password: string;
 }
 
+export type Role = 'Admin' | 'Manager';
+
 export interface IUser {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    role: string;
-    employeeType: EmployeeType;
-    company: string;
-    hireDate: Date;
-    status: UserStatus;
-    teams: string[];
-    hireDateDisplay?: string;
-    lastCalledOut?: any;
-    reportTo?: string[];
+	id: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	phone: string;
+	role: Role;
+	status: UserStatus;
+	teams: string[];
 }

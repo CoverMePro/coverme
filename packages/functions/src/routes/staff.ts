@@ -7,6 +7,7 @@ const router: Router = express.Router();
 router.get('/', authGuard, staffController.getAllStaff);
 router.get('/check/:id', authGuard, staffController.checkStaff);
 router.get('/:id', authGuard, staffController.getStaff);
+router.get('/delete/:id', staffController.deleteStaff);
 
 router.post('/', authGuard, staffController.createStaff);
 router.post('/:id', authGuard, staffController.updateStaff);
