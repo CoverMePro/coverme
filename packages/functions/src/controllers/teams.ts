@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ITeam, IUser } from 'coverme-shared';
+import { IStaff, ITeam, IUser } from 'coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getBatch } from '../db/batch-handler';
 
@@ -80,6 +80,13 @@ const deleteTeam = async (req: Request, res: Response) => {
 			'array-contains',
 			name
 		);
+
+		const staff = await dbHandler.getCollectionWithCondition<IUser>(
+			'staff',
+			'teams',
+			'array-contains',
+			name
+		);
 		const batch = getBatch();
 
 		users.forEach(async (user) => {
@@ -88,6 +95,14 @@ const deleteTeam = async (req: Request, res: Response) => {
 			const teams = user.teams.filter((t: any) => t != name);
 
 			batch.update(userDoc, { teams: teams });
+		});
+
+		staff.forEach(async (s) => {
+			const staffDoc = dbHandler.getDocumentSnapshot(`staff/${s.id}`);
+
+			const teams = s.teams.filter((t: any) => t != name);
+
+			batch.update(staffDoc, { teams: teams });
 		});
 
 		await batch.commit();
@@ -106,11 +121,7 @@ const addUserToTeam = async (req: Request, res: Response) => {
 	try {
 		const team = await dbHandler.getDocumentById<ITeam>('teams', name);
 
-		if (user.role === 'manager') {
-			team.managers.push(user.id);
-		} else {
-			team.staff.push(user.id);
-		}
+		team.managers.push(user.id);
 
 		const teamData: any = {
 			...team,
@@ -139,6 +150,42 @@ const addUserToTeam = async (req: Request, res: Response) => {
 	}
 };
 
+const addStaffToTeam = async (req: Request, res: Response) => {
+	const { name } = req.params;
+	const staff = req.body.staff;
+
+	try {
+		const team = await dbHandler.getDocumentById<ITeam>('teams', name);
+
+		team.staff.push(staff.id);
+
+		const teamData: any = {
+			...team,
+		};
+
+		delete teamData.name;
+
+		await dbHandler.setDocument('teams', name, teamData);
+
+		const staffData: any = await dbHandler.getDocumentById<IStaff>('staff', staff.id);
+
+		delete staffData.id;
+
+		if (staffData.teams) {
+			staffData.teams.push(name);
+		} else {
+			staffData.teams = [name];
+		}
+
+		await dbHandler.setDocument('staff', staff.id, staffData);
+
+		return res.json({ message: 'staff member added to team!' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 const removeUserFromTeam = async (req: Request, res: Response) => {
 	const { name } = req.params;
 	const user = req.body.user;
@@ -147,15 +194,10 @@ const removeUserFromTeam = async (req: Request, res: Response) => {
 		const team = await dbHandler.getDocumentById<ITeam>('teams', name);
 
 		let newTeams: string[] = [];
-		if (user.role === 'manager') {
-			newTeams = team.managers.filter((manager: string) => manager !== user.id);
 
-			team.managers = newTeams;
-		} else {
-			newTeams = team.staff.filter((staff: string) => staff !== user.id);
+		newTeams = team.managers.filter((manager: string) => manager !== user.id);
 
-			team.staff = newTeams;
-		}
+		team.managers = newTeams;
 
 		const teamData: any = {
 			...team,
@@ -184,10 +226,52 @@ const removeUserFromTeam = async (req: Request, res: Response) => {
 	}
 };
 
+const removeStaffFromTeam = async (req: Request, res: Response) => {
+	const { name } = req.params;
+	const staff = req.body.staff;
+
+	try {
+		const team = await dbHandler.getDocumentById<ITeam>('teams', name);
+
+		let newTeams: string[] = [];
+
+		newTeams = team.staff.filter((s: string) => s !== staff.id);
+
+		team.staff = newTeams;
+
+		const teamData: any = {
+			...team,
+		};
+
+		delete teamData.name;
+
+		await dbHandler.setDocument('teams', name, teamData);
+
+		const staffData: any = await dbHandler.getDocumentById<IStaff>('staff', staff.id);
+
+		delete staffData.id;
+
+		if (staffData.teams) {
+			const newTeams = staffData.teams.filter((team: string) => team !== name);
+
+			staffData.teams = newTeams;
+		}
+
+		await dbHandler.setDocument('staff', staff.id, staffData);
+
+		return res.json({ message: 'staff removed from team!' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 export default {
 	createTeam,
 	getAllTeams,
 	deleteTeam,
 	addUserToTeam,
+	addStaffToTeam,
 	removeUserFromTeam,
+	removeStaffFromTeam,
 };

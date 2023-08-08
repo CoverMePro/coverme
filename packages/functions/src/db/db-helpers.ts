@@ -123,7 +123,6 @@ const isTimestamp = (object: any) => {
 };
 
 const formatDateData = (data: any) => {
-	console.log(data);
 	Object.keys(data).forEach(function (key, index) {
 		if (typeof data[key] === 'object') {
 			if (isTimestamp(data[key])) {

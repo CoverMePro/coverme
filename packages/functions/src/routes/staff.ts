@@ -10,6 +10,7 @@ router.get('/:id', authGuard, staffController.getStaff);
 router.get('/delete/:id', staffController.deleteStaff);
 
 router.post('/', authGuard, staffController.createStaff);
+router.post('/list', authGuard, staffController.getStaffFromList);
 router.post('/:id', authGuard, staffController.updateStaff);
 
 export default router;

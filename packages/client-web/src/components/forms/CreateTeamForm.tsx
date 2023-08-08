@@ -19,7 +19,7 @@ import logo from 'images/cover-me-logo.png';
 import { validateCreateTeam } from 'utils/validations/team';
 import api from 'utils/api';
 
-import { ITeam, IUser } from 'coverme-shared';
+import { IStaff, ITeam, IUser } from 'coverme-shared';
 
 interface ICreateFormProps {
 	onFinish: (team?: ITeam) => void;
@@ -31,7 +31,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	const [teamColor, setTeamColor] = useState<string>(
 		Math.floor(Math.random() * 16777215).toString(16)
 	);
-	const [staff, setStaff] = useState<IUser[]>([]);
+	const [staff, setStaff] = useState<IStaff[]>([]);
 	const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
 	const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
@@ -39,12 +39,20 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const handleChangeSelectUsers = (users: IUser[], isStaff: boolean) => {
+	const handleChangeSelectUsers = (users: IUser[]) => {
 		const userIds = users.map((user) => {
 			return user.id!;
 		});
 
-		isStaff ? setSelectedStaff(userIds) : setSelectedManagers(userIds);
+		setSelectedManagers(userIds);
+	};
+
+	const handleChangeSelectStaff = (staff: IStaff[]) => {
+		const staffIds = staff.map((s) => {
+			return s.id!;
+		});
+
+		setSelectedStaff(staffIds);
 	};
 
 	// TODO: Make validation better
@@ -92,6 +100,16 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	};
 
 	useEffect(() => {
+		const getUser = api.getAllData<IUser>(`users`);
+		const getStaff = api.getAllData<IStaff>(`staff`);
+
+		Promise.all([getUser, getStaff]).then((results) => {
+			const retrievedManagers = results[0];
+			const retreivedStaff = results[1];
+			setManagers(retrievedManagers);
+			setStaff(retreivedStaff);
+		});
+
 		// api.getAllData<IUser>(`users`)
 		// 	.then((users) => {
 		// 		const retrievedManagers = users.filter((user) => user.role === 'manager');
@@ -164,7 +182,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 								</li>
 							)}
 							renderInput={(params) => <TextField {...params} label="Managers" />}
-							onChange={(e, val) => handleChangeSelectUsers(val, false)}
+							onChange={(e, val) => handleChangeSelectUsers(val)}
 						/>
 					</Box>
 					<Box sx={{ mt: 2 }}>
@@ -185,7 +203,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 								</li>
 							)}
 							renderInput={(params) => <TextField {...params} label="Staff" />}
-							onChange={(e, val) => handleChangeSelectUsers(val, true)}
+							onChange={(e, val) => handleChangeSelectStaff(val)}
 						/>
 					</Box>
 

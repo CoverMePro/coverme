@@ -11,4 +11,5 @@ export interface IStaff {
 	teams: string[];
 	hireDateDisplay?: string;
 	lastCalledOut?: any;
+	teams: string[];
 }

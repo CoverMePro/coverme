@@ -44,7 +44,6 @@ export const formatDuration = (value: string) => {
 };
 
 export function formatAMPM(hours: number, minutes: number) {
-	console.log(hours);
 	let ampm = hours >= 12 ? 'PM' : 'AM';
 	let newHours = hours % 12;
 	newHours = hours ? hours : 12; // the hour '0' should be '12'

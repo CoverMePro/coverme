@@ -5,26 +5,26 @@ import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
-import { IUser } from 'coverme-shared';
+import { IStaff, IUser } from 'coverme-shared';
 
 import PermissionCheck from 'components/auth/PermissionCheck';
 
 interface ITeamListProps {
-	staff: IUser[];
-	onRemoveUser: (user: IUser) => void;
+	members: IUser[] | IStaff[];
+	onRemoveUser: (user: IUser | IStaff) => void;
 }
 
-const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
+const TeamList: React.FC<ITeamListProps> = ({ members, onRemoveUser }) => {
 	return (
 		<>
-			{staff.map((user) => (
+			{members.map((member) => (
 				<ListItem
-					key={user.email!}
-					sx={{ width: '60%' }}
+					key={member.id}
+					sx={{ width: '100%' }}
 					secondaryAction={
 						<PermissionCheck permissionLevel={2}>
 							<IconButton
-								onClick={() => onRemoveUser(user)}
+								onClick={() => onRemoveUser(member)}
 								edge="end"
 								aria-label="delete"
 							>
@@ -40,12 +40,11 @@ const TeamList: React.FC<ITeamListProps> = ({ staff, onRemoveUser }) => {
 					</ListItemAvatar>
 					<ListItemText
 						sx={{ width: '100%' }}
-						primary={`${user.firstName} ${user.lastName}`}
+						primary={`${member.firstName} ${member.lastName}`}
 					/>
 					<ListItemText
-						sx={{ width: '50%', textAlign: 'left' }}
-						primary={user.email}
-						secondary={user.phone}
+						sx={{ width: '100%', textAlign: 'left' }}
+						primary={member.phone}
 					/>
 				</ListItem>
 			))}
