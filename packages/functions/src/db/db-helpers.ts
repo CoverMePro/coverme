@@ -10,12 +10,11 @@ export const handleError = (error: any) => {
 	return new Error('Unexpected error has occrued');
 };
 
-export const updateNewUserIntoDb = (userInfo: IUser, hireDate: Date) => {
+export const updateNewUserIntoDb = (userInfo: IUser) => {
 	return db.collection(`/users`).add({
 		...userInfo,
 		status: 'Pending',
 		statusUpdatedAt: Date.now(),
-		hireDate,
 		teams: [],
 	});
 };

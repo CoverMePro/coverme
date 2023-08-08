@@ -92,7 +92,7 @@ const createCompany = async (req: Request, res: Response) => {
 		})
 		.then(() => {
 			const ownerUser: IUser = mapFireStoreData(ownerEmail, { ...ownerInfo, phone: '' });
-			return updateNewUserIntoDb(ownerUser, new Date());
+			return updateNewUserIntoDb(ownerUser);
 		})
 		.then(() => {
 			return res.status(201).json({

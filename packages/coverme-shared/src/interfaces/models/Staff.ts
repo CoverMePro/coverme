@@ -8,7 +8,6 @@ export interface IStaff {
 	hireDate: Date;
 	contactBy: String;
 	company: string;
-	teams: string[];
 	hireDateDisplay?: string;
 	lastCalledOut?: any;
 	teams: string[];

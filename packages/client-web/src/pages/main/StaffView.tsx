@@ -9,7 +9,6 @@ import {
 	Select,
 	MenuItem,
 } from '@mui/material';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateStaffForm from 'components/forms/CreateStaffForm';
@@ -35,8 +34,6 @@ const StaffView: React.FC = () => {
 	const [teams, setTeams] = useState<string[]>([]);
 	const [lastCallouts, setLastCallouts] = useState<ILastCallouts | undefined>(undefined);
 	const [filteredStaff, setFilteredStaff] = useState<IStaff[]>([]);
-
-	const staffMember = useTypedSelector((state) => state.staff);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -184,7 +181,7 @@ const StaffView: React.FC = () => {
 			.catch((err) => {
 				console.error(err);
 			});
-	}, [staffMember.company, formatLastCalloutStaff]);
+	}, [formatLastCalloutStaff]);
 
 	const clearCheck = (staff: IStaff[]) => {
 		return staff.map((staff) => {
@@ -197,7 +194,7 @@ const StaffView: React.FC = () => {
 		if (!staff.teams || staff.teams.length === 0) {
 			return false;
 		}
-		return staff.teams.findIndex((t) => t === team) !== -1;
+		return staff.teams.findIndex((t: string) => t === team) !== -1;
 	};
 
 	const handleTeamChange = (event: SelectChangeEvent) => {

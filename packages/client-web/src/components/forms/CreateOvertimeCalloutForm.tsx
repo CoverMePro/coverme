@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
@@ -25,8 +24,6 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [unassignedShifts, setUnassignedShifts] = useState<IShift[]>([]);
 	const [selectedShift, setSelectedShift] = useState<IShiftInfo | undefined>(undefined);
-
-	const user = useTypedSelector((state) => state.user);
 
 	const { enqueueSnackbar } = useSnackbar();
 

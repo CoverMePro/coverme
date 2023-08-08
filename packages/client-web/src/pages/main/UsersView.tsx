@@ -6,11 +6,7 @@ import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import {
-	getAddAction,
-	getDeleteAction,
-	getEditDeleteAction,
-} from 'utils/react/table-actions-helper';
+import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-helper';
 import api from 'utils/api';
 
 import { IUser } from 'coverme-shared';
