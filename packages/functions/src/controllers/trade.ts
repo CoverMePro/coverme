@@ -300,6 +300,7 @@ const acceptTradeRequest = async (req: Request, res: Response) => {
 			messageType: NotificationType.TRADE,
 			messageBody: tradeRequest.requestedUser + ' has accepted your trade.',
 			usersNotified: [tradeRequest.proposedUserId],
+			usersSeen: [],
 		};
 
 		dbHandler.addDocument<INotification>('notifications', notification);
@@ -330,6 +331,7 @@ const rejectTradeRequest = async (req: Request, res: Response) => {
 			messageType: NotificationType.TRADE,
 			messageBody: tradeRequest.requestedUser + ' has rejected your trade.',
 			usersNotified: [tradeRequest.proposedUserId],
+			usersSeen: [],
 		};
 
 		dbHandler.addDocument<INotification>('notifications', notification);

@@ -10,11 +10,12 @@ export const handleError = (error: any) => {
 	return new Error('Unexpected error has occrued');
 };
 
-export const updateNewUserIntoDb = (userInfo: IUser) => {
+export const updateNewUserIntoDb = (userInfo: IUser, hireDate: Date) => {
 	return db.collection(`/users`).add({
 		...userInfo,
 		status: 'Pending',
 		statusUpdatedAt: Date.now(),
+		hireDate,
 		teams: [],
 	});
 };
@@ -48,6 +49,36 @@ export const getCalloutList = () => {
 			}
 
 			return { users: users, lastCallouts: lastCallouts };
+		})
+		.catch((err) => {
+			throw new Error(err);
+		});
+};
+
+//changed user to staff
+export const getCalloutStaffList = () => {
+	let lastCallouts: any;
+	return db
+		.collection('/staff')
+		.where('employeeType', '==', 'Full-Time')
+		.orderBy('hireDate', 'asc')
+		.get()
+		.then((userDocs) => {
+			return db.collection(`/last-callouts`).get();
+		})
+		.then((result) => {
+			if (result.empty) {
+				lastCallouts = {};
+			} else {
+				result.docs.forEach((doc) => {
+					lastCallouts = {
+						...lastCallouts,
+						[doc.id]: doc.data(),
+					};
+				});
+			}
+
+			return { lastCallouts: lastCallouts };
 		})
 		.catch((err) => {
 			throw new Error(err);

@@ -3,8 +3,8 @@ import userReducer from './user';
 import companyReducer from './company';
 
 const reducers = combineReducers({
-    user: userReducer,
-    company: companyReducer,
+	user: userReducer,
+	company: companyReducer,
 });
 
 export default reducers;

@@ -7,6 +7,8 @@ export interface IStaff {
 	employeeType: StaffType;
 	hireDate: Date;
 	contactBy: String;
+	company: string;
+	teams: string[];
 	hireDateDisplay?: string;
 	lastCalledOut?: any;
 }

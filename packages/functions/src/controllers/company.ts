@@ -71,6 +71,7 @@ const createCompany = async (req: Request, res: Response) => {
 	const lastCallouts: ILastCallouts = {
 		external: {
 			email: '',
+			id: '',
 		},
 		internal: {},
 	};
@@ -91,7 +92,7 @@ const createCompany = async (req: Request, res: Response) => {
 		})
 		.then(() => {
 			const ownerUser: IUser = mapFireStoreData(ownerEmail, { ...ownerInfo, phone: '' });
-			return updateNewUserIntoDb(ownerUser);
+			return updateNewUserIntoDb(ownerUser, new Date());
 		})
 		.then(() => {
 			return res.status(201).json({

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { IOvertime, ITeam, IUser } from 'coverme-shared';
-import { getCalloutList } from '../db/db-helpers';
+import { getCalloutList, getCalloutStaffList } from '../db/db-helpers';
 import calloutCyle from '../utils/overtime';
 import dbHandler from '../db/db-handler';
 
@@ -17,18 +17,23 @@ const createOvertimeCallout = async (req: Request, res: Response) => {
 
 		if (overtimeExists) {
 			return res.status(403).json({ error: 'A Callout already has been made on this shift' });
-		};
+		}
 
 		const team = await dbHandler.getDocumentById<ITeam>('teams', overtimeCallout.team);
 
-		const managers = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', team.managers);
+		const managers = await dbHandler.getCollectionWithCondition<IUser>(
+			'users',
+			'__name__',
+			'in',
+			team.managers
+		);
 
 		const addedOvertime: IOvertime = await dbHandler.addDocument<IOvertime>(
 			'overtime-callouts',
 			{
 				...overtimeCallout,
 				dateCreated: new Date(),
-				managerNumbers: managers.map(manager => manager.phone)
+				managerNumbers: managers.map((manager) => manager.phone),
 			}
 		);
 
@@ -230,6 +235,17 @@ const getCompanyOvertimeCalloutList = (_: Request, res: Response) => {
 		});
 };
 
+const getCompanyOvertimeCalloutStaffList = (_: Request, res: Response) => {
+	getCalloutStaffList()
+		.then(({ lastCallouts }) => {
+			return res.json({ lastCallouts: lastCallouts });
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({ error: err.code });
+		});
+};
+
 export default {
 	createOvertimeCallout,
 	getOvertimeCallouts,
@@ -239,4 +255,5 @@ export default {
 	voiceProcess,
 	testCycleCallout,
 	getCompanyOvertimeCalloutList,
+	getCompanyOvertimeCalloutStaffList,
 };
