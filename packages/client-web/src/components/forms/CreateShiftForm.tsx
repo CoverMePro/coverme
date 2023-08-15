@@ -6,13 +6,11 @@ import MoreTimeIcon from '@mui/icons-material/MoreTime';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers';
-
 import FormCard from './FormCard';
 import DurationCustom from 'components/number-formats/DurationCustom';
 import { validateShift } from 'utils/validations/shift';
 import { formatDuration } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
-
 import { IShiftTemplate } from 'coverme-shared';
 
 interface ICreateShiftFormProps {

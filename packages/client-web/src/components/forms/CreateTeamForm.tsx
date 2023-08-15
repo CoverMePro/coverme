@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ChromePicker } from 'react-color';
 import { useTypedSelector } from 'hooks/use-typed-selector';
 import { useSnackbar } from 'notistack';
 import { useFormik } from 'formik';
@@ -28,9 +27,6 @@ interface ICreateFormProps {
 const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [managers, setManagers] = useState<IUser[]>([]);
-	const [teamColor, setTeamColor] = useState<string>(
-		Math.floor(Math.random() * 16777215).toString(16)
-	);
 	const [staff, setStaff] = useState<IStaff[]>([]);
 	const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
 	const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
@@ -68,7 +64,6 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 				owner: user.id!,
 				managers: selectedManagers,
 				staff: selectedStaff,
-				color: `#${teamColor}`,
 			})
 				.then((teamAdded) => {
 					enqueueSnackbar('Team created.', {
@@ -95,10 +90,6 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 		},
 	});
 
-	const handleColorChange = (color: any, event: any) => {
-		setTeamColor(color.hex);
-	};
-
 	useEffect(() => {
 		const getUser = api.getAllData<IUser>(`users`);
 		const getStaff = api.getAllData<IStaff>(`staff`);
@@ -109,23 +100,11 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 			setManagers(retrievedManagers);
 			setStaff(retreivedStaff);
 		});
-
-		// api.getAllData<IUser>(`users`)
-		// 	.then((users) => {
-		// 		const retrievedManagers = users.filter((user) => user.role === 'manager');
-		// 		const retreivedStaff = users.filter((user) => user.role === 'staff');
-		// 		setManagers(retrievedManagers);
-		// 		setStaff(retreivedStaff);
-		// 	})
-		// 	.catch((err) => {
-		// 		console.error(err);
-		// 	});
 	}, []);
 
 	return (
 		<Box
 			sx={{
-				width: { xs: '80%', s: 300, md: 500 },
 				borderRadius: 5,
 				display: 'flex',
 				flexDirection: 'column',
@@ -160,9 +139,6 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 							}
 							helperText={touched.teamName ? errors.teamName : ''}
 						/>
-					</Box>
-					<Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-						<ChromePicker color={teamColor} onChange={handleColorChange} disableAlpha />
 					</Box>
 					<Box sx={{ mt: 2 }}>
 						<Autocomplete

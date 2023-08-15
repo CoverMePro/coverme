@@ -2,28 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
-
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers';
-
 import FormCard from './FormCard';
-import { formatDateTimeOutputString2 } from 'utils/formatters/dateTime-formatter';
+import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
-
 import { IOvertime, ITeam } from 'coverme-shared';
-
 import DurationCustom from 'components/number-formats/DurationCustom';
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 
 interface ICreateOvertimeCalloutFormProps {
 	onFinish: (overtimeCallout: IOvertime | undefined) => void;
-}
-
-interface IShiftInfo {
-	id: string;
-	team: string;
-	dateString: string;
 }
 
 const date = new Date();
@@ -52,7 +42,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		// TO DO: Handle when a shift already has a callout? - NEEDS TO TEST
 		const endDate = getEndDate(dateTimeValue, duration);
 
-		const shiftString = formatDateTimeOutputString2(dateTimeValue, endDate);
+		const shiftString = formatDateTimeOutputString(dateTimeValue, endDate);
 
 		console.log(shiftString);
 

@@ -218,7 +218,7 @@ const StaffView: React.FC = () => {
 			<Box sx={{ mb: 2 }}>
 				<Typography variant="h1">Staff</Typography>
 			</Box>
-			<FormControl>
+			<FormControl sx={{ mb: 1 }}>
 				<InputLabel id="team-lable">Teams</InputLabel>
 				<Select
 					labelId="team-lable"

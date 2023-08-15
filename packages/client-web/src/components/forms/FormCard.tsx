@@ -3,19 +3,10 @@ import { Box, Typography } from '@mui/material';
 import logo from 'images/cover-me-logo.png';
 
 interface IFormCardProps {
-	xs?: string;
-	s?: number;
-	md?: number;
 	title: string;
 }
 
-const FormCard: React.FC<IFormCardProps> = ({
-	xs = '100%',
-	s = 300,
-	md = 500,
-	title,
-	children,
-}) => {
+const FormCard: React.FC<IFormCardProps> = ({ title, children }) => {
 	return (
 		<Box
 			sx={{
@@ -30,7 +21,7 @@ const FormCard: React.FC<IFormCardProps> = ({
 			<Box
 				sx={{
 					paddingY: 5,
-					width: '80%',
+					width: '100%',
 				}}
 			>
 				<img src={logo} width={100} alt="Cover Me Logo" />

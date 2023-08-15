@@ -26,22 +26,18 @@ const createTeam = async (req: Request, res: Response) => {
 		await dbHandler.setDocument('teams', team.id, {
 			managers: team.managers,
 			staff: team.staff,
-			owner: team.owner,
-			color: team.color,
 		});
 
 		const teamAdded = await dbHandler.getDocumentById<ITeam>('teams', team.id);
 
-		const emails = [...team.managers, ...team.staff, team.owner];
-
-		if (emails.length > 0) {
+		if (team.managers.length > 0) {
 			const batch = getBatch();
 
 			const users = await dbHandler.getCollectionWithCondition<IUser>(
 				'users',
 				'__name__',
 				'in',
-				emails
+				team.managers
 			);
 
 			users.forEach(async (user: IUser) => {
@@ -56,6 +52,33 @@ const createTeam = async (req: Request, res: Response) => {
 				}
 
 				batch.update(userDoc, { teams: teams });
+			});
+
+			await batch.commit();
+		}
+
+		if (team.staff.length > 0) {
+			const batch = getBatch();
+
+			const staff = await dbHandler.getCollectionWithCondition<IStaff>(
+				'staff',
+				'__name__',
+				'in',
+				team.staff
+			);
+
+			staff.forEach(async (staffMember: IStaff) => {
+				let teams: string[] = [];
+
+				const staffDoc = dbHandler.getDocumentSnapshot(`staff/${staffMember.id}`);
+
+				if (staffMember.teams) {
+					teams = [...staffMember.teams, teamAdded.id];
+				} else {
+					teams = [teamAdded.id];
+				}
+
+				batch.update(staffDoc, { teams: teams });
 			});
 
 			await batch.commit();

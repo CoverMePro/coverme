@@ -16,10 +16,8 @@ import {
 import MuiPhoneNumber from 'material-ui-phone-number';
 import HowToRegIcon from '@mui/icons-material/Add';
 import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
-
 import FormCard from './FormCard';
 import { validateUserCreate, validateUserEdit } from 'utils/validations/user';
-
 import api from 'utils/api';
 
 interface IRegisterUserFormProps {

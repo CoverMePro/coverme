@@ -14,28 +14,7 @@ const months = [
 ];
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export const formatDateTimeOutputString = (startDateTime: string, endDateTime: string) => {
-	const startDate = new Date(startDateTime);
-	const endDate = new Date(endDateTime);
-
-	const outputString = `${days[startDate.getDay()]} ${
-		months[startDate.getMonth()]
-	} ${startDate.getUTCDate()}  (${startDate.toLocaleTimeString('en', {
-		hour12: true,
-		timeZone: 'UTC',
-		hour: '2-digit',
-		minute: '2-digit',
-	})} - ${endDate.toLocaleTimeString('en', {
-		hour12: true,
-		timeZone: 'UTC',
-		hour: '2-digit',
-		minute: '2-digit',
-	})})`;
-
-	return outputString;
-};
-
-export const formatDateTimeOutputString2 = (startDate: Date, endDate: Date) => {
+export const formatDateTimeOutputString = (startDate: Date, endDate: Date) => {
 	const outputString = `${days[startDate.getDay()]} ${
 		months[startDate.getMonth()]
 	} ${startDate.getUTCDate()}  (${formatAMPM(

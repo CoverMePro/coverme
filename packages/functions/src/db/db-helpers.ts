@@ -1,4 +1,4 @@
-import { IShift, IStaff, IUser } from 'coverme-shared';
+import { IStaff, IUser } from 'coverme-shared';
 import { db } from '../utils/admin';
 
 export const handleError = (error: any) => {
@@ -80,39 +80,6 @@ export const getCalloutStaffList = () => {
 		})
 		.catch((err) => {
 			throw new Error(err);
-		});
-};
-
-export const getShiftDataTodayOnward = (user: string) => {
-	return db
-		.collection(`/shifts`)
-		.where('userId', '==', user)
-		.where('startDateTime', '>', new Date())
-		.get()
-		.then((shiftDocs) => {
-			const shifts: IShift[] = formatFirestoreData(shiftDocs);
-
-			return shifts;
-		})
-		.catch((err) => {
-			throw handleError(err);
-		});
-};
-
-export const getShiftDataDateRange = (user: string, startRange: string, endRange: string) => {
-	return db
-		.collection(`/shifts`)
-		.where('userId', '==', user)
-		.where('startDateTime', '>=', new Date(startRange))
-		.where('startDateTime', '<=', new Date(endRange))
-		.get()
-		.then((shiftDocs) => {
-			const shifts: IShift[] = formatFirestoreData(shiftDocs);
-
-			return shifts;
-		})
-		.catch((err) => {
-			throw handleError(err);
 		});
 };
 

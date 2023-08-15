@@ -233,7 +233,6 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 						sx={{
 							width: '50px',
 							ml: 2,
-							backgroundColor: `${team.color}`,
 							borderRadius: '10%',
 						}}
 					></Box>

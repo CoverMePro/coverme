@@ -18,10 +18,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import HowToRegIcon from '@mui/icons-material/Add';
 import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
-
 import FormCard from './FormCard';
 import { validateStaffCreate } from 'utils/validations/staff';
-
 import api from 'utils/api';
 
 interface IRegisterUserFormProps {
