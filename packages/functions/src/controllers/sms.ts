@@ -137,7 +137,6 @@ const handleSickSmsReplyApprove = async (smsInfo: string) => {
 		);
 
 		await dbHandler.addDocument<IOvertime>('overtime-callouts', {
-			shiftId: shift.id,
 			shiftInfo: formatDateTimeOutputString(
 				shift.startDateTime as string,
 				shift.endDateTime as string

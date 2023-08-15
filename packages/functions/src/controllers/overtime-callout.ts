@@ -8,17 +8,6 @@ const createOvertimeCallout = async (req: Request, res: Response) => {
 	const overtimeCallout: IOvertime = req.body;
 
 	try {
-		const overtimeExists = await dbHandler.documentExistsByCondition(
-			'overtime-callouts',
-			'shiftId',
-			'==',
-			overtimeCallout.shiftId
-		);
-
-		if (overtimeExists) {
-			return res.status(403).json({ error: 'A Callout already has been made on this shift' });
-		}
-
 		const team = await dbHandler.getDocumentById<ITeam>('teams', overtimeCallout.team);
 
 		const managers = await dbHandler.getCollectionWithCondition<IUser>(
@@ -226,8 +215,8 @@ const testCycleCallout = (_: Request, res: Response) => {
 
 const getCompanyOvertimeCalloutList = (_: Request, res: Response) => {
 	getCalloutList()
-		.then(({ users, lastCallouts }) => {
-			return res.json({ users: users, lastCallouts: lastCallouts });
+		.then(({ staff, lastCallouts }) => {
+			return res.json({ staff: staff, lastCallouts: lastCallouts });
 		})
 		.catch((err) => {
 			console.error(err);

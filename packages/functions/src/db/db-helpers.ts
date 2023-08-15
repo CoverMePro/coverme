@@ -1,4 +1,4 @@
-import { IShift, IUser } from 'coverme-shared';
+import { IShift, IStaff, IUser } from 'coverme-shared';
 import { db } from '../utils/admin';
 
 export const handleError = (error: any) => {
@@ -20,17 +20,16 @@ export const updateNewUserIntoDb = (userInfo: IUser) => {
 };
 
 export const getCalloutList = () => {
-	const users: IUser[] = [];
+	const staff: IStaff[] = [];
 	let lastCallouts: any;
 	return db
-		.collection('/users')
-		.where('role', '==', 'staff')
+		.collection('/staff')
 		.where('employeeType', '==', 'Full-Time')
 		.orderBy('hireDate', 'asc')
 		.get()
 		.then((userDocs) => {
 			userDocs.forEach((doc) => {
-				users.push(mapFireStoreData(doc.id, doc.data()));
+				staff.push(mapFireStoreData(doc.id, doc.data()));
 			});
 
 			return db.collection(`/last-callouts`).get();
@@ -47,7 +46,7 @@ export const getCalloutList = () => {
 				});
 			}
 
-			return { users: users, lastCallouts: lastCallouts };
+			return { staff: staff, lastCallouts: lastCallouts };
 		})
 		.catch((err) => {
 			throw new Error(err);

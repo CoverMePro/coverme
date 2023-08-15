@@ -15,7 +15,7 @@ const FormDialog: React.FC<IFormDialogProps> = ({
 	children,
 }) => {
 	return (
-		<Dialog maxWidth="lg" open={open} fullScreen={fullScreen}>
+		<Dialog fullWidth maxWidth={'xs'} open={open} fullScreen={fullScreen}>
 			<Box sx={{ position: 'absolute', right: 5, zIndex: 400 }}>
 				<IconButton onClick={onClose}>
 					<CloseIcon color="primary" fontSize="large" />

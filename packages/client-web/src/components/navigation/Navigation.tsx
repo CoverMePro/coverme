@@ -74,12 +74,12 @@ const Navigation: React.FC<NavigationProps> = ({ onLogoutPressed, onProfilePress
 								onNavClick={() => handleNav('teams')}
 								selected={navSelected === 3}
 							/>
-							<NavIcon
+							{/* <NavIcon
 								icon={<PendingActionsIcon fontSize="inherit" color="secondary" />}
 								title="Shift Templates"
 								onNavClick={() => handleNav('shift-templates')}
 								selected={navSelected === 4}
-							/>
+							/> */}
 							<NavIcon
 								icon={<GroupsIcon fontSize="inherit" color="secondary" />}
 								title="Users"

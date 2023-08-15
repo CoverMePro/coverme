@@ -6,7 +6,7 @@ const selectedNav: any = {
 	'/portal/staff': 2,
 	'/portal/teams': 3,
 	//'/portal/blog': 5,
-	'/portal/shift-templates': 4,
+	//'/portal/shift-templates': 4,
 	'/portal/users': 5,
 	'/portal/settings': 6,
 	//'/portal/companies': 7,

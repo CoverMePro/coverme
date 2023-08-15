@@ -22,7 +22,7 @@ const HomeView: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Grid container spacing={4} sx={{ height: '100%' }}>
+			<Grid container spacing={4} sx={{ height: '100%' }} justifyContent="center">
 				<NavCard
 					icon={<ScheduleSendIcon fontSize="inherit" color="secondary" />}
 					title="Callouts"
@@ -38,11 +38,11 @@ const HomeView: React.FC = () => {
 					title="Teams"
 					path="teams"
 				/>
-				<NavCard
+				{/* <NavCard
 					icon={<PendingActionsIcon fontSize="inherit" color="secondary" />}
 					title="Shift Templates"
 					path="shift-templates"
-				/>
+				/> */}
 				<NavCard
 					icon={<GroupsIcon fontSize="inherit" color="secondary" />}
 					title="Users"

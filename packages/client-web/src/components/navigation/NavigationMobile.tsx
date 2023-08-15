@@ -145,11 +145,11 @@ const NavigationMobile: React.FC<NavigationMobileProps> = ({
 						selected={navSelected === 3}
 						onNavClick={() => handleNav('teams')}
 					/>
-					<NavSelect
+					{/* <NavSelect
 						title="Shift Templates"
 						selected={navSelected === 4}
 						onNavClick={() => handleNav('shift-templates')}
-					/>
+					/> */}
 					<NavSelect
 						title="Users"
 						selected={navSelected === 5}

@@ -3,11 +3,18 @@ import { useSnackbar } from 'notistack';
 import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers';
+
 import FormCard from './FormCard';
-import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
+import { formatDateTimeOutputString2 } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
 
-import { IShift, IOvertime } from 'coverme-shared';
+import { IOvertime, ITeam } from 'coverme-shared';
+
+import DurationCustom from 'components/number-formats/DurationCustom';
+import { getEndDate } from 'utils/helpers/dateTime-helpers';
 
 interface ICreateOvertimeCalloutFormProps {
 	onFinish: (overtimeCallout: IOvertime | undefined) => void;
@@ -19,37 +26,40 @@ interface IShiftInfo {
 	dateString: string;
 }
 
+const date = new Date();
+date.setHours(12, 0, 0, 0);
+
 const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ onFinish }) => {
 	const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [unassignedShifts, setUnassignedShifts] = useState<IShift[]>([]);
-	const [selectedShift, setSelectedShift] = useState<IShiftInfo | undefined>(undefined);
+	const [teams, setTeams] = useState<ITeam[]>([]);
+	const [selectedTeam, setSelectedTeam] = useState<ITeam | null>(null);
+
+	const [duration, setDuration] = useState<string>('');
+	const [dateTimeValue, setDateTimeValue] = useState<Date>(date);
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const handleShiftChange = (_: React.SyntheticEvent<Element, Event>, value: IShift | null) => {
-		if (value) {
-			setSelectedShift({
-				id: value.id,
-				team: value.teamId,
-				dateString: formatDateTimeOutputString(
-					value.startDateTime as string,
-					value.endDateTime as string
-				),
-			});
-		} else {
-			setSelectedShift(undefined);
-		}
+	const handleTeamChange = (_: React.SyntheticEvent<Element, Event>, value: ITeam | null) => {
+		setSelectedTeam(value);
+	};
+
+	const handleDurationChange = (event: any) => {
+		setDuration(event.target.value);
 	};
 
 	const handleSubmit = () => {
 		// TO DO: Handle when a shift already has a callout? - NEEDS TO TEST
-		if (selectedShift) {
+		const endDate = getEndDate(dateTimeValue, duration);
+
+		const shiftString = formatDateTimeOutputString2(dateTimeValue, endDate);
+
+		console.log(shiftString);
+
+		if (selectedTeam) {
 			const overtimeCallout: IOvertime = {
-				company: '',
-				shiftId: selectedShift.id,
-				shiftInfo: selectedShift.dateString,
-				team: selectedShift.team,
+				shiftInfo: shiftString,
+				team: selectedTeam.id,
 				callouts: [],
 				phase: 'Internal',
 				status: 'Pending',
@@ -57,6 +67,8 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 				allNotifed: false,
 				alldeclined: false,
 			};
+
+			console.log(overtimeCallout);
 
 			setIsLoading(true);
 			api.postCreateData<IOvertime>(`overtime-callouts`, overtimeCallout)
@@ -93,11 +105,9 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		// get unassigned shifts
 		setIsLoadingData(true);
 
-		const unclaimedUser = 'unclaimed';
-
-		api.getAllData<IShift>(`shifts/${unclaimedUser}/today`)
-			.then((shifts) => {
-				setUnassignedShifts(shifts);
+		api.getAllData<ITeam>(`teams`)
+			.then((retreivedTeams) => {
+				setTeams(retreivedTeams);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -108,7 +118,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 	}, []);
 
 	return (
-		<FormCard title="Overtime Callout">
+		<FormCard title="Shift Information">
 			<>
 				{isLoadingData ? (
 					<Box>
@@ -118,25 +128,44 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 					<>
 						<Box sx={{ mt: 2 }}>
 							<Autocomplete
-								options={unassignedShifts}
-								getOptionLabel={(option) =>
-									`${formatDateTimeOutputString(
-										option.startDateTime as string,
-										option.endDateTime as string
-									)}`
-								}
+								options={teams}
+								getOptionLabel={(option) => `${option.id}`}
 								renderOption={(props, option, { selected }) => (
-									<li {...props}>
-										{formatDateTimeOutputString(
-											option.startDateTime as string,
-											option.endDateTime as string
-										)}
-									</li>
+									<li {...props}>{option.id}</li>
 								)}
 								renderInput={(params) => (
-									<TextField {...params} label="Select Unclaimed Shift" />
+									<TextField {...params} label="Select Team" />
 								)}
-								onChange={handleShiftChange}
+								onChange={handleTeamChange}
+							/>
+						</Box>
+						<Box sx={{ mt: 2 }}>
+							<LocalizationProvider dateAdapter={AdapterDateFns}>
+								<DateTimePicker
+									disablePast
+									label="Start Date Time"
+									value={dateTimeValue}
+									onChange={(newValue) => {
+										if (newValue) {
+											setDateTimeValue(newValue);
+										}
+									}}
+									renderInput={(params) => <TextField {...params} />}
+								/>
+							</LocalizationProvider>
+						</Box>
+						<Box sx={{ mt: 2 }}>
+							<TextField
+								sx={{ width: '25%' }}
+								label="Duration"
+								value={duration}
+								onChange={handleDurationChange}
+								name="shiftDuration"
+								id="formatted-numberformat-input"
+								InputProps={{
+									inputComponent: DurationCustom as any,
+								}}
+								variant="outlined"
 							/>
 						</Box>
 						<Box sx={{ mt: 3 }}>

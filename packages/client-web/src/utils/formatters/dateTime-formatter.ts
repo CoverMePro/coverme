@@ -35,6 +35,17 @@ export const formatDateTimeOutputString = (startDateTime: string, endDateTime: s
 	return outputString;
 };
 
+export const formatDateTimeOutputString2 = (startDate: Date, endDate: Date) => {
+	const outputString = `${days[startDate.getDay()]} ${
+		months[startDate.getMonth()]
+	} ${startDate.getUTCDate()}  (${formatAMPM(
+		startDate.getHours(),
+		startDate.getMinutes()
+	)} - ${formatAMPM(endDate.getHours(), endDate.getMinutes())})`;
+
+	return outputString;
+};
+
 export const formatDateString = (date: Date) => {
 	return new Date(date).toDateString();
 };

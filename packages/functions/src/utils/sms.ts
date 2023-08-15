@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUser, IOvertime } from 'coverme-shared';
+import { IUser, IOvertime, IStaff } from 'coverme-shared';
 
 import {
 	SmsMessage,
@@ -29,15 +29,19 @@ export const testReceive = async (req: Request, res: Response) => {
 	}
 };
 
-export const sendOvertimeSms = async (user: IUser, overtimeInfo: IOvertime, overtimeId: string) => {
-	const bodyTemplate = `Hello ${user.firstName},\n\n There is a shift available: \n ${overtimeInfo.shiftInfo} \n\n from the following team: \n ${overtimeInfo.team} \n\n REPLY 1 if you want to take the shift \n\n REPLY 2 if you do not want the shift`;
+export const sendOvertimeSms = async (
+	staff: IStaff,
+	overtimeInfo: IOvertime,
+	overtimeId: string
+) => {
+	const bodyTemplate = `Hello ${staff.firstName},\n\n There is a shift available: \n ${overtimeInfo.shiftInfo} \n\n from the following team: \n ${overtimeInfo.team} \n\n REPLY 1 if you want to take the shift \n\n REPLY 2 if you do not want the shift`;
 
 	const smsMessage = new SmsMessage();
 
 	smsMessage.from = CLICKSEND_NUMBER;
-	smsMessage.to = formatNumber(user.phone);
+	smsMessage.to = formatNumber(staff.phone);
 	smsMessage.body = bodyTemplate;
-	smsMessage.customString = `${overtimeId}|${user.id}`;
+	smsMessage.customString = `${overtimeId}|${staff.id}`;
 
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
@@ -80,7 +84,7 @@ export const sendConfirmOvertimeSms = async (phone: string, overtimeInfo: IOvert
 		'until'
 	)}\n\n from the following team: \n ${
 		overtimeInfo.team
-	} \n\n This shift will be updated on your schedule`;
+	} \n\n Your manager will update the schedule.`;
 
 	const smsMessage = new SmsMessage();
 
@@ -98,7 +102,7 @@ export const sendConfirmOvertimeSms = async (phone: string, overtimeInfo: IOvert
 };
 
 export const sendConfirmOvertimeVoice = async (phone: string, overtimeInfo: IOvertime) => {
-	const bodyTemplate = `Hello, You have successfully claimed the following shift: ${overtimeInfo.shiftInfo}. From the following team: ${overtimeInfo.team}. This shift will be updated on your schedule`;
+	const bodyTemplate = `Hello, You have successfully claimed the following shift: ${overtimeInfo.shiftInfo}. From the following team: ${overtimeInfo.team}. Your manager will update the schedule.`;
 
 	const voiceApi = new VoiceApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
@@ -114,7 +118,7 @@ export const sendConfirmOvertimeVoice = async (phone: string, overtimeInfo: IOve
 	await voiceApi.voiceSendPost(voiceCollection);
 };
 
-export const sendManagerUserAcceptedShift= async (overtimeInfo: IOvertime, user: string) => {
+export const sendManagerUserAcceptedShift = async (overtimeInfo: IOvertime, user: string) => {
 	const bodyTemplate = `Hello,\n\n ${user} has ACCEPTED following shift available: \n ${overtimeInfo.shiftInfo.replace(
 		'-',
 		'until'
@@ -126,7 +130,7 @@ export const sendManagerUserAcceptedShift= async (overtimeInfo: IOvertime, user:
 
 	smsCollection.messages = [];
 
-	overtimeInfo.managerNumbers.forEach(number => {
+	overtimeInfo.managerNumbers.forEach((number) => {
 		const smsMessage = new SmsMessage();
 
 		smsMessage.from = CLICKSEND_NUMBER;
@@ -134,18 +138,14 @@ export const sendManagerUserAcceptedShift= async (overtimeInfo: IOvertime, user:
 		smsMessage.body = bodyTemplate;
 
 		smsCollection.messages.push(smsMessage);
-	
 	});
 
-
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
-
 
 	await smsApi.smsSendPost(smsCollection);
 };
 
 export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
-
 	const bodyTemplate = `Hello,\n\n All staffed have been NOTIFIED of the following shift available: \n ${overtimeInfo.shiftInfo.replace(
 		'-',
 		'until'
@@ -157,7 +157,7 @@ export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
 
 	smsCollection.messages = [];
 
-	overtimeInfo.managerNumbers.forEach(number => {
+	overtimeInfo.managerNumbers.forEach((number) => {
 		const smsMessage = new SmsMessage();
 
 		smsMessage.from = CLICKSEND_NUMBER;
@@ -165,15 +165,12 @@ export const sendManagerAllUsersNotified = async (overtimeInfo: IOvertime) => {
 		smsMessage.body = bodyTemplate;
 
 		smsCollection.messages.push(smsMessage);
-	
 	});
-
 
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
 	await smsApi.smsSendPost(smsCollection);
 };
-
 
 export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
 	const bodyTemplate = `Hello,\n\n All staffed have DECLINED the following shift: \n ${overtimeInfo.shiftInfo.replace(
@@ -186,8 +183,8 @@ export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
 	var smsCollection = new SmsMessageCollection();
 
 	smsCollection.messages = [];
-	
-	overtimeInfo.managerNumbers.forEach(number => {
+
+	overtimeInfo.managerNumbers.forEach((number) => {
 		const smsMessage = new SmsMessage();
 
 		smsMessage.from = CLICKSEND_NUMBER;
@@ -195,64 +192,74 @@ export const sendManagerAllUsersDeclined = async (overtimeInfo: IOvertime) => {
 		smsMessage.body = bodyTemplate;
 
 		smsCollection.messages.push(smsMessage);
-	
 	});
-
 
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
-
 	await smsApi.smsSendPost(smsCollection);
-
 };
 
 export const sendNotificationSms = async (usersIds: string[], message: string) => {
+	const users = await dbHandler.getCollectionWithCondition<IUser>(
+		'users',
+		'__name__',
+		'in',
+		usersIds
+	);
 
-	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
-
-	const numbers: string [] = users.map(user => user.phone);
+	const numbers: string[] = users.map((user) => user.phone);
 
 	await sendSms(numbers, message);
-}
+};
 
 // TO DO: create seperate functions for each sms message (vacation, sick, etc)
 // need to have different custom strings for each
 
 export const sendSickSms = async (usersIds: string[], message: string, requestId: string) => {
-	
-	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+	const users = await dbHandler.getCollectionWithCondition<IUser>(
+		'users',
+		'__name__',
+		'in',
+		usersIds
+	);
 
-	const numbers: string [] = users.map(user => user.phone);
+	const numbers: string[] = users.map((user) => user.phone);
 
 	await sendSms(numbers, message, `SICK$$${requestId}`);
-}
+};
 
 export const sendTimeOffSms = async (usersIds: string[], message: string, requestId) => {
-	
-	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+	const users = await dbHandler.getCollectionWithCondition<IUser>(
+		'users',
+		'__name__',
+		'in',
+		usersIds
+	);
 
-	const numbers: string [] = users.map(user => user.phone);
+	const numbers: string[] = users.map((user) => user.phone);
 
 	await sendSms(numbers, message, `TIMEOFF$$${requestId}`);
-}
-
+};
 
 export const sendTradeSms = async (usersIds: string[], message: string, requestId) => {
-	
-	const users = await dbHandler.getCollectionWithCondition<IUser>('users', '__name__', 'in', usersIds);
+	const users = await dbHandler.getCollectionWithCondition<IUser>(
+		'users',
+		'__name__',
+		'in',
+		usersIds
+	);
 
-	const numbers: string [] = users.map(user => user.phone);
+	const numbers: string[] = users.map((user) => user.phone);
 
 	await sendSms(numbers, message, `TRADE$$${requestId}`);
-}
+};
 
-
-const sendSms = async (numbers: string[], messageBody: string, customString: string = "") => {
+const sendSms = async (numbers: string[], messageBody: string, customString: string = '') => {
 	var smsCollection = new SmsMessageCollection();
 
 	smsCollection.messages = [];
 
-	numbers.forEach(number => {
+	numbers.forEach((number) => {
 		const smsMessage = new SmsMessage();
 
 		smsMessage.from = CLICKSEND_NUMBER;
@@ -265,8 +272,5 @@ const sendSms = async (numbers: string[], messageBody: string, customString: str
 
 	var smsApi = new SMSApi(CLICKSEND_USERNAME, CLICKSEND_AUTH_TOKEN);
 
-
 	await smsApi.smsSendPost(smsCollection);
-}
-
-
+};
