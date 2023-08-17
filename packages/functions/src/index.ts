@@ -17,6 +17,7 @@ import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
 import staffRoutes from './routes/staff';
+//import companyRoutes from './routes/company';
 import smsRoutes from './routes/sms';
 import { testNot } from './utils/notifications';
 // import { callout } from './utils/overtime';
@@ -66,6 +67,7 @@ app.use('/sick-requests', sickRequestRoutes);
 app.use('/messages', messageRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/sms', smsRoutes);
+//app.use('/company', companyRoutes);
 
 app.post('/test-not', testNot);
 
