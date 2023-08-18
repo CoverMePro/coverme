@@ -4,10 +4,12 @@ import dbHandler from '../db/db-handler';
 import { getCalloutList } from '../db/db-helpers';
 import {
 	sendConfirmOvertimeSms,
+	sendConfirmOvertimeVoice,
 	sendManagerAllUsersDeclined,
 	sendManagerAllUsersNotified,
 	sendManagerUserAcceptedShift,
 	sendOvertimeSms,
+	sendOvertimeVoice,
 } from './sms';
 
 const staffContainsTeam = (staff: IStaff, team: string) => {
@@ -57,7 +59,11 @@ const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime,
 
 				await sendManagerUserAcceptedShift(overtime, callout.userName);
 
-				await sendConfirmOvertimeSms(callout.phone, overtime);
+				if (callout.contactBy === 'Phone') {
+					await sendConfirmOvertimeVoice(callout.phone, overtime);
+				} else {
+					await sendConfirmOvertimeSms(callout.phone, overtime);
+				}
 
 				hasAccepted = true;
 			} catch (err: any) {
@@ -290,6 +296,7 @@ const callout = async () => {
 				userId: staffToCallout.id!,
 				userName: `${staffToCallout.firstName} ${staffToCallout.lastName}`,
 				phone: staffToCallout.phone,
+				contactBy: staffToCallout.contactBy,
 				team: phase,
 				status: 'Pending',
 			});
@@ -308,7 +315,12 @@ const callout = async () => {
 			}
 
 			await batch.commit();
-			await sendOvertimeSms(staffToCallout, overtime, overtime.id!);
+
+			if (staffToCallout.contactBy === 'Phone') {
+				await sendOvertimeVoice(staffToCallout, overtime);
+			} else {
+				await sendOvertimeSms(staffToCallout, overtime, overtime.id!);
+			}
 		});
 	} catch (err: any) {
 		console.error(err);

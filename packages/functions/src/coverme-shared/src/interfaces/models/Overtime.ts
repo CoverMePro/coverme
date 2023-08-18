@@ -5,6 +5,7 @@ export interface ICallout {
 	userName: string;
 	status: ShiftRequestStatus;
 	phone: string;
+	contactBy: string;
 	team: string; // do we need this anymore?
 }
 

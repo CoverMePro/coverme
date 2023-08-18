@@ -6,7 +6,7 @@ export interface IStaff {
 	phone: string;
 	employeeType: StaffType;
 	hireDate: Date;
-	contactBy: String;
+	contactBy: string;
 	company: string;
 	hireDateDisplay?: string;
 	lastCalledOut?: any;

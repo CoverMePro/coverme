@@ -56,7 +56,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 				hireDate: editMode ? selectedUser.hireDate : String(new Date()),
 				phone: editMode ? selectedUser.phone : '',
 				employeeType: editMode ? selectedUser.employeeType : 'Full-Time',
-				contactBy: editMode ? selectedUser.contactBy : 'Phone',
+				contactBy: editMode ? selectedUser.contactBy : 'Text',
 			},
 			validate: validateStaffCreate,
 			onSubmit: (userValues: any) => {
@@ -246,9 +246,8 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 										label="Contact By"
 										onChange={handleContactByChange}
 									>
-										<MenuItem value="Phone">Phone</MenuItem>
 										<MenuItem value="Text">Text</MenuItem>
-										<MenuItem value="Phone/text">Phone/Text</MenuItem>
+										<MenuItem value="Phone">Phone</MenuItem>
 									</Select>
 								</FormControl>
 							</Box>
