@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { ICompany } from 'coverme-shared';
 
 import { getCalloutList } from '../db/db-helpers';
-import dbHandler from 'db/db-handler';
+import dbHandler from '../db/db-handler';
 
 const updateCompany = async (req: Request, res: Response) => {
 	let companyInfo: ICompany = req.body;

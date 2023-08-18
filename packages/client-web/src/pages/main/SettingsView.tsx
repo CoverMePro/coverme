@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, CircularProgress, Fab, Paper } from '@mui/material';
+import { Box, TextField, CircularProgress, Fab, Paper, Typography } from '@mui/material';
 import FormCard from 'components/forms/FormCard';
 import { useFormik } from 'formik';
 import UpdateIcon from '@mui/icons-material/ArrowCircleUpRounded';
@@ -8,14 +8,13 @@ import { useActions } from 'hooks/use-actions';
 import api from 'utils/api';
 import { validateCompany } from 'utils/validations/company';
 import { useSnackbar } from 'notistack';
-import { ICompany } from 'coverme-shared';
 
 const SettingsView: React.FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const { enqueueSnackbar } = useSnackbar();
 	const company = useTypedSelector((state) => state.company);
+	const user = useTypedSelector((state) => state.user);
 	const { setCompany } = useActions();
-	let updatedCompany: ICompany;
 
 	const { handleSubmit, handleChange, handleBlur, values, touched, errors } = useFormik({
 		initialValues: {
@@ -29,16 +28,13 @@ const SettingsView: React.FC = () => {
 			setIsLoading(true);
 
 			api.post(`company`, {
-				companyName: companyName,
-				companyPhone: companyPhone,
-				companyEmail: companyEmail,
+				name: companyName,
+				phone: companyPhone,
+				email: companyEmail,
 			})
 				.then(() => {
 					setIsLoading(false);
-					// updatedCompany.name = companyName;
-					// updatedCompany.phone = companyPhone;
-					// updatedCompany.email = companyEmail;
-					//setCompany(updatedCompany);
+					setCompany({ name: companyName, email: companyEmail, phone: companyPhone });
 					enqueueSnackbar('Success! Updated company', {
 						variant: 'success',
 					});
@@ -56,6 +52,11 @@ const SettingsView: React.FC = () => {
 	return (
 		<Paper elevation={15} sx={{ maxWidth: 500, minWidth: 300, margin: 'auto' }}>
 			<FormCard title={'Settings'}>
+				{user.role !== 'Admin' && (
+					<Typography sx={{ color: 'red' }}>
+						Only admin are able to update the settings.
+					</Typography>
+				)}
 				<form onSubmit={handleSubmit}>
 					<Box sx={{ mt: 2 }}>
 						<TextField
@@ -73,6 +74,7 @@ const SettingsView: React.FC = () => {
 								errors.companyName !== ''
 							}
 							helperText={touched.companyName ? errors.companyName : ''}
+							disabled={user.role !== 'Admin'}
 						/>
 					</Box>
 					<Box sx={{ mt: 2 }}>
@@ -91,6 +93,7 @@ const SettingsView: React.FC = () => {
 								errors.companyPhone !== ''
 							}
 							helperText={touched.companyPhone ? errors.companyPhone : ''}
+							disabled={user.role !== 'Admin'}
 						/>
 					</Box>
 					<Box sx={{ mt: 2 }}>
@@ -109,13 +112,19 @@ const SettingsView: React.FC = () => {
 								errors.companyEmail !== ''
 							}
 							helperText={touched.companyEmail ? errors.companyEmail : ''}
+							disabled={user.role !== 'Admin'}
 						/>
 					</Box>
 					<Box sx={{ mt: 3 }}>
 						{isLoading ? (
 							<CircularProgress />
 						) : (
-							<Fab color="primary" aria-label={'Update Company'} type="submit">
+							<Fab
+								color="primary"
+								aria-label={'Update Company'}
+								type="submit"
+								disabled={user.role === 'Manager'}
+							>
 								<UpdateIcon fontSize="large" />
 							</Fab>
 						)}

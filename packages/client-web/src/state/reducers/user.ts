@@ -11,9 +11,6 @@ const initialState: IUser = {
 	role: 'Manager',
 	status: 'Active',
 	teams: [],
-	employeeType: 'Full-Time',
-	company: '',
-	hireDate: new Date(),
 };
 
 const reducer = (state: IUser = initialState, action: Action): IUser => {
