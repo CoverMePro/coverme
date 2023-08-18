@@ -9,6 +9,7 @@ import shiftTemplateRoutes from './routes/shift-templates';
 import overtimeRoutes from './routes/overtime-callout';
 import userRoutes from './routes/users';
 import staffRoutes from './routes/staff';
+import companyRoutes from './routes/company';
 import smsRoutes from './routes/sms';
 import calloutCyle from './utils/overtime';
 
@@ -48,6 +49,7 @@ app.use('/staff', staffRoutes);
 app.use('/teams', teamRoutes);
 app.use('/shift-templates', shiftTemplateRoutes);
 app.use('/sms', smsRoutes);
+app.use('/company', companyRoutes);
 
 exports.api = functions.https.onRequest(app);
 
