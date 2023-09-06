@@ -72,6 +72,29 @@ const getCollectionWithCondition = <T>(
 		});
 };
 
+const getCollectionWithConditionAndSort = <T>(
+	path: string,
+	property: string,
+	operator: WhereFilterOp,
+	value: any,
+	orderBy: string,
+	ordering: OrderByDirection | undefined
+): Promise<T[]> => {
+	return db
+		.collection(path)
+		.where(property, operator, value)
+		.orderBy(orderBy, ordering)
+		.get()
+		.then((collection) => {
+			const data: T[] = formatFirestoreData(collection);
+
+			return data;
+		})
+		.catch((error) => {
+			throw handleError(error);
+		});
+};
+
 const getCollectionChainedConditions = async <T>(
 	path: string,
 	conditions: ICondition[]
@@ -264,6 +287,7 @@ export default {
 	getCollectionWithCondition,
 	getCollectionChainedConditions,
 	getCollectionsWithSort,
+	getCollectionWithConditionAndSort,
 	getMultipleCollections,
 	getDocumentById,
 	getDocumentFromCollectionWithCondition,

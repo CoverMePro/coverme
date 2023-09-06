@@ -60,7 +60,7 @@ const SettingsView: React.FC = () => {
 				<form onSubmit={handleSubmit}>
 					<Box sx={{ mt: 2 }}>
 						<TextField
-							sx={{ width: '100%' }}
+							sx={{ width: '90%' }}
 							variant="outlined"
 							type="text"
 							name="companyName"
@@ -79,7 +79,7 @@ const SettingsView: React.FC = () => {
 					</Box>
 					<Box sx={{ mt: 2 }}>
 						<TextField
-							sx={{ width: '100%' }}
+							sx={{ width: '90%' }}
 							variant="outlined"
 							type="text"
 							name="companyPhone"
@@ -98,7 +98,7 @@ const SettingsView: React.FC = () => {
 					</Box>
 					<Box sx={{ mt: 2 }}>
 						<TextField
-							sx={{ width: '100%' }}
+							sx={{ width: '90%' }}
 							variant="outlined"
 							type="text"
 							name="companyEmail"

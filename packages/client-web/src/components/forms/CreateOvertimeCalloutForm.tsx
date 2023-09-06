@@ -8,7 +8,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import FormCard from './FormCard';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
-import { IOvertime, ITeam } from 'coverme-shared';
+import { IOvertime, IStaff, ITeam } from 'coverme-shared';
 import DurationCustom from 'components/number-formats/DurationCustom';
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 
@@ -23,6 +23,8 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 	const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [teams, setTeams] = useState<ITeam[]>([]);
+	const [staff, setStaff] = useState<IStaff[]>([]);
+	const [excludedStaff, setExcludedStaff] = useState<string[]>([]);
 	const [selectedTeam, setSelectedTeam] = useState<ITeam | null>(null);
 
 	const [duration, setDuration] = useState<string>('');
@@ -32,6 +34,15 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
 	const handleTeamChange = (_: React.SyntheticEvent<Element, Event>, value: ITeam | null) => {
 		setSelectedTeam(value);
+	};
+
+	const handleChangeExcludedStaff = (
+		_: React.SyntheticEvent<Element, Event>,
+		value: IStaff[] | null
+	) => {
+		const staffIds = value?.map((s) => s.id);
+		console.log(staffIds);
+		setExcludedStaff(staffIds ? [...staffIds] : []);
 	};
 
 	const handleDurationChange = (event: any) => {
@@ -56,6 +67,8 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 				managerNumbers: [],
 				allNotifed: false,
 				alldeclined: false,
+				archive: false,
+				exclude: excludedStaff,
 			};
 
 			console.log(overtimeCallout);
@@ -95,6 +108,14 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		// get unassigned shifts
 		setIsLoadingData(true);
 
+		api.getAllData<IStaff>(`staff`)
+			.then((retreivedStaff) => {
+				setStaff(retreivedStaff);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+
 		api.getAllData<ITeam>(`teams`)
 			.then((retreivedTeams) => {
 				setTeams(retreivedTeams);
@@ -130,6 +151,24 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 							/>
 						</Box>
 						<Box sx={{ mt: 2 }}>
+							<Autocomplete
+								multiple={true}
+								options={staff}
+								getOptionLabel={(option) =>
+									`${option.firstName} ${option.lastName}`
+								}
+								renderOption={(props, option, { selected }) => (
+									<li {...props}>
+										{option.firstName} {option.lastName}
+									</li>
+								)}
+								renderInput={(params) => (
+									<TextField {...params} label="Exclude Staff" />
+								)}
+								onChange={handleChangeExcludedStaff}
+							/>
+						</Box>
+						<Box sx={{ mt: 2 }}>
 							<LocalizationProvider dateAdapter={AdapterDateFns}>
 								<DateTimePicker
 									disablePast
@@ -158,6 +197,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 								variant="outlined"
 							/>
 						</Box>
+
 						<Box sx={{ mt: 3 }}>
 							{isLoading ? (
 								<CircularProgress />

@@ -10,7 +10,7 @@ import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-hel
 import api from 'utils/api';
 
 import { IUser } from 'coverme-shared';
-import { UserHeadCells } from 'coverme-shared/lib/interfaces/models/header-cells/UserHeadCells';
+import { UserHeadCells } from 'coverme-shared';
 import RegisterUserForm from 'components/forms/RegisterUserForm';
 
 const UserView: React.FC = () => {

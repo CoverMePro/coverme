@@ -36,7 +36,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
 	const [employeeType, setEmployeeType] = useState<string>('Full-Time');
-	const [contactBy, setContactBy] = useState<string>('phone');
+	const [contactBy, setContactBy] = useState<string>('Text');
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -245,6 +245,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 										defaultValue={values.contactBy}
 										label="Contact By"
 										onChange={handleContactByChange}
+										value={contactBy}
 									>
 										<MenuItem value="Text">Text</MenuItem>
 										<MenuItem value="Phone">Phone</MenuItem>

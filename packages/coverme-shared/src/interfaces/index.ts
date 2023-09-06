@@ -18,3 +18,4 @@ export * from './models/header-cells/CompanyHeadCells';
 export * from './models/header-cells/HeaderCells';
 export * from './models/header-cells/OvertimeListHeadCells';
 export * from './models/header-cells/StaffHeadCells';
+export * from './models/header-cells/UserHeadCells';

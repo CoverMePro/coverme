@@ -1,0 +1,13 @@
+@ECHO OFF
+echo go to shared package...
+CALL cd %cd%/packages/coverme-shared
+
+echo building share project...
+CALL npm run build
+
+echo moving to root...
+CALL cd ..
+CALL cd ..
+
+echo updating shared package...
+CALL npm run update-shared

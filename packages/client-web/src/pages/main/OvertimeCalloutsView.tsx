@@ -17,6 +17,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ArchiveIcon from '@mui/icons-material/Archive';
 
 import PageLoading from 'components/loading/PageLoading';
 import FormDialog from 'components/dialogs/FormDialog';
@@ -57,6 +58,20 @@ const OvertimeCalloutsView: React.FC = () => {
 		setOpenCalloutCreation(false);
 	};
 
+	const handleArchiveOvertimeCallout = (overtimeCalloutId: string) => {
+		api.getGenericData(`overtime-callouts/${overtimeCalloutId}/archive`)
+			.then(() => {
+				const newCallouts = callouts.filter((callout) => callout.id !== overtimeCalloutId);
+				setCallouts(newCallouts);
+			})
+			.catch((err) => {
+				console.error(err);
+			})
+			.finally(() => {
+				setIsLoadingCallouts(false);
+			});
+	};
+
 	// const handleCycleCallout = () => {
 	// 	setIsLoadingCycle(true);
 	// 	api.get(`overtime-callouts/test`)
@@ -90,17 +105,15 @@ const OvertimeCalloutsView: React.FC = () => {
 		setIsLoadingCallouts(true);
 		getCalloutsForCompany();
 
-		const q = query(
-			collection(db, 'overtime-callouts')
-		);
-		
+		const q = query(collection(db, 'overtime-callouts'));
+
 		// Update callouts when they get updated
 		const Unsubscribe = onSnapshot(q, (snapshot) => {
 			const retrievedCallouts: IOvertime[] = [];
 			snapshot.forEach((doc) => {
 				const overtime: IOvertime = {
 					id: doc.id,
-					...doc.data()
+					...doc.data(),
 				} as IOvertime;
 				retrievedCallouts.push(overtime);
 			});
@@ -110,7 +123,6 @@ const OvertimeCalloutsView: React.FC = () => {
 		return () => {
 			Unsubscribe();
 		};
-
 	}, [getCalloutsForCompany]);
 
 	// need to update this page somehow
@@ -119,10 +131,7 @@ const OvertimeCalloutsView: React.FC = () => {
 		let filteredList = callout.callouts?.filter((calloutUser) => calloutUser.team === team);
 
 		return filteredList?.map((user) => (
-			<ListItem
-				key={user.userId}
-				sx={{ width: '100%' }}
-			>
+			<ListItem key={user.userId} sx={{ width: '100%' }}>
 				<ListItemAvatar>
 					<Avatar sx={{ bgcolor: 'primary.main' }}>
 						<AccountCircleIcon color="secondary" />
@@ -191,6 +200,18 @@ const OvertimeCalloutsView: React.FC = () => {
 										? `Shift assigned to ${callout.shiftAcceptedBy}`
 										: ''}
 								</Typography>
+								{callout.status === 'Complete' && (
+									<Tooltip title="Archive Callout">
+										<IconButton
+											size="large"
+											onClick={() =>
+												handleArchiveOvertimeCallout(callout.id!)
+											}
+										>
+											<ArchiveIcon color="primary" fontSize="large" />
+										</IconButton>
+									</Tooltip>
+								)}
 							</AccordionActions>
 						</Accordion>
 					))}

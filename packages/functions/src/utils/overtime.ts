@@ -192,13 +192,37 @@ const hasAllStaffBeenNotifiedOrDeclined = async (
 // 	}
 // };
 
-const getNextUserToCallout = (callouts: ICallout[], staff: IStaff[], calloutIndex: number) => {
+const isExcludedStaff = (callouts: ICallout[], staff: IStaff, exclude: string[]) => {
+	if (exclude.findIndex((e) => e === staff.id) !== -1) {
+		callouts.push({
+			userId: staff.id!,
+			userName: `${staff.firstName} ${staff.lastName}`,
+			phone: staff.phone,
+			team: 'excluded',
+			status: 'Rejected',
+			contactBy: staff.contactBy,
+		});
+		return true;
+	}
+
+	return false;
+};
+
+const getNextUserToCallout = (
+	callouts: ICallout[],
+	staff: IStaff[],
+	calloutIndex: number,
+	overtime: IOvertime
+) => {
 	let nextCalloutStaff = staff[calloutIndex];
 	// loop through and get next user for call out
 	while (callouts.length !== staff.length) {
 		nextCalloutStaff = staff[calloutIndex];
 
-		if (isInCallouts(callouts, nextCalloutStaff)) {
+		if (
+			isInCallouts(callouts, nextCalloutStaff) ||
+			isExcludedStaff(callouts, nextCalloutStaff, overtime.exclude ? overtime.exclude : [])
+		) {
 			calloutIndex = calloutIndex + 1 >= staff.length ? 0 : calloutIndex + 1;
 			continue;
 		} else {
@@ -264,13 +288,17 @@ const callout = async () => {
 			if (!overtime.phase || overtime.phase === 'Internal') {
 				console.log(`$$OVERTIME: INTERNAL PHASE`);
 				staffList = staff.filter((staffMember) => staffContainsTeam(staffMember, team));
-				lastCalloutStaff = lastCallouts.internal[team]
-					? lastCallouts.internal[team]
-					: undefined;
+				lastCalloutStaff =
+					lastCallouts.internal[team] && lastCallouts.internal[team] !== ''
+						? lastCallouts.internal[team]
+						: staffList[0].id;
 			} else {
 				console.log(`$$OVERTIME: EXTERNAL PHASE`);
 				staffList = staff;
-				lastCalloutStaff = lastCallouts.external.id;
+				lastCalloutStaff =
+					lastCallouts.external.id && lastCallouts.external.id !== ''
+						? lastCallouts.external.id
+						: staffList[0].id;
 				phase = 'external';
 			}
 
@@ -286,7 +314,12 @@ const callout = async () => {
 				console.log(`$$OVERTIME: GOT CALLOUT INDEX: ${calloutUserIndex}`);
 			}
 
-			const staffToCallout = getNextUserToCallout(staffCalled, staffList, calloutUserIndex);
+			const staffToCallout = getNextUserToCallout(
+				staffCalled,
+				staffList,
+				calloutUserIndex,
+				overtime
+			);
 
 			console.log(
 				`$$OVERTIME: NEXT USER TO CALLOUT = ${staffToCallout.firstName} ${staffToCallout.lastName}`

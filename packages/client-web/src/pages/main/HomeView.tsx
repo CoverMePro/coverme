@@ -8,7 +8,6 @@ import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import GroupsIcon from '@mui/icons-material/Groups';
-//import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const HomeView: React.FC = () => {
@@ -38,11 +37,6 @@ const HomeView: React.FC = () => {
 					title="Teams"
 					path="teams"
 				/>
-				{/* <NavCard
-					icon={<PendingActionsIcon fontSize="inherit" color="secondary" />}
-					title="Shift Templates"
-					path="shift-templates"
-				/> */}
 				<NavCard
 					icon={<GroupsIcon fontSize="inherit" color="secondary" />}
 					title="Users"

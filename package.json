@@ -6,11 +6,12 @@
 		"compile": "lerna run compile --stream",
 		"postinstall": "lerna bootstrap",
 		"remove-shared": "shx rm -rf \"packages/functions/src/coverme-shared\" && shx rm -rf \"packages/client-web/src/coverme-shared\"",
-		"add-shared": "shx cp -R \"packages/coverme-shared/.\" \"packages/functions/src/coverme-shared\" && shx cp -R \"packages/coverme-shared/.\" \"packages/client-web/src/coverme-shared\"",
+		"add-shared": "shx cp -R \"packages/coverme-shared/lib/.\" \"packages/functions/src/coverme-shared\" && shx cp -R \"packages/coverme-shared/lib/.\" \"packages/client-web/src/coverme-shared\"",
 		"update-shared": "npm run remove-shared && npm run add-shared",
 		"local-server": "cd packages/functions && firebase use dev && npm run serve",
 		"local-client": "cd packages/client-web && firebase use dev && npm start",
-		"deploy:dev": "cd packages/functions && npm run deploy:dev && cd ../client-web && npm run build:dev"
+		"deploy:dev": "cd packages/functions && npm run deploy:dev && cd ../client-web && npm run build:dev",
+		"deploy:demo": "cd packages/functions && npm run deploy:demo && cd ../client-web && npm run build:demo"
 	},
 	"devDependencies": {
 		"lerna": "^6.0.3",

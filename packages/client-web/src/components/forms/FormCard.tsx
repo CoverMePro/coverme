@@ -21,7 +21,7 @@ const FormCard: React.FC<IFormCardProps> = ({ title, children }) => {
 			<Box
 				sx={{
 					paddingY: 5,
-					width: '100%',
+					width: '90%',
 				}}
 			>
 				<img src={logo} width={100} alt="Cover Me Logo" />

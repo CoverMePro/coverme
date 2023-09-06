@@ -7,7 +7,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		capitalize: true,
-		sortable: true,
+		sortable: false,
 		label: 'First Name',
 	},
 	{
@@ -15,7 +15,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'Last Name',
-		sortable: true,
+		sortable: false,
 		capitalize: true,
 	},
 	{
@@ -23,7 +23,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'Staff Type',
-		sortable: true,
+		sortable: false,
 		capitalize: true,
 	},
 	{
@@ -31,7 +31,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'Hire Date',
-		sortable: true,
+		sortable: false,
 		capitalize: true,
 	},
 	{
@@ -39,7 +39,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'Phone #',
-		sortable: true,
+		sortable: false,
 		capitalize: true,
 	},
 	{
@@ -47,7 +47,7 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'Contact By',
-		sortable: true,
+		sortable: false,
 		capitalize: true,
 	},
 	// {

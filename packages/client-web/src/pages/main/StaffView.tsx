@@ -14,7 +14,7 @@ import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
 import CreateStaffForm from 'components/forms/CreateStaffForm';
 import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import FormDialog from 'components/dialogs/FormDialog';
-import { getAddAction, getEditDeleteAction } from 'utils/react/table-actions-helper';
+import { getStaffActions, getStaffUnselectAddAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import api from 'utils/api';
@@ -94,6 +94,42 @@ const StaffView: React.FC = () => {
 			});
 	};
 
+	const handleClearLastCallout = () => {
+		api.post(`overtime-callouts/last-callout/assign`, {
+			staffId: '',
+			team: selectedTeam,
+		})
+			.then(() => {
+				enqueueSnackbar('Last callout assignment successfully cleared', {
+					variant: 'success',
+				});
+				setSelected(undefined);
+				handleGetUsers();
+			})
+			.catch((err) => {
+				enqueueSnackbar('Error trying to assign staff memeber', {
+					variant: 'error',
+				});
+			});
+	};
+
+	const handleAssignStaffLastCallout = () => {
+		api.post(`overtime-callouts/last-callout/assign`, {
+			staffId: selected,
+			team: selectedTeam,
+		})
+			.then(() => {
+				enqueueSnackbar('Staff member assigned last callout', { variant: 'success' });
+				setSelected(undefined);
+				handleGetUsers();
+			})
+			.catch((err) => {
+				enqueueSnackbar('Error trying to assign staff memeber', {
+					variant: 'error',
+				});
+			});
+	};
+
 	const formatHireDate = (staff: IStaff[]) => {
 		return staff.map((user) => {
 			const date = user.hireDate;
@@ -157,7 +193,7 @@ const StaffView: React.FC = () => {
 						const formattedFetchedStaff = formatLastCalloutStaff(
 							formattedDateStaff,
 							fetchedLastCallouts,
-							'all'
+							selectedTeam
 						);
 
 						setStaff(formattedFetchedStaff);
@@ -246,11 +282,16 @@ const StaffView: React.FC = () => {
 						id="id"
 						selected={selected}
 						onSelect={handleSelectStaff}
-						unSelectedActions={getAddAction('Staff', handleAddStaff)}
-						selectedActions={getEditDeleteAction(
+						unSelectedActions={getStaffUnselectAddAction(
+							'Staff',
+							handleAddStaff,
+							handleClearLastCallout
+						)}
+						selectedActions={getStaffActions(
 							'Staff',
 							handleOpenDeleteStaff,
-							handleOpenEditStaff
+							handleOpenEditStaff,
+							handleAssignStaffLastCallout
 						)}
 					/>
 					<FormDialog

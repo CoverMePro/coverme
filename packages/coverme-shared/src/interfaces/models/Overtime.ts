@@ -18,7 +18,9 @@ export interface IOvertime {
 	managerNumbers: string[];
 	callouts: ICallout[];
 	phase: OvertimePhase;
+	archive: boolean;
 	shiftAcceptedBy?: string;
 	allNotifed?: boolean;
 	alldeclined?: boolean;
+	exclude?: string[];
 }

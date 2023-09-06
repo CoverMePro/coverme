@@ -35,8 +35,11 @@ const createOvertimeCallout = async (req: Request, res: Response) => {
 
 const getOvertimeCallouts = async (req: Request, res: Response) => {
 	try {
-		const overtimeCallouts = await dbHandler.getCollectionsWithSort<IOvertime>(
+		const overtimeCallouts = await dbHandler.getCollectionWithConditionAndSort<IOvertime>(
 			'overtime-callouts',
+			'archive',
+			'==',
+			false,
 			'dateCreated',
 			'asc'
 		);
@@ -160,6 +163,21 @@ const rejectedCalloutShift = async (req: Request, res: Response) => {
 	}
 };
 
+const archiveOvertimeCallout = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	try {
+		await dbHandler.updateDocument('overtime-callouts', id, {
+			archive: true,
+		});
+
+		return res.json({ message: 'Overtime callout archived' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 const voiceProcess = async (req: Request, res: Response) => {
 	console.log('In VOICE PROCESS');
 
@@ -235,14 +253,39 @@ const getCompanyOvertimeCalloutStaffList = (_: Request, res: Response) => {
 		});
 };
 
+const assignLastCallout = async (req: Request, res: Response) => {
+	const { staffId, team } = req.body;
+
+	try {
+		if (team === 'all') {
+			await dbHandler.updateDocument('last-callouts', 'external', {
+				id: staffId,
+			});
+		} else {
+			await dbHandler.updateDocument('last-callouts', 'internal', {
+				[team]: staffId,
+			});
+		}
+
+		return res.json({
+			message: `Last callout assigned to new staff`,
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
 export default {
 	createOvertimeCallout,
 	getOvertimeCallouts,
 	getOvertimeCalloutInfo,
 	acceptCalloutShift,
 	rejectedCalloutShift,
+	archiveOvertimeCallout,
 	voiceProcess,
 	testCycleCallout,
 	getCompanyOvertimeCalloutList,
 	getCompanyOvertimeCalloutStaffList,
+	assignLastCallout,
 };
