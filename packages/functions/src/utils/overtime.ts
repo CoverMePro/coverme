@@ -12,6 +12,40 @@ import {
 	sendOvertimeVoice,
 } from './sms';
 
+export const AcceptAndComplete = async (callout: ICallout, overtime: IOvertime) => {
+	const batch = getBatch();
+
+	// Update callout, shift, and the user as the last person to accept callout
+	batch.update(dbHandler.getDocumentSnapshot(`overtime-callouts/${overtime.id}`), {
+		shiftAcceptedBy: callout.userName,
+		status: 'Complete',
+	});
+
+	// If its an internal user (user within the team) make sure to update correct 'last callout'
+	// If external, then update that list.
+	if (callout.team === 'internal') {
+		batch.update(dbHandler.getDocumentSnapshot(`last-callouts/internal`), {
+			[overtime.team]: callout.userId,
+		});
+	} else {
+		batch.update(dbHandler.getDocumentSnapshot(`last-callouts/external`), {
+			id: callout.userId,
+		});
+	}
+
+	await batch.commit();
+
+	console.log(`$$OVERTIME: User (${callout.userName}) accepted callout!`);
+
+	await sendManagerUserAcceptedShift(overtime, callout.userName);
+
+	if (callout.contactBy === 'Phone') {
+		await sendConfirmOvertimeVoice(callout.phone, overtime);
+	} else {
+		await sendConfirmOvertimeSms(callout.phone, overtime);
+	}
+};
+
 const staffContainsTeam = (staff: IStaff, team: string) => {
 	if (!staff.teams || staff.teams.length === 0) {
 		return false;
@@ -24,7 +58,7 @@ const isInCallouts = (callouts: ICallout[], staff: IStaff) => {
 	return callouts.findIndex((callout) => callout.userId === staff.id) !== -1;
 };
 
-const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime, team: string) => {
+const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime) => {
 	let hasAccepted = false;
 
 	for (let i = 0, len = callouts.length; i < len; ++i) {
@@ -33,37 +67,7 @@ const hasUserAcceptedCallout = async (callouts: ICallout[], overtime: IOvertime,
 		// if one of the users has chose to accept the shift
 		if (callout.status === 'Accepted') {
 			try {
-				const batch = getBatch();
-
-				// Update callout, shift, and the user as the last person to accept callout
-				batch.update(dbHandler.getDocumentSnapshot(`overtime-callouts/${overtime.id}`), {
-					shiftAcceptedBy: callout.userName,
-					status: 'Complete',
-				});
-
-				// If its an internal user (user within the team) make sure to update correct 'last callout'
-				// If external, then update that list.
-				if (callout.team === 'internal') {
-					batch.update(dbHandler.getDocumentSnapshot(`last-callouts/internal`), {
-						[team]: callout.userId,
-					});
-				} else {
-					batch.update(dbHandler.getDocumentSnapshot(`last-callouts/external`), {
-						id: callout.userId,
-					});
-				}
-
-				await batch.commit();
-
-				console.log(`$$OVERTIME: User (${callout.userName}) accepted callout!`);
-
-				await sendManagerUserAcceptedShift(overtime, callout.userName);
-
-				if (callout.contactBy === 'Phone') {
-					await sendConfirmOvertimeVoice(callout.phone, overtime);
-				} else {
-					await sendConfirmOvertimeSms(callout.phone, overtime);
-				}
+				await AcceptAndComplete(callout, overtime);
 
 				hasAccepted = true;
 			} catch (err: any) {
@@ -126,6 +130,7 @@ const hasAllStaffBeenNotifiedOrDeclined = async (
 				//update overtime
 				await dbHandler.updateDocument<IOvertime>('overtime-callouts', overtime.id!, {
 					alldeclined: true,
+					status: 'Complete',
 				});
 			}
 		}
@@ -265,7 +270,7 @@ const callout = async () => {
 
 			const { team } = overtime;
 
-			const userAcceptedCallout = await hasUserAcceptedCallout(staffCalled, overtime, team);
+			const userAcceptedCallout = await hasUserAcceptedCallout(staffCalled, overtime);
 
 			if (userAcceptedCallout) return;
 

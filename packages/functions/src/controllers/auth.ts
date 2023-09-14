@@ -29,6 +29,7 @@ const registerUser = async (req: Request, res: Response) => {
 		const userData: any = {
 			...user,
 			phone,
+			status: 'Active',
 		};
 
 		delete userData.id;
@@ -99,7 +100,7 @@ const sendRegisterLink = async (req: Request, res: Response) => {
 
 const registerCallback = (req: Request, res: Response) => {
 	const { email } = req.query;
-	return res.redirect(`${process.env.LOCAL_CLIENT_DOMAIN}/register?email=${email}`);
+	return res.redirect(`${process.env.WEB_CLIENT_DOMAIN}/register?email=${email}`);
 };
 
 const signIn = async (req: Request, res: Response) => {

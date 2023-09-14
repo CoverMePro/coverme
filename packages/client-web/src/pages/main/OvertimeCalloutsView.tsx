@@ -117,7 +117,9 @@ const OvertimeCalloutsView: React.FC = () => {
 				} as IOvertime;
 				retrievedCallouts.push(overtime);
 			});
-			setCallouts([...retrievedCallouts]);
+
+			const filterCallouts = retrievedCallouts.filter((callout) => !callout.archive);
+			setCallouts([...filterCallouts]);
 		});
 
 		return () => {

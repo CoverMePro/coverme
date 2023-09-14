@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { IOvertime, ITeam, IUser } from 'coverme-shared';
 import { getCalloutList, getCalloutStaffList } from '../db/db-helpers';
-import calloutCyle from '../utils/overtime';
+import calloutCyle, { AcceptAndComplete } from '../utils/overtime';
 import dbHandler from '../db/db-handler';
 
 const createOvertimeCallout = async (req: Request, res: Response) => {
@@ -112,6 +112,10 @@ const acceptCalloutShift = async (req: Request, res: Response) => {
 
 		if (userInListIdx != -1) {
 			calloutList[userInListIdx].status = 'Accepted';
+
+			if (overtimeCallout.allNotifed) {
+				await AcceptAndComplete(calloutList[userInListIdx], overtimeCallout);
+			}
 
 			await dbHandler.updateDocument('overtime-callouts', overtimeId, {
 				callouts: calloutList,

@@ -6,7 +6,7 @@ import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/au
  */
 export const emailSignInForUser = (firebaseAuth: Auth, email: string) => {
 	const actionCodeSettings = {
-		url: `${process.env.LOCAL_SERVER_DOMAIN}/auth/register-callback?email=${email}`,
+		url: `${process.env.SERVER_DOMAIN}/auth/register-callback?email=${email}`,
 
 		// This must be true. Do not truly know why
 		handleCodeInApp: true,
