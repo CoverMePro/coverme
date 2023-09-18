@@ -18,7 +18,7 @@ export const validateStaffCreate = (values: any) => {
 	if (isEmpty(values.phone)) {
 		errors.phone = 'Required';
 	} else if (!isPhone(values.phone)) {
-		errors.phone = 'Must be a valid Phone Number';
+		errors.phone = '+1 (xxx) xxx-xxxx';
 	}
 	return errors;
 };
