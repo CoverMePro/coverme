@@ -34,7 +34,9 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 	selectedUser,
 }) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
+	const [savedHireDate, setSavedHireDate] = useState<Date>(
+		editMode ? selectedUser.hireDate : new Date()
+	);
 	const [employeeType, setEmployeeType] = useState<string>('Full-Time');
 	const [contactBy, setContactBy] = useState<string>('Text');
 
@@ -53,7 +55,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 			initialValues: {
 				firstName: editMode ? selectedUser.firstName : '',
 				lastName: editMode ? selectedUser.lastName : '',
-				hireDate: editMode ? selectedUser.hireDate : String(new Date()),
+				hireDate: editMode ? selectedUser.hireDate : '',
 				phone: editMode ? selectedUser.phone : '',
 				employeeType: editMode ? selectedUser.employeeType : 'Full-Time',
 				contactBy: editMode ? selectedUser.contactBy : 'Text',
