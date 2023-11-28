@@ -13,3 +13,6 @@ yarn-debug.log*
 yarn-error.log*
 
 typings/
+
+packages/functions/firebase-debug.log
+packages/functions/ui-debug.log
