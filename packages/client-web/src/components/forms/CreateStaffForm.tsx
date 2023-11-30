@@ -34,9 +34,9 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 	selectedUser,
 }) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [savedHireDate, setSavedHireDate] = useState<Date>(new Date());
-	const [employeeType, setEmployeeType] = useState<string>('Full-Time');
-	const [contactBy, setContactBy] = useState<string>('Text');
+	const [savedHireDate, setSavedHireDate] = useState<Date>();
+	const [employeeType, setEmployeeType] = useState<string>();
+	const [contactBy, setContactBy] = useState<string>();
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -191,7 +191,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 							)}
 							InputProps={{ readOnly: true }}
 							label="Hire Date"
-							value={savedHireDate}
+							value={values.hireDate}
 							onChange={(newValue, keyboardValue) => {
 								if (newValue && keyboardValue === undefined) {
 									setSavedHireDate(newValue);
@@ -202,7 +202,7 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 								} else if (keyboardValue !== undefined) {
 									setValues({
 										...values,
-										hireDate: savedHireDate.toDateString(),
+										hireDate: values.hireDate.toDateString(),
 									});
 								}
 							}}
@@ -245,7 +245,6 @@ const CreateStaffForm: React.FC<IRegisterUserFormProps> = ({
 										defaultValue={values.contactBy}
 										label="Contact By"
 										onChange={handleContactByChange}
-										value={contactBy}
 									>
 										<MenuItem value="Text">Text</MenuItem>
 										<MenuItem value="Phone">Phone</MenuItem>

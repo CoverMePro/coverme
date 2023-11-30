@@ -81,7 +81,7 @@ const StaffView: React.FC = () => {
 			.then(() => {
 				enqueueSnackbar('Staff member successfully deleted', { variant: 'success' });
 				setSelected(undefined);
-				handleGetUsers();
+				handleGetUsers(selectedTeam);
 			})
 			.catch((err) => {
 				enqueueSnackbar('Error trying to delete Staff member, please try again', {
@@ -104,7 +104,7 @@ const StaffView: React.FC = () => {
 					variant: 'success',
 				});
 				setSelected(undefined);
-				handleGetUsers();
+				handleGetUsers(selectedTeam);
 			})
 			.catch((err) => {
 				enqueueSnackbar('Error trying to assign staff memeber', {
@@ -121,7 +121,7 @@ const StaffView: React.FC = () => {
 			.then(() => {
 				enqueueSnackbar('Staff member assigned last callout', { variant: 'success' });
 				setSelected(undefined);
-				handleGetUsers();
+				handleGetUsers(selectedTeam);
 			})
 			.catch((err) => {
 				enqueueSnackbar('Error trying to assign staff memeber', {
@@ -183,41 +183,48 @@ const StaffView: React.FC = () => {
 		[]
 	);
 
-	const handleGetUsers = useCallback(() => {
-		api.getAllData<IStaff>(`staff`)
-			.then((staff) => {
-				api.getGenericData(`overtime-callouts/staffList`)
-					.then((result) => {
-						const fetchedLastCallouts = result.lastCallouts;
-						const formattedDateStaff = formatHireDate(staff);
-						const formattedFetchedStaff = formatLastCalloutStaff(
-							formattedDateStaff,
-							fetchedLastCallouts,
-							selectedTeam
-						);
+	const handleGetUsers = useCallback(
+		(selectedTeam: string) => {
+			if (selectedTeam) {
+				setSelectedTeam(selectedTeam);
+			}
 
-						setStaff(formattedFetchedStaff);
-						setFilteredStaff(formattedFetchedStaff);
-						setLastCallouts(fetchedLastCallouts);
-					})
-					.catch((err) => {
-						console.error(err);
-					})
-					.finally(() => setIsLoadingStaff(false));
-			})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => setIsLoadingStaff(false));
+			api.getAllData<IStaff>(`staff`)
+				.then((staff) => {
+					api.getGenericData(`overtime-callouts/staffList`)
+						.then((result) => {
+							const fetchedLastCallouts = result.lastCallouts;
+							const formattedDateStaff = formatHireDate(staff);
+							const formattedFetchedStaff = formatLastCalloutStaff(
+								formattedDateStaff,
+								fetchedLastCallouts,
+								selectedTeam
+							);
 
-		api.getAllData<ITeam>(`teams`)
-			.then((teams) => {
-				setTeamsSelect(teams);
-			})
-			.catch((err) => {
-				console.error(err);
-			});
-	}, [formatLastCalloutStaff]);
+							setStaff(formattedFetchedStaff);
+							setFilteredStaff(formattedFetchedStaff);
+							setLastCallouts(fetchedLastCallouts);
+						})
+						.catch((err) => {
+							console.error(err);
+						})
+						.finally(() => setIsLoadingStaff(false));
+				})
+				.catch((err) => {
+					console.error(err);
+				})
+				.finally(() => setIsLoadingStaff(false));
+
+			api.getAllData<ITeam>(`teams`)
+				.then((teams) => {
+					setTeamsSelect(teams);
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		},
+		[formatLastCalloutStaff]
+	);
 
 	const clearCheck = (staff: IStaff[]) => {
 		return staff.map((staff) => {
@@ -238,12 +245,13 @@ const StaffView: React.FC = () => {
 		const newStaffList = formatLastCalloutStaff([...staff], lastCallouts, team);
 		setFilteredStaff([...newStaffList]);
 		setSelectedTeam(team);
+		handleGetUsers(team);
 	};
 
 	useEffect(() => {
 		const loadUsers = async () => {
 			setIsLoadingStaff(true);
-			await handleGetUsers();
+			await handleGetUsers(selectedTeam);
 		};
 
 		loadUsers();
@@ -304,7 +312,7 @@ const StaffView: React.FC = () => {
 							onFinish={() => {
 								handleCloseAddStaff();
 								handleCloseEditStaff();
-								handleGetUsers();
+								handleGetUsers(selectedTeam);
 							}}
 						/>
 					</FormDialog>
