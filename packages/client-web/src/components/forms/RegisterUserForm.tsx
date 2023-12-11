@@ -197,6 +197,39 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 						helperText={touched.email ? errors.email : ''}
 					/>
 				</Box>
+
+				<>
+					{editMode && (
+						<>
+							<Box sx={{ mt: 2 }}>
+								<MuiPhoneNumber
+									defaultCountry={'ca'}
+									disableDropdown
+									sx={{ mb: 2, width: '40%', mr: 30 }}
+									variant="outlined"
+									label="Phone Number"
+									type="tel"
+									name="phone"
+									value={values.phone}
+									onChange={(e) => {
+										setValues({
+											...values,
+											phone: e as string,
+										});
+									}}
+									onBlur={handleBlur}
+									error={
+										touched.phone &&
+										errors.phone !== undefined &&
+										errors.phone !== ''
+									}
+									helperText={touched.phone ? errors.phone : ''}
+								/>
+							</Box>
+						</>
+					)}
+				</>
+
 				<Box sx={{ mt: 2 }}>
 					<FormControl component="fieldset">
 						<RadioGroup
