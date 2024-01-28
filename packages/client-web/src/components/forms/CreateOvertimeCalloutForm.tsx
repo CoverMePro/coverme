@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
+import { useFormik } from 'formik';
 import { Box, TextField, CircularProgress, Autocomplete, Fab } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/Add';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -11,6 +12,7 @@ import api from 'utils/api';
 import { IOvertime, IStaff, ITeam } from 'coverme-shared';
 import DurationCustom from 'components/number-formats/DurationCustom';
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
+import { validateOvertimeCallout } from 'utils/validations/overtimeCallout';
 
 interface ICreateOvertimeCalloutFormProps {
 	onFinish: (overtimeCallout: IOvertime | undefined) => void;
@@ -26,14 +28,20 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 	const [staff, setStaff] = useState<IStaff[]>([]);
 	const [excludedStaff, setExcludedStaff] = useState<string[]>([]);
 	const [selectedTeam, setSelectedTeam] = useState<ITeam | null>(null);
-
-	const [duration, setDuration] = useState<string>('');
-	const [dateTimeValue, setDateTimeValue] = useState<Date>(date);
-
+	const [dateTimeValue, setDateTimeValue] = useState<Date>();
 	const { enqueueSnackbar } = useSnackbar();
 
 	const handleTeamChange = (_: React.SyntheticEvent<Element, Event>, value: ITeam | null) => {
 		setSelectedTeam(value);
+		setValues({ ...values, selectedTeam: value!.id });
+	};
+
+	const handleDateValueChange = (date: any, keyboardInputValue?: string | undefined) => {
+		if (date === null) return;
+		console.log(date);
+		console.log(date.toString());
+		setDateTimeValue(date);
+		setValues({ ...values, dateTimeValue: date.toString() });
 	};
 
 	const handleChangeExcludedStaff = (
@@ -45,64 +53,71 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		setExcludedStaff(staffIds ? [...staffIds] : []);
 	};
 
-	const handleDurationChange = (event: any) => {
-		setDuration(event.target.value);
-	};
+	const { handleSubmit, handleChange, handleBlur, setValues, values, touched, errors } =
+		useFormik({
+			initialValues: {
+				selectedTeam: '',
+				excludedStaff: '',
+				dateTimeValue: date.toString(),
+				duration: '',
+			},
+			validate: validateOvertimeCallout,
+			onSubmit: (userValues: any) => {
+				const { selectedTeam, duration } = userValues;
+				setIsLoading(true);
 
-	const handleSubmit = () => {
-		// TO DO: Handle when a shift already has a callout? - NEEDS TO TEST
-		const endDate = getEndDate(dateTimeValue, duration);
+				const endDate = getEndDate(dateTimeValue!, duration);
+				const shiftString = formatDateTimeOutputString(dateTimeValue!, endDate);
 
-		const shiftString = formatDateTimeOutputString(dateTimeValue, endDate);
+				console.log(shiftString);
 
-		console.log(shiftString);
+				if (selectedTeam) {
+					const overtimeCallout: IOvertime = {
+						shiftInfo: shiftString,
+						team: selectedTeam,
+						callouts: [],
+						phase: 'Internal',
+						status: 'Pending',
+						managerNumbers: [],
+						allNotifed: false,
+						alldeclined: false,
+						archive: false,
+						exclude: excludedStaff,
+					};
 
-		if (selectedTeam) {
-			const overtimeCallout: IOvertime = {
-				shiftInfo: shiftString,
-				team: selectedTeam.id,
-				callouts: [],
-				phase: 'Internal',
-				status: 'Pending',
-				managerNumbers: [],
-				allNotifed: false,
-				alldeclined: false,
-				archive: false,
-				exclude: excludedStaff,
-			};
+					console.log(overtimeCallout);
 
-			console.log(overtimeCallout);
-
-			setIsLoading(true);
-			api.postCreateData<IOvertime>(`overtime-callouts`, overtimeCallout)
-				.then((overtime) => {
-					enqueueSnackbar('overtime callout created and started.', {
-						variant: 'success',
+					setIsLoading(true);
+					api.postCreateData<IOvertime>(`overtime-callouts`, overtimeCallout)
+						.then((overtime) => {
+							enqueueSnackbar('overtime callout created and started.', {
+								variant: 'success',
+							});
+							onFinish(overtime);
+						})
+						.catch((err) => {
+							if (err.response?.status === 403) {
+								enqueueSnackbar('A callout for this shift has already been made', {
+									variant: 'error',
+								});
+							} else {
+								console.error(err);
+								enqueueSnackbar('An error has occured, please try again', {
+									variant: 'error',
+								});
+							}
+							onFinish(undefined);
+						})
+						.finally(() => {
+							setIsLoading(false);
+						});
+				} else {
+					enqueueSnackbar('A valid shift was not selected', {
+						variant: 'error',
 					});
-					onFinish(overtime);
-				})
-				.catch((err) => {
-					if (err.response?.status === 403) {
-						enqueueSnackbar('A callout for this shift has already been made', {
-							variant: 'error',
-						});
-					} else {
-						console.error(err);
-						enqueueSnackbar('An error has occured, please try again', {
-							variant: 'error',
-						});
-					}
-					onFinish(undefined);
-				})
-				.finally(() => {
-					setIsLoading(false);
-				});
-		} else {
-			enqueueSnackbar('A valid shift was not selected', {
-				variant: 'error',
-			});
-		}
-	};
+				}
+			},
+		});
 
 	useEffect(() => {
 		// get unassigned shifts
@@ -130,7 +145,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
 	return (
 		<FormCard title="Shift Information">
-			<>
+			<form onSubmit={handleSubmit}>
 				{isLoadingData ? (
 					<Box>
 						<CircularProgress />
@@ -145,9 +160,21 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 									<li {...props}>{option.id}</li>
 								)}
 								renderInput={(params) => (
-									<TextField {...params} label="Select Team" />
+									<TextField
+										{...params}
+										label="Select Team"
+										name="selectedTeam"
+										value={values.selectedTeam}
+										error={
+											touched.selectedTeam &&
+											errors.selectedTeam !== undefined &&
+											errors.selectedTeam !== ''
+										}
+										helperText={touched.selectedTeam ? errors.selectedTeam : ''}
+									/>
 								)}
 								onChange={handleTeamChange}
+								onBlur={handleBlur}
 							/>
 						</Box>
 						<Box sx={{ mt: 2 }}>
@@ -173,13 +200,24 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 								<DateTimePicker
 									disablePast
 									label="Start Date Time"
-									value={dateTimeValue}
-									onChange={(newValue) => {
-										if (newValue) {
-											setDateTimeValue(newValue);
-										}
-									}}
-									renderInput={(params) => <TextField {...params} />}
+									value={values.dateTimeValue}
+									onChange={handleDateValueChange}
+									renderInput={(params) => (
+										<TextField
+											{...params}
+											name="dateTimeValue"
+											onBlur={handleBlur}
+											onChange={handleChange}
+											error={
+												touched.dateTimeValue &&
+												errors.dateTimeValue !== undefined &&
+												errors.dateTimeValue !== ''
+											}
+											helperText={
+												touched.dateTimeValue ? errors.dateTimeValue : ''
+											}
+										/>
+									)}
 								/>
 							</LocalizationProvider>
 						</Box>
@@ -187,14 +225,20 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 							<TextField
 								sx={{ width: '25%' }}
 								label="Duration"
-								value={duration}
-								onChange={handleDurationChange}
-								name="shiftDuration"
+								name="duration"
 								id="formatted-numberformat-input"
+								onChange={handleChange}
+								onBlur={handleBlur}
 								InputProps={{
 									inputComponent: DurationCustom as any,
 								}}
 								variant="outlined"
+								error={
+									touched.duration &&
+									errors.duration !== undefined &&
+									errors.duration !== ''
+								}
+								helperText={touched.duration ? errors.duration : ''}
 							/>
 						</Box>
 
@@ -202,18 +246,14 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 							{isLoading ? (
 								<CircularProgress />
 							) : (
-								<Fab
-									color="primary"
-									aria-label="Register User"
-									onClick={handleSubmit}
-								>
+								<Fab color="primary" aria-label="Register User" type="submit">
 									<HowToRegIcon fontSize="large" />
 								</Fab>
 							)}
 						</Box>
 					</>
 				)}
-			</>
+			</form>
 		</FormCard>
 	);
 };
