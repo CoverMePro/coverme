@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { ICompany } from 'coverme-shared';
+import { ICompany } from '../coverme-shared';
 
 import { getCalloutList } from '../db/db-helpers';
 import dbHandler from '../db/db-handler';

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IShiftTemplate } from 'coverme-shared';
+import { IShiftTemplate } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 
 const createShiftTemplate = async (req: Request, res: Response) => {

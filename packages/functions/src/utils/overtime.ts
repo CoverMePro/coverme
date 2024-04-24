@@ -1,4 +1,4 @@
-import { IOvertime, ICallout, IStaff } from 'coverme-shared';
+import { IOvertime, ICallout, IStaff } from '../coverme-shared';
 import { getBatch } from '../db/batch-handler';
 import dbHandler from '../db/db-handler';
 import { getCalloutList } from '../db/db-helpers';
@@ -280,6 +280,8 @@ const callout = async () => {
 			//if (hasCalloutReachedShiftStartTimeRange(shift, 1)) return;
 
 			const { staff, lastCallouts } = await getCalloutList();
+
+			console.log('STAFF: ', staff);
 
 			// check if all users are notified, if so then dont go through all this
 			if (await hasAllStaffBeenNotifiedOrDeclined(staff, overtime, staffCalled)) return;

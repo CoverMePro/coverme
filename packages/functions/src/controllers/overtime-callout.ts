@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IOvertime, ITeam, IUser } from 'coverme-shared';
+import { IOvertime, ITeam, IUser } from '../coverme-shared';
 import { getCalloutList, getCalloutStaffList } from '../db/db-helpers';
 import calloutCyle, { AcceptAndComplete } from '../utils/overtime';
 import dbHandler from '../db/db-handler';

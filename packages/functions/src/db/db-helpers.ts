@@ -1,4 +1,4 @@
-import { IStaff, IUser } from 'coverme-shared';
+import { IStaff, IUser } from '../coverme-shared';
 import { db } from '../utils/admin';
 
 export const handleError = (error: any) => {

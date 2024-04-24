@@ -8,7 +8,7 @@
 		"deploy": "firebase deploy --only functions",
 		"logs": "firebase functions:log",
 		"deploy:dev": "env-cmd -f .env.dev firebase deploy --only functions -P dev",
-		"deploy:demo": "firebase deploy --only functions -P demo",
+		"deploy:demo": "env-cmd -f .env.demo firebase deploy --only functions -P demo",
 		"deploy:oakville": "firebase deploy --only functions -P oakville",
 		"compile": "tsc --project tsconfig.json"
 	},
@@ -21,7 +21,6 @@
 		"clicksend": "^5.0.37",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
-		"coverme-shared": "file:./src/coverme-shared",
 		"express": "^4.17.1",
 		"firebase": "^9.14.0",
 		"firebase-admin": "^10.0.2",

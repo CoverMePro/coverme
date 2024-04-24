@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IStaff } from 'coverme-shared';
+import { IStaff } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 
 const getStaff = (req: Request, res: Response) => {

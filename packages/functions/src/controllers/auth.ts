@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
-import { ITeam, IUser, IUserLogin } from 'coverme-shared';
+import { ITeam, IUser, IUserLogin } from '../coverme-shared';
 
 import { SESSION_COOKIE_EXPIRY } from '../constants';
 

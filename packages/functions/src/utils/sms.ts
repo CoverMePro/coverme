@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUser, IOvertime, IStaff } from 'coverme-shared';
+import { IUser, IOvertime, IStaff } from '../coverme-shared';
 
 import {
 	SmsMessage,

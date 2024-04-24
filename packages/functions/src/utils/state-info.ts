@@ -1,4 +1,4 @@
-import { ICompany, ITeam, IUser } from 'coverme-shared';
+import { ICompany, ITeam, IUser } from '../coverme-shared';
 import { formatFirestoreData, mapFireStoreData } from '../db/db-helpers';
 
 import { db } from './admin';

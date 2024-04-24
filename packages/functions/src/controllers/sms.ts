@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IOvertime } from 'coverme-shared';
+import { IOvertime } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 
 const handleSmsReplyApprove = async (req: Request, res: Response) => {

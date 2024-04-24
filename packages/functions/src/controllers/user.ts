@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUser } from 'coverme-shared';
+import { IUser } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 import { fbAdmin } from '../utils/admin';
 

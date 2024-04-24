@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IStaff, ITeam, IUser } from 'coverme-shared';
+import { IStaff, ITeam, IUser } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getBatch } from '../db/batch-handler';
 
