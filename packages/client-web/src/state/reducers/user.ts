@@ -10,6 +10,9 @@ const initialState: IUser = {
 	phone: '',
 	role: 'Manager',
 	status: 'Active',
+	contactBy: 'Text',
+	employeeType: 'Full-Time',
+	hireDate: new Date(),
 	teams: [],
 };
 

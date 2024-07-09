@@ -1,0 +1,11 @@
+[debug] [2024-07-09T19:29:46.559Z] ----------------------------------------------------------------------
+[debug] [2024-07-09T19:29:46.560Z] Command:       C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\firebase-tools\lib\bin\firebase.js use dev
+[debug] [2024-07-09T19:29:46.561Z] CLI Version:   12.5.4
+[debug] [2024-07-09T19:29:46.561Z] Platform:      win32
+[debug] [2024-07-09T19:29:46.561Z] Node Version:  v16.20.2
+[debug] [2024-07-09T19:29:46.561Z] Time:          Tue Jul 09 2024 15:29:46 GMT-0400 (Eastern Daylight Saving Time)
+[debug] [2024-07-09T19:29:46.562Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-07-09T19:29:46.613Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-07-09T19:29:46.613Z] > authorizing via signed-in user (matthew@bytesizecoder.ca)
+[debug] [2024-07-09T19:29:46.615Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/coverme-47dc7 [none]

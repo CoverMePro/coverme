@@ -15,7 +15,14 @@ const getStaff = (req: Request, res: Response) => {
 
 const getAllStaff = async (_: Request, res: Response) => {
 	try {
-		const staff = await dbHandler.getCollectionsWithSort('staff', 'hireDate', 'asc');
+		const staff = await dbHandler.getCollectionWithConditionAndSort(
+			'users',
+			'role',
+			'==',
+			'Staff',
+			'horeDate',
+			'asc'
+		);
 		return res.json(staff);
 	} catch (error) {
 		console.error(error);

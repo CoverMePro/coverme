@@ -127,6 +127,7 @@ const UserView: React.FC = () => {
 					<FormDialog
 						open={openEditUser ? true : openAddUser}
 						onClose={openEditUser ? handleCloseEditUser : handleCloseAddUser}
+						maxWidth={'sm'}
 					>
 						<RegisterUserForm
 							editMode={openEditUser}

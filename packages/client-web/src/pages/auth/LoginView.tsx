@@ -28,12 +28,14 @@ import LoginIcon from '@mui/icons-material/Login';
 
 import loginBackground from '../../images/login-background.jpg';
 import logo from '../../images/cover-me-logo.png';
+import SetPasswordDialog from 'components/dialogs/SetPasswordDialog';
 
 const LoginView: React.FC = () => {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 	const [isLogginIn, setIsLoggingIn] = useState<boolean>(false);
 	const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 	const [openForgotPassword, setOpenForgotPassword] = useState<boolean>(false);
+	const [openSetPassword, setOpenSetPassword] = useState<boolean>(false);
 	const [loginError, setLoginError] = useState<string | undefined>(undefined);
 
 	const navigate = useNavigate();
@@ -57,7 +59,11 @@ const LoginView: React.FC = () => {
 					setUser(userData);
 					setCompany(companyData);
 					setIsLoggingIn(false);
-					navigate('/portal/home');
+					if (userData.status === 'Pending') {
+						setOpenSetPassword(true);
+					} else {
+						navigate('/portal/home');
+					}
 				})
 				.catch((err: AxiosError) => {
 					setIsLoggingIn(false);
@@ -69,6 +75,11 @@ const LoginView: React.FC = () => {
 				});
 		},
 	});
+
+	const handleNewPasswordSet = () => {
+		setOpenSetPassword(false);
+		navigate('/portal/home');
+	};
 
 	useEffect(() => {
 		api.authCheck()
@@ -219,6 +230,7 @@ const LoginView: React.FC = () => {
 				open={openForgotPassword}
 				onClose={() => setOpenForgotPassword(false)}
 			/>
+			<SetPasswordDialog open={openSetPassword} onClose={handleNewPasswordSet} />
 		</>
 	);
 };

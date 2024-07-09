@@ -1,77 +1,59 @@
 import { Request, Response } from 'express';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+	signInWithEmailAndPassword,
+	createUserWithEmailAndPassword,
+	updatePassword,
+	signOut,
+} from 'firebase/auth';
 
-import { ITeam, IUser, IUserLogin } from '../coverme-shared';
+import { IRegisterUser, ITeam, IUser, IUserLogin } from '../coverme-shared';
 
 import { SESSION_COOKIE_EXPIRY } from '../constants';
 
 import { fbAuth, fbAdmin } from '../utils/admin';
 import { assignSessionCookie, verifySessionCookie } from '../utils/authenticate-user';
-import { emailSignInForUser, emailPasswordReset } from '../utils/fb-emails';
+import { emailPasswordReset } from '../utils/fb-emails';
 import dbHandler from '../db/db-handler';
-import { updateNewUserIntoDb } from '../db/db-helpers';
-import { batchSetAndDelete } from '../db/batch-handler';
 
-const registerUser = async (req: Request, res: Response) => {
-	const { email, password, phone } = req.body;
-	try {
-		const data = await createUserWithEmailAndPassword(fbAuth, email, password);
-
-		const userUID = data.user.uid;
-
-		const user: IUser = await dbHandler.getDocumentFromCollectionWithCondition<IUser>(
-			'users',
-			'email',
-			'==',
-			email
-		);
-
-		const userData: any = {
-			...user,
-			phone,
-			status: 'Active',
-		};
-
-		delete userData.id;
-
-		await batchSetAndDelete(
-			{
-				path: 'users',
-				id: userUID,
-				data: userData,
-			},
-			{
-				path: 'users',
-				id: user.id,
-			}
-		);
-
-		return res.json({
-			message: 'User created successfully!',
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error });
-	}
-};
-
+/**
+ * @api {post} /api/auth/complete-register Complete Register User
+ * @apiName completeRegisterUser
+ * @apiGroup Authentication
+ *
+ * @apiDescription Complete the registration process of the user. Creates the user in the Firebase Authentication and then stores data to Firestore.
+ *
+ * @apiBody {String} email Registered email that will be stored in Firebase Authentication.
+ * @apiBody {String} password Temporary password for user to log in for the first time.
+ * @apiBody {String} firstName First name of user.
+ * @apiBody {String} lastName Last name of user.
+ * @apiBody {String} role The role of the user in the application, can either be Admin, Manager, or Staff.
+ * @apiBody {String} phone Phone number used to contact the user.
+ * @apiBody {String} contactBy Whether they want to be contacted by text or phone call.
+ * @apiBody {String} employeeType What type of employee are they, this can be Full-Time, Part-Time, or Temp.
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
 const completeRegisterUser = async (req: Request, res: Response) => {
-	const { email, password, firstName, lastName, role, phone } = req.body;
+	const registerUser: IRegisterUser = req.body;
 
 	try {
-		const authData = await createUserWithEmailAndPassword(fbAuth, email, password);
+		const authData = await createUserWithEmailAndPassword(
+			fbAuth,
+			registerUser.email,
+			registerUser.password
+		);
 
 		await dbHandler.setDocument('users', authData.user.uid, {
-			email,
-			firstName,
-			lastName,
-			role,
-			phone,
-			status: 'Active',
+			...registerUser,
+			status: 'Pending',
 		});
 
 		return res.json({
-			message: 'User created successfully!',
+			message: 'User registered successfully!',
 		});
 	} catch (error) {
 		console.error(error);
@@ -80,29 +62,63 @@ const completeRegisterUser = async (req: Request, res: Response) => {
 };
 
 /**
- * Sends a sign in link email to a user who is being registered with the firebase sign in link template
- * At this time the user is not created in the firebase authentication
- * This is a hacky approach for now, will look into doing a more custom email approach
+ * @api {post} /api/auth/set-password Set New Password
+ * @apiName setNewPassword
+ * @apiGroup Authentication
+ *
+ * @apiDescription Setting a new password for user after they log in for the first time.
+ *
+ * @apiBody {String} password New password for the user to set
+ * @apiBody {String} userId The Id of the user who is setting the password
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
  */
-const sendRegisterLink = async (req: Request, res: Response) => {
-	const userInfo: IUser = req.body;
-
+const setNewPassword = async (req: Request, res: Response) => {
+	const { password, userId } = req.body;
 	try {
-		await emailSignInForUser(fbAuth, userInfo.email);
-		await updateNewUserIntoDb(userInfo);
+		const user = fbAuth.currentUser;
 
-		return res.json({ message: 'Email link successful', email: userInfo.email });
+		if (user != null) {
+			await updatePassword(user, password);
+
+			await dbHandler.updateDocument('users', userId, {
+				status: 'Active',
+			});
+
+			return res.json({
+				message: 'User password update successfully!',
+			});
+		} else {
+			throw new Error('can not find logged in user');
+		}
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error });
 	}
 };
 
-const registerCallback = (req: Request, res: Response) => {
-	const { email } = req.query;
-	return res.redirect(`${process.env.WEB_CLIENT_DOMAIN}/register?email=${email}`);
-};
-
+/**
+ * @api {post} /api/auth/signin Sign In
+ * @apiName signIn
+ * @apiGroup Authentication
+ *
+ * @apiDescription Signin process of a user.
+ *
+ * @apiBody {String} email The user's login email
+ * @apiBody {String} password The user's login password
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ * @apiSuccess {Object} result.userInfo The data of the user who just logged in
+ * @apiSuccess {Object} result.companyInfo The data of the company
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
 const signIn = async (req: Request, res: Response) => {
 	const userLogin: IUserLogin = req.body;
 
@@ -167,7 +183,22 @@ const signIn = async (req: Request, res: Response) => {
 	}
 };
 
-const deleteAuthUser = async (req: Request, res: Response) => {
+/**
+ * @api {get} /api/auth/delete/:id Delete User
+ * @apiName deleteUser
+ * @apiGroup Authentication
+ *
+ * @apiDescription Delete a selected user from Firestore and Authentication.
+ *
+ * @apiParam {Number} id The id of the user to delete
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
+const deleteUser = async (req: Request, res: Response) => {
 	const id = req.params.id;
 
 	try {
@@ -190,6 +221,19 @@ const deleteAuthUser = async (req: Request, res: Response) => {
 	}
 };
 
+/**
+ * @api {get} /api/auth/logout Logout
+ * @apiName logout
+ * @apiGroup Authentication
+ *
+ * @apiDescription Logs user out of the application, expires the token.
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
 const logOut = (_: Request, res: Response) => {
 	signOut(fbAuth)
 		.then(() => {
@@ -210,8 +254,19 @@ const logOut = (_: Request, res: Response) => {
 		});
 };
 
-/*
- * Check if you have a session cookie so you can bypass login
+/**
+ * @api {get} /api/auth Check Authentication
+ * @apiName checkAuth
+ * @apiGroup Authentication
+ *
+ * @apiDescription Verify authentication by checking the session cookie
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {Object} result.userInfo The data of the user who just logged in
+ * @apiSuccess {Object} result.companyInfo The data of the company
+ *
+ * @apiError (Error 401) {Object} errorResult The error result object
+ * @apiError (Error 401) {String} errorResult.error Message explaining the error. Either Session Expire/Empty or can not find email
  */
 const checkAuth = async (req: Request, res: Response) => {
 	if (req.cookies['__session']) {
@@ -238,7 +293,22 @@ const checkAuth = async (req: Request, res: Response) => {
 	}
 };
 
-const passwordReset = (req: Request, res: Response) => {
+/**
+ * @api {post} /api/reset-password Reset Password
+ * @apiName resetPassword
+ * @apiGroup Authentication
+ *
+ * @apiDescription Sending the password reset logic to the user's email.
+ *
+ * @apiBody {String} email The user's email to reset password
+ *
+ * @apiSuccess {Object} result The success result object
+ * @apiSuccess {String} result.message Success message
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
+const resetPassword = (req: Request, res: Response) => {
 	const { email } = req.body;
 
 	emailPasswordReset(fbAuth, email)
@@ -251,27 +321,12 @@ const passwordReset = (req: Request, res: Response) => {
 		});
 };
 
-const updateMessageToken = async (req: Request, res: Response) => {
-	const { userId, token } = req.body;
-
-	try {
-		await dbHandler.setDocument('message-tokens', userId, { token: token });
-		return res.json({ message: 'Token Set' });
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: error });
-	}
-};
-
 export default {
 	checkAuth,
 	completeRegisterUser,
-	sendRegisterLink,
-	registerUser,
 	signIn,
-	deleteAuthUser,
+	deleteUser,
 	logOut,
-	registerCallback,
-	passwordReset,
-	updateMessageToken,
+	resetPassword,
+	setNewPassword,
 };

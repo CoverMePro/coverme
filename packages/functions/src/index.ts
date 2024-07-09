@@ -16,7 +16,11 @@ import calloutCyle from './utils/overtime';
 const app = express();
 app.use(
 	cors({
-		origin: ['https://covermedemo.web.app', 'http://covermedemo.web.app'],
+		origin: [
+			'https://covermedemo.web.app',
+			'http://covermedemo.web.app',
+			'http://localhost:3000',
+		],
 		credentials: true,
 	})
 );
