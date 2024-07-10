@@ -16,3 +16,4 @@ typings/
 
 packages/functions/firebase-debug.log
 packages/functions/ui-debug.log
+packages/functions/keys/service-account.json
