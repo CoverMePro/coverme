@@ -5,13 +5,13 @@ import { ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
-import { IStaff, IUser } from 'coverme-shared';
+import { IUser } from 'coverme-shared';
 
 import PermissionCheck from 'components/auth/PermissionCheck';
 
 interface ITeamListProps {
-	members: IUser[] | IStaff[];
-	onRemoveUser: (user: IUser | IStaff) => void;
+	members: IUser[];
+	onRemoveUser: (user: IUser) => void;
 }
 
 const TeamList: React.FC<ITeamListProps> = ({ members, onRemoveUser }) => {

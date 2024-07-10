@@ -13,13 +13,13 @@ import {
 
 import api from 'utils/api';
 
-import { IStaff, IUser } from 'coverme-shared';
+import { IUser } from 'coverme-shared';
 
 interface IAddUserDialogProps {
 	open: boolean;
 	teamName: string;
-	membersToAdd: IUser[] | IStaff[];
-	onAddComplete: (data: IUser | IStaff, isStaff: boolean) => void;
+	membersToAdd: IUser[];
+	onAddComplete: (data: IUser, isStaff: boolean) => void;
 	onDialogClose: () => void;
 	isStaff: boolean;
 }
@@ -32,14 +32,12 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
 	onDialogClose,
 	isStaff,
 }) => {
-	const [memberSelectedToAdd, setMemberSelectedToAdd] = useState<IUser | IStaff | undefined>(
-		undefined
-	);
+	const [memberSelectedToAdd, setMemberSelectedToAdd] = useState<IUser | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const { enqueueSnackbar } = useSnackbar();
 
-	const handleSelectUserToAdd = (selectMember: IUser | IStaff | null) => {
+	const handleSelectUserToAdd = (selectMember: IUser | null) => {
 		if (selectMember) {
 			setMemberSelectedToAdd(selectMember);
 		} else {

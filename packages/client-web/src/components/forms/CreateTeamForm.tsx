@@ -18,7 +18,7 @@ import logo from 'images/cover-me-logo.png';
 import { validateCreateTeam } from 'utils/validations/team';
 import api from 'utils/api';
 
-import { IStaff, ITeam, IUser } from 'coverme-shared';
+import { ITeam, IUser } from 'coverme-shared';
 
 interface ICreateFormProps {
 	onFinish: (team?: ITeam) => void;
@@ -27,7 +27,7 @@ interface ICreateFormProps {
 const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [managers, setManagers] = useState<IUser[]>([]);
-	const [staff, setStaff] = useState<IStaff[]>([]);
+	const [staff, setStaff] = useState<IUser[]>([]);
 	const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
 	const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
@@ -43,7 +43,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 		setSelectedManagers(userIds);
 	};
 
-	const handleChangeSelectStaff = (staff: IStaff[]) => {
+	const handleChangeSelectStaff = (staff: IUser[]) => {
 		const staffIds = staff.map((s) => {
 			return s.id!;
 		});
@@ -92,7 +92,7 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 
 	useEffect(() => {
 		const getUser = api.getAllData<IUser>(`users`);
-		const getStaff = api.getAllData<IStaff>(`staff`);
+		const getStaff = api.getAllData<IUser>(`users/staff`);
 
 		Promise.all([getUser, getStaff]).then((results) => {
 			const retrievedManagers = results[0];

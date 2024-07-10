@@ -11,29 +11,21 @@ import {
 } from '@mui/material';
 import PageLoading from 'components/loading/PageLoading';
 import EnhancedTable from 'components/tables/EnhancedTable/EnhancedTable';
-import CreateStaffForm from 'components/forms/CreateStaffForm';
-import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
-import FormDialog from 'components/dialogs/FormDialog';
 import { getStaffActions, getStaffUnselectAddAction } from 'utils/react/table-actions-helper';
 import { formatDateString } from 'utils/formatters/dateTime-formatter';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import api from 'utils/api';
 
-import { IStaff, StaffHeadCells, ITeam, ILastCallouts } from 'coverme-shared';
+import { IUser, StaffHeadCells, ITeam, ILastCallouts } from 'coverme-shared';
 
 const StaffView: React.FC = () => {
-	const [openAddStaff, setOpenAddStaff] = useState<boolean>(false);
-	const [openDeleteStaff, setOpenDeleteStaff] = useState<boolean>(false);
-	const [openEditStaff, setOpenEditStaff] = useState<boolean>(false);
 	const [isLoadingStaff, setIsLoadingStaff] = useState<boolean>(false);
-	const [isLoadingDeleteStaff, setIsLoadingDeleteStaff] = useState<boolean>(false);
-	const [deleteMessage, setDeleteMessage] = useState<string>('');
 	const [selected, setSelected] = useState<any | undefined>(undefined);
 	const [selectedTeam, setSelectedTeam] = useState<string>('all');
-	const [staff, setStaff] = useState<IStaff[]>([]);
+	const [staff, setStaff] = useState<IUser[]>([]);
 	const [teams, setTeams] = useState<string[]>([]);
 	const [lastCallouts, setLastCallouts] = useState<ILastCallouts | undefined>(undefined);
-	const [filteredStaff, setFilteredStaff] = useState<IStaff[]>([]);
+	const [filteredStaff, setFilteredStaff] = useState<IUser[]>([]);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -43,55 +35,6 @@ const StaffView: React.FC = () => {
 		} else {
 			setSelected(staff);
 		}
-	};
-
-	const handleAddStaff = () => {
-		setOpenAddStaff(true);
-	};
-
-	const getSelectedStaffName = (selectedStaffId: any) => {
-		return staff.find((user) => user.id === selectedStaffId);
-	};
-
-	const handleOpenDeleteStaff = (selectedStaff: any) => {
-		const user = getSelectedStaffName(selectedStaff);
-		setDeleteMessage(`Are you sure you want to delete ${user?.firstName} ${user?.lastName}?`);
-		setOpenDeleteStaff(true);
-	};
-
-	const handleCloseAddStaff = () => {
-		setOpenAddStaff(false);
-	};
-
-	const handleCloseDeleteStaff = () => {
-		setOpenDeleteStaff(false);
-	};
-
-	const handleOpenEditStaff = () => {
-		setOpenEditStaff(true);
-	};
-
-	const handleCloseEditStaff = () => {
-		setOpenEditStaff(false);
-	};
-
-	const handleConfirmDeleteStaff = () => {
-		setIsLoadingDeleteStaff(true);
-		api.get(`staff/delete/${selected}`)
-			.then(() => {
-				enqueueSnackbar('Staff member successfully deleted', { variant: 'success' });
-				setSelected(undefined);
-				handleGetUsers(selectedTeam);
-			})
-			.catch((err) => {
-				enqueueSnackbar('Error trying to delete Staff member, please try again', {
-					variant: 'error',
-				});
-			})
-			.finally(() => {
-				setOpenDeleteStaff(false);
-				setIsLoadingDeleteStaff(false);
-			});
 	};
 
 	const handleClearLastCallout = () => {
@@ -130,7 +73,7 @@ const StaffView: React.FC = () => {
 			});
 	};
 
-	const formatHireDate = (staff: IStaff[]) => {
+	const formatHireDate = (staff: IUser[]) => {
 		return staff.map((user) => {
 			const date = user.hireDate;
 			user.hireDateDisplay = formatDateString(date! as Date);
@@ -147,7 +90,7 @@ const StaffView: React.FC = () => {
 	};
 
 	const formatLastCalloutStaff = useCallback(
-		(staff: IStaff[], lastCallouts: ILastCallouts | undefined, teams: string) => {
+		(staff: IUser[], lastCallouts: ILastCallouts | undefined, teams: string) => {
 			const newStaff = clearCheck([...staff]);
 			if (teams === 'all') {
 				if (!lastCallouts || !lastCallouts.external || !lastCallouts.external.id) {
@@ -189,7 +132,7 @@ const StaffView: React.FC = () => {
 				setSelectedTeam(selectedTeam);
 			}
 
-			api.getAllData<IStaff>(`staff`)
+			api.getAllData<IUser>(`users/staff`)
 				.then((staff) => {
 					api.getGenericData(`overtime-callouts/staffList`)
 						.then((result) => {
@@ -226,14 +169,14 @@ const StaffView: React.FC = () => {
 		[formatLastCalloutStaff]
 	);
 
-	const clearCheck = (staff: IStaff[]) => {
+	const clearCheck = (staff: IUser[]) => {
 		return staff.map((staff) => {
 			staff.lastCalledOut = undefined;
 			return staff;
 		});
 	};
 
-	const staffContainsTeam = (staff: IStaff, team: string) => {
+	const staffContainsTeam = (staff: IUser, team: string) => {
 		if (!staff.teams || staff.teams.length === 0) {
 			return false;
 		}
@@ -290,38 +233,8 @@ const StaffView: React.FC = () => {
 						id="id"
 						selected={selected}
 						onSelect={handleSelectStaff}
-						unSelectedActions={getStaffUnselectAddAction(
-							'Staff',
-							handleAddStaff,
-							handleClearLastCallout
-						)}
-						selectedActions={getStaffActions(
-							'Staff',
-							handleOpenDeleteStaff,
-							handleOpenEditStaff,
-							handleAssignStaffLastCallout
-						)}
-					/>
-					<FormDialog
-						open={openEditStaff ? true : openAddStaff}
-						onClose={openEditStaff ? handleCloseEditStaff : handleCloseAddStaff}
-					>
-						<CreateStaffForm
-							editMode={openEditStaff}
-							selectedUser={getSelectedStaffName(selected)}
-							onFinish={() => {
-								handleCloseAddStaff();
-								handleCloseEditStaff();
-								handleGetUsers(selectedTeam);
-							}}
-						/>
-					</FormDialog>
-					<DeleteConfirmation
-						open={openDeleteStaff}
-						message={deleteMessage}
-						isLoading={isLoadingDeleteStaff}
-						onClose={handleCloseDeleteStaff}
-						onConfirm={handleConfirmDeleteStaff}
+						unSelectedActions={getStaffUnselectAddAction(handleClearLastCallout)}
+						selectedActions={getStaffActions(handleAssignStaffLastCallout)}
 					/>
 				</Box>
 			)}

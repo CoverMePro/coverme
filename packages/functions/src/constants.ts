@@ -4,10 +4,6 @@ export const SERVER_DOMAIN = 'https://us-central1-coverme-47dc7.cloudfunctions.n
 // export const SERVER_DOMAIN = 'http://localhost:5001/coverme-47dc7/us-central1/api';
 export const SESSION_COOKIE_EXPIRY = 172800000;
 
-export const TWILIO_ACCOUNT_SID = 'ACdab6457772cf4faf984ace63a3564a97';
-export const TWILIO_AUTH_TOKEN = '6854c88d67182df2a68b30443017a9a1';
-export const TWILIO_NUMBER = '+13433061481';
-
 export const CLICKSEND_USERNAME = 'matthew@bytesizecoder.ca';
 export const CLICKSEND_AUTH_TOKEN = 'A703A887-E13F-CDE7-B0B3-86CEE24DF6C5';
 export const CLICKSEND_NUMBER = '+18443682904';

@@ -1,7 +1,7 @@
-import { IStaff } from '../Staff';
+import { IUser } from '../User';
 import { IHeaderCells } from './HeaderCells';
 
-export const OvertimeHeadCells: IHeaderCells<IStaff>[] = [
+export const OvertimeHeadCells: IHeaderCells<IUser>[] = [
 	{
 		id: 'firstName',
 		numeric: false,

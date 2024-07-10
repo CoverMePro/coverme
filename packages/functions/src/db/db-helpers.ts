@@ -1,4 +1,4 @@
-import { IStaff, IUser } from '../coverme-shared';
+import { IUser } from '../coverme-shared';
 import { db } from '../utils/admin';
 
 export const handleError = (error: any) => {
@@ -20,7 +20,7 @@ export const updateNewUserIntoDb = (userInfo: IUser) => {
 };
 
 export const getCalloutList = () => {
-	const staff: IStaff[] = [];
+	const staff: IUser[] = [];
 	let lastCallouts: any;
 	return db
 		.collection('/staff')

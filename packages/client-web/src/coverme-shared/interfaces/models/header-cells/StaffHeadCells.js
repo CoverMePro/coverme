@@ -49,14 +49,6 @@ exports.StaffHeadCells = [
         sortable: false,
         capitalize: true,
     },
-    // {
-    // 	id: 'status',
-    // 	numeric: false,
-    // 	disablePadding: false,
-    // 	label: 'Status',
-    // 	sortable: true,
-    // 	capitalize: true,
-    // },
     {
         id: 'lastCalledOut',
         numeric: false,

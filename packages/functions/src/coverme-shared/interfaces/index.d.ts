@@ -5,7 +5,6 @@ export * from './models/LastCallout';
 export * from './models/Message';
 export * from './models/Nav';
 export * from './models/Overtime';
-export * from './models/Staff';
 export * from './models/TableInfo';
 export * from './models/Team';
 export * from './models/User';

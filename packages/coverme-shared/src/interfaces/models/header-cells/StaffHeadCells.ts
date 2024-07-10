@@ -1,7 +1,7 @@
-import { IStaff } from '../Staff';
+import { IUser } from '../User';
 import { IHeaderCells } from './HeaderCells';
 
-export const StaffHeadCells: IHeaderCells<IStaff>[] = [
+export const StaffHeadCells: IHeaderCells<IUser>[] = [
 	{
 		id: 'firstName',
 		numeric: false,
@@ -50,14 +50,6 @@ export const StaffHeadCells: IHeaderCells<IStaff>[] = [
 		sortable: false,
 		capitalize: true,
 	},
-	// {
-	// 	id: 'status',
-	// 	numeric: false,
-	// 	disablePadding: false,
-	// 	label: 'Status',
-	// 	sortable: true,
-	// 	capitalize: true,
-	// },
 	{
 		id: 'lastCalledOut',
 		numeric: false,

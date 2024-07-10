@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUser, IOvertime, IStaff } from '../coverme-shared';
+import { IUser, IOvertime } from '../coverme-shared';
 
 import {
 	SmsMessage,
@@ -30,7 +30,7 @@ export const testReceive = async (req: Request, res: Response) => {
 };
 
 export const sendOvertimeSms = async (
-	staff: IStaff,
+	staff: IUser,
 	overtimeInfo: IOvertime,
 	overtimeId: string
 ) => {
@@ -52,7 +52,7 @@ export const sendOvertimeSms = async (
 	await smsApi.smsSendPost(smsCollection);
 };
 
-export const sendOvertimeVoice = async (staff: IStaff, overtime: IOvertime) => {
+export const sendOvertimeVoice = async (staff: IUser, overtime: IOvertime) => {
 	const bodyTemplate = `Hello ${
 		staff.firstName
 	}, There is a shift available: ${overtime.shiftInfo.replace(

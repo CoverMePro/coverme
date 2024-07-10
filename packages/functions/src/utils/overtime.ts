@@ -1,4 +1,4 @@
-import { IOvertime, ICallout, IStaff } from '../coverme-shared';
+import { IOvertime, ICallout, IUser } from '../coverme-shared';
 import { getBatch } from '../db/batch-handler';
 import dbHandler from '../db/db-handler';
 import { getCalloutList } from '../db/db-helpers';
@@ -46,7 +46,7 @@ export const AcceptAndComplete = async (callout: ICallout, overtime: IOvertime) 
 	}
 };
 
-const staffContainsTeam = (staff: IStaff, team: string) => {
+const staffContainsTeam = (staff: IUser, team: string) => {
 	if (!staff.teams || staff.teams.length === 0) {
 		return false;
 	}
@@ -54,7 +54,7 @@ const staffContainsTeam = (staff: IStaff, team: string) => {
 	return staff.teams.findIndex((t) => t === team) !== -1;
 };
 
-const isInCallouts = (callouts: ICallout[], staff: IStaff) => {
+const isInCallouts = (callouts: ICallout[], staff: IUser) => {
 	return callouts.findIndex((callout) => callout.userId === staff.id) !== -1;
 };
 
@@ -105,7 +105,7 @@ const hasReachedLimit = (array1: any[], array2: any[]) => {
 };
 
 const hasAllStaffBeenNotifiedOrDeclined = async (
-	staff: IStaff[],
+	staff: IUser[],
 	overtime: IOvertime,
 	callouts: ICallout[]
 ) => {
@@ -197,7 +197,7 @@ const hasAllStaffBeenNotifiedOrDeclined = async (
 // 	}
 // };
 
-const isExcludedStaff = (callouts: ICallout[], staff: IStaff, exclude: string[]) => {
+const isExcludedStaff = (callouts: ICallout[], staff: IUser, exclude: string[]) => {
 	if (exclude.findIndex((e) => e === staff.id) !== -1) {
 		callouts.push({
 			userId: staff.id!,
@@ -215,7 +215,7 @@ const isExcludedStaff = (callouts: ICallout[], staff: IStaff, exclude: string[])
 
 const getNextUserToCallout = (
 	callouts: ICallout[],
-	staff: IStaff[],
+	staff: IUser[],
 	calloutIndex: number,
 	overtime: IOvertime
 ) => {
@@ -238,7 +238,7 @@ const getNextUserToCallout = (
 	return nextCalloutStaff;
 };
 
-const getLastCalloutStaffIndex = (lastCalloutUser: string, staff: IStaff[]) => {
+const getLastCalloutStaffIndex = (lastCalloutUser: string, staff: IUser[]) => {
 	let calloutindex = 0;
 
 	const userIndex = lastCalloutUser

@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import authGuard from '../utils/authenticate-user';
-import userController from '../controllers/user';
+import userController from '../controllers/users';
 
 const router: Router = express.Router();
 

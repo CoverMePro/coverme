@@ -23,7 +23,7 @@ import DeleteConfirmation from 'components/dialogs/DeleteConfirmation';
 import AddUserToTeamDialog from 'components/dialogs/AddUserToTeamDialog';
 import api from 'utils/api';
 
-import { IStaff, ITeam, IUser } from 'coverme-shared';
+import { ITeam, IUser } from 'coverme-shared';
 
 interface ITeamRosterProps {
 	team: ITeam;
@@ -34,8 +34,8 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const [loadingManagers, setLoadingManagers] = useState<string[]>([]);
 	const [loadingStaff, setLoadingStaff] = useState<string[]>([]);
 	const [managers, setManagers] = useState<IUser[]>([]);
-	const [staff, setStaff] = useState<IStaff[]>([]);
-	const [teamMembersToAdd, setTeamMembersToAdd] = useState<IUser[] | IStaff[]>([]);
+	const [staff, setStaff] = useState<IUser[]>([]);
+	const [teamMembersToAdd, setTeamMembersToAdd] = useState<IUser[]>([]);
 
 	const [expanded, setExpanded] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,9 +47,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 	const [openRemoveUser, setOpenRemoveUser] = useState<boolean>(false);
 	const [removeUserMessage, setRemoveUserMessage] = useState<string>('');
-	const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | IStaff | undefined>(
-		undefined
-	);
+	const [userSelectedToRemove, setUserSelectedToRemove] = useState<IUser | undefined>(undefined);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -118,7 +116,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 	const handleOpenAddStaffToTeam = () => {
 		setTeamMembersToAdd([]);
-		api.getAllData<IStaff>(`staff`)
+		api.getAllData<IUser>(`staff`)
 			.then((retreivedUsers) => {
 				const staff = retreivedUsers;
 
@@ -135,7 +133,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		setOpenAddStaffToTeam(true);
 	};
 
-	const handleOpenRemoveUser = (user: IUser | IStaff) => {
+	const handleOpenRemoveUser = (user: IUser) => {
 		setUserSelectedToRemove(user);
 		setRemoveUserMessage(
 			`Are you sure you want to Remove ${user.firstName!} ${user.lastName} from ${team.id}`
@@ -175,7 +173,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 					.then(() => {
 						enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
 						const newStaff = staff.filter(
-							(staff) => staff.id !== userSelectedToRemove.id
+							(staff) => staff.id !== (userSelectedToRemove as IUser).id
 						);
 
 						setStaff(newStaff);
@@ -208,7 +206,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 	const handleAddTeamMemberComplete = (data: any, isStaff: boolean) => {
 		if (isStaff) {
-			handleAddStaffCompleted(data as IStaff);
+			handleAddStaffCompleted(data as IUser);
 		} else {
 			handleAddUserCompleted(data as IUser);
 		}
@@ -219,7 +217,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		setOpenAddUserToTeam(false);
 	};
 
-	const handleAddStaffCompleted = (userAdded: IStaff) => {
+	const handleAddStaffCompleted = (userAdded: IUser) => {
 		setStaff((prev) => [...prev, userAdded]);
 		setOpenAddStaffToTeam(false);
 	};

@@ -9,7 +9,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import FormCard from './FormCard';
 import { formatDateTimeOutputString } from 'utils/formatters/dateTime-formatter';
 import api from 'utils/api';
-import { IOvertime, IStaff, ITeam } from 'coverme-shared';
+import { IOvertime, ITeam, IUser } from 'coverme-shared';
 import DurationCustom from 'components/number-formats/DurationCustom';
 import { getEndDate } from 'utils/helpers/dateTime-helpers';
 import { validateOvertimeCallout } from 'utils/validations/overtimeCallout';
@@ -25,7 +25,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 	const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [teams, setTeams] = useState<ITeam[]>([]);
-	const [staff, setStaff] = useState<IStaff[]>([]);
+	const [staff, setStaff] = useState<IUser[]>([]);
 	const [excludedStaff, setExcludedStaff] = useState<string[]>([]);
 	const [selectedTeam, setSelectedTeam] = useState<ITeam | null>(null);
 	const [dateTimeValue, setDateTimeValue] = useState<Date>();
@@ -46,7 +46,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 
 	const handleChangeExcludedStaff = (
 		_: React.SyntheticEvent<Element, Event>,
-		value: IStaff[] | null
+		value: IUser[] | null
 	) => {
 		const staffIds = value?.map((s) => s.id);
 		console.log(staffIds);
@@ -123,7 +123,7 @@ const CreateOvertimeCalloutForm: React.FC<ICreateOvertimeCalloutFormProps> = ({ 
 		// get unassigned shifts
 		setIsLoadingData(true);
 
-		api.getAllData<IStaff>(`staff`)
+		api.getAllData<IUser>(`users/staff`)
 			.then((retreivedStaff) => {
 				setStaff(retreivedStaff);
 			})

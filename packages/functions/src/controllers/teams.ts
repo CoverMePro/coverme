@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IStaff, ITeam, IUser } from '../coverme-shared';
+import { ITeam, IUser } from '../coverme-shared';
 import dbHandler from '../db/db-handler';
 import { getBatch } from '../db/batch-handler';
 
@@ -60,14 +60,14 @@ const createTeam = async (req: Request, res: Response) => {
 		if (team.staff.length > 0) {
 			const batch = getBatch();
 
-			const staff = await dbHandler.getCollectionWithCondition<IStaff>(
+			const staff = await dbHandler.getCollectionWithCondition<IUser>(
 				'staff',
 				'__name__',
 				'in',
 				team.staff
 			);
 
-			staff.forEach(async (staffMember: IStaff) => {
+			staff.forEach(async (staffMember: IUser) => {
 				let teams: string[] = [];
 
 				const staffDoc = dbHandler.getDocumentSnapshot(`staff/${staffMember.id}`);
@@ -190,7 +190,7 @@ const addStaffToTeam = async (req: Request, res: Response) => {
 
 		await dbHandler.setDocument('teams', name, teamData);
 
-		const staffData: any = await dbHandler.getDocumentById<IStaff>('staff', staff.id);
+		const staffData: any = await dbHandler.getDocumentById<IUser>('staff', staff.id);
 
 		delete staffData.id;
 
@@ -270,7 +270,7 @@ const removeStaffFromTeam = async (req: Request, res: Response) => {
 
 		await dbHandler.setDocument('teams', name, teamData);
 
-		const staffData: any = await dbHandler.getDocumentById<IStaff>('staff', staff.id);
+		const staffData: any = await dbHandler.getDocumentById<IUser>('staff', staff.id);
 
 		delete staffData.id;
 

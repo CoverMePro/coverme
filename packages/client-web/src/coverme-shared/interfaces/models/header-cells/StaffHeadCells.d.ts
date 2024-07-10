@@ -1,3 +1,3 @@
-import { IStaff } from '../Staff';
+import { IUser } from '../User';
 import { IHeaderCells } from './HeaderCells';
-export declare const StaffHeadCells: IHeaderCells<IStaff>[];
+export declare const StaffHeadCells: IHeaderCells<IUser>[];

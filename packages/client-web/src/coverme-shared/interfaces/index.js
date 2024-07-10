@@ -21,7 +21,6 @@ __exportStar(require("./models/LastCallout"), exports);
 __exportStar(require("./models/Message"), exports);
 __exportStar(require("./models/Nav"), exports);
 __exportStar(require("./models/Overtime"), exports);
-__exportStar(require("./models/Staff"), exports);
 __exportStar(require("./models/TableInfo"), exports);
 __exportStar(require("./models/Team"), exports);
 __exportStar(require("./models/User"), exports);
