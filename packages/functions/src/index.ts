@@ -8,7 +8,6 @@ import teamRoutes from './routes/teams';
 import shiftTemplateRoutes from './routes/shift-templates';
 import overtimeRoutes from './routes/overtime-callout';
 import userRoutes from './routes/users';
-import staffRoutes from './routes/staff';
 import companyRoutes from './routes/company';
 import smsRoutes from './routes/sms';
 import calloutCyle from './utils/overtime';
@@ -33,18 +32,9 @@ app.use(
 	})
 );
 
-// app.use(function (_, res, next) {
-// 	res.setHeader('Access-Control-Allow-Origin', '*');
-// 	res.setHeader('Access-Control-Allow-Credentials', 'true');
-// 	res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-// 	res.setHeader('Cache-Control', 'private');
-// 	next();
-// });
-
 app.use('/auth', authRoutes);
 app.use('/overtime-callouts', overtimeRoutes);
 app.use('/users', userRoutes);
-app.use('/staff', staffRoutes);
 app.use('/teams', teamRoutes);
 app.use('/shift-templates', shiftTemplateRoutes);
 app.use('/sms', smsRoutes);

@@ -5,6 +5,7 @@ import userController from '../controllers/user';
 const router: Router = express.Router();
 
 router.get('/', authGuard, userController.getAllUsers);
+router.get('/staff', authGuard, userController.getStaff);
 router.get('/check/:id', authGuard, userController.checkUser);
 router.get('/:id', authGuard, userController.getUser);
 
