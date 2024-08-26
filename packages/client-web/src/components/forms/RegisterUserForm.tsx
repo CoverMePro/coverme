@@ -16,6 +16,7 @@ import {
 	Select,
 	MenuItem,
 	SelectChangeEvent,
+	Tooltip,
 } from '@mui/material';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import HowToRegIcon from '@mui/icons-material/Add';
@@ -311,30 +312,32 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 					</>
 				</LocalizationProvider>
 
-				<Box sx={{ mt: 2 }}>
-					<Typography sx={{ fontWeight: 'bold' }}>
-						Set a temporary password for this user to log in once with.
-					</Typography>
-					<TextField
-						sx={{ width: '100%' }}
-						variant="outlined"
-						label="Password"
-						type="text"
-						name="password"
-						onChange={handleChange}
-						onBlur={handleBlur}
-						error={
-							touched.password &&
-							errors.password !== undefined &&
-							errors.password !== ''
-						}
-						helperText={touched.password ? errors.password : ''}
-					/>
+				{!editMode && (
+					<Box sx={{ mt: 2 }}>
+						<Typography sx={{ fontWeight: 'bold' }}>
+							Set a temporary password for this user to log in once with.
+						</Typography>
+						<TextField
+							sx={{ width: '100%' }}
+							variant="outlined"
+							label="Password"
+							type="text"
+							name="password"
+							onChange={handleChange}
+							onBlur={handleBlur}
+							error={
+								touched.password &&
+								errors.password !== undefined &&
+								errors.password !== ''
+							}
+							helperText={touched.password ? errors.password : ''}
+						/>
 
-					<Typography sx={{ fontWeight: 'bold' }}>
-						They will have option to reset it after.
-					</Typography>
-				</Box>
+						<Typography sx={{ fontWeight: 'bold' }}>
+							They will have option to reset it after.
+						</Typography>
+					</Box>
+				)}
 
 				<Box sx={{ mt: 3 }}>
 					{isLoading ? (
@@ -342,9 +345,13 @@ const RegisterUserForm: React.FC<IRegisterUserFormProps> = ({
 					) : (
 						<Fab color="primary" aria-label={'Register Staff Member'} type="submit">
 							{editMode ? (
-								<UpdateIcon fontSize="large" />
+								<Tooltip title="Update">
+									<UpdateIcon fontSize="large" />
+								</Tooltip>
 							) : (
-								<HowToRegIcon fontSize="large" />
+								<Tooltip title="Register">
+									<HowToRegIcon fontSize="large" />
+								</Tooltip>
 							)}
 						</Fab>
 					)}

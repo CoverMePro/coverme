@@ -91,10 +91,10 @@ const CreateTeamForm: React.FC<ICreateFormProps> = ({ onFinish }) => {
 	});
 
 	useEffect(() => {
-		const getUser = api.getAllData<IUser>(`users`);
+		const getManagers = api.getAllData<IUser>(`users/managers`);
 		const getStaff = api.getAllData<IUser>(`users/staff`);
 
-		Promise.all([getUser, getStaff]).then((results) => {
+		Promise.all([getManagers, getStaff]).then((results) => {
 			const retrievedManagers = results[0];
 			const retreivedStaff = results[1];
 			setManagers(retrievedManagers);

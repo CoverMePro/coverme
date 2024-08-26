@@ -57,7 +57,8 @@ export const getCalloutList = () => {
 export const getCalloutStaffList = () => {
 	let lastCallouts: any;
 	return db
-		.collection('/staff')
+		.collection('/users')
+		.where('role', '==', 'Staff')
 		.where('employeeType', '==', 'Full-Time')
 		.orderBy('hireDate', 'asc')
 		.get()

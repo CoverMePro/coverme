@@ -1,4 +1,4 @@
-import { Auth, sendSignInLinkToEmail, sendPasswordResetEmail } from 'firebase/auth';
+import { Auth, sendPasswordResetEmail } from 'firebase/auth';
 
 /**
  * Sends firebase password reset email to user

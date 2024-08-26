@@ -50,13 +50,9 @@ const AddUserToTeamDialog: React.FC<IAddUserDialogProps> = ({
 		if (memberSelectedToAdd) {
 			let apiCall;
 			if (isStaff) {
-				apiCall = api.post(`teams/${teamName}/add-staff`, {
-					staff: memberSelectedToAdd,
-				});
+				apiCall = api.post(`teams/${teamName}/add-staff`, memberSelectedToAdd);
 			} else {
-				apiCall = api.post(`teams/${teamName}/add-user`, {
-					user: memberSelectedToAdd,
-				});
+				apiCall = api.post(`teams/${teamName}/add-manager`, memberSelectedToAdd);
 			}
 			apiCall
 				.then(() => {

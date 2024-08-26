@@ -51,20 +51,82 @@ const getAllUsers = async (_: Request, res: Response) => {
 };
 
 /**
- * @api {get} /api/users/staff Get Staff
- * @apiName getStaff
+ * @api {get} /api/users/role/:role Get Role Users
+ * @apiName getRoleUser
  * @apiGroup Users
  *
- * @apiDescription Get all staff specific users.
+ * @apiDescription Get all users of a specific role (Staff, Managers, or Admins)
  *
- * @apiSuccess {Object[]} staff An array of all staff users.
+ * @apiParam {String} role The role to get the users from
+ *
+ * @apiSuccess {Object[]} users an array of users.
  *
  * @apiError (Error 500) {Object} errorResult The error result object.
  * @apiError (Error 500) {String} errorResult.error Message explaining the error.
  */
-const getStaff = async (_: Request, res: Response) => {
+const getRoleUsers = async (req: Request, res: Response) => {
+	const { role } = req.params;
+
 	try {
-		const staff = await dbHandler.getCollectionWithConditionAndSort(
+		const users = await dbHandler.getCollectionWithConditionAndSort(
+			'users',
+			'role',
+			'==',
+			role,
+			'hireDate',
+			'asc'
+		);
+		return res.json(users);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
+/**
+ * @api {get} /api/users/managers Get Managers
+ * @apiName getManagers
+ * @apiGroup Users
+ *
+ * @apiDescription Get all users with the role that is Manager OR Admin
+ *
+ * @apiSuccess {Object[]} users an array of users.
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object.
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
+const getManagers = async (req: Request, res: Response) => {
+	try {
+		const users = await dbHandler.getCollectionWithConditionAndSort(
+			'users',
+			'role',
+			'!=',
+			'Staff',
+			'hireDate',
+			'asc'
+		);
+		return res.json(users);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+};
+
+/**
+ * @api {get} /api/users/managers Get Staff
+ * @apiName getStaff
+ * @apiGroup Users
+ *
+ * @apiDescription Get all users with the role that is Staff
+ *
+ * @apiSuccess {Object[]} users an array of users.
+ *
+ * @apiError (Error 500) {Object} errorResult The error result object.
+ * @apiError (Error 500) {String} errorResult.error Message explaining the error.
+ */
+const getStaff = async (req: Request, res: Response) => {
+	try {
+		const users = await dbHandler.getCollectionWithConditionAndSort(
 			'users',
 			'role',
 			'==',
@@ -72,7 +134,7 @@ const getStaff = async (_: Request, res: Response) => {
 			'hireDate',
 			'asc'
 		);
-		return res.json(staff);
+		return res.json(users);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: error });
@@ -190,6 +252,8 @@ const checkUser = async (req: Request, res: Response) => {
 export default {
 	getUser,
 	getAllUsers,
+	getRoleUsers,
+	getManagers,
 	getStaff,
 	getUsersFromList,
 	updateUser,

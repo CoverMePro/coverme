@@ -68,15 +68,15 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 				userIds: managerIds,
 			});
 
-			const staffGet = api.postGetData(`staff/list`, {
-				staffIds,
+			const staffGet = api.postGetData(`users`, {
+				userIds: staffIds,
 			});
 
 			Promise.all([managerGet, staffGet])
 				.then((results) => {
 					console.log(results);
 					const managers = results[0].users;
-					const staff = results[1].staff;
+					const staff = results[1].users;
 					setManagers(managers);
 					setStaff(staff);
 					setHasLoaded(true);
@@ -95,9 +95,9 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 		onOpenDeleteTeam(team.id);
 	};
 
-	const handleOpenAddUserToTeam = () => {
+	const handleOpenAddManagerToTeam = () => {
 		setTeamMembersToAdd([]);
-		api.getAllData<IUser>(`users`)
+		api.getAllData<IUser>(`users/managers`)
 			.then((retreivedUsers) => {
 				const users = retreivedUsers;
 
@@ -116,7 +116,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 
 	const handleOpenAddStaffToTeam = () => {
 		setTeamMembersToAdd([]);
-		api.getAllData<IUser>(`staff`)
+		api.getAllData<IUser>(`users/staff`)
 			.then((retreivedUsers) => {
 				const staff = retreivedUsers;
 
@@ -144,10 +144,8 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 	const handleRemoveUserFromTeam = () => {
 		setIsLoading(true);
 		if (userSelectedToRemove) {
-			if ('email' in userSelectedToRemove) {
-				api.post(`teams/${team.id}/remove-user`, {
-					user: userSelectedToRemove,
-				})
+			if (userSelectedToRemove.role !== 'Staff') {
+				api.post(`teams/${team.id}/remove-manager`, userSelectedToRemove)
 					.then(() => {
 						enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
 
@@ -167,9 +165,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 						handleCloseRemoveUser();
 					});
 			} else {
-				api.post(`teams/${team.id}/remove-staff`, {
-					staff: userSelectedToRemove,
-				})
+				api.post(`teams/${team.id}/remove-staff`, userSelectedToRemove)
 					.then(() => {
 						enqueueSnackbar(`User removed from ${team.id}`, { variant: 'success' });
 						const newStaff = staff.filter(
@@ -229,7 +225,6 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 					<Typography variant="h3">{team.id}</Typography>
 					<Box
 						sx={{
-							width: '50px',
 							ml: 2,
 							borderRadius: '10%',
 						}}
@@ -261,7 +256,7 @@ const TeamRoster: React.FC<ITeamRosterProps> = ({ team, onOpenDeleteTeam }) => {
 				<PermissionCheck permissionLevel={2}>
 					<AccordionActions>
 						<Tooltip title="Add Manager">
-							<IconButton size="large" onClick={handleOpenAddUserToTeam}>
+							<IconButton size="large" onClick={handleOpenAddManagerToTeam}>
 								<PersonAddIcon color="primary" fontSize="large" />
 							</IconButton>
 						</Tooltip>
