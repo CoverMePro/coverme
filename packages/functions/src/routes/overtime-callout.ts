@@ -12,7 +12,7 @@ router.get('/list', authGuard, overtimeCalloutController.getCompanyOvertimeCallo
 
 router.get('/staffList', authGuard, overtimeCalloutController.getCompanyOvertimeCalloutStaffList);
 
-router.get('/:id/:user/info', overtimeCalloutController.getOvertimeCalloutInfo);
+router.get('/:id/:user/info', overtimeCalloutController.getOvertimeCalloutInfoForUser);
 
 router.get('/:id/archive', overtimeCalloutController.archiveOvertimeCallout);
 
